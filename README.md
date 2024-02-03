@@ -3,7 +3,7 @@
 ## How to run
 to install the node modules
 ``` bash
-npm run install
+npm install
 ```
 to setup a test db under ./backend/db
 ``` bash

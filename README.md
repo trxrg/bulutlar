@@ -43,4 +43,4 @@ add
 ``` bash
 BROWSER=none
 ```
-to .env file that resides directory of package.json
+to .env file that resides directory of package.json to prevent browser to open up when running react

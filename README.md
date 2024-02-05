@@ -3,7 +3,7 @@
 ## How to run
 to install the node modules
 ``` bash
-npm run install
+npm install
 ```
 to setup a test db under ./backend/db
 ``` bash
@@ -37,3 +37,10 @@ contains react code and backend adapter for communication between react and back
   - add service methods to adapter in ./src/backend-adapter/BackendAdapter.js
 - frontend dev
   - usual react development in ./src folder
+ 
+## Notes
+add
+``` bash
+BROWSER=none
+```
+to .env file that resides directory of package.json to prevent browser to open up when running react

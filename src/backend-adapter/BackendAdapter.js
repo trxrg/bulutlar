@@ -9,3 +9,15 @@ export async function checkDbConnection() {
 export async function getFromDb() {
     return window.api.getFromDb();
 }
+
+export async function getAllOwners() {
+    return window.api.getAllOwners();
+}
+
+export async function getAllArticles() {
+    return window.api.getAllArticles();
+}
+
+export async function addOwnerAndArticle() {
+    return window.api.addOwnerAndArticle();
+}

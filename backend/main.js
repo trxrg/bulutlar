@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path')
 const isDev = app.isPackaged ? false : require('electron-is-dev');
 
+const { initDB } = require('./sequelize');
 const { initServices } = require('./service');
 
 const createWindow = () => {
@@ -27,6 +28,7 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
+  initDB();
   initServices();  
   createWindow();
 

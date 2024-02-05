@@ -10,5 +10,8 @@ contextBridge.exposeInMainWorld('versions', {
 contextBridge.exposeInMainWorld('api', {
   ping: () => ipcRenderer.invoke('ping'),  
   getFromDb: () => ipcRenderer.invoke('getFromDb'),
-  checkDbConnection: () => ipcRenderer.invoke('checkDbConnection')
+  checkDbConnection: () => ipcRenderer.invoke('checkDbConnection'),
+  addOwnerAndArticle: () => ipcRenderer.invoke('addOwnerAndArticle'),
+  getAllOwners: () => ipcRenderer.invoke('getAllOwners'),
+  getAllArticles: () => ipcRenderer.invoke('getAllArticles')
 })

@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize');
-const { applyExtraSetup } = require('./extra-setup');
+const { setRelations } = require('./relations');
 
 // In a real app, you should keep the database connection URL as an environment variable.
 // But for this example, we will just use a local SQLite database.
@@ -15,23 +15,20 @@ const sequelize = new Sequelize({
 });
 
 const modelDefiners = [
-	require('./models/user.model'),
-	require('./models/instrument.model'),
-	require('./models/orchestra.model'),
-	require('./models/owner.model'),
-	require('./models/article.model')
-	// Add more models here...
-	// require('./models/item'),
+	require('./model/owner.model'),
+	require('./model/article.model'),
+	require('./model/tag.model'),
+	require('./model/category.model'),
+	require('./model/topic.model')
 ];
 
 function initDB() {
-	// We define all models according to their files.
 	for (const modelDefiner of modelDefiners) {
 		modelDefiner(sequelize, DataTypes);
 	}
 
 	// We execute any extra setup after the models are defined, such as adding associations.
-	applyExtraSetup(sequelize);
+	setRelations(sequelize);
 
 	sequelize.sync();
 }

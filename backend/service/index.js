@@ -1,7 +1,10 @@
-const { initService } = require('./service1/service1')
+const serviceInits = [
+    require('./OwnerService')
+];
 
 function initServices() {
-    initService();
+    for (const serviceInit of serviceInits)
+        serviceInit();
 }
 
 module.exports = { initServices }

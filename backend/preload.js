@@ -7,11 +7,22 @@ contextBridge.exposeInMainWorld('versions', {
   // we can also expose variables, not just functions
 })
 
+// contextBridge.exposeInMainWorld('api', {
+//   ping: () => ipcRenderer.invoke('ping'),  
+//   getFromDb: () => ipcRenderer.invoke('getFromDb'),
+//   checkDbConnection: () => ipcRenderer.invoke('checkDbConnection'),
+//   addOwnerAndArticle: () => ipcRenderer.invoke('addOwnerAndArticle'),
+//   getAllArticles: () => ipcRenderer.invoke('getAllArticles')
+// })
+
 contextBridge.exposeInMainWorld('api', {
+  addOwner: (ownerName) => ipcRenderer.invoke('addOwner', ownerName),
+  updateOwnerName: (ownerName, newName) => ipcRenderer.invoke('updateOwnerName', ownerName, newName),
+  getOwnerWithName: (ownerName) => ipcRenderer.invoke('getOwnerWithName', ownerName),
+  getAllOwners: () => ipcRenderer.invoke('getAllOwners'),
   ping: () => ipcRenderer.invoke('ping'),  
   getFromDb: () => ipcRenderer.invoke('getFromDb'),
   checkDbConnection: () => ipcRenderer.invoke('checkDbConnection'),
   addOwnerAndArticle: () => ipcRenderer.invoke('addOwnerAndArticle'),
-  getAllOwners: () => ipcRenderer.invoke('getAllOwners'),
   getAllArticles: () => ipcRenderer.invoke('getAllArticles')
 })

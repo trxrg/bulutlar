@@ -1,54 +1,37 @@
+import { useState } from 'react';
+
 import './App.css';
-import { checkDbConnection, getFromDb, ping, getAllArticles, getAllOwners, addOwnerAndArticle } from './backend-adapter/BackendAdapter';
+import { addOwner, getAllOwners } from './backend-adapter/BackendAdapter';
 
 function App() {
 
-  async function handleClick() {
-    ping().then( response => console.log(response));
+  const [inputs, setInputs] = useState({});
+
+  const handleChange = (event) => {
+    const name = event.target.name;
+    const value = event.target.value;
+    setInputs(values => ({...values, [name]: value}))
   }
 
-  async function handleClick2() {
-    checkDbConnection().then( response => console.log(response));
+  const handleSubmit1 = (event) => {
+    event.preventDefault();
+    addOwner(inputs.ownerName);
   }
 
-  async function handleClick3() {
-    getFromDb().then( response => console.log(response));
+  async function getOwners() {
+    getAllOwners().then( response => console.log(response.map(item => item.dataValues)));
   }
-
-  async function handleClick4() {
-    addOwnerAndArticle();
-  }
-
-  async function handleClick5() {
-    getAllOwners().then( response => console.log(response));
-  }
-
-  async function handleClick6() {
-    getAllArticles().then( response => console.log(response));
-  }
-
+  
   return (
     <div className="App">
-      <h1>
-        React, Electron, Sqlite3, Sequelize Test Program (Check the console)
-      </h1>
+      <form onSubmit={handleSubmit1}>
+        <label>Enter name for owner:
+          <input type='text' name='ownerName' value={inputs.ownerName || ""} onChange={handleChange} />
+        </label>
+        <input type="submit" />
+      </form>
       <div>
-        <button onClick={handleClick}>Ping (ipc)</button>
-      </div>
-      <div>
-        <button onClick={handleClick2}>Check DB Connection</button>
-      </div>
-      <div>
-        <button onClick={handleClick3}>Get Orchestras DB</button>
-      </div>
-      <div>
-        <button onClick={handleClick4}>Add owner and article</button>
-      </div>
-      <div>
-        <button onClick={handleClick5}>Get owners</button>
-      </div>
-      <div>
-        <button onClick={handleClick6}>Get articles</button>
+        <button onClick={getOwners}>Get All Owners</button>
       </div>
     </div>
   );

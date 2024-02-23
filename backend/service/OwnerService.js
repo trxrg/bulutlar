@@ -1,27 +1,51 @@
 const { ipcMain } = require('electron')
+const { Op } = require("sequelize");
 const { sequelize } = require("../sequelize");
 
 function initService() {
     ipcMain.handle('addOwner', (event, ownerName) => addOwner(ownerName));
     ipcMain.handle('updateOwnerName', (event, ownerName, newName) => updateOwnerName(ownerName, newName));
     ipcMain.handle('getOwnerWithName', (event, ownerName) => getOwnerWithName(ownerName));
+    ipcMain.handle('getOwnerWithNameLike', (event, nameLike) => getOwnerWithNameLike(nameLike));
+    ipcMain.handle('getOwnerWithId', (event, id) => getOwnerWithId(id));
     ipcMain.handle('getAllOwners', getAllOwners);
 }
 
-function addOwner(ownerName) {
-    return sequelize.models.owner.create({ name: ownerName });
+async function addOwner(ownerName) {
+    const result = await sequelize.models.owner.create({ name: ownerName });
+    return result.dataValues;    
 }
 
-function updateOwnerName(ownerName, newName) {
-    getOwnerWithName(ownerName).then(owner => owner.update({ name: newName }));
+async function updateOwnerName(ownerName, newName) {
+    const owner = await getOwnerWithName(ownerName);
+    const result = await owner.owner.update({ name: newName });
+    return result.dataValues;
 }
 
-function getOwnerWithName(ownerName) {
-    return sequelize.models.owner.findOne({ where: { name: ownerName } });
+async function getOwnerWithName(ownerName) {
+    const result = await sequelize.models.owner.findOne({ where: { name: ownerName } });
+    return result.dataValues; 
 }
 
-function getAllOwners() {
-    return sequelize.models.owner.findAll();
+async function getOwnerWithId(id) {
+    const result = await sequelize.models.owner.findByPk(id);
+    return result.dataValues;
+}
+
+async function getOwnerWithNameLike(nameLike) {
+    const result = await sequelize.models.owner.findAll({
+        where: {
+            name: {
+                [Op.like]: '%' + nameLike + '%'
+            }
+        }
+    });
+    return result.map(item => item.dataValues);
+}
+
+async function getAllOwners() {
+    const result = await sequelize.models.owner.findAll();
+    return result.map(item => item.dataValues);
 }
 
 module.exports = initService;

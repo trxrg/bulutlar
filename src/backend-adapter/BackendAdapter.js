@@ -19,7 +19,12 @@ export async function addOwnerAndArticle() {
 }
 
 export async function addOwner(ownerName) {
-    return window.api.addOwner(ownerName);
+    try {
+        return await window.api.addOwner(ownerName);
+    } catch(err) {
+        console.error(err);
+        throw new Error("Kişi eklenemedi!");
+    }    
 }
 
 export async function updateOwnerName(ownerName, newName) {
@@ -28,6 +33,14 @@ export async function updateOwnerName(ownerName, newName) {
 
 export async function getOwnerWithName(ownerName) {
     return window.api.getOwnerWithName(ownerName);
+}
+
+export async function getOwnerWithNameLike(nameLike) {
+    return window.api.getOwnerWithNameLike(nameLike);
+}
+
+export async function getOwnerWithId(id) {
+    return window.api.getOwnerWithId(id);
 }
 
 export async function getAllOwners() {

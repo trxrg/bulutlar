@@ -1,5 +1,7 @@
 const serviceInits = [
-    require('./OwnerService')
+    require('./OwnerService'),
+    require('./ArticleService'),
+    require('./TagService')
 ];
 
 function initServices() {

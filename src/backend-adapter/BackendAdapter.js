@@ -46,3 +46,27 @@ export async function getOwnerWithId(id) {
 export async function getAllOwners() {
     return window.api.getAllOwners();
 }
+
+export async function deleteOwnerWithName(ownerName) {
+    return window.api.deleteOwnerWithName(ownerName);
+}
+
+export async function addArticle(article) {
+    return window.api.addArticle(article);
+}
+
+export async function updateArticle(articleId, article) {
+    return window.api.updateArticle(articleId, article);
+}
+
+export async function getArticleWithId(articleId) {
+    return window.api.getArticleWithId(articleId);
+}
+
+export async function getArticleWithTitleLike(titleLike) {
+    return window.api.getArticleWithTitleLike(titleLike);
+}
+
+export async function getAllArticlesOfOwnerName(ownerName) {
+    return window.api.getAllArticlesOfOwnerName(ownerName);
+}

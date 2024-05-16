@@ -19,4 +19,10 @@ contextBridge.exposeInMainWorld('api', {
   checkDbConnection: () => ipcRenderer.invoke('checkDbConnection'),
   addOwnerAndArticle: () => ipcRenderer.invoke('addOwnerAndArticle'),
   getAllArticles: () => ipcRenderer.invoke('getAllArticles'),
+  deleteOwnerWithName: (ownerName) => ipcRenderer.invoke('deleteOwnerWithName', ownerName),
+  addArticle: (article) => ipcRenderer.invoke('addArticle', article),
+  updateArticle: (articleId, article) => ipcRenderer.invoke('updateArticle', articleId, article),
+  getArticleWithId: (articleId) => ipcRenderer.invoke('getArticleWithId', articleId),
+  getArticleWithTitleLike: (titleLike) => ipcRenderer.invoke('getArticleWithTitleLike', titleLike),
+  getAllArticlesOfOwnerName: (ownerName) => ipcRenderer.invoke('getAllArticlesOfOwnerName', ownerName),
 })

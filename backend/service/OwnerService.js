@@ -9,6 +9,7 @@ function initService() {
     ipcMain.handle('getOwnerWithNameLike', (event, nameLike) => getOwnerWithNameLike(nameLike));
     ipcMain.handle('getOwnerWithId', (event, id) => getOwnerWithId(id));
     ipcMain.handle('getAllOwners', getAllOwners);
+    ipcMain.handle('deleteOwnerWithName', (event, ownerName) => deleteOwnerWithName(ownerName));
 }
 
 async function addOwner(ownerName) {
@@ -17,8 +18,8 @@ async function addOwner(ownerName) {
 }
 
 async function updateOwnerName(ownerName, newName) {
-    const owner = await getOwnerWithName(ownerName);
-    const result = await owner.owner.update({ name: newName });
+    const owner = await sequelize.models.owner.findOne({ where: { name: ownerName } });
+    const result = await owner.update({ name: newName });
     return result.dataValues;
 }
 
@@ -46,6 +47,11 @@ async function getOwnerWithNameLike(nameLike) {
 async function getAllOwners() {
     const result = await sequelize.models.owner.findAll();
     return result.map(item => item.dataValues);
+}
+
+async function deleteOwnerWithName(ownerName) {
+    await sequelize.models.owner.destroy({ where: { name: ownerName } });
+    return getAllOwners();
 }
 
 module.exports = initService;

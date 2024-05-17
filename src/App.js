@@ -9,9 +9,9 @@ import SearchResult from './components/SearchResult';
 import ReadPanel from './components/ReadPanel';
 import { ARTICLES } from './data/Articles'
 
-function App() {
+import { getAllArticles } from './backend-adapter/BackendAdapter';
 
-  const [activeScreen, setActiveScreen] = useState();
+function App() {
 
   if (window.process) {
     window.process.on('uncaughtException', function (error) {
@@ -23,7 +23,9 @@ function App() {
     });
   }
 
+  const [activeScreen, setActiveScreen] = useState();
   const [activeArticleId, setActiveArticleId] = useState(1);
+  const [returnedArticles, setreturnedArticles] = useState([]);
 
   function onArticleClick(articleId) {
     setActiveArticleId(articleId);
@@ -45,6 +47,16 @@ function App() {
     setActiveScreen("notest");
   }
 
+  async function search() {
+      try {
+        let articles = await getAllArticles();
+        console.log(articles);
+        setreturnedArticles(articles);
+      } catch (err) {
+        console.error(err);
+      }
+  }
+
   return (
     <div>
       <div>
@@ -59,6 +71,9 @@ function App() {
       <div>
         <button onClick={resetTest}>Reset Test</button>
       </div>
+      <div>
+        <button onClick={search}>Search</button>
+      </div>
       {activeScreen == "ownerTest" ? <OwnerTest></OwnerTest> : undefined}
       {activeScreen == "tagTest" ? <TagTest></TagTest> : undefined}
       {activeScreen == "articleTest" ? <ArticleTest></ArticleTest> : undefined}
@@ -68,10 +83,10 @@ function App() {
             <h1 className='text-4xl text-center'>BULUTLAR</h1>
           </div>
           <div className='max-h-screen overflow-auto bg-green-500 col-span-3'>
-            <SearchResult handleClick={onArticleClick} />
+            <SearchResult handleClick={onArticleClick} articles={returnedArticles} />
           </div>
           <div className='bg-red-500 col-span-7'>
-            <ReadPanel article={ARTICLES.find(article => article.id === activeArticleId)} />
+            <ReadPanel article={returnedArticles.find(article => article.id === activeArticleId)} />
           </div>
         </div> : undefined}
     </div>

@@ -8,6 +8,7 @@ function initService() {
     ipcMain.handle('getArticleWithId', (event, articleId) => getArticleWithId(articleId));
     ipcMain.handle('getArticleWithTitleLike', (event, titleLike) => getArticleWithTitleLike(titleLike));
     ipcMain.handle('getAllArticlesOfOwnerName', (event, ownerName) => getAllArticlesOfOwnerName(ownerName));
+    ipcMain.handle('getAllArticles', (event) => getAllArticles());
 }
 
 async function addArticle(article) {

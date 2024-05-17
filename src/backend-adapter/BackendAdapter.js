@@ -10,10 +10,6 @@ export async function getFromDb() {
     return window.api.getFromDb();
 }
 
-export async function getAllArticles() {
-    return window.api.getAllArticles();
-}
-
 export async function addOwnerAndArticle() {
     return window.api.addOwnerAndArticle();
 }
@@ -69,4 +65,8 @@ export async function getArticleWithTitleLike(titleLike) {
 
 export async function getAllArticlesOfOwnerName(ownerName) {
     return window.api.getAllArticlesOfOwnerName(ownerName);
+}
+
+export async function getAllArticles() {
+    return window.api.getAllArticles();
 }

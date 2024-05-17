@@ -12,3 +12,6 @@ body {
       monospace;
   }
   
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

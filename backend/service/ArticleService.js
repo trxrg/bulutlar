@@ -1,6 +1,8 @@
 const { ipcMain } = require('electron')
 const { Op } = require("sequelize");
 const { sequelize } = require("../sequelize");
+const tagService = require('./TagService');
+const ownerService = require('./OwnerService');
 
 function initService() {
     ipcMain.handle('addArticle', (event, article) => addArticle(article));
@@ -12,50 +14,93 @@ function initService() {
 }
 
 async function addArticle(article) {
-    const result = await sequelize.models.article.create(article);
-    return result.dataValues;
+    
+    const entity = await sequelize.models.article.create(article);
+
+    if (article.owner)
+        await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner));
+
+    if (article.tags)
+        for (const tagName of article.tags)
+            await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tagName));
+
+    return await getArticleWithId(entity.dataValues.id);
 }
 
 async function updateArticle(articleId, newArticle) {
     const article = await sequelize.models.article.findByPk(articleId);
-    const result = await article.update(newArticle);
-    return result.dataValues;
+    const entity = await article.update(newArticle);
+    return getArticleWithId(entity.dataValues.id);
 }
 
 async function getArticleWithId(articleId) {
-    const result = await sequelize.models.article.findByPk(articleId);
-    return result.dataValues; 
+    const entity = await sequelize.models.article.findByPk(articleId, 
+    {
+        include: [
+            {model: sequelize.models.owner},
+            {model: sequelize.models.tag}
+        ]
+    });
+    console.log(entity);
+    return articleEntity2Json(entity);
 }
 
 async function getArticleWithTitleLike(titleLike) {
-    const result = await sequelize.models.article.findAll({
+    const entities = await sequelize.models.article.findAll({
         where: {
             title: {
                 [Op.like]: '%' + titleLike + '%'
             }
-        }
+        },
+        include: [
+            {model: sequelize.models.owner},
+            {model: sequelize.models.tag}
+        ]
     });
-    return result.map(item => item.dataValues);
+    return entities.map(entity => articleEntity2Json(entity));
 }
 
 async function getAllArticlesOfOwnerName(ownerName) {
-    const result = await sequelize.models.article.findAll({
+    const entities = await sequelize.models.article.findAll({
         where: {
             owner: {name: ownerName}
-        }
+        },
+        include: [
+            {model: sequelize.models.owner},
+            {model: sequelize.models.tag}
+        ]
     });
-    return result.map(item => item.dataValues);
+    return entities.map(entity => articleEntity2Json(entity));
 }
-
 
 async function getAllArticles() {
-    const result = await sequelize.models.article.findAll();
-    return result.map(item => item.dataValues);
+    let entities = await sequelize.models.article.findAll({include: [
+          {model: sequelize.models.owner},
+          {model: sequelize.models.tag}
+      ]});
+            
+    return entities.map(entity => articleEntity2Json(entity));
 }
 
-async function deleteTagWithName(tagName) {
-    await sequelize.models.tag.destroy({ where: { name: tagName } });
-    return getAllTags();
+function articleEntity2Json(entity) {
+    if (entity.dataValues.owner)
+        entity.dataValues.owner = ownerEntity2Json(entity.dataValues.owner);
+    if (entity.dataValues.tags)
+        entity.dataValues.tags = entity.dataValues.tags.map(tag => tagEntity2Json(tag));
+    return entity.dataValues;
 }
 
-module.exports = initService;
+function ownerEntity2Json(entity) {
+    return entity.dataValues;
+}
+
+function tagEntity2Json(entity) {
+    return {
+        id: entity.dataValues.id,
+        name: entity.dataValues.name
+    };
+}
+
+module.exports = {
+    initService
+};

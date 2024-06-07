@@ -17,13 +17,32 @@ async function addTag(tagName) {
     return result.dataValues;
 }
 
+async function addTagIfNotPresent(tagName) {
+    if (!getTagWithName(tagName)) {
+        const result = await sequelize.models.tag.create({ name: tagName });
+        return result.dataValues;
+    }
+}
+
 async function updateTagName(tagName, newName) {
     const tag = await sequelize.models.tag.findOne({ where: { name: tagName } });
     const result = await tag.update({ name: newName });
     return result.dataValues;
 }
 
+async function getTagWithNameAddIfNotPresent(tagName) {
+    let result = await getTagWithName(tagName); 
+    if (!result)
+        result = await sequelize.models.tag.create({ name: tagName });
+
+    return result;
+}
+
 async function getTagWithName(tagName) {
+    return await sequelize.models.tag.findOne({ where: { name: tagName } });
+}
+
+async function getTagDataWithName(tagName) {
     const result = await sequelize.models.tag.findOne({ where: { name: tagName } });
     return result.dataValues; 
 }
@@ -54,4 +73,10 @@ async function deleteTagWithName(tagName) {
     return getAllTags();
 }
 
-module.exports = initService;
+module.exports = {
+    addTag,
+    addTagIfNotPresent,
+    getTagWithName,
+    getTagWithNameAddIfNotPresent,
+    initService
+};

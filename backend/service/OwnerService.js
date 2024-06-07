@@ -24,8 +24,21 @@ async function updateOwnerName(ownerName, newName) {
 }
 
 async function getOwnerWithName(ownerName) {
+    return await sequelize.models.owner.findOne({ where: { name: ownerName } }); 
+}
+
+async function getOwnerDataWithName(ownerName) {
     const result = await sequelize.models.owner.findOne({ where: { name: ownerName } });
     return result.dataValues; 
+}
+
+async function getOwnerWithNameAddIfNotPresent(ownerName) {
+
+    let result = await getOwnerWithName(ownerName); 
+    if (!result)
+        result = await sequelize.models.owner.create({ name: ownerName });
+
+    return result;
 }
 
 async function getOwnerWithId(id) {
@@ -54,4 +67,8 @@ async function deleteOwnerWithName(ownerName) {
     return getAllOwners();
 }
 
-module.exports = initService;
+module.exports = {
+    addOwner,
+    getOwnerWithNameAddIfNotPresent,
+    initService
+};

@@ -4,9 +4,13 @@ import './App.css';
 import OwnerTest from './OwnerTest';
 import TagTest from './TagTest';
 import ArticleTest from './ArticleTest';
+import AddArticle from './test-screens/AddArticle';
+import MainTest from './test-screens/MainTest';
 
 import SearchResult from './components/SearchResult';
 import ReadPanel from './components/ReadPanel';
+import ArticleView from './test-screens/ArticleView';
+import Sketch from './test-screens/Sketch';
 import { ARTICLES } from './data/Articles'
 
 import { getAllArticles } from './backend-adapter/BackendAdapter';
@@ -39,8 +43,21 @@ function App() {
     setActiveScreen("tagTest");
   }
 
-  function articleTest() {
-    setActiveScreen("articleTest");
+  function addArticle() {
+    setActiveScreen("addArticle");
+  }
+
+  async function articleView() {
+    try {
+      let articles = await getAllArticles();
+      setreturnedArticles(articles);
+      setActiveArticleId(1);
+      console.log(articles);
+    } catch (err) {
+      console.error(err);
+    }
+
+    setActiveScreen("articleView");
   }
 
   function resetTest() {
@@ -66,17 +83,18 @@ function App() {
         <button onClick={tagTest}>Tag Test</button>
       </div>
       <div>
-        <button onClick={articleTest}>Article Test</button>
+        <button onClick={addArticle}>Add Article</button>
       </div>
       <div>
-        <button onClick={resetTest}>Reset Test</button>
+        <button onClick={articleView}>View Article</button>
       </div>
       <div>
         <button onClick={search}>Search</button>
       </div>
       {activeScreen == "ownerTest" ? <OwnerTest></OwnerTest> : undefined}
-      {activeScreen == "tagTest" ? <TagTest></TagTest> : undefined}
-      {activeScreen == "articleTest" ? <ArticleTest></ArticleTest> : undefined}
+      {activeScreen == "tagTest" ? <Sketch></Sketch> : undefined}
+      {activeScreen == "addArticle" ? <AddArticle></AddArticle> : undefined}
+      {activeScreen == "articleView" ? <ArticleView article = {returnedArticles.find(article => article.id === activeArticleId)}></ArticleView> : undefined}
       {activeScreen == "notest" ?
         <div className='grid grid-cols-10 gap-2 px-2 h-screen'>
           <div className='col-span-10'>

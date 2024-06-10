@@ -1,19 +1,10 @@
 import { useState } from 'react';
 
 import './App.css';
-import OwnerTest from './OwnerTest';
-import TagTest from './TagTest';
-import ArticleTest from './ArticleTest';
-import AddArticle from './test-screens/AddArticle';
-import MainTest from './test-screens/MainTest';
+import AddArticle from './containers/AddArticle';
+import MainScreen from './containers/MainScreen';
 
-import SearchResult from './components/SearchResult';
-import ReadPanel from './components/ReadPanel';
-import ArticleView from './test-screens/ArticleView';
 import Sketch from './test-screens/Sketch';
-import { ARTICLES } from './data/Articles'
-
-import { getAllArticles } from './backend-adapter/BackendAdapter';
 
 function App() {
 
@@ -28,85 +19,33 @@ function App() {
   }
 
   const [activeScreen, setActiveScreen] = useState();
-  const [activeArticleId, setActiveArticleId] = useState(1);
-  const [returnedArticles, setreturnedArticles] = useState([]);
 
-  function onArticleClick(articleId) {
-    setActiveArticleId(articleId);
-  }
-
-  function ownerTest() {
-    setActiveScreen("ownerTest");
-  }
-
-  function tagTest() {
-    setActiveScreen("tagTest");
-  }
-
-  function addArticle() {
+  function handleSelectAddArticle() {
     setActiveScreen("addArticle");
   }
 
-  async function articleView() {
-    try {
-      let articles = await getAllArticles();
-      setreturnedArticles(articles);
-      setActiveArticleId(1);
-      console.log(articles);
-    } catch (err) {
-      console.error(err);
-    }
-
-    setActiveScreen("articleView");
+  function handleSelectMainScreen() {
+    setActiveScreen("mainScreen");
   }
 
-  function resetTest() {
-    setActiveScreen("notest");
-  }
-
-  async function search() {
-      try {
-        let articles = await getAllArticles();
-        console.log(articles);
-        setreturnedArticles(articles);
-      } catch (err) {
-        console.error(err);
-      }
+  function handleSelectTest() {
+    setActiveScreen("test");
   }
 
   return (
     <div>
       <div>
-        <button onClick={ownerTest}>Owner Test</button>
+        <button onClick={handleSelectMainScreen}>Main Screen</button>
       </div>
       <div>
-        <button onClick={tagTest}>Tag Test</button>
+        <button onClick={handleSelectAddArticle}>Add Article</button>
       </div>
       <div>
-        <button onClick={addArticle}>Add Article</button>
+        <button onClick={handleSelectTest}>Test</button>
       </div>
-      <div>
-        <button onClick={articleView}>View Article</button>
-      </div>
-      <div>
-        <button onClick={search}>Search</button>
-      </div>
-      {activeScreen == "ownerTest" ? <OwnerTest></OwnerTest> : undefined}
-      {activeScreen == "tagTest" ? <Sketch></Sketch> : undefined}
+      {activeScreen == "mainScreen" ? <MainScreen></MainScreen> : undefined}
       {activeScreen == "addArticle" ? <AddArticle></AddArticle> : undefined}
-      {activeScreen == "articleView" ? <ArticleView article = {returnedArticles.find(article => article.id === activeArticleId)}></ArticleView> : undefined}
-      {activeScreen == "notest" ?
-        <div className='grid grid-cols-10 gap-2 px-2 h-screen'>
-          <div className='col-span-10'>
-            <h1 className='text-4xl text-center'>BULUTLAR</h1>
-          </div>
-          <div className='max-h-screen overflow-auto bg-green-500 col-span-3'>
-            <SearchResult handleClick={onArticleClick} articles={returnedArticles} />
-          </div>
-          <div className='bg-red-500 col-span-7'>
-            <ReadPanel article={returnedArticles.find(article => article.id === activeArticleId)} />
-          </div>
-        </div> : undefined}
+      {activeScreen == "test" ? <Sketch></Sketch> : undefined}      
     </div>
   );
 }

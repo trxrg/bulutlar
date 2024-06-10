@@ -25,5 +25,5 @@ contextBridge.exposeInMainWorld('api', {
   getArticleWithId: (articleId) => ipcRenderer.invoke('getArticleWithId', articleId),
   getArticleWithTitleLike: (titleLike) => ipcRenderer.invoke('getArticleWithTitleLike', titleLike),
   getAllArticlesOfOwnerName: (ownerName) => ipcRenderer.invoke('getAllArticlesOfOwnerName', ownerName),
-  getAllArticles: () => ipcRenderer.invoke('getAllArticles'),
+  getAllTags: () => ipcRenderer.invoke('getAllTags'),
 })

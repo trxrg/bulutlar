@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
-const Sketch = () => {
-  const [editorHtml, setEditorHtml] = useState('');
+const RichText = ({text, readOnly, onTextChange}) => {
+  const [editorHtml, setEditorHtml] = useState(text);
 
   const handleChange = (html) => {
     setEditorHtml(html);
-    console.log(html);
+    onTextChange(html);
   };
 
   return (
@@ -16,7 +16,9 @@ const Sketch = () => {
         theme="snow"
         value={editorHtml}
         onChange={handleChange}
-        modules={{ toolbar: true }}
+        readOnly={readOnly}
+        className="bg-white"
+        modules={{ toolbar: !readOnly }}
       />
       {/* <div>
         <h2>Preview</h2>
@@ -26,4 +28,4 @@ const Sketch = () => {
   );
 };
 
-export default Sketch;
+export default RichText;

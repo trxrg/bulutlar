@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { addArticle, getAllOwners, updateArticle } from '../backend-adapter/BackendAdapter';
+import { addArticle, getAllOwners, getAllTags } from '../backend-adapter/BackendAdapter';
 import OwnerList from './OwnerList';
+import TagList from './TagList';
+import RichText from '../components/RichText';
 
 const AddArticle = () => {
   const [title, setTitle] = useState('');
@@ -9,12 +11,14 @@ const AddArticle = () => {
   const [comment, setComment] = useState('');
   const [owner, setOwner] = useState('');
   const [tags, setTags] = useState([]);
+  const [allTags, setAllTags] = useState([]);
   const [owners, setOwners] = useState([]);
 
   useEffect(() => {
     // Logic to execute after component initialization
     console.log('Component initialized');
     getOwners();
+    getTags();
   }, []);
 
   const getOwners = async () => {
@@ -24,6 +28,19 @@ const AddArticle = () => {
       } catch (err) {
         console.error(err);
       }
+  }
+
+  const getTags = async () => {
+    try {
+        const response = await getAllTags();
+        setAllTags(response.map((tag) => tag.name));        
+      } catch (err) {
+        console.error(err);
+      }
+  }
+
+  const handleTagsChange = (tags) => {
+    setTags(tags);
   }
 
   const handleSubmit = async (e) => {
@@ -70,44 +87,17 @@ const AddArticle = () => {
       <OwnerList owners={owners} onOwnerChange={setOwner}></OwnerList>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Explanation:</label>
-        <textarea
-          id="explanation"
-          value={explanation}
-          onChange={(e) => setExplanation(e.target.value)}
-          required
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-40 resize-y"
-        />
+        <RichText readOnly={false} onTextChange={setExplanation} text={explanation}></RichText>
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="mainText">Main Text:</label>
-        <textarea
-          id="mainText"
-          value={mainText}
-          onChange={(e) => setMainText(e.target.value)}
-          required
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-64 resize-y"
-        />
+        <RichText readOnly={false} onTextChange={setMainText} text={mainText}></RichText>
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="comment">Comment:</label>
-        <textarea
-          id="comment"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          required
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-40 resize-y"
-        />
+        <RichText readOnly={false} onTextChange={setComment} text={comment}></RichText>
       </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="comment">Tags:</label>
-        <textarea
-          id="tags"
-          value={tags}
-          onChange={(e) => setTags(e.target.value.split(/\s*,\s*/))}
-          required
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-40 resize-y"
-        />
-      </div>
+      <TagList allTags={allTags} onTagsChange={handleTagsChange}></TagList>
       <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
         Submit
       </button>

@@ -70,3 +70,7 @@ export async function getAllArticlesOfOwnerName(ownerName) {
 export async function getAllArticles() {
     return window.api.getAllArticles();
 }
+
+export async function getAllTags() {
+    return window.api.getAllTags();
+}

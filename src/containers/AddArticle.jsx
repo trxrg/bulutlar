@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { addArticle, getAllOwners, getAllTags } from '../backend-adapter/BackendAdapter';
-import OwnerList from './OwnerList';
-import TagList from './TagList';
+import OwnerList from '../components/OwnerList';
+import TagList from '../components/TagList';
 import RichText from '../components/RichText';
 
 const AddArticle = () => {

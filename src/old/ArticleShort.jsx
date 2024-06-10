@@ -1,5 +1,5 @@
 import parse from 'html-react-parser';
-import TagButton from './TagButton';
+import TagButton from '../components/TagButton';
 
 export default function ArticleShort({article, handleClick}) {
     const numberOfTags = 3;

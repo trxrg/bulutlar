@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import TagButton from '../components/TagButton';
+import TagButton from './TagButton';
 
 const TagList = React.forwardRef(({ allTags, onTagsChange }, ref) => {
     const suggestedTagNumber = 5;

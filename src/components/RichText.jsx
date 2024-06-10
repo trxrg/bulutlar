@@ -2,13 +2,21 @@ import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
-const RichText = ({text, readOnly, onTextChange}) => {
+const RichText = React.forwardRef(({text, readOnly, onTextChange}, ref) => {
   const [editorHtml, setEditorHtml] = useState(text);
 
   const handleChange = (html) => {
     setEditorHtml(html);
     onTextChange(html);
   };
+
+  const reset = () => {
+    setEditorHtml('');
+  }
+
+  React.useImperativeHandle(ref, () => ({
+    reset
+  }));
 
   return (
     <div>
@@ -26,6 +34,6 @@ const RichText = ({text, readOnly, onTextChange}) => {
       </div> */}
     </div>
   );
-};
+});
 
 export default RichText;

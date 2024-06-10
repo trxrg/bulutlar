@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import TagButton from '../components/TagButton';
 
-const TagList = ({ allTags, onTagsChange }) => {
+const TagList = React.forwardRef(({ allTags, onTagsChange }, ref) => {
     const suggestedTagNumber = 5;
     const [tags, setTags] = useState([]);
     const [inputValue, setInputValue] = useState('');
@@ -26,6 +26,14 @@ const TagList = ({ allTags, onTagsChange }) => {
         setTags(newTags);
     };
 
+    const reset = () => {
+        setTags([]);
+    }
+
+    React.useImperativeHandle(ref, () => ({
+        reset
+    }));
+
     return (
         <div>
             <label className="block text-gray-700 font-bold mb-2" htmlFor="mainText">Tags:</label>
@@ -45,20 +53,20 @@ const TagList = ({ allTags, onTagsChange }) => {
                     .filter(tag => !tags.includes(tag))
                     .slice(0, suggestedTagNumber)
                     .map(tag => (
-                        <span key={tag} onClick={() => handleTagClick(tag)} className="tag">
-                            <TagButton cls="text-xs">{tag}</TagButton>
+                        <span key={tag} onClick={() => handleTagClick(tag)}>
+                            <button className='mx-2'>{tag}</button>
                         </span>
                     ))}
             </div>
             <div>
                 {tags.map(tag => (
-                    <button key={tag} onClick={() => handleTagRemove(tag)} className="tag-button">
+                    <span key={tag} onClick={() => handleTagRemove(tag)}>
                         <TagButton cls="text-xl">{tag}</TagButton>
-                    </button>
+                    </span>
                 ))}
             </div>
         </div>
     );
-};
+});
 
 export default TagList;

@@ -1,7 +1,7 @@
-import { React, useState } from "react";
+import React, { useState } from "react";
 
 const customInputLabel = 'new';
-export default function OwnerList({ owners, onOwnerChange }) {
+const OwnerList = React.forwardRef(({ owners, onOwnerChange }, ref) => {
 
     const [isShowTextInput, setIsShowTextInput] = useState(false);
     const [customInput, setCustomInput] = useState('');
@@ -25,7 +25,7 @@ export default function OwnerList({ owners, onOwnerChange }) {
     const handleCustomInputSubmit = (event) => {
         event.preventDefault();
 
-        setIsShowTextInput(false);        
+        setIsShowTextInput(false);
         event.target.value = customInput;
         handleSelectChange(event);
     }
@@ -36,6 +36,15 @@ export default function OwnerList({ owners, onOwnerChange }) {
         setIsShowTextInput(false);
     }
 
+    const reset = () => {
+       setIsShowTextInput(false);
+        setCustomInput('');
+        setActiveValue('');
+    }
+
+    React.useImperativeHandle(ref, () => ({
+        reset
+    }));
 
     return (
         <div className="mb-4">
@@ -65,4 +74,6 @@ export default function OwnerList({ owners, onOwnerChange }) {
             )}
         </div>
     );
-}
+});
+
+export default OwnerList;

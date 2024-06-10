@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { addArticle, getAllOwners, getAllTags } from '../backend-adapter/BackendAdapter';
 import OwnerList from './OwnerList';
 import TagList from './TagList';
@@ -6,6 +6,7 @@ import RichText from '../components/RichText';
 
 const AddArticle = () => {
   const [title, setTitle] = useState('');
+  const [date, setDate] = useState();
   const [explanation, setExplanation] = useState('');
   const [mainText, setMainText] = useState('');
   const [comment, setComment] = useState('');
@@ -13,6 +14,12 @@ const AddArticle = () => {
   const [tags, setTags] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [owners, setOwners] = useState([]);
+
+  const explanationRef = useRef();
+  const mainTextRef = useRef();
+  const commentRef = useRef();
+  const tagsRef = useRef();
+  const ownerRef = useRef();
 
   useEffect(() => {
     // Logic to execute after component initialization
@@ -23,20 +30,20 @@ const AddArticle = () => {
 
   const getOwners = async () => {
     try {
-        const response = await getAllOwners();
-        setOwners(response.map((owner) => owner.name));        
-      } catch (err) {
-        console.error(err);
-      }
+      const response = await getAllOwners();
+      setOwners(response.map((owner) => owner.name));
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   const getTags = async () => {
     try {
-        const response = await getAllTags();
-        setAllTags(response.map((tag) => tag.name));        
-      } catch (err) {
-        console.error(err);
-      }
+      const response = await getAllTags();
+      setAllTags(response.map((tag) => tag.name));
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   const handleTagsChange = (tags) => {
@@ -46,20 +53,20 @@ const AddArticle = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const result = await addArticle({
-            title: title,
-            order: 1,
-            date: Date(),
-            number: 2,
-            explanation: explanation,
-            text: mainText,
-            comment: comment,
-            owner: owner,
-            tags: tags
-        });
-        console.log(result);
+      const result = await addArticle({
+        title: title,
+        order: 1,
+        date: date,
+        number: 2,
+        explanation: explanation,
+        text: mainText,
+        comment: comment,
+        owner: owner,
+        tags: tags
+      });
+      console.log(result);
     } catch (err) {
-        console.error(err.message);
+      console.error(err.message);
     }
 
     // Reset form fields after submission
@@ -69,6 +76,13 @@ const AddArticle = () => {
     setComment('');
     setTags('');
     setOwner('');
+    setDate('');
+
+    ownerRef.current.reset();
+    explanationRef.current.reset();
+    mainTextRef.current.reset();
+    commentRef.current.reset();
+    tagsRef.current.reset();
   };
 
   return (
@@ -84,21 +98,32 @@ const AddArticle = () => {
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
-      <OwnerList owners={owners} onOwnerChange={setOwner}></OwnerList>
+      <OwnerList ref={ownerRef} owners={owners} onOwnerChange={setOwner}></OwnerList>
+      <div className="mb-4">
+        <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>
+        <input
+          type="date"
+          id="dateInput"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          required
+          className='border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:border-blue-500'
+        />
+      </div>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Explanation:</label>
-        <RichText readOnly={false} onTextChange={setExplanation} text={explanation}></RichText>
+        <RichText ref={explanationRef} readOnly={false} onTextChange={setExplanation} text={explanation}></RichText>
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="mainText">Main Text:</label>
-        <RichText readOnly={false} onTextChange={setMainText} text={mainText}></RichText>
+        <RichText ref={mainTextRef} readOnly={false} onTextChange={setMainText} text={mainText}></RichText>
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="comment">Comment:</label>
-        <RichText readOnly={false} onTextChange={setComment} text={comment}></RichText>
+        <RichText ref={commentRef} readOnly={false} onTextChange={setComment} text={comment}></RichText>
       </div>
-      <TagList allTags={allTags} onTagsChange={handleTagsChange}></TagList>
-      <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+      <TagList ref={tagsRef} allTags={allTags} onTagsChange={handleTagsChange}></TagList>
+      <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
         Submit
       </button>
     </form>

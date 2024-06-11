@@ -14,7 +14,8 @@ function initService() {
 }
 
 async function addArticle(article) {
-    
+
+    article.number = calculateNumber(article.date);
     const entity = await sequelize.models.article.create(article);
 
     if (article.owner)
@@ -34,13 +35,13 @@ async function updateArticle(articleId, newArticle) {
 }
 
 async function getArticleWithId(articleId) {
-    const entity = await sequelize.models.article.findByPk(articleId, 
-    {
-        include: [
-            {model: sequelize.models.owner},
-            {model: sequelize.models.tag}
-        ]
-    });
+    const entity = await sequelize.models.article.findByPk(articleId,
+        {
+            include: [
+                { model: sequelize.models.owner },
+                { model: sequelize.models.tag }
+            ]
+        });
     console.log(entity);
     return articleEntity2Json(entity);
 }
@@ -53,8 +54,8 @@ async function getArticleWithTitleLike(titleLike) {
             }
         },
         include: [
-            {model: sequelize.models.owner},
-            {model: sequelize.models.tag}
+            { model: sequelize.models.owner },
+            { model: sequelize.models.tag }
         ]
     });
     return entities.map(entity => articleEntity2Json(entity));
@@ -63,22 +64,24 @@ async function getArticleWithTitleLike(titleLike) {
 async function getAllArticlesOfOwnerName(ownerName) {
     const entities = await sequelize.models.article.findAll({
         where: {
-            owner: {name: ownerName}
+            owner: { name: ownerName }
         },
         include: [
-            {model: sequelize.models.owner},
-            {model: sequelize.models.tag}
+            { model: sequelize.models.owner },
+            { model: sequelize.models.tag }
         ]
     });
     return entities.map(entity => articleEntity2Json(entity));
 }
 
 async function getAllArticles() {
-    let entities = await sequelize.models.article.findAll({include: [
-          {model: sequelize.models.owner},
-          {model: sequelize.models.tag}
-      ]});
-            
+    let entities = await sequelize.models.article.findAll({
+        include: [
+            { model: sequelize.models.owner },
+            { model: sequelize.models.tag }
+        ]
+    });
+
     return entities.map(entity => articleEntity2Json(entity));
 }
 
@@ -99,6 +102,16 @@ function tagEntity2Json(entity) {
         id: entity.dataValues.id,
         name: entity.dataValues.name
     };
+}
+
+function calculateNumber(datestr) {
+    const date = new Date(datestr);
+
+    let result = (date.getFullYear() + date.getMonth() + 1 + date.getDate()) % 9;
+    if (result == 0)
+        result = 9;
+
+    return result;
 }
 
 module.exports = {

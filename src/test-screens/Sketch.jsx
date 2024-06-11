@@ -1,28 +1,28 @@
 import React, { useState } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // Import Quill styles
+import SplitPane from 'react-split-pane';
 
 const Sketch = () => {
-  const [editorHtml, setEditorHtml] = useState('');
+  const [paneSize, setPaneSize] = useState('50%');
 
-  const handleChange = (html) => {
-    setEditorHtml(html);
-    console.log(html);
+  const handleResize = (size) => {
+    setPaneSize(size);
   };
 
   return (
-    <div>
-      <ReactQuill
-        theme="snow"
-        value={editorHtml}
-        onChange={handleChange}
-        modules={{ toolbar: true }}
-      />
-      {/* <div>
-        <h2>Preview</h2>
-        <div dangerouslySetInnerHTML={{ __html: editorHtml }} />
-      </div> */}
-    </div>
+    <SplitPane
+      split="vertical"
+      defaultSize={paneSize}
+      onChange={handleResize}
+      paneStyle={{ overflow: 'auto' }}
+      resizerStyle={{ background: '#ddd', cursor: 'col-resize', width: '8px' }}
+    >
+      <div className="bg-gray-200">
+        <h2 className="text-lg font-bold text-gray-800 p-4">Left Pane</h2>
+      </div>
+      <div className="bg-gray-300">
+        <h2 className="text-lg font-bold text-gray-800 p-4">Right Pane</h2>
+      </div>
+    </SplitPane>
   );
 };
 

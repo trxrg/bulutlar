@@ -3,6 +3,7 @@ import { useState } from 'react';
 import './App.css';
 import AddArticle from './containers/AddArticle';
 import MainScreen from './containers/MainScreen';
+import SearchScreen from './containers/SearchScreen';
 
 import Sketch from './test-screens/Sketch';
 
@@ -28,6 +29,10 @@ function App() {
     setActiveScreen("mainScreen");
   }
 
+  function handleSelectSearchScreen() {
+    setActiveScreen("searchScreen");
+  }
+
   function handleSelectTest() {
     setActiveScreen("test");
   }
@@ -38,12 +43,16 @@ function App() {
         <button onClick={handleSelectMainScreen}>Main Screen</button>
       </div>
       <div>
+        <button onClick={handleSelectSearchScreen}>Search Screen</button>
+      </div>
+      <div>
         <button onClick={handleSelectAddArticle}>Add Article</button>
       </div>
       <div>
         <button onClick={handleSelectTest}>Test</button>
       </div>
       {activeScreen == "mainScreen" ? <MainScreen></MainScreen> : undefined}
+      {activeScreen == "searchScreen" ? <SearchScreen></SearchScreen> : undefined}
       {activeScreen == "addArticle" ? <AddArticle></AddArticle> : undefined}
       {activeScreen == "test" ? <Sketch></Sketch> : undefined}      
     </div>

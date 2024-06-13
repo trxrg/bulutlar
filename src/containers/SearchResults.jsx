@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 
 import ArticleShort from '../components/ArticleShort';
 
-const SearchResults = React.forwardRef(({ handleClick, allArticles }, ref) => {
+const SearchResults = React.forwardRef(({ handleClick, articles }, ref) => {
 
-    const[filteredArticles, setFilteredArticles] = useState([...allArticles]);
+    const[filteredArticles, setFilteredArticles] = useState([...articles]);
 
     React.useImperativeHandle(ref, () => ({
         filter
     }));
 
     const filter = (filtering) => {
-        applyFiltering(allArticles, filtering);
+        applyFiltering(articles, filtering);
     }
 
     const applyFiltering = (allArticles, filtering) => {

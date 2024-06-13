@@ -8,7 +8,9 @@ import SearchControls from './SearchControls';
 const SearchScreen = () => {
   const [paneSize, setPaneSize] = useState('30%');
   const [allArticles, setAllArticles] = useState([]);
+  const [articlesLoaded, setArticlesLoaded] = useState(false);
   const [owners, setOwners] = useState([]);
+  const [ownersLoaded, setOwnersLoaded] = useState(false);
 
   const searchResultsRef = useRef();
 
@@ -20,14 +22,13 @@ const SearchScreen = () => {
     // Logic to execute after component initialization
     getArticles();
     getOwners();
-    console.log('SearchScreen initialized');
   }, []);
-
 
   const getArticles = async () => {
     try {
       const response = await getAllArticles();
       setAllArticles(response);
+      setArticlesLoaded(true);
     } catch (err) {
       console.error(err);
     }
@@ -37,13 +38,18 @@ const SearchScreen = () => {
     try {
       const response = await getAllOwners();
       setOwners(response.map((owner) => owner.name));
+      setOwnersLoaded(true);
     } catch (err) {
       console.error(err);
     }
   }
 
   const handleFilterChanged = (filtering) => {
-    searchResultsRef.current.filter(filtering);
+    try {
+      searchResultsRef.current.filter(filtering);
+    } catch (e) {
+      // console.error(e);
+    }
   }
 
   return (
@@ -55,10 +61,10 @@ const SearchScreen = () => {
       resizerStyle={{ background: '#ddd', cursor: 'col-resize', width: '8px' }}
     >
       <div className="bg-gray-200">
-        <SearchControls owners={owners} onFilterChanged={handleFilterChanged}></SearchControls>
+        {ownersLoaded ? <SearchControls owners={owners} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
       </div>
       <div className="bg-gray-300">
-        <SearchResults ref={searchResultsRef} allArticles={allArticles}></SearchResults>
+        {articlesLoaded ? <SearchResults ref={searchResultsRef} articles={allArticles}></SearchResults> : "Loading..."}
       </div>
     </SplitPane>
   );

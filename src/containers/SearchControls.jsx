@@ -7,11 +7,10 @@ const SearchControls = ({ owners, onFilterChanged }) => {
     const [keyword, setKeyword] = useState('');
 
     useEffect(() => {
-        console.log('useEffect called');
         handleFilterChanged();
     }, [selectedOwners]);
 
-    const handleOwnerChange = (event) => {
+    const handleOwnerChange = (event) => {        
         const { value, checked } = event.target;
         if (checked)
             setSelectedOwners(prevSelectedOwners => [...prevSelectedOwners, value]);

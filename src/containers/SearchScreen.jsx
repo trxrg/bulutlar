@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SplitPane from 'react-split-pane';
 
-import { getAllArticles, getAllOwners } from '../backend-adapter/BackendAdapter';
+import { getAllArticles, getAllOwners, getAllTags } from '../backend-adapter/BackendAdapter';
 import SearchResults from './SearchResults';
 import SearchControls from './SearchControls';
 
@@ -11,6 +11,8 @@ const SearchScreen = () => {
   const [articlesLoaded, setArticlesLoaded] = useState(false);
   const [owners, setOwners] = useState([]);
   const [ownersLoaded, setOwnersLoaded] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [tagsLoaded, setTagsLoaded] = useState(false);
 
   const searchResultsRef = useRef();
 
@@ -22,6 +24,7 @@ const SearchScreen = () => {
     // Logic to execute after component initialization
     getArticles();
     getOwners();
+    getTags();
   }, []);
 
   const getArticles = async () => {
@@ -39,6 +42,16 @@ const SearchScreen = () => {
       const response = await getAllOwners();
       setOwners(response.map((owner) => owner.name));
       setOwnersLoaded(true);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  
+  const getTags = async () => {
+    try {
+      const response = await getAllTags();
+      setTags(response.map((tag) => tag.name));
+      setTagsLoaded(true);
     } catch (err) {
       console.error(err);
     }
@@ -61,7 +74,7 @@ const SearchScreen = () => {
       resizerStyle={{ background: '#ddd', cursor: 'col-resize', width: '8px' }}
     >
       <div className="bg-gray-200">
-        {ownersLoaded ? <SearchControls owners={owners} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
+        {ownersLoaded && tagsLoaded ? <SearchControls tags={tags} owners={owners} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
       </div>
       <div className="bg-gray-300">
         {articlesLoaded ? <SearchResults ref={searchResultsRef} articles={allArticles}></SearchResults> : "Loading..."}

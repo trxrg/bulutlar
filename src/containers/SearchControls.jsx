@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
-const SearchControls = ({ owners, onFilterChanged }) => {
+const SearchControls = ({ tags, owners, onFilterChanged }) => {
     const [selectedOwners, setSelectedOwners] = useState([]);
+    const [selectedTags, setSelectedTags] = useState([]);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [keyword, setKeyword] = useState('');
 
     useEffect(() => {
         handleFilterChanged();
-    }, [selectedOwners]);
+    }, [selectedOwners, selectedTags]);
 
     const handleOwnerChange = (event) => {        
         const { value, checked } = event.target;
@@ -16,6 +17,14 @@ const SearchControls = ({ owners, onFilterChanged }) => {
             setSelectedOwners(prevSelectedOwners => [...prevSelectedOwners, value]);
         else
             setSelectedOwners(prevSelectedOwners => prevSelectedOwners.filter((owner) => owner !== value));
+    };
+    
+    const handleTagChange = (event) => {        
+        const { value, checked } = event.target;
+        if (checked)
+            setSelectedTags(prevSelectedTags => [...prevSelectedTags, value]);
+        else
+            setSelectedTags(prevSelectedTags => prevSelectedTags.filter((tag) => tag !== value));
     };
 
     const handleStartDateChange = (event) => {
@@ -33,6 +42,7 @@ const SearchControls = ({ owners, onFilterChanged }) => {
     function handleFilterChanged() {
         onFilterChanged({
             owners: selectedOwners,
+            tags: selectedTags,
             startDate,
             endDate,
             keyword,
@@ -42,6 +52,25 @@ const SearchControls = ({ owners, onFilterChanged }) => {
     return (
         <div className="p-4 bg-gray-200">
             <div className="mb-4">
+                <label className="mr-2">Tag:</label>
+                <div className="overflow-y-scroll max-h-40">
+                    {tags.map((tag) => (
+                        <div key={tag} className="mb-2">
+                            <label className="inline-flex items-center">
+                                <input
+                                    type="checkbox"
+                                    value={tag}
+                                    checked={selectedTags.includes(tag)}
+                                    onChange={handleTagChange}
+                                    className="mr-1"
+                                />
+                                <span
+                                    className={selectedTags.includes(tag) ? "bg-blue-200 rounded px-2 py-1" : ""}
+                                >{tag}</span>
+                            </label>
+                        </div>
+                    ))}
+                </div>
                 <label className="mr-2">Owner:</label>
                 <div className="overflow-y-scroll max-h-40">
                     {owners.map((owner) => (

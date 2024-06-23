@@ -19,42 +19,9 @@ function App() {
     });
   }
 
-  const [activeScreen, setActiveScreen] = useState();
-
-  function handleSelectAddArticle() {
-    setActiveScreen("addArticle");
-  }
-
-  function handleSelectMainScreen() {
-    setActiveScreen("mainScreen");
-  }
-
-  function handleSelectSearchScreen() {
-    setActiveScreen("searchScreen");
-  }
-
-  function handleSelectTest() {
-    setActiveScreen("test");
-  }
-
   return (
-    <div>
-      <div>
-        <button onClick={handleSelectMainScreen}>Main Screen</button>
-      </div>
-      <div>
-        <button onClick={handleSelectSearchScreen}>Search Screen</button>
-      </div>
-      <div>
-        <button onClick={handleSelectAddArticle}>Add Article</button>
-      </div>
-      <div>
-        <button onClick={handleSelectTest}>Test</button>
-      </div>
-      {activeScreen == "mainScreen" ? <MainScreen></MainScreen> : undefined}
-      {activeScreen == "searchScreen" ? <SearchScreen></SearchScreen> : undefined}
-      {activeScreen == "addArticle" ? <AddArticle></AddArticle> : undefined}
-      {activeScreen == "test" ? <Sketch></Sketch> : undefined}      
+    <div className='overflow-auto h-screen'>
+      <MainScreen></MainScreen>
     </div>
   );
 }

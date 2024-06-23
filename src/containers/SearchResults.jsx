@@ -28,7 +28,7 @@ const SearchResults = React.forwardRef(({ handleClick, articles }, ref) => {
     }
 
     return (
-        <div>
+        <div className='overflow-hidden'>
             {filteredArticles.map(art => <ArticleShort handleClick={handleClick} key={art.id} article={art}></ArticleShort>)}
         </div>
     );

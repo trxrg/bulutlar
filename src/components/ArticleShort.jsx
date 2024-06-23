@@ -32,8 +32,8 @@ export default function ArticleShort({ article, handleClick }) {
     }
 
     return (
-        <div onClick={() => handleClick(article.id)} className="rounded-md gap-x-1.5 bg-stone-200 hover:bg-stone-100 
-        active:bg-stone-200 active:shadow-none max-w-4xl px-10 my-4 mx-4 py-6 shadow-xl cursor-pointer">
+        <div onClick={() => handleClick(article)} className="rounded-md bg-stone-200 hover:bg-stone-100 
+        active:bg-stone-200 active:shadow-none px-10 my-4 mx-4 py-6 shadow-xl cursor-pointer">
             <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600">{article.title}</h2>
             <h3>{article.owner.name + '  -  ' + getFormattedDate(article.date) + ' ' + getDayOfWeek(article.date) + ' (' + article.number + ')'}</h3>
             <article className='my-2'>

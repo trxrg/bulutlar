@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
+import SearchScreen from './SearchScreen';
+import ArticleRead from '../components/ArticleRead';
 
-const Sketch = () => {
+const TabsScreen = () => {
   const [tabs, setTabs] = useState([
-    { id: 'tab1', title: 'Tab 1' },
-    { id: 'tab2', title: 'Tab 2' },
-    { id: 'tab3', title: 'Tab 3' }
+    { id: 'search', title: 'Search' }
   ]);
 
-  const [activeTab, setActiveTab] = useState('tab1'); // State to track active tab
+  const [activeTab, setActiveTab] = useState('search'); // State to track active tab
   const [newTabCount, setNewTabCount] = useState(4); // Counter for generating new tab IDs
 
   const handleTabClick = (tabId) => {
     setActiveTab(tabId);
   };
 
-  const handleAddTab = () => {
-    const newTabId = `tab${newTabCount}`;
-    const newTabTitle = `Tab ${newTabCount}`;
-    const newTabs = [...tabs, { id: newTabId, title: newTabTitle }];
+  const handleAddTab = (article) => {
+    if (tabs.map(tab => tab.id).includes(article.id))
+      return;
+    const newTabId = article.id;
+    const newTabTitle = article.title;
+    const newTabs = [...tabs, { id: newTabId, title: newTabTitle, content: article }];
     setTabs(newTabs);
     setActiveTab(newTabId);
     setNewTabCount(newTabCount + 1);
@@ -32,17 +34,7 @@ const Sketch = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto">
-      {/* New Tab button above tabs */}
-      <div className="flex justify-end mb-4">
-        <button
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none"
-          onClick={handleAddTab}
-        >
-          + New Tab
-        </button>
-      </div>
-
+    <div className="border border-green-300">
       {/* Top-aligned tabs */}
       <div className="flex border-b border-gray-200">
         {tabs.map(tab => (
@@ -56,9 +48,9 @@ const Sketch = () => {
             onClick={() => handleTabClick(tab.id)}
           >
             {tab.title}
-            {tabs.length > 1 && ( // Render close button if there's more than one tab
+            {tab.id != 'search' && ( // Render close button if there's more than one tab
               <button
-                className="ml-2 text-gray-600 hover:text-gray-800"
+                className="ml-2 text-red-700 hover:text-red-500"
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent tab click event from firing
                   handleCloseTab(tab.id);
@@ -72,10 +64,10 @@ const Sketch = () => {
       </div>
 
       {/* Tab content */}
-      <div className="border border-gray-200 p-4 mt-4">
+      <div>
         {tabs.map(tab => (
           <div key={tab.id} className={activeTab === tab.id ? '' : 'hidden'}>
-            Content of {tab.title}
+            {tab.id == 'search' ? <SearchScreen handleSearchResultClicked={handleAddTab}></SearchScreen> : <ArticleRead article={tab.content}></ArticleRead>}
           </div>
         ))}
       </div>
@@ -83,4 +75,4 @@ const Sketch = () => {
   );
 };
 
-export default Sketch;
+export default TabsScreen;

@@ -5,7 +5,7 @@ import { getAllArticles, getAllOwners, getAllTags } from '../backend-adapter/Bac
 import SearchResults from './SearchResults';
 import SearchControls from './SearchControls';
 
-const SearchScreen = () => {
+const SearchScreen = ({ handleSearchResultClicked }) => {
   const [paneSize, setPaneSize] = useState('30%');
   const [allArticles, setAllArticles] = useState([]);
   const [articlesLoaded, setArticlesLoaded] = useState(false);
@@ -46,7 +46,7 @@ const SearchScreen = () => {
       console.error(err);
     }
   }
-  
+
   const getTags = async () => {
     try {
       const response = await getAllTags();
@@ -66,20 +66,25 @@ const SearchScreen = () => {
   }
 
   return (
-    <SplitPane
-      split="vertical"
-      defaultSize={paneSize}
-      onChange={handleResize}
-      paneStyle={{ overflow: 'auto' }}
-      resizerStyle={{ background: '#ddd', cursor: 'col-resize', width: '8px' }}
-    >
-      <div className="bg-gray-200">
-        {ownersLoaded && tagsLoaded ? <SearchControls tags={tags} owners={owners} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
-      </div>
-      <div className="bg-gray-300">
-        {articlesLoaded ? <SearchResults ref={searchResultsRef} articles={allArticles}></SearchResults> : "Loading..."}
-      </div>
-    </SplitPane>
+    <div className= 'border border-red-500'>
+      <SplitPane
+        split="vertical"
+        defaultSize={paneSize}
+        minSize={400}
+        maxSize={600}
+        onChange={handleResize}
+        style={ {padding:'10px', position: 'relative', overflow: 'auto'}}
+        paneStyle={{ overflow: 'auto' }}
+        resizerStyle={{ background: 'green', cursor: 'col-resize', width: '12px' }}
+      >
+        <div className="bg-gray-500">
+          {ownersLoaded && tagsLoaded ? <SearchControls tags={tags} owners={owners} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
+        </div>
+        <div className="bg-red-300">
+          {articlesLoaded ? <SearchResults ref={searchResultsRef} articles={allArticles} handleClick={handleSearchResultClicked}></SearchResults> : "Loading..."}
+        </div>
+      </SplitPane>
+    </div>
   );
 };
 

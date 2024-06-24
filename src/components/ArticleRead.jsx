@@ -1,128 +1,81 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { addArticle, getAllOwners, getAllTags } from '../backend-adapter/BackendAdapter';
-import OwnerList from '../components/OwnerList';
-import TagList from '../components/TagList';
-import RichText from '../components/RichText';
+import React, { useState } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css'; // Import styles for react-quill
+import 'react-quill/dist/quill.bubble.css'; // Optionally import bubble theme for react-quill
+import 'react-quill/dist/quill.core.css'; // Import core styles for react-quill
 
 const ArticleRead = ({ article }) => {
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState();
-  const [explanation, setExplanation] = useState('');
-  const [mainText, setMainText] = useState('');
-  const [comment, setComment] = useState('');
-  const [owner, setOwner] = useState('');
-  const [tags, setTags] = useState([]);
-  const [allTags, setAllTags] = useState([]);
-  const [owners, setOwners] = useState([]);
+  const [isEditable, setIsEditable] = useState(false);
 
-  const explanationRef = useRef();
-  const mainTextRef = useRef();
-  const commentRef = useRef();
-  const tagsRef = useRef();
-  const ownerRef = useRef();
+  const handleEditToggle = () => {
+    setIsEditable(prevState => !prevState);
+  };
 
-  useEffect(() => {
-    // Logic to execute after component initialization
-    console.log('Component initialized');
-    getOwners();
-    getTags();
-  }, []);
-
-  const getOwners = async () => {
-    try {
-      const response = await getAllOwners();
-      setOwners(response.map((owner) => owner.name));
-    } catch (err) {
-      console.error(err);
-    }
+  const handleSave = () => {
+    console.log('save clicked');
   }
 
-  const getTags = async () => {
-    try {
-      const response = await getAllTags();
-      setAllTags(response.map((tag) => tag.name));
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  const handleInputChange = (e, field) => {
+    // Assuming you have a way to update the article object in parent component or state
+    if (field === 'owner')
+      article[field].name = e.target.value;
+    else
+      article[field] = e.target.value;
+  };
 
-  const handleTagsChange = (tags) => {
-    setTags(tags);
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const result = await addArticle({
-        title: title,
-        order: 1,
-        date: date,
-        number: 2,
-        explanation: explanation,
-        text: mainText,
-        comment: comment,
-        owner: owner,
-        tags: tags
-      });
-      console.log(result);
-    } catch (err) {
-      console.error(err.message);
-    }
-
-    // Reset form fields after submission
-    setTitle('');
-    setExplanation('');
-    setMainText('');
-    setComment('');
-    setTags('');
-    setOwner('');
-    setDate('');
-
-    ownerRef.current.reset();
-    explanationRef.current.reset();
-    mainTextRef.current.reset();
-    commentRef.current.reset();
-    tagsRef.current.reset();
+  const handleTextChange = (value, field) => {
+    article[field] = value;
   };
 
   return (
-    <div className="max-h-full overflow-auto mx-auto p-6 bg-gray-100 shadow-md rounded-lg">
-      <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="title">Title:</label>
-        <input
-          id="title"
-          type="text"
-          value={article.title}
-          onChange={(e) => setTitle(e.target.value)}
-          readOnly
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
+    <div className="max-w-3xl mx-auto p-6 border rounded-lg shadow-lg">
+      <div className='flex justify-end'>
+        {isEditable ?
+          <>
+            <button onClick={handleSave} className="ml-2 text-green-500 hover:text-green-700">Save</button>
+            <button onClick={handleEditToggle} className="ml-2 text-red-500 hover:text-red-700">Cancel</button>
+          </>
+          :
+          <button onClick={handleEditToggle} className="ml-2 text-blue-500 hover:text-blue-700">Edit</button>
+        }
       </div>
-      {/* <OwnerList ref={ownerRef} owners={owners} onOwnerChange={setOwner}></OwnerList> */}
-      {/* <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>
-        <input
-          type="date"
-          id="dateInput"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          readonly
-          className='border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:border-blue-500'
-        />
-      </div> */}
-      <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Explanation:</label>
-        <RichText ref={explanationRef} readOnly={true} onTextChange={setExplanation} text={article.explanation}></RichText>
+      <div className="mb-4 flex justify-between border border-gray-400">
+        {isEditable ? (
+          <input type="text" value={article.title} onChange={(e) => handleInputChange(e, 'title')} className="w-full bg-white border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" />
+        ) : (
+          <div>{article.title}</div>
+        )}
       </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="mainText">Main Text:</label>
-        <RichText ref={mainTextRef} readOnly={true} onTextChange={setMainText} text={article.text}></RichText>
+
+      <div className="mb-4 border border-red-400">
+        {isEditable ? (
+          <ReactQuill
+            value={article.text}
+            onChange={(value) => handleTextChange(value, 'text')}
+            className="bg-white border-2 border-gray-300 rounded-lg"
+            modules={{ toolbar: true }}
+            theme="snow"
+          />
+        ) : (
+          <div dangerouslySetInnerHTML={{ __html: article.text }} />
+        )}
       </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="comment">Comment:</label>
-        <RichText ref={commentRef} readOnly={true} onTextChange={setComment} text={article.comment}></RichText>
-      </div>
-      {/* <TagList ref={tagsRef} allTags={allTags} onTagsChange={handleTagsChange}></TagList> */}
+
+      {/* <div>
+                <label className="block text-gray-700 font-bold mb-2">Comments:</label>
+                {editableFields.comments ? (
+                    <ReactQuill
+                        value={article.comments}
+                        onChange={(value) => handleTextChange(value, 'comments')}
+                        className="bg-white border-2 border-gray-300 rounded-lg"
+                        modules={{ toolbar: true }}
+                        theme="snow"
+                    />
+                ) : (
+                    <div dangerouslySetInnerHTML={{ __html: article.comments }} />
+                )}
+                <button onClick={() => handleEditToggle('comments')} className="ml-2 text-blue-500 hover:text-blue-700">Edit</button>
+            </div> */}
     </div>
   );
 };

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { addArticle, getAllOwners, getAllTags } from '../backend-adapter/BackendAdapter';
+import { addArticle, getAllOwners, getAllTags, getAllCategories } from '../backend-adapter/BackendAdapter';
 import OwnerList from '../components/OwnerList';
 import TagList from '../components/TagList';
 import RichText from '../components/RichText';
+import CategoryList from '../components/CategoryList';
 
 const AddArticle = () => {
   const [title, setTitle] = useState('');
@@ -11,27 +12,40 @@ const AddArticle = () => {
   const [mainText, setMainText] = useState('');
   const [comment, setComment] = useState('');
   const [owner, setOwner] = useState('');
+  const [category, setCategory] = useState('');
   const [tags, setTags] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [owners, setOwners] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const explanationRef = useRef();
   const mainTextRef = useRef();
   const commentRef = useRef();
   const tagsRef = useRef();
   const ownerRef = useRef();
+  const categoryRef = useRef();
 
   useEffect(() => {
     // Logic to execute after component initialization
     console.log('Component initialized');
     getOwners();
     getTags();
+    getCategories();
   }, []);
 
   const getOwners = async () => {
     try {
       const response = await getAllOwners();
       setOwners(response.map((owner) => owner.name));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const getCategories = async () => {
+    try {
+      const response = await getAllCategories();
+      setCategories(response.map((category) => category.name));
     } catch (err) {
       console.error(err);
     }
@@ -60,8 +74,8 @@ const AddArticle = () => {
         number: 2,
         explanation: explanation,
         text: mainText,
-        comment: comment,
         owner: owner,
+        category: category,
         tags: tags
       });
       console.log(result);
@@ -98,6 +112,7 @@ const AddArticle = () => {
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
+      <CategoryList ref={categoryRef} categories={categories} onCategoryChange={setCategory}></CategoryList>
       <OwnerList ref={ownerRef} owners={owners} onOwnerChange={setOwner}></OwnerList>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>

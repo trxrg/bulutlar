@@ -15,6 +15,7 @@ const TabsScreen = () => {
   };
 
   const handleAddTab = (article) => {
+    console.log(article);
     if (tabs.map(tab => tab.id).includes(article.id))
       return;
     const newTabId = article.id;

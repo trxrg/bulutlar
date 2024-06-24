@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    sequelize.define('tag', {
+    const Tag = sequelize.define('tag', {
         name: {
             allowNull: false,
             type: DataTypes.STRING,
@@ -8,5 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             //     is: /^\w{1,}$/
             // }
         }
-    })
+    });
+
+    return Tag;
 }

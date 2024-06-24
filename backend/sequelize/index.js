@@ -19,10 +19,12 @@ const modelDefiners = [
 	require('./model/article.model'),
 	require('./model/tag.model'),
 	require('./model/category.model'),
-	require('./model/topic.model')
+	require('./model/comment.model')
 ];
 
 function initDB() {
+	console.log('initializing db');
+
 	for (const modelDefiner of modelDefiners) {
 		modelDefiner(sequelize, DataTypes);
 	}

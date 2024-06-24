@@ -43,6 +43,10 @@ export async function getAllOwners() {
     return window.api.getAllOwners();
 }
 
+export async function getAllCategories() {
+    return window.api.getAllCategories();
+}
+
 export async function deleteOwnerWithName(ownerName) {
     return window.api.deleteOwnerWithName(ownerName);
 }

@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const { sequelize } = require("../sequelize");
 const tagService = require('./TagService');
 const ownerService = require('./OwnerService');
+const categoryService = require('./CategoryService');
 
 function initService() {
     ipcMain.handle('addArticle', (event, article) => addArticle(article));
@@ -20,6 +21,9 @@ async function addArticle(article) {
 
     if (article.owner)
         await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner));
+
+    if (article.category)
+        await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category));
 
     if (article.tags)
         for (const tagName of article.tags)
@@ -39,6 +43,8 @@ async function getArticleWithId(articleId) {
         {
             include: [
                 { model: sequelize.models.owner },
+                { model: sequelize.models.category },
+                { model: sequelize.models.comment },
                 { model: sequelize.models.tag }
             ]
         });
@@ -55,6 +61,8 @@ async function getArticleWithTitleLike(titleLike) {
         },
         include: [
             { model: sequelize.models.owner },
+            { model: sequelize.models.category },
+            { model: sequelize.models.comment },
             { model: sequelize.models.tag }
         ]
     });
@@ -68,6 +76,8 @@ async function getAllArticlesOfOwnerName(ownerName) {
         },
         include: [
             { model: sequelize.models.owner },
+            { model: sequelize.models.category },
+            { model: sequelize.models.comment },
             { model: sequelize.models.tag }
         ]
     });
@@ -78,6 +88,8 @@ async function getAllArticles() {
     let entities = await sequelize.models.article.findAll({
         include: [
             { model: sequelize.models.owner },
+            { model: sequelize.models.category },
+            { model: sequelize.models.comment },
             { model: sequelize.models.tag }
         ]
     });
@@ -87,17 +99,15 @@ async function getAllArticles() {
 
 function articleEntity2Json(entity) {
     if (entity.dataValues.owner)
-        entity.dataValues.owner = ownerEntity2Json(entity.dataValues.owner);
+        entity.dataValues.owner = entity2Json(entity.dataValues.owner);
+    if (entity.dataValues.category)
+        entity.dataValues.category = entity2Json(entity.dataValues.category);
     if (entity.dataValues.tags)
-        entity.dataValues.tags = entity.dataValues.tags.map(tag => tagEntity2Json(tag));
+        entity.dataValues.tags = entity.dataValues.tags.map(tag => entity2Json(tag));
     return entity.dataValues;
 }
 
-function ownerEntity2Json(entity) {
-    return entity.dataValues;
-}
-
-function tagEntity2Json(entity) {
+function entity2Json(entity) {
     return {
         id: entity.dataValues.id,
         name: entity.dataValues.name

@@ -20,7 +20,7 @@ function App() {
   }
 
   return (
-    <div className='overflow-auto h-screen'>
+    <div>
       <MainScreen></MainScreen>
     </div>
   );

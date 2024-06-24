@@ -34,9 +34,9 @@ const TabsScreen = () => {
   };
 
   return (
-    <div className="border border-green-300">
+    <div className="h-full border border-green-300">
       {/* Top-aligned tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="h-[10%] flex border-b border-gray-200">
         {tabs.map(tab => (
           <button
             key={tab.id}
@@ -64,9 +64,9 @@ const TabsScreen = () => {
       </div>
 
       {/* Tab content */}
-      <div>
+      <div className='h-[90%] border border-red-800'>
         {tabs.map(tab => (
-          <div key={tab.id} className={activeTab === tab.id ? '' : 'hidden'}>
+          <div key={tab.id} className={activeTab === tab.id ? 'h-full relative' : 'hidden'}>
             {tab.id == 'search' ? <SearchScreen handleSearchResultClicked={handleAddTab}></SearchScreen> : <ArticleRead article={tab.content}></ArticleRead>}
           </div>
         ))}

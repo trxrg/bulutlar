@@ -4,6 +4,7 @@ const { sequelize } = require("../sequelize");
 const tagService = require('./TagService');
 const ownerService = require('./OwnerService');
 const categoryService = require('./CategoryService');
+const commentService = require('./CommentService');
 
 function initService() {
     ipcMain.handle('addArticle', (event, article) => addArticle(article));
@@ -28,6 +29,10 @@ async function addArticle(article) {
     if (article.tags)
         for (const tagName of article.tags)
             await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tagName));
+    
+    if (article.comments)
+        for (const comment of article.comments)
+            await entity.addComment(await commentService.addComment(comment));
 
     return await getArticleWithId(entity.dataValues.id);
 }
@@ -104,6 +109,8 @@ function articleEntity2Json(entity) {
         entity.dataValues.category = entity2Json(entity.dataValues.category);
     if (entity.dataValues.tags)
         entity.dataValues.tags = entity.dataValues.tags.map(tag => entity2Json(tag));
+    if (entity.dataValues.comments)
+        entity.dataValues.comments = entity.dataValues.comments.map(comment => commentEntity2Json(comment));
     return entity.dataValues;
 }
 
@@ -111,6 +118,13 @@ function entity2Json(entity) {
     return {
         id: entity.dataValues.id,
         name: entity.dataValues.name
+    };
+}
+
+function commentEntity2Json(entity) {
+    return {
+        id: entity.dataValues.id,
+        text: entity.dataValues.text
     };
 }
 

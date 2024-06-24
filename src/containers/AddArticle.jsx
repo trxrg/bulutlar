@@ -76,6 +76,7 @@ const AddArticle = () => {
         text: mainText,
         owner: owner,
         category: category,
+        comments: [comment],
         tags: tags
       });
       console.log(result);

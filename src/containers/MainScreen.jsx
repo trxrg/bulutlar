@@ -6,17 +6,30 @@ import AddArticle from './AddArticle';
 const MainScreen = () => {
 
     const [activeScreen, setActiveScreen] = useState('tabs');
+    const [editedArticle, setEditedArticle] = useState();
+    const [activeTabId, setActiveTabId] = useState('search');
 
     const handleAddArticle = () => {
+        setEditedArticle(undefined);
         setActiveScreen('addArticle');
     }
 
     const handleCancel = () => {
+        // if (editedArticle)
+        //     setActiveTabId(editedArticle.id);
         setActiveScreen('tabs');
     }
 
     const handleRandom = () => {
         console.log('random clicked');
+    }
+
+    const handleEditClicked = (article) => {
+        console.log('handle edit clicked');
+        console.log('article:');
+        console.log(article);
+        setEditedArticle(article);
+        setActiveScreen('addArticle');
     }
 
     return (
@@ -48,8 +61,8 @@ const MainScreen = () => {
                 </div>
             </div>
             <div className='h-[90%] border border-blue-800'>
-                {activeScreen === 'tabs' ? <TabsScreen></TabsScreen> : undefined}
-                {activeScreen === 'addArticle' ? <AddArticle></AddArticle> : undefined}
+                {activeScreen === 'tabs' ? <TabsScreen onEditClicked={handleEditClicked} activeTabId={activeTabId} setActiveTabId={setActiveTabId}></TabsScreen> : undefined}
+                {activeScreen === 'addArticle' ? <AddArticle article={editedArticle}></AddArticle> : undefined}
             </div>
         </div>
     );

@@ -21,12 +21,12 @@ const RichText = React.forwardRef(({text, readOnly, onTextChange}, ref) => {
   return (
     <div>
       <ReactQuill
-        // theme="snow"
+        theme="snow"
         value={editorHtml}
         onChange={handleChange}
         readOnly={false}
-        // className="bg-white"
-        style={{border: '20px !important', padding: '20px'}}
+        className="bg-white"
+        // style={{border: '20px !important', padding: '20px'}}
         modules={{ toolbar: !readOnly }}
       />
       {/* <div>

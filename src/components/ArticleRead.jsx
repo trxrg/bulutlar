@@ -1,13 +1,26 @@
 import React from 'react';
-import RichText from './RichText';
+import { PencilIcon } from '@heroicons/react/24/outline';
 
-const ArticleRead = ({ article }) => {
+const ArticleRead = ({ article, onEditClicked }) => {
   const { title, category, owner, date, number, explanation, text, comments, tags } = article;
+
+  const handleEditClicked = (article) => {
+    onEditClicked(article);
+  }
 
   return (
     <div className="max-h-full overflow-auto mx-auto bg-white shadow-md rounded-lg mb-8">
       <div className="p-6">
-        <h2 className="text-3xl font-semibold text-gray-800">{title}</h2>
+        <div className='flex justify-between'>
+          <h2 className="text-3xl font-semibold text-gray-800">{title}</h2>
+          <button
+            className="flex items-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            onClick={() => handleEditClicked(article)}
+          >
+            <PencilIcon className="w-4 h-4 mr-2" /> {/* Pencil icon */}
+            Edit
+          </button>
+        </div>
         <p className="text-sm text-gray-600 mt-2">{owner && owner.name + " | "} {new Date(date).toLocaleDateString('tr')} ({number})</p>
         {/* <p className="text-gray-700 mt-4">{text}</p> */}
         <div className="text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: explanation }} />

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import TagButton from './TagButton';
 
-const TagList = React.forwardRef(({ allTags, onTagsChange }, ref) => {
+const TagList = React.forwardRef(({ allTags, selectedTags, onTagsChange }, ref) => {
     const suggestedTagNumber = 5;
-    const [tags, setTags] = useState([]);
+    const [tags, setTags] = useState(selectedTags);
     const [inputValue, setInputValue] = useState('');
     const suggestedTags = allTags;
 

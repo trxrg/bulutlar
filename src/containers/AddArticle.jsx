@@ -1,22 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { format } from 'date-fns';
 import { addArticle, getAllOwners, getAllTags, getAllCategories } from '../backend-adapter/BackendAdapter';
 import OwnerList from '../components/OwnerList';
 import TagList from '../components/TagList';
 import RichText from '../components/RichText';
 import CategoryList from '../components/CategoryList';
 
-const AddArticle = () => {
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState();
-  const [explanation, setExplanation] = useState('');
-  const [mainText, setMainText] = useState('');
-  const [comment, setComment] = useState('');
-  const [owner, setOwner] = useState('');
-  const [category, setCategory] = useState('');
-  const [tags, setTags] = useState([]);
+const AddArticle = ({article}) => {
+  const [dispTitle, setDispTitle] = useState(article ? article.title : '');
+  const [dispDate, setDispDate] = useState(article ? new Date(article.date) : new Date());
+  const [dispExplanation, setDispExplanation] = useState(article ? article.explanation : '');
+  const [dispMainText, setDispMainText] = useState(article ? article.text : '');
+  const [dispComment, setDispComment] = useState(article && article.comments[0] ? article.comments[0].text : '');
+  const [dispOwner, setDispOwner] = useState(article ? article.owner.name : '');
+  const [dispCategory, setDispCategory] = useState(article ? article.category : '');
+  const [dispTags, setDispTags] = useState(article ? article.tags.map(tag => tag.name) : []);
   const [allTags, setAllTags] = useState([]);
-  const [owners, setOwners] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [allOwners, setAllOwners] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
 
   const explanationRef = useRef();
   const mainTextRef = useRef();
@@ -36,7 +37,7 @@ const AddArticle = () => {
   const getOwners = async () => {
     try {
       const response = await getAllOwners();
-      setOwners(response.map((owner) => owner.name));
+      setAllOwners(response.map((owner) => owner.name));
     } catch (err) {
       console.error(err);
     }
@@ -45,7 +46,7 @@ const AddArticle = () => {
   const getCategories = async () => {
     try {
       const response = await getAllCategories();
-      setCategories(response.map((category) => category.name));
+      setAllCategories(response.map((category) => category.name));
     } catch (err) {
       console.error(err);
     }
@@ -61,23 +62,23 @@ const AddArticle = () => {
   }
 
   const handleTagsChange = (tags) => {
-    setTags(tags);
+    setDispTags(tags);
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const result = await addArticle({
-        title: title,
+        title: dispTitle,
         order: 1,
-        date: date,
+        date: dispDate,
         number: 2,
-        explanation: explanation,
-        text: mainText,
-        owner: owner,
-        category: category,
-        comments: [comment],
-        tags: tags
+        explanation: dispExplanation,
+        text: dispMainText,
+        owner: dispOwner,
+        category: dispCategory,
+        comments: [dispComment],
+        tags: dispTags
       });
       console.log(result);
     } catch (err) {
@@ -85,13 +86,13 @@ const AddArticle = () => {
     }
 
     // Reset form fields after submission
-    setTitle('');
-    setExplanation('');
-    setMainText('');
-    setComment('');
-    setTags('');
-    setOwner('');
-    setDate('');
+    setDispTitle('');
+    setDispExplanation('');
+    setDispMainText('');
+    setDispComment('');
+    setDispTags('');
+    setDispOwner('');
+    setDispDate('');
 
     ownerRef.current.reset();
     explanationRef.current.reset();
@@ -107,38 +108,38 @@ const AddArticle = () => {
         <input
           id="title"
           type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={dispTitle}
+          onChange={(e) => setDispTitle(e.target.value)}
           required
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
-      <CategoryList ref={categoryRef} categories={categories} onCategoryChange={setCategory}></CategoryList>
-      <OwnerList ref={ownerRef} owners={owners} onOwnerChange={setOwner}></OwnerList>
+      <CategoryList ref={categoryRef} categories={allCategories} onCategoryChange={setDispCategory}></CategoryList>
+      <OwnerList ref={ownerRef} owners={allOwners} onOwnerChange={setDispOwner}></OwnerList>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>
         <input
           type="date"
           id="dateInput"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+          value={format(dispDate, 'yyyy-MM-dd')}
+          onChange={(e) => setDispDate(e.target.value)}
           required
           className='border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:border-blue-500'
         />
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Explanation:</label>
-        <RichText ref={explanationRef} readOnly={false} onTextChange={setExplanation} text={explanation}></RichText>
+        <RichText ref={explanationRef} readOnly={false} onTextChange={setDispExplanation} text={dispExplanation}></RichText>
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="mainText">Main Text:</label>
-        <RichText ref={mainTextRef} readOnly={false} onTextChange={setMainText} text={mainText}></RichText>
+        <RichText ref={mainTextRef} readOnly={false} onTextChange={setDispMainText} text={dispMainText}></RichText>
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="comment">Comment:</label>
-        <RichText ref={commentRef} readOnly={false} onTextChange={setComment} text={comment}></RichText>
+        <RichText ref={commentRef} readOnly={false} onTextChange={setDispComment} text={dispComment}></RichText>
       </div>
-      <TagList ref={tagsRef} allTags={allTags} onTagsChange={handleTagsChange}></TagList>
+      <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
       <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
         Submit
       </button>

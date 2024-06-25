@@ -2,16 +2,17 @@ import React, { useState } from 'react';
 import SearchScreen from './SearchScreen';
 import ArticleRead from '../components/ArticleRead';
 
-const TabsScreen = () => {
+const TabsScreen = ({onEditClicked, activeTabId, setActiveTabId}) => {
+
+  console.log('tabsscreen rendering');
+
+  
   const [tabs, setTabs] = useState([
     { id: 'search', title: 'Search' }
   ]);
 
-  const [activeTab, setActiveTab] = useState('search'); // State to track active tab
-  const [newTabCount, setNewTabCount] = useState(4); // Counter for generating new tab IDs
-
   const handleTabClick = (tabId) => {
-    setActiveTab(tabId);
+    setActiveTabId(tabId);
   };
 
   const handleAddTab = (article) => {
@@ -22,17 +23,20 @@ const TabsScreen = () => {
     const newTabTitle = article.title;
     const newTabs = [...tabs, { id: newTabId, title: newTabTitle, content: article }];
     setTabs(newTabs);
-    setActiveTab(newTabId);
-    setNewTabCount(newTabCount + 1);
+    setActiveTabId(newTabId);
   };
 
   const handleCloseTab = (tabId) => {
     const updatedTabs = tabs.filter(tab => tab.id !== tabId);
     setTabs(updatedTabs);
-    if (activeTab === tabId && updatedTabs.length > 0) {
-      setActiveTab(updatedTabs[0].id); // Activate the first tab if the closed tab was active
+    if (activeTabId === tabId && updatedTabs.length > 0) {
+      setActiveTabId(updatedTabs[0].id); // Activate the first tab if the closed tab was active
     }
   };
+
+  const handleEditClicked = (article) => {
+    onEditClicked(article);
+  }
 
   return (
     <div className="h-full border border-green-300">
@@ -42,7 +46,7 @@ const TabsScreen = () => {
           <button
             key={tab.id}
             className={`${
-              activeTab === tab.id
+              activeTabId === tab.id
                 ? 'bg-gray-100 text-gray-800'
                 : 'bg-white text-gray-500'
             } py-2 px-4 inline-flex items-center border-b-2 border-transparent hover:border-gray-300 focus:outline-none relative text-left`}
@@ -67,8 +71,8 @@ const TabsScreen = () => {
       {/* Tab content */}
       <div className='h-[90%] border border-red-800'>
         {tabs.map(tab => (
-          <div key={tab.id} className={activeTab === tab.id ? 'h-full relative' : 'hidden'}>
-            {tab.id == 'search' ? <SearchScreen handleSearchResultClicked={handleAddTab}></SearchScreen> : <ArticleRead article={tab.content}></ArticleRead>}
+          <div key={tab.id} className={activeTabId === tab.id ? 'h-full relative' : 'hidden'}>
+            {tab.id == 'search' ? <SearchScreen handleSearchResultClicked={handleAddTab}></SearchScreen> : <ArticleRead article={tab.content} onEditClicked={handleEditClicked}></ArticleRead>}
           </div>
         ))}
       </div>

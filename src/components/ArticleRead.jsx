@@ -1,81 +1,37 @@
-import React, { useState } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // Import styles for react-quill
-import 'react-quill/dist/quill.bubble.css'; // Optionally import bubble theme for react-quill
-import 'react-quill/dist/quill.core.css'; // Import core styles for react-quill
+import React from 'react';
+import RichText from './RichText';
 
 const ArticleRead = ({ article }) => {
-  const [isEditable, setIsEditable] = useState(false);
-
-  const handleEditToggle = () => {
-    setIsEditable(prevState => !prevState);
-  };
-
-  const handleSave = () => {
-    console.log('save clicked');
-  }
-
-  const handleInputChange = (e, field) => {
-    // Assuming you have a way to update the article object in parent component or state
-    if (field === 'owner')
-      article[field].name = e.target.value;
-    else
-      article[field] = e.target.value;
-  };
-
-  const handleTextChange = (value, field) => {
-    article[field] = value;
-  };
+  const { title, category, owner, date, number, explanation, text, comments, tags } = article;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 border rounded-lg shadow-lg">
-      <div className='flex justify-end'>
-        {isEditable ?
-          <>
-            <button onClick={handleSave} className="ml-2 text-green-500 hover:text-green-700">Save</button>
-            <button onClick={handleEditToggle} className="ml-2 text-red-500 hover:text-red-700">Cancel</button>
-          </>
-          :
-          <button onClick={handleEditToggle} className="ml-2 text-blue-500 hover:text-blue-700">Edit</button>
-        }
-      </div>
-      <div className="mb-4 flex justify-between border border-gray-400">
-        {isEditable ? (
-          <input type="text" value={article.title} onChange={(e) => handleInputChange(e, 'title')} className="w-full bg-white border-2 border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500" />
-        ) : (
-          <div>{article.title}</div>
-        )}
+    <div className="max-h-full overflow-auto mx-auto bg-white shadow-md rounded-lg mb-8">
+      <div className="p-6">
+        <h2 className="text-3xl font-semibold text-gray-800">{title}</h2>
+        <p className="text-sm text-gray-600 mt-2">{owner && owner.name + " | "} {new Date(date).toLocaleDateString('tr')} ({number})</p>
+        {/* <p className="text-gray-700 mt-4">{text}</p> */}
+        <div className="text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: explanation }} />
+        <div className='bg-green-100'>
+          <h3 className="text-xl font-semibold my-4">Tags</h3>
+          <div className="flex flex-wrap">
+            {tags.map((tag, index) => (
+              <span key={index} className="bg-gray-200 text-gray-800 rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2">{tag.name}</span>
+            ))}
+          </div>
+        </div>
+        <div className="text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: text }} />
       </div>
 
-      <div className="mb-4 border border-red-400">
-        {isEditable ? (
-          <ReactQuill
-            value={article.text}
-            onChange={(value) => handleTextChange(value, 'text')}
-            className="bg-white border-2 border-gray-300 rounded-lg"
-            modules={{ toolbar: true }}
-            theme="snow"
-          />
-        ) : (
-          <div dangerouslySetInnerHTML={{ __html: article.text }} />
-        )}
+      <div className="p-6 bg-gray-100 border-t border-gray-200">
+        <h3 className="text-xl font-semibold mb-4">{comments.size > 1 ? "Comments" : "Comment"}</h3>
+        <ul className="divide-y divide-gray-200">
+          {comments.map((comment, index) => (
+            <li key={index} className="py-4">
+              <div className="text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: comment.text }} />
+            </li>
+          ))}
+        </ul>
       </div>
-
-      {/* <div>
-                <label className="block text-gray-700 font-bold mb-2">Comments:</label>
-                {editableFields.comments ? (
-                    <ReactQuill
-                        value={article.comments}
-                        onChange={(value) => handleTextChange(value, 'comments')}
-                        className="bg-white border-2 border-gray-300 rounded-lg"
-                        modules={{ toolbar: true }}
-                        theme="snow"
-                    />
-                ) : (
-                    <div dangerouslySetInnerHTML={{ __html: article.comments }} />
-                )}
-                <button onClick={() => handleEditToggle('comments')} className="ml-2 text-blue-500 hover:text-blue-700">Edit</button>
-            </div> */}
     </div>
   );
 };

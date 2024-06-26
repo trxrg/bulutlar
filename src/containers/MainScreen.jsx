@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import SearchScreen from './SearchScreen';
 import TabsScreen from './TabsScreen';
 import AddArticle from './AddArticle';
 
@@ -8,6 +7,9 @@ const MainScreen = () => {
     const [activeScreen, setActiveScreen] = useState('tabs');
     const [editedArticle, setEditedArticle] = useState();
     const [activeTabId, setActiveTabId] = useState('search');
+    const [tabs, setTabs] = useState([
+        { id: 'search', title: 'Search' }
+      ]);
 
     const handleAddArticle = () => {
         setEditedArticle(undefined);
@@ -61,7 +63,7 @@ const MainScreen = () => {
                 </div>
             </div>
             <div className='h-[90%] border border-blue-800'>
-                {activeScreen === 'tabs' ? <TabsScreen onEditClicked={handleEditClicked} activeTabId={activeTabId} setActiveTabId={setActiveTabId}></TabsScreen> : undefined}
+                {activeScreen === 'tabs' ? <TabsScreen onEditClicked={handleEditClicked} activeTabId={activeTabId} setActiveTabId={setActiveTabId} tabs={tabs} setTabs={setTabs}></TabsScreen> : undefined}
                 {activeScreen === 'addArticle' ? <AddArticle article={editedArticle}></AddArticle> : undefined}
             </div>
         </div>

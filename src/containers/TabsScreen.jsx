@@ -1,24 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import SearchScreen from './SearchScreen';
 import ArticleRead from '../components/ArticleRead';
 
-const TabsScreen = ({onEditClicked, activeTabId, setActiveTabId}) => {
-
-  console.log('tabsscreen rendering');
-
-  
-  const [tabs, setTabs] = useState([
-    { id: 'search', title: 'Search' }
-  ]);
+const TabsScreen = ({onEditClicked, activeTabId, setActiveTabId, tabs, setTabs}) => {
 
   const handleTabClick = (tabId) => {
     setActiveTabId(tabId);
   };
 
   const handleAddTab = (article) => {
-    console.log(article);
-    if (tabs.map(tab => tab.id).includes(article.id))
+    if (tabs.map(tab => tab.id).includes(article.id)) {
+      setActiveTabId(article.id);
       return;
+    }      
     const newTabId = article.id;
     const newTabTitle = article.title;
     const newTabs = [...tabs, { id: newTabId, title: newTabTitle, content: article }];

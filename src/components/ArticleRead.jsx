@@ -25,12 +25,16 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
     };
 
     // Attach event listener to the component's container
-    const container = document.getElementById('articleRead');
-    container.addEventListener('click', handleLinkClick);
+    const containers = document.getElementsByClassName('articleRead');
+    Array.from(containers).forEach(container => {
+      container.addEventListener('click', handleLinkClick);
+    });
 
     // Clean up the event listener
     return () => {
-      container.removeEventListener('click', handleLinkClick);
+      Array.from(containers).forEach(container => {
+        container.removeEventListener('click', handleLinkClick);
+      });
     };
   }, []); // Empty dependency array ensures useEffect runs only once
 
@@ -49,7 +53,7 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
         </div>
         <p className="text-sm text-gray-600 mt-2">{owner && owner.name + " | "} {new Date(date).toLocaleDateString('tr')} ({number})</p>
         {/* <p className="text-gray-700 mt-4">{text}</p> */}
-        <div id="articleRead" className="prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: explanation }} />
+        <div id="articleRead" className="articleRead prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: explanation }} />
         <div className='bg-green-100'>
           <h3 className="text-xl font-semibold my-4">Tags</h3>
           <div className="flex flex-wrap">
@@ -58,7 +62,7 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
             ))}
           </div>
         </div>
-        <div id="articleRead" className="prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: text }} />
+        <div id="articleRead" class="articleRead" className="articleRead prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: text }} />
       </div>
 
       <div className="p-6 bg-gray-100 border-t border-gray-200">
@@ -66,7 +70,7 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
         <ul className="divide-y divide-gray-200">
           {comments.map((comment, index) => (
             <li key={index} className="py-4">
-              <div id="articleRead" className="prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: comment.text }} />
+              <div id="articleRead" className="articleRead prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: comment.text }} />
             </li>
           ))}
         </ul>

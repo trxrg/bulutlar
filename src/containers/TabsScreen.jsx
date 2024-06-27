@@ -13,23 +13,14 @@ const TabsScreen = ({ onEditClicked, activeTabId, setActiveTabId, handleAddTab, 
   }
 
   const getArticle = (articleId) => {
-    console.log('allArticles in getArticle');
-    console.log(allArticles);
-
-    console.log('articleId in getArticle');
-    console.log(articleId);
-
     const result = allArticles.find(article => article.id == articleId);
-
-    console.log('result in getArticle: ');
-    console.log(result);
     return result;
   }
 
   const getTitle = (articleId) => {
     if (articleId === 'search')
       return 'Search';
-    
+
     const result = allArticles.find(article => article.id === articleId);
 
     if (result)

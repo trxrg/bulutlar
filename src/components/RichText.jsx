@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
-const RichText = React.forwardRef(({text, readOnly, onTextChange}, ref) => {
+const RichText = React.forwardRef(({ text, onTextChange }, ref) => {
   const [editorHtml, setEditorHtml] = useState(text);
+
+  console.log('editorhtml in richtext: ');
+  console.log(editorHtml);
 
   const handleChange = (html) => {
     setEditorHtml(html);
@@ -11,12 +14,12 @@ const RichText = React.forwardRef(({text, readOnly, onTextChange}, ref) => {
   };
 
   const reset = () => {
-    setEditorHtml('');
+    // setEditorHtml('');
   }
 
   React.useImperativeHandle(ref, () => ({
     reset
-  }));
+  })); 
 
   return (
     <div>
@@ -27,7 +30,8 @@ const RichText = React.forwardRef(({text, readOnly, onTextChange}, ref) => {
         readOnly={false}
         className="bg-white"
         // style={{border: '20px !important', padding: '20px'}}
-        modules={{ toolbar: !readOnly }}
+        modules={{toolbar: true}}
+        // formats={formats}
       />
       {/* <div>
         <h2>Preview</h2>

@@ -19,6 +19,9 @@ const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
   const [allOwners, setAllOwners] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
 
+  console.log('disp maintext in addarticle: ')
+  console.log(dispMainText);
+
   const explanationRef = useRef();
   const mainTextRef = useRef();
   const commentRef = useRef();
@@ -154,15 +157,15 @@ const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Explanation:</label>
-          <RichText ref={explanationRef} readOnly={false} onTextChange={setDispExplanation} text={dispExplanation}></RichText>
+          <RichText ref={explanationRef} onTextChange={setDispExplanation} text={dispExplanation}></RichText>
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="mainText">Main Text:</label>
-          <RichText ref={mainTextRef} readOnly={false} onTextChange={setDispMainText} text={dispMainText}></RichText>
+          <RichText ref={mainTextRef} onTextChange={setDispMainText} text={dispMainText}></RichText>
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="comment">Comment:</label>
-          <RichText ref={commentRef} readOnly={false} onTextChange={setDispComment} text={dispComment}></RichText>
+          <RichText ref={commentRef} onTextChange={setDispComment} text={dispComment}></RichText>
         </div>
         <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
         <div className='flex justify-between'>

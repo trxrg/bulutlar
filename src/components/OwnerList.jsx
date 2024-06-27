@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
 const customInputLabel = 'new';
-const OwnerList = React.forwardRef(({ owners, onOwnerChange }, ref) => {
+const OwnerList = React.forwardRef(({ owners, onOwnerChange, selectedOwner }, ref) => {
 
     const [isShowTextInput, setIsShowTextInput] = useState(false);
     const [customInput, setCustomInput] = useState('');
-    const [activeValue, setActiveValue] = useState('');
+    const [activeValue, setActiveValue] = useState(selectedOwner ? selectedOwner : '');
 
     const handleSelectChange = (event) => {
 

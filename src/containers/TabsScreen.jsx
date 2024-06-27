@@ -2,23 +2,11 @@ import React from 'react';
 import SearchScreen from './SearchScreen';
 import ArticleRead from '../components/ArticleRead';
 
-const TabsScreen = ({onEditClicked, activeTabId, setActiveTabId, tabs, setTabs}) => {
+const TabsScreen = ({ onEditClicked, activeTabId, setActiveTabId, handleAddTab, tabs, setTabs, allArticles }) => {
 
   const handleTabClick = (tabId) => {
     setActiveTabId(tabId);
-  };
-
-  const handleAddTab = (article) => {
-    if (tabs.map(tab => tab.id).includes(article.id)) {
-      setActiveTabId(article.id);
-      return;
-    }      
-    const newTabId = article.id;
-    const newTabTitle = article.title;
-    const newTabs = [...tabs, { id: newTabId, title: newTabTitle, content: article }];
-    setTabs(newTabs);
-    setActiveTabId(newTabId);
-  };
+  }; 
 
   const handleCloseTab = (tabId) => {
     const updatedTabs = tabs.filter(tab => tab.id !== tabId);
@@ -32,6 +20,31 @@ const TabsScreen = ({onEditClicked, activeTabId, setActiveTabId, tabs, setTabs})
     onEditClicked(article);
   }
 
+  const getArticle = (articleId) => {
+    console.log('allArticles in getArticle');
+    console.log(allArticles);
+
+    console.log('articleId in getArticle');
+    console.log(articleId);
+
+    const result = allArticles.find(article => article.id == articleId);
+
+    console.log('result in getArticle: ');
+    console.log(result);
+    return result;
+  }
+
+  const getTitle = (articleId) => {
+    const result = allArticles.find(article => article.id === articleId);
+
+    if (result)
+      return result.title;
+
+    return 'Title: ' + articleId;
+  }
+
+
+
   return (
     <div className="h-full border border-green-300">
       {/* Top-aligned tabs */}
@@ -39,14 +52,13 @@ const TabsScreen = ({onEditClicked, activeTabId, setActiveTabId, tabs, setTabs})
         {tabs.map(tab => (
           <button
             key={tab.id}
-            className={`${
-              activeTabId === tab.id
+            className={`${activeTabId === tab.id
                 ? 'bg-gray-100 text-gray-800'
                 : 'bg-white text-gray-500'
-            } py-2 px-4 inline-flex items-center border-b-2 border-transparent hover:border-gray-300 focus:outline-none relative text-left`}
+              } py-2 px-4 inline-flex items-center border-b-2 border-transparent hover:border-gray-300 focus:outline-none relative text-left`}
             onClick={() => handleTabClick(tab.id)}
           >
-            {tab.title}
+            {getTitle(tab.id)}
             {tab.id != 'search' && ( // Render close button if there's more than one tab
               <button
                 className="ml-2 text-red-700 hover:text-red-500"
@@ -66,7 +78,7 @@ const TabsScreen = ({onEditClicked, activeTabId, setActiveTabId, tabs, setTabs})
       <div className='h-[90%] border border-red-800'>
         {tabs.map(tab => (
           <div key={tab.id} className={activeTabId === tab.id ? 'h-full relative' : 'hidden'}>
-            {tab.id == 'search' ? <SearchScreen handleSearchResultClicked={handleAddTab}></SearchScreen> : <ArticleRead article={tab.content} onEditClicked={handleEditClicked}></ArticleRead>}
+            {tab.id == 'search' ? <SearchScreen handleSearchResultClicked={handleAddTab} allArticles={allArticles}></SearchScreen> : <ArticleRead article={getArticle(tab.id)} onEditClicked={handleEditClicked}></ArticleRead>}
           </div>
         ))}
       </div>

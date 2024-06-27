@@ -1,19 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
-import { addArticle, getAllOwners, getAllTags, getAllCategories } from '../backend-adapter/BackendAdapter';
+import { addArticle, updateArticle, getAllOwners, getAllTags, getAllCategories } from '../backend-adapter/BackendAdapter';
 import OwnerList from '../components/OwnerList';
 import TagList from '../components/TagList';
 import RichText from '../components/RichText';
 import CategoryList from '../components/CategoryList';
 
-const AddArticle = ({article}) => {
+const AddArticle = ({ article, afterSubmitClicked }) => {
   const [dispTitle, setDispTitle] = useState(article ? article.title : '');
   const [dispDate, setDispDate] = useState(article ? new Date(article.date) : new Date());
   const [dispExplanation, setDispExplanation] = useState(article ? article.explanation : '');
   const [dispMainText, setDispMainText] = useState(article ? article.text : '');
   const [dispComment, setDispComment] = useState(article && article.comments[0] ? article.comments[0].text : '');
-  const [dispOwner, setDispOwner] = useState(article ? article.owner.name : '');
-  const [dispCategory, setDispCategory] = useState(article ? article.category : '');
+  const [dispOwner, setDispOwner] = useState(article ? article.owner.name : '')
+  const [dispCategory, setDispCategory] = useState(article ? article.category.name : '');
   const [dispTags, setDispTags] = useState(article ? article.tags.map(tag => tag.name) : []);
   const [allTags, setAllTags] = useState([]);
   const [allOwners, setAllOwners] = useState([]);
@@ -68,37 +68,56 @@ const AddArticle = ({article}) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await addArticle({
-        title: dispTitle,
-        order: 1,
-        date: dispDate,
-        number: 2,
-        explanation: dispExplanation,
-        text: dispMainText,
-        owner: dispOwner,
-        category: dispCategory,
-        comments: [dispComment],
-        tags: dispTags
-      });
-      console.log(result);
+      let result;
+      if (article) {
+        result = await updateArticle(article.id, {
+          title: dispTitle,
+          date: dispDate,
+          explanation: dispExplanation,
+          text: dispMainText,
+          owner: dispOwner,
+          category: dispCategory,
+          comments: [dispComment],
+          tags: dispTags
+        });
+        console.log('article updated:');
+        console.log(result);
+        // article = result;
+      } else {
+        result = await addArticle({
+          title: dispTitle,
+          date: dispDate,
+          explanation: dispExplanation,
+          text: dispMainText,
+          owner: dispOwner,
+          category: dispCategory,
+          comments: [dispComment],
+          tags: dispTags
+        });
+        console.log('article added:');
+        console.log(result);
+      }
+
+      afterSubmitClicked(result.id);
     } catch (err) {
       console.error(err.message);
     }
 
-    // Reset form fields after submission
-    setDispTitle('');
-    setDispExplanation('');
-    setDispMainText('');
-    setDispComment('');
-    setDispTags('');
-    setDispOwner('');
-    setDispDate('');
 
-    ownerRef.current.reset();
-    explanationRef.current.reset();
-    mainTextRef.current.reset();
-    commentRef.current.reset();
-    tagsRef.current.reset();
+    // Reset form fields after submission
+    // setDispTitle('');
+    // setDispExplanation('');
+    // setDispMainText('');
+    // setDispComment('');
+    // setDispTags('');
+    // setDispOwner('');
+    // setDispDate(new Date());
+
+    // ownerRef.current.reset();
+    // explanationRef.current.reset();
+    // mainTextRef.current.reset();
+    // commentRef.current.reset();
+    // tagsRef.current.reset();
   };
 
   return (
@@ -114,8 +133,8 @@ const AddArticle = ({article}) => {
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
-      <CategoryList ref={categoryRef} categories={allCategories} onCategoryChange={setDispCategory}></CategoryList>
-      <OwnerList ref={ownerRef} owners={allOwners} onOwnerChange={setDispOwner}></OwnerList>
+      <CategoryList ref={categoryRef} categories={allCategories} selectedCategory={dispCategory} onCategoryChange={setDispCategory}></CategoryList>
+      <OwnerList ref={ownerRef} owners={allOwners} selectedOwner={dispOwner} onOwnerChange={setDispOwner}></OwnerList>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>
         <input

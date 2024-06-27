@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
 const customInputLabel = 'new';
-const CategoryList = React.forwardRef(({ categories, onCategoryChange }, ref) => {
+const CategoryList = React.forwardRef(({ categories, onCategoryChange, selectedCategory }, ref) => {
 
     const [isShowTextInput, setIsShowTextInput] = useState(false);
     const [customInput, setCustomInput] = useState('');
-    const [activeValue, setActiveValue] = useState('');
+    const [activeValue, setActiveValue] = useState(selectedCategory ? selectedCategory : '');
 
     const handleSelectChange = (event) => {
 

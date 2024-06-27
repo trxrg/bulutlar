@@ -29,7 +29,7 @@ async function addArticle(article) {
     if (article.tags)
         for (const tagName of article.tags)
             await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tagName));
-    
+
     if (article.comments)
         for (const comment of article.comments)
             await entity.addComment(await commentService.addComment(comment));
@@ -40,7 +40,25 @@ async function addArticle(article) {
 async function updateArticle(articleId, newArticle) {
     const article = await sequelize.models.article.findByPk(articleId);
     const entity = await article.update(newArticle);
-    return getArticleWithId(entity.dataValues.id);
+
+    await entity.setComments([]);
+    await entity.setTags([]);
+
+    if (newArticle.owner)
+        await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(newArticle.owner));
+
+    if (newArticle.category)
+        await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category));
+
+    if (newArticle.tags)
+        for (const tagName of newArticle.tags)
+            await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tagName));
+
+    if (newArticle.comments)
+        for (const comment of newArticle.comments)
+            await entity.addComment(await commentService.addComment(comment));
+
+    return await getArticleWithId(entity.dataValues.id);
 }
 
 async function getArticleWithId(articleId) {
@@ -111,6 +129,8 @@ function articleEntity2Json(entity) {
         entity.dataValues.tags = entity.dataValues.tags.map(tag => entity2Json(tag));
     if (entity.dataValues.comments)
         entity.dataValues.comments = entity.dataValues.comments.map(comment => commentEntity2Json(comment));
+    console.log("ENTITY:");
+    console.log(entity.dataValues);
     return entity.dataValues;
 }
 

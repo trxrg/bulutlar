@@ -1,24 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TabsScreen from './TabsScreen';
 import AddArticle from './AddArticle';
 
+import { getAllArticles } from '../backend-adapter/BackendAdapter';
+
 const MainScreen = () => {
 
+    const [allArticles, setAllArticles] = useState([]);
     const [activeScreen, setActiveScreen] = useState('tabs');
     const [editedArticle, setEditedArticle] = useState();
     const [activeTabId, setActiveTabId] = useState('search');
     const [tabs, setTabs] = useState([
         { id: 'search', title: 'Search' }
-      ]);
+    ]);
+
+    const getArticles = async () => {
+        try {
+            const response = await getAllArticles();
+            setAllArticles(response);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    useEffect(() => {
+        // Logic to execute after component initialization
+        getArticles();
+    }, []);
 
     const handleAddArticle = () => {
         setEditedArticle(undefined);
         setActiveScreen('addArticle');
     }
 
+    const handleAddTab = (articleId) => {
+        if (tabs.map(tab => tab.id).includes(articleId)) {
+            setActiveTabId(articleId);
+            return;
+        }
+        const newTabId = articleId;
+        const newTabs = [...tabs, { id: newTabId }];
+        setTabs(newTabs);
+        setActiveTabId(newTabId);
+    };
+
     const handleCancel = () => {
-        // if (editedArticle)
-        //     setActiveTabId(editedArticle.id);
+        setActiveScreen('tabs');
+    }
+
+    const afterSubmitArticle = async (id) => {
+        await getArticles();
+        handleAddTab(id);
         setActiveScreen('tabs');
     }
 
@@ -63,8 +95,8 @@ const MainScreen = () => {
                 </div>
             </div>
             <div className='h-[90%] border border-blue-800'>
-                {activeScreen === 'tabs' ? <TabsScreen onEditClicked={handleEditClicked} activeTabId={activeTabId} setActiveTabId={setActiveTabId} tabs={tabs} setTabs={setTabs}></TabsScreen> : undefined}
-                {activeScreen === 'addArticle' ? <AddArticle article={editedArticle}></AddArticle> : undefined}
+                {activeScreen === 'tabs' ? <TabsScreen onEditClicked={handleEditClicked} activeTabId={activeTabId} setActiveTabId={setActiveTabId} handleAddTab={handleAddTab} tabs={tabs} setTabs={setTabs} allArticles={allArticles}></TabsScreen> : undefined}
+                {activeScreen === 'addArticle' ? <AddArticle article={editedArticle} afterSubmitClicked={afterSubmitArticle}></AddArticle> : undefined}
             </div>
         </div>
     );

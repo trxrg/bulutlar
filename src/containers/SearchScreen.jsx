@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SplitPane from 'react-split-pane';
 
-import { getAllArticles, getAllOwners, getAllTags } from '../backend-adapter/BackendAdapter';
+import { getAllOwners, getAllTags } from '../backend-adapter/BackendAdapter';
 import SearchResults from './SearchResults';
 import SearchControls from './SearchControls';
 
-const SearchScreen = ({ handleSearchResultClicked }) => {
+const SearchScreen = ({ handleSearchResultClicked, allArticles }) => {
   const [paneSize, setPaneSize] = useState('30%');
-  const [allArticles, setAllArticles] = useState([]);
-  const [articlesLoaded, setArticlesLoaded] = useState(false);
   const [owners, setOwners] = useState([]);
   const [ownersLoaded, setOwnersLoaded] = useState(false);
   const [tags, setTags] = useState([]);
@@ -22,20 +20,9 @@ const SearchScreen = ({ handleSearchResultClicked }) => {
 
   useEffect(() => {
     // Logic to execute after component initialization
-    getArticles();
     getOwners();
     getTags();
   }, []);
-
-  const getArticles = async () => {
-    try {
-      const response = await getAllArticles();
-      setAllArticles(response);
-      setArticlesLoaded(true);
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   const getOwners = async () => {
     try {
@@ -86,7 +73,7 @@ const SearchScreen = ({ handleSearchResultClicked }) => {
         {ownersLoaded && tagsLoaded ? <SearchControls tags={tags} owners={owners} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
       </div>
       <div className="bg-red-300">
-        {articlesLoaded ? <SearchResults ref={searchResultsRef} articles={allArticles} handleClick={handleSearchResultClicked}></SearchResults> : "Loading..."}
+        <SearchResults ref={searchResultsRef} articles={allArticles} handleClick={handleSearchResultClicked}></SearchResults>
       </div>
     </SplitPane>
   );

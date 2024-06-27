@@ -4,6 +4,9 @@ import { PencilIcon } from '@heroicons/react/24/outline';
 const ArticleRead = ({ article, onEditClicked }) => {
   const { title, category, owner, date, number, explanation, text, comments, tags } = article;
 
+  console.log('article in the articleRead:');
+  console.log(article);
+
   const handleEditClicked = (article) => {
     onEditClicked(article);
   }

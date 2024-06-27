@@ -35,9 +35,6 @@ const MainScreen = () => {
     }
 
     const handleAddTab = (articleId) => {
-        console.log('handleAddTab with articleId: ')
-        console.log(articleId);
-        
         if (!allArticles.map(article => article.id).includes(articleId))
             return;
 
@@ -84,8 +81,15 @@ const MainScreen = () => {
         setActiveScreen('addArticle');
     }
 
-    const handleLinkClicked = (articleId) => {
-        handleAddTab(articleId);
+    const handleLinkClicked = (articleCode) => {
+        console.log('article code:')
+        console.log(articleCode);
+
+        const article = allArticles.find(article => article.code === articleCode);
+        if (!article)
+            return;
+
+        handleAddTab(article.id);
     }
 
     return (

@@ -12,7 +12,7 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
 
   const handleLinkClicked = (event) => {
     event.preventDefault(); // Prevent default link behavior
-    onLinkClicked(parseInt(event.target.getAttribute('href')));
+    onLinkClicked(event.target.getAttribute('href'));
   };
 
   const [showCode, setShowCode] = useState(false);

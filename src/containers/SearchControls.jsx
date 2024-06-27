@@ -6,20 +6,21 @@ const SearchControls = ({ tags, owners, onFilterChanged }) => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [keyword, setKeyword] = useState('');
+    const [endDateDifferent, setEndDateDifferent] = useState(false);
 
     useEffect(() => {
         handleFilterChanged();
     }, [selectedOwners, selectedTags]);
 
-    const handleOwnerChange = (event) => {        
+    const handleOwnerChange = (event) => {
         const { value, checked } = event.target;
         if (checked)
             setSelectedOwners(prevSelectedOwners => [...prevSelectedOwners, value]);
         else
             setSelectedOwners(prevSelectedOwners => prevSelectedOwners.filter((owner) => owner !== value));
     };
-    
-    const handleTagChange = (event) => {        
+
+    const handleTagChange = (event) => {
         const { value, checked } = event.target;
         if (checked)
             setSelectedTags(prevSelectedTags => [...prevSelectedTags, value]);
@@ -39,6 +40,10 @@ const SearchControls = ({ tags, owners, onFilterChanged }) => {
         setKeyword(event.target.value);
     };
 
+    const handleEndDateDifferentChange = () => {
+        setEndDateDifferent(prev => !prev);
+    }
+
     function handleFilterChanged() {
         onFilterChanged({
             owners: selectedOwners,
@@ -50,10 +55,10 @@ const SearchControls = ({ tags, owners, onFilterChanged }) => {
     };
 
     return (
-        <div className="p-4 bg-gray-200">
+        <div className="p-4 bg-gray-100 overflow-auto">
             <div className="mb-4">
-                <label className="mr-2">Tag:</label>
-                <div className="overflow-y-scroll max-h-40">
+                <label className="my-2">Tag:</label>
+                <div className="overflow-auto max-h-40 p-1 my-2 border border-green-200">
                     {tags.map((tag) => (
                         <div key={tag} className="mb-2">
                             <label className="inline-flex items-center">
@@ -72,7 +77,7 @@ const SearchControls = ({ tags, owners, onFilterChanged }) => {
                     ))}
                 </div>
                 <label className="mr-2">Owner:</label>
-                <div className="overflow-y-scroll max-h-40">
+                <div className="overflow-auto max-h-40 border border-green-200">
                     {owners.map((owner) => (
                         <div key={owner} className="mb-2">
                             <label className="inline-flex items-center">
@@ -91,7 +96,7 @@ const SearchControls = ({ tags, owners, onFilterChanged }) => {
                     ))}
                 </div>
             </div>
-            <div className="flex mb-4">
+            <div className="mb-4">
                 <label className="mr-2">Start Date:</label>
                 <input
                     type="date"
@@ -100,24 +105,34 @@ const SearchControls = ({ tags, owners, onFilterChanged }) => {
                     onChange={handleStartDateChange}
                 />
             </div>
-            <div className="flex mb-4">
+            <div className='inline-flex items-center'>
+                <input
+                    type="checkbox"
+                    value={endDateDifferent ? 'Same end date' : 'Different end date'}
+                    checked={endDateDifferent}
+                    onChange={handleEndDateDifferentChange}
+                    className="mr-1"
+                />
+                <span>Different end date</span>
+            </div>
+            {endDateDifferent && <div className="mb-4">
                 <label className="mr-2">End Date:</label>
                 <input
                     type="date"
                     className="border rounded px-2 py-1"
-                    value={endDate}
+                    value={endDateDifferent ? endDate : startDate}
                     onChange={handleEndDateChange}
                 />
-            </div>
-            <div className="flex mb-4">
-                <label className="mr-2">Keyword:</label>
+            </div>}
+            <div className="my-4">
+                <label>Keyword:</label>
                 <input
                     type="text"
-                    className="border rounded px-2 py-1"
+                    className="w-full border rounded px-2 py-1"
                     value={keyword}
                     onChange={handleKeywordChange}
                 />
-                <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleFilterChanged}>
+                <button className="bg-blue-500 text-white mt-1 px-2 py-1 rounded" onClick={handleFilterChanged}>
                     Search
                 </button>
             </div>

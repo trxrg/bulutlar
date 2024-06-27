@@ -19,9 +19,6 @@ const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
   const [allOwners, setAllOwners] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
 
-  console.log('disp maintext in addarticle: ')
-  console.log(dispMainText);
-
   const explanationRef = useRef();
   const mainTextRef = useRef();
   const commentRef = useRef();
@@ -31,7 +28,6 @@ const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
 
   useEffect(() => {
     // Logic to execute after component initialization
-    console.log('Component initialized');
     getOwners();
     getTags();
     getCategories();
@@ -170,7 +166,7 @@ const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
         <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
         <div className='flex justify-between'>
           <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
-            Submit
+            {article ? "Save" : "Submit"}
           </button>
 
         </div>

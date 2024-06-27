@@ -35,6 +35,12 @@ const MainScreen = () => {
     }
 
     const handleAddTab = (articleId) => {
+        console.log('handleAddTab with articleId: ')
+        console.log(articleId);
+        
+        if (!allArticles.map(article => article.id).includes(articleId))
+            return;
+
         if (tabs.map(tab => tab.id).includes(articleId)) {
             setActiveTabId(articleId);
             return;
@@ -49,7 +55,7 @@ const MainScreen = () => {
         const updatedTabs = tabs.filter(tab => tab.id !== tabId);
         setTabs(updatedTabs);
         if (activeTabId === tabId && updatedTabs.length > 0) {
-            setActiveTabId(updatedTabs[0].id); // Activate the first tab if the closed tab was active
+            setActiveTabId(updatedTabs[updatedTabs.length-1].id); // Activate the first tab if the closed tab was active
         }
     };
 
@@ -74,11 +80,12 @@ const MainScreen = () => {
     }
 
     const handleEditClicked = (article) => {
-        console.log('handle edit clicked');
-        console.log('article:');
-        console.log(article);
         setEditedArticle(article);
         setActiveScreen('addArticle');
+    }
+
+    const handleLinkClicked = (articleId) => {
+        handleAddTab(articleId);
     }
 
     return (
@@ -110,7 +117,7 @@ const MainScreen = () => {
                 </div>
             </div>
             <div className='h-[90%] border border-blue-800'>
-                {activeScreen === 'tabs' ? <TabsScreen onEditClicked={handleEditClicked} activeTabId={activeTabId} setActiveTabId={setActiveTabId} handleAddTab={handleAddTab} handleCloseTab={handleCloseTab} tabs={tabs} setTabs={setTabs} allArticles={allArticles}></TabsScreen> : undefined}
+                {activeScreen === 'tabs' ? <TabsScreen onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked} activeTabId={activeTabId} setActiveTabId={setActiveTabId} handleAddTab={handleAddTab} handleCloseTab={handleCloseTab} tabs={tabs} setTabs={setTabs} allArticles={allArticles}></TabsScreen> : undefined}
                 {activeScreen === 'addArticle' ? <AddArticle article={editedArticle} afterSubmitClicked={afterSubmitArticle} afterDeleteClicked={afterDeleteArticle}></AddArticle> : undefined}
             </div>
         </div>

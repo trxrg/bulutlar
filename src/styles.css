@@ -1,0 +1,35 @@
+.prose a {
+    color: #ca5425; /* Dark gray text color */
+    text-decoration: none; /* Remove underline */
+    font-weight: 500; /* Medium font weight */
+    position: relative; /*Positioning for pseudo-elements*/
+    display: inline-block; /*Make links inline-block for padding */
+    padding-bottom: 1px; /* Add a bottom padding for a subtle underline effect */
+    transition: color 0.3s ease; /* Smooth color transition */
+    /*overflow: hidden; /* Hide overflow from pseudo-element */
+  }
+  
+  /* Hover effect */
+  .prose a:hover {
+    color: #7c7001; /* Darker gray on hover */
+  }
+  
+  /* Underline pseudo-element */
+  .prose a::after {
+    content: ''; /* Empty content */
+    position: absolute; /* Position relative to link */
+    left: 0; /* Align to left */
+    bottom: 0; /* Align to bottom */
+    width: 100%; /* Full width */
+    height: 2px; /* Underline height */
+    background-color: #ffe600; /* Blue underline color */
+    transform: scaleX(0); /* Initially scaled to 0 */
+    transform-origin: left; /* Scale from left */
+    transition: transform 0.3s ease; /* Smooth animation */
+  }
+  
+  /* Scale underline on hover */
+  .prose a:hover::after {
+    transform: scaleX(1); /* Scale to full width */
+  }
+  

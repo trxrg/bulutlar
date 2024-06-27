@@ -5,9 +5,6 @@ import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 const RichText = React.forwardRef(({ text, onTextChange }, ref) => {
   const [editorHtml, setEditorHtml] = useState(text);
 
-  console.log('editorhtml in richtext: ');
-  console.log(editorHtml);
-
   const handleChange = (html) => {
     setEditorHtml(html);
     onTextChange(html);

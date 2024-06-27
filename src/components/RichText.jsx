@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import Quill styles
 
 const RichText = React.forwardRef(({ text, onTextChange }, ref) => {
@@ -10,13 +10,30 @@ const RichText = React.forwardRef(({ text, onTextChange }, ref) => {
     onTextChange(html);
   };
 
+  try {
+    const Link = Quill.import('formats/link');
+    Link.sanitize = function (url) {
+      return url;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+
   const reset = () => {
     // setEditorHtml('');
   }
 
   React.useImperativeHandle(ref, () => ({
     reset
-  })); 
+  }));
+
+  const customSanitizer = (url) => {
+    return url;
+  }
+
+  const formats = [
+    'bold', 'italic', 'underline', 'link',
+  ];
 
   return (
     <div>
@@ -27,8 +44,9 @@ const RichText = React.forwardRef(({ text, onTextChange }, ref) => {
         readOnly={false}
         className="bg-white"
         // style={{border: '20px !important', padding: '20px'}}
-        modules={{toolbar: true}}
+        modules={{ toolbar: true }}
         // formats={formats}
+        // sanitize={customSanitizer}
       />
       {/* <div>
         <h2>Preview</h2>

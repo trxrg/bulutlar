@@ -69,10 +69,10 @@ const SearchScreen = ({ handleSearchResultClicked, allArticles }) => {
       paneStyle={{ overflow: 'auto' }}
       resizerStyle={{ background: 'green', cursor: 'col-resize', width: '12px' }}
     >
-      <div className="bg-pink-500">
+      <div className="bg-green-500">
         {ownersLoaded && tagsLoaded ? <SearchControls tags={tags} owners={owners} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
       </div>
-      <div className="bg-red-300">
+      <div className="bg-green-200">
         <SearchResults ref={searchResultsRef} articles={allArticles} handleClick={handleSearchResultClicked}></SearchResults>
       </div>
     </SplitPane>

@@ -82,9 +82,6 @@ const MainScreen = () => {
     }
 
     const handleLinkClicked = (articleCode) => {
-        console.log('article code:')
-        console.log(articleCode);
-
         const article = allArticles.find(article => article.code === articleCode);
         if (!article)
             return;

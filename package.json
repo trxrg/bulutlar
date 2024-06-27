@@ -1,5 +1,5 @@
 {
-  "name": "my-electron-app",
+  "name": "Bulutlar",
   "version": "1.0.0",
   "description": "",
   "main": "backend/main.js",
@@ -13,7 +13,7 @@
     "eject": "react-scripts eject",
     "package-mac": "npm run build-react  && electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --asar --out=release-builds",
     "package-win32": "npm run build-react  && electron-packager . AppName --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --asar --out=release-builds",
-    "package-win": "npm run build-react  && electron-packager . AppName --overwrite --platform=win32 --arch=x64 --icon=assets/icons/win/icon.ico --prune=true --asar --out=release-builds",
+    "package-win": "npm run build-react  && electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --asar --out=release-builds",
     "package-linux": "npm run build-react  && electron-packager . AppName --overwrite --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --asar --out=release-builds"
   },
   "eslintConfig": {

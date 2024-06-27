@@ -13,8 +13,6 @@ const TabsScreen = ({ onEditClicked, onLinkClicked, activeTabId, setActiveTabId,
   }
 
   const handleLinkClicked = (articleCode) => {
-    console.log('article code in tabsscreen');
-    console.log(articleCode);
     onLinkClicked(articleCode);
   }
 

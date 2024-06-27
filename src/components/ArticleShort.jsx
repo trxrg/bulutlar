@@ -54,7 +54,7 @@ export default function ArticleShort({ article, handleClick }) {
                 </div>
             </div>
             <div>
-                <h2 onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>
+                <h2 className='hover:text-green-500' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>
                 {showCode && <h2>{article.code}</h2>}
             </div>
         </div>

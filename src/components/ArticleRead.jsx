@@ -82,7 +82,7 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
       </div>
 
       <div className='flex'>
-        <h2 className='mx-2 cursor-pointer' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>
+        <h2 className='mx-2 cursor-pointer hover:text-green-500' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>
         {showCode && <h2>{article.code}</h2>}
       </div>
     </div>

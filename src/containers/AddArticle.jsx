@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
-import { addArticle, updateArticle, getAllOwners, getAllTags, getAllCategories } from '../backend-adapter/BackendAdapter';
+import { addArticle, updateArticle, deleteArticle, getAllOwners, getAllTags, getAllCategories } from '../backend-adapter/BackendAdapter';
 import OwnerList from '../components/OwnerList';
 import TagList from '../components/TagList';
 import RichText from '../components/RichText';
 import CategoryList from '../components/CategoryList';
 
-const AddArticle = ({ article, afterSubmitClicked }) => {
+const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
   const [dispTitle, setDispTitle] = useState(article ? article.title : '');
   const [dispDate, setDispDate] = useState(article ? new Date(article.date) : new Date());
   const [dispExplanation, setDispExplanation] = useState(article ? article.explanation : '');
@@ -103,7 +103,6 @@ const AddArticle = ({ article, afterSubmitClicked }) => {
       console.error(err.message);
     }
 
-
     // Reset form fields after submission
     // setDispTitle('');
     // setDispExplanation('');
@@ -120,49 +119,66 @@ const AddArticle = ({ article, afterSubmitClicked }) => {
     // tagsRef.current.reset();
   };
 
+  const handleDeleteArticle = async () => {
+    const articleId = article.id;
+    await deleteArticle(articleId);
+    afterDeleteClicked(articleId);
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="max-h-full overflow-auto mx-auto p-6 bg-gray-100 shadow-md rounded-lg">
-      <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="title">Title:</label>
-        <input
-          id="title"
-          type="text"
-          value={dispTitle}
-          onChange={(e) => setDispTitle(e.target.value)}
-          required
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
+    <div className='max-h-full overflow-auto'>
+      <form onSubmit={handleSubmit} className="mx-auto p-6 bg-gray-100 shadow-md rounded-lg">
+        <div className="mb-4">
+          <label className="block text-gray-700 font-bold mb-2" htmlFor="title">Title:</label>
+          <input
+            id="title"
+            type="text"
+            value={dispTitle}
+            onChange={(e) => setDispTitle(e.target.value)}
+            required
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          />
+        </div>
+        <CategoryList ref={categoryRef} categories={allCategories} selectedCategory={dispCategory} onCategoryChange={setDispCategory}></CategoryList>
+        <OwnerList ref={ownerRef} owners={allOwners} selectedOwner={dispOwner} onOwnerChange={setDispOwner}></OwnerList>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>
+          <input
+            type="date"
+            id="dateInput"
+            value={format(dispDate, 'yyyy-MM-dd')}
+            onChange={(e) => setDispDate(e.target.value)}
+            required
+            className='border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:border-blue-500'
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Explanation:</label>
+          <RichText ref={explanationRef} readOnly={false} onTextChange={setDispExplanation} text={dispExplanation}></RichText>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-bold mb-2" htmlFor="mainText">Main Text:</label>
+          <RichText ref={mainTextRef} readOnly={false} onTextChange={setDispMainText} text={dispMainText}></RichText>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-bold mb-2" htmlFor="comment">Comment:</label>
+          <RichText ref={commentRef} readOnly={false} onTextChange={setDispComment} text={dispComment}></RichText>
+        </div>
+        <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
+        <div className='flex justify-between'>
+          <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
+            Submit
+          </button>
+
+        </div>
+      </form>
+      <div className='flex justify-end mx-2'>
+        {article && <button type="button" onClick={handleDeleteArticle} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
+          Delete Article
+        </button>
+        }
       </div>
-      <CategoryList ref={categoryRef} categories={allCategories} selectedCategory={dispCategory} onCategoryChange={setDispCategory}></CategoryList>
-      <OwnerList ref={ownerRef} owners={allOwners} selectedOwner={dispOwner} onOwnerChange={setDispOwner}></OwnerList>
-      <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>
-        <input
-          type="date"
-          id="dateInput"
-          value={format(dispDate, 'yyyy-MM-dd')}
-          onChange={(e) => setDispDate(e.target.value)}
-          required
-          className='border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:border-blue-500'
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Explanation:</label>
-        <RichText ref={explanationRef} readOnly={false} onTextChange={setDispExplanation} text={dispExplanation}></RichText>
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="mainText">Main Text:</label>
-        <RichText ref={mainTextRef} readOnly={false} onTextChange={setDispMainText} text={dispMainText}></RichText>
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="comment">Comment:</label>
-        <RichText ref={commentRef} readOnly={false} onTextChange={setDispComment} text={dispComment}></RichText>
-      </div>
-      <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
-      <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
-        Submit
-      </button>
-    </form>
+    </div>
   );
 };
 

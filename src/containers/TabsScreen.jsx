@@ -2,19 +2,11 @@ import React from 'react';
 import SearchScreen from './SearchScreen';
 import ArticleRead from '../components/ArticleRead';
 
-const TabsScreen = ({ onEditClicked, activeTabId, setActiveTabId, handleAddTab, tabs, setTabs, allArticles }) => {
+const TabsScreen = ({ onEditClicked, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, setTabs, allArticles }) => {
 
   const handleTabClick = (tabId) => {
     setActiveTabId(tabId);
   }; 
-
-  const handleCloseTab = (tabId) => {
-    const updatedTabs = tabs.filter(tab => tab.id !== tabId);
-    setTabs(updatedTabs);
-    if (activeTabId === tabId && updatedTabs.length > 0) {
-      setActiveTabId(updatedTabs[0].id); // Activate the first tab if the closed tab was active
-    }
-  };
 
   const handleEditClicked = (article) => {
     onEditClicked(article);
@@ -35,6 +27,9 @@ const TabsScreen = ({ onEditClicked, activeTabId, setActiveTabId, handleAddTab, 
   }
 
   const getTitle = (articleId) => {
+    if (articleId === 'search')
+      return 'Search';
+    
     const result = allArticles.find(article => article.id === articleId);
 
     if (result)

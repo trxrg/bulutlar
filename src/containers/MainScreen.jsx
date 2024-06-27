@@ -6,6 +6,7 @@ import { getAllArticles } from '../backend-adapter/BackendAdapter';
 
 const MainScreen = () => {
 
+    
     const [allArticles, setAllArticles] = useState([]);
     const [activeScreen, setActiveScreen] = useState('tabs');
     const [editedArticle, setEditedArticle] = useState();
@@ -44,6 +45,14 @@ const MainScreen = () => {
         setActiveTabId(newTabId);
     };
 
+    const handleCloseTab = (tabId) => {
+        const updatedTabs = tabs.filter(tab => tab.id !== tabId);
+        setTabs(updatedTabs);
+        if (activeTabId === tabId && updatedTabs.length > 0) {
+            setActiveTabId(updatedTabs[0].id); // Activate the first tab if the closed tab was active
+        }
+    };
+
     const handleCancel = () => {
         setActiveScreen('tabs');
     }
@@ -51,6 +60,12 @@ const MainScreen = () => {
     const afterSubmitArticle = async (id) => {
         await getArticles();
         handleAddTab(id);
+        setActiveScreen('tabs');
+    }
+
+    const afterDeleteArticle = async (id) => {
+        await getArticles();
+        handleCloseTab(id);
         setActiveScreen('tabs');
     }
 
@@ -95,8 +110,8 @@ const MainScreen = () => {
                 </div>
             </div>
             <div className='h-[90%] border border-blue-800'>
-                {activeScreen === 'tabs' ? <TabsScreen onEditClicked={handleEditClicked} activeTabId={activeTabId} setActiveTabId={setActiveTabId} handleAddTab={handleAddTab} tabs={tabs} setTabs={setTabs} allArticles={allArticles}></TabsScreen> : undefined}
-                {activeScreen === 'addArticle' ? <AddArticle article={editedArticle} afterSubmitClicked={afterSubmitArticle}></AddArticle> : undefined}
+                {activeScreen === 'tabs' ? <TabsScreen onEditClicked={handleEditClicked} activeTabId={activeTabId} setActiveTabId={setActiveTabId} handleAddTab={handleAddTab} handleCloseTab={handleCloseTab} tabs={tabs} setTabs={setTabs} allArticles={allArticles}></TabsScreen> : undefined}
+                {activeScreen === 'addArticle' ? <AddArticle article={editedArticle} afterSubmitClicked={afterSubmitArticle} afterDeleteClicked={afterDeleteArticle}></AddArticle> : undefined}
             </div>
         </div>
     );

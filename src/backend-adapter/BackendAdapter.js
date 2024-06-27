@@ -55,6 +55,10 @@ export async function addArticle(article) {
     return window.api.addArticle(article);
 }
 
+export async function deleteArticle(articleId) {
+    return window.api.deleteArticle(articleId);
+}
+
 export async function updateArticle(articleId, article) {
     return window.api.updateArticle(articleId, article);
 }

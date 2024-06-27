@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld('api', {
   getAllArticles: () => ipcRenderer.invoke('getAllArticles'),
   deleteOwnerWithName: (ownerName) => ipcRenderer.invoke('deleteOwnerWithName', ownerName),
   addArticle: (article) => ipcRenderer.invoke('addArticle', article),
+  deleteArticle: (articleId) => ipcRenderer.invoke('deleteArticle', articleId),
   updateArticle: (articleId, article) => ipcRenderer.invoke('updateArticle', articleId, article),
   getArticleWithId: (articleId) => ipcRenderer.invoke('getArticleWithId', articleId),
   getArticleWithTitleLike: (titleLike) => ipcRenderer.invoke('getArticleWithTitleLike', titleLike),

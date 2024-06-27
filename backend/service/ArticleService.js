@@ -8,6 +8,7 @@ const commentService = require('./CommentService');
 
 function initService() {
     ipcMain.handle('addArticle', (event, article) => addArticle(article));
+    ipcMain.handle('deleteArticle', (event, articleId) => deleteArticle(articleId));
     ipcMain.handle('updateArticle', (event, articleId, article) => updateArticle(articleId, article));
     ipcMain.handle('getArticleWithId', (event, articleId) => getArticleWithId(articleId));
     ipcMain.handle('getArticleWithTitleLike', (event, titleLike) => getArticleWithTitleLike(titleLike));
@@ -37,28 +38,53 @@ async function addArticle(article) {
     return await getArticleWithId(entity.dataValues.id);
 }
 
+async function deleteArticle(articleId) {
+    try {
+        const article = await sequelize.models.article.findByPk(articleId);
+
+        if (!article)
+            throw ('no article found with id: ' + articleId);
+
+        await article.destroy();
+    } catch (error) {
+        console.error('Error deleting article:', error);
+    }
+}
+
 async function updateArticle(articleId, newArticle) {
-    const article = await sequelize.models.article.findByPk(articleId);
-    const entity = await article.update(newArticle);
+    try {
+        const article = await sequelize.models.article.findByPk(articleId);
+        let entity;
 
-    await entity.setComments([]);
-    await entity.setTags([]);
+        if (!article)
+            throw ('no article found with id: ' + articleId);
 
-    if (newArticle.owner)
-        await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(newArticle.owner));
+        entity = await article.update(newArticle);
 
-    if (newArticle.category)
-        await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category));
+        if (!entity)
+            throw ('entity is null');
 
-    if (newArticle.tags)
-        for (const tagName of newArticle.tags)
-            await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tagName));
+        await entity.setComments([]);
+        await entity.setTags([]);
 
-    if (newArticle.comments)
-        for (const comment of newArticle.comments)
-            await entity.addComment(await commentService.addComment(comment));
+        if (newArticle.owner)
+            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(newArticle.owner));
 
-    return await getArticleWithId(entity.dataValues.id);
+        if (newArticle.category)
+            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category));
+
+        if (newArticle.tags)
+            for (const tagName of newArticle.tags)
+                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tagName));
+
+        if (newArticle.comments)
+            for (const comment of newArticle.comments)
+                await entity.addComment(await commentService.addComment(comment));
+
+        return await getArticleWithId(entity.dataValues.id);
+    } catch (error) {
+        console.error('Error updating article:', error);
+    }
 }
 
 async function getArticleWithId(articleId) {

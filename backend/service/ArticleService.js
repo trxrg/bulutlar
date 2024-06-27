@@ -19,7 +19,8 @@ function initService() {
 async function addArticle(article) {
 
     article.number = calculateNumber(article.date);
-    const entity = await sequelize.models.article.create(article);
+    article.code = Math.random().toString(36).substring(2);
+    const entity = await sequelize.models.article.create(article);    
 
     if (article.owner)
         await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner));

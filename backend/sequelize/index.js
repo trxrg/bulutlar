@@ -10,7 +10,7 @@ const sequelize = new Sequelize({
 	logQueryParameters: true,
 	benchmark: true,
 	define: {
-		timestamps: false
+		timestamps: true
 	}
 });
 

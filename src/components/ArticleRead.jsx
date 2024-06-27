@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PencilIcon } from '@heroicons/react/24/outline';
 import '../styles.css';
 
@@ -15,6 +15,11 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
     onLinkClicked(parseInt(event.target.getAttribute('href')));
   };
 
+  const [showCode, setShowCode] = useState(false);
+
+  const toggleShowCode = () => {
+    setShowCode(prev => !prev);
+  }
 
   useEffect(() => {
     const handleLinkClick = (event) => {
@@ -74,6 +79,11 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
             </li>
           ))}
         </ul>
+      </div>
+
+      <div className='flex'>
+        <h2 className='mx-2 cursor-pointer' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>
+        {showCode && <h2>{article.code}</h2>}
       </div>
     </div>
   );

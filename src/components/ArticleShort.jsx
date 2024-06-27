@@ -1,10 +1,18 @@
+import { useState } from 'react';
+
 import parse from 'html-react-parser';
 import TagButton from './TagButton';
+import React from 'react';
 
 export default function ArticleShort({ article, handleClick }) {
     const numberOfTags = 3;
     const numberOfCharsForText = 50;
 
+    const [showCode, setShowCode] = useState(false);
+
+    const toggleShowCode = () => {
+        setShowCode(prev => !prev);
+    }
 
     const getFormattedDate = (datestr) => {
         const date = new Date(datestr);
@@ -32,16 +40,22 @@ export default function ArticleShort({ article, handleClick }) {
     }
 
     return (
-        <div onClick={() => handleClick(article.id)} className="rounded-md bg-stone-200 hover:bg-stone-100 
+        <div className="rounded-md bg-stone-200 hover:bg-stone-100 
         active:bg-stone-200 active:shadow-none px-10 my-4 mx-4 py-6 shadow-xl cursor-pointer">
-            <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600">{article.title}</h2>
-            <h3>{article.owner.name + '  -  ' + getFormattedDate(article.date) + ' ' + getDayOfWeek(article.date) + ' (' + article.number + ')'}</h3>
-            <article className='my-2'>
-                {parse(article.text.substring(0, numberOfCharsForText) + '...')}
-            </article>
+            <div onClick={() => handleClick(article.id)} >
+                <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600">{article.title}</h2>
+                <h3>{article.owner.name + '  -  ' + getFormattedDate(article.date) + ' ' + getDayOfWeek(article.date) + ' (' + article.number + ')'}</h3>
+                <article className='my-2'>
+                    {parse(article.text.substring(0, numberOfCharsForText) + '...')}
+                </article>
+                <div>
+                    {article.tags.slice(0, numberOfTags).map(tag => <TagButton key={Math.random()}>{tag.name}</TagButton>)}
+                    {article.tags.length > numberOfTags ? <h4 className='inline-block'>...</h4> : undefined}
+                </div>
+            </div>
             <div>
-                {article.tags.slice(0, numberOfTags).map(tag => <TagButton key={Math.random()}>{tag.name}</TagButton>)}
-                {article.tags.length > numberOfTags ? <h4 className='inline-block'>...</h4> : undefined}
+                <h2 onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>
+                {showCode && <h2>{article.code}</h2>}
             </div>
         </div>
     );

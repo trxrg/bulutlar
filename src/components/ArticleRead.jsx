@@ -11,10 +11,7 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
   }
 
   const handleLinkClicked = (event) => {
-    console.log('in handlelinkclicked before prevent default')
     event.preventDefault(); // Prevent default link behavior
-    console.log('in handlelinkclicked after prevent default')
-    console.log(event.target.closest('a').getAttribute('href'));
   
     onLinkClicked(event.target.closest('a').getAttribute('href'));
   };

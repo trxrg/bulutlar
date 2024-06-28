@@ -2,7 +2,10 @@ import React from 'react';
 import SearchScreen from './SearchScreen';
 import ArticleRead from '../components/ArticleRead';
 
-const TabsScreen = ({ onEditClicked, onLinkClicked, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, setTabs, allArticles }) => {
+const TabsScreen = ({ onEditClicked, onLinkClicked, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, allArticles }) => {
+
+  console.log('tabs in tabsscreen (rerendering)');
+  console.log(tabs);
 
   const handleTabClick = (tabId) => {
     setActiveTabId(tabId);
@@ -13,6 +16,10 @@ const TabsScreen = ({ onEditClicked, onLinkClicked, activeTabId, setActiveTabId,
   }
 
   const handleLinkClicked = (articleCode) => {
+
+    console.log('tabs in tabsscreen handleLinkClicked');
+    console.log(tabs);
+    
     onLinkClicked(articleCode);
   }
 
@@ -33,14 +40,12 @@ const TabsScreen = ({ onEditClicked, onLinkClicked, activeTabId, setActiveTabId,
     return 'Title: ' + articleId;
   }
 
-
-
   return (
     <div className="h-full border border-green-300">
       {/* Top-aligned tabs */}
       <div className="h-[10%] flex border-b border-gray-200">
         {tabs.map(tab => (
-          <button
+          <div
             key={tab.id}
             className={`${activeTabId === tab.id
               ? 'bg-gray-100 text-gray-800'
@@ -60,7 +65,7 @@ const TabsScreen = ({ onEditClicked, onLinkClicked, activeTabId, setActiveTabId,
                 &#10006;
               </button>
             )}
-          </button>
+          </div>
         ))}
       </div>
 
@@ -68,7 +73,10 @@ const TabsScreen = ({ onEditClicked, onLinkClicked, activeTabId, setActiveTabId,
       <div className='h-[90%] border border-red-800'>
         {tabs.map(tab => (
           <div key={tab.id} className={activeTabId === tab.id ? 'h-full relative' : 'hidden'}>
-            {tab.id == 'search' ? <SearchScreen handleSearchResultClicked={handleAddTab} allArticles={allArticles}></SearchScreen> : <ArticleRead article={getArticle(tab.id)} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked}></ArticleRead>}
+            {tab.id == 'search' ?
+              <SearchScreen handleSearchResultClicked={handleAddTab} allArticles={allArticles}></SearchScreen>
+              :
+              <ArticleRead article={getArticle(tab.id)} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked}></ArticleRead>}
           </div>
         ))}
       </div>

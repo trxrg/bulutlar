@@ -4,6 +4,8 @@ import '../styles.css';
 
 const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
 
+  console.log('articleRead rendering title: ' + article.title);
+
   const { title, category, owner, date, number, explanation, text, comments, tags } = article;
 
   const handleEditClicked = (article) => {
@@ -13,7 +15,9 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
   const handleLinkClicked = (event) => {
     event.preventDefault(); // Prevent default link behavior
   
-    onLinkClicked(event.target.closest('a').getAttribute('href'));
+    console.log('link clicked');
+    if (event.target.closest('a'))
+      onLinkClicked(event.target.closest('a').getAttribute('href'));
   };
 
   const [showCode, setShowCode] = useState(false);

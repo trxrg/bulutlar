@@ -6,7 +6,7 @@ import { getAllArticles } from '../backend-adapter/BackendAdapter';
 
 const MainScreen = () => {
 
-    
+
     const [allArticles, setAllArticles] = useState([]);
     const [activeScreen, setActiveScreen] = useState('tabs');
     const [editedArticle, setEditedArticle] = useState();
@@ -14,6 +14,10 @@ const MainScreen = () => {
     const [tabs, setTabs] = useState([
         { id: 'search', title: 'Search' }
     ]);
+
+    
+    console.log('mainscreen rendering tabs:');
+    console.log(tabs);
 
     const getArticles = async () => {
         try {
@@ -29,6 +33,12 @@ const MainScreen = () => {
         getArticles();
     }, []);
 
+    useEffect(() => {
+        // Logic to execute after component initialization
+        console.log('TABS CHANGED');
+        console.log(tabs);
+    }, [tabs]);
+
     const handleAddArticle = () => {
         setEditedArticle(undefined);
         setActiveScreen('addArticle');
@@ -38,6 +48,8 @@ const MainScreen = () => {
         if (!allArticles.map(article => article.id).includes(articleId))
             return;
 
+        console.log('tabs in handleAddTab before adding tab:');
+        console.log(tabs);
         if (tabs.map(tab => tab.id).includes(articleId)) {
             setActiveTabId(articleId);
             return;
@@ -50,9 +62,10 @@ const MainScreen = () => {
 
     const handleCloseTab = (tabId) => {
         const updatedTabs = tabs.filter(tab => tab.id !== tabId);
-        setTabs(updatedTabs);
+        setTabs(prevTabs => prevTabs.filter(tab => tab.id !== tabId));
+
         if (activeTabId === tabId && updatedTabs.length > 0) {
-            setActiveTabId(updatedTabs[updatedTabs.length-1].id); // Activate the first tab if the closed tab was active
+            setActiveTabId(updatedTabs[updatedTabs.length - 1].id); // Activate the first tab if the closed tab was active
         }
     };
 
@@ -77,6 +90,8 @@ const MainScreen = () => {
     }
 
     const handleEditClicked = (article) => {
+        console.log('tabs in handleEditClicked:');
+        console.log(tabs);
         setEditedArticle(article);
         setActiveScreen('addArticle');
     }
@@ -85,6 +100,9 @@ const MainScreen = () => {
         const article = allArticles.find(article => article.code === articleCode);
         if (!article)
             return;
+
+        console.log('tabs in handleLinkClicked:');
+        console.log(tabs);
 
         handleAddTab(article.id);
     }
@@ -118,8 +136,21 @@ const MainScreen = () => {
                 </div>
             </div>
             <div className='h-[90%] border border-blue-800'>
-                {activeScreen === 'tabs' ? <TabsScreen onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked} activeTabId={activeTabId} setActiveTabId={setActiveTabId} handleAddTab={handleAddTab} handleCloseTab={handleCloseTab} tabs={tabs} setTabs={setTabs} allArticles={allArticles}></TabsScreen> : undefined}
-                {activeScreen === 'addArticle' ? <AddArticle article={editedArticle} afterSubmitClicked={afterSubmitArticle} afterDeleteClicked={afterDeleteArticle}></AddArticle> : undefined}
+                {activeScreen === 'tabs' ?
+                    <TabsScreen onEditClicked={handleEditClicked}
+                        onLinkClicked={handleLinkClicked}
+                        activeTabId={activeTabId}
+                        setActiveTabId={setActiveTabId}
+                        handleAddTab={handleAddTab}
+                        handleCloseTab={handleCloseTab}
+                        tabs={tabs}
+                        allArticles={allArticles}></TabsScreen>
+                    : undefined}
+                {activeScreen === 'addArticle' ?
+                    <AddArticle article={editedArticle}
+                        afterSubmitClicked={afterSubmitArticle}
+                        afterDeleteClicked={afterDeleteArticle}></AddArticle>
+                    : undefined}
             </div>
         </div>
     );

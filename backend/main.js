@@ -10,7 +10,19 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      sandbox: true,
+      webSecurity: true,
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'"],
+          imgSrc: ["'self'"],
+          // Add more directives as needed
+        }
+      }
     }
   })
 
@@ -29,7 +41,7 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
   initDB();
-  initServices();  
+  initServices();
   createWindow();
 
   app.on('activate', () => {

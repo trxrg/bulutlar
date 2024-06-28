@@ -11,8 +11,12 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
   }
 
   const handleLinkClicked = (event) => {
+    console.log('in handlelinkclicked before prevent default')
     event.preventDefault(); // Prevent default link behavior
-    onLinkClicked(event.target.getAttribute('href'));
+    console.log('in handlelinkclicked after prevent default')
+    console.log(event.target.closest('a').getAttribute('href'));
+  
+    onLinkClicked(event.target.closest('a').getAttribute('href'));
   };
 
   const [showCode, setShowCode] = useState(false);
@@ -22,23 +26,16 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
   }
 
   useEffect(() => {
-    const handleLinkClick = (event) => {
-      // Check if the clicked element is an anchor tag within the component
-      if (event.target.tagName.toLowerCase() === 'a') {
-        handleLinkClicked(event);
-      }
-    };
-
     // Attach event listener to the component's container
-    const containers = document.getElementsByClassName('articleRead');
+    const containers = document.getElementsByClassName('richText');
     Array.from(containers).forEach(container => {
-      container.addEventListener('click', handleLinkClick);
+      container.addEventListener('click', handleLinkClicked);
     });
 
     // Clean up the event listener
     return () => {
       Array.from(containers).forEach(container => {
-        container.removeEventListener('click', handleLinkClick);
+        container.removeEventListener('click', handleLinkClicked);
       });
     };
   }, []); // Empty dependency array ensures useEffect runs only once
@@ -58,7 +55,7 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
         </div>
         <p className="text-sm text-gray-600 mt-2">{owner && owner.name + " | "} {new Date(date).toLocaleDateString('tr')} ({number})</p>
         {/* <p className="text-gray-700 mt-4">{text}</p> */}
-        <div id="articleRead" className="articleRead prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: explanation }} />
+        <div className="richText prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: explanation }} />
         <div className='bg-green-100'>
           <h3 className="text-xl font-semibold my-4">Tags</h3>
           <div className="flex flex-wrap">
@@ -67,7 +64,7 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
             ))}
           </div>
         </div>
-        <div id="articleRead" class="articleRead" className="articleRead prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: text }} />
+        <div className="richText prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: text }} />
       </div>
 
       <div className="p-6 bg-gray-100 border-t border-gray-200">
@@ -75,7 +72,7 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
         <ul className="divide-y divide-gray-200">
           {comments.map((comment, index) => (
             <li key={index} className="py-4">
-              <div id="articleRead" className="articleRead prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: comment.text }} />
+              <div className="richText prose text-gray-700 mt-4" dangerouslySetInnerHTML={{ __html: comment.text }} />
             </li>
           ))}
         </ul>

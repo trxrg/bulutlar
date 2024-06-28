@@ -2,10 +2,7 @@ import React from 'react';
 import SearchScreen from './SearchScreen';
 import ArticleRead from '../components/ArticleRead';
 
-const TabsScreen = ({ onEditClicked, onLinkClicked, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, allArticles }) => {
-
-  console.log('tabs in tabsscreen (rerendering)');
-  console.log(tabs);
+const TabsScreen = ({ onEditClicked, handleLinkClicked, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, allArticles }) => {
 
   const handleTabClick = (tabId) => {
     setActiveTabId(tabId);
@@ -13,14 +10,6 @@ const TabsScreen = ({ onEditClicked, onLinkClicked, activeTabId, setActiveTabId,
 
   const handleEditClicked = (article) => {
     onEditClicked(article);
-  }
-
-  const handleLinkClicked = (articleCode) => {
-
-    console.log('tabs in tabsscreen handleLinkClicked');
-    console.log(tabs);
-    
-    onLinkClicked(articleCode);
   }
 
   const getArticle = (articleId) => {

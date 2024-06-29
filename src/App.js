@@ -20,7 +20,7 @@ function App() {
   }
 
   return (
-    <div>
+    <div className='bg-gradient-to-r from-stone-800 via-stone-100 to-stone-800'>
       <MainScreen></MainScreen>
     </div>
   );

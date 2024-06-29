@@ -126,7 +126,7 @@ const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
 
   return (
     <div className='max-h-full overflow-auto'>
-      <form onSubmit={handleSubmit} className="mx-auto p-6 bg-gray-100 shadow-md rounded-lg">
+      <form onSubmit={handleSubmit} className="mx-auto p-6 bg-stone-50 shadow-md rounded-lg">
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="title">Title:</label>
           <input

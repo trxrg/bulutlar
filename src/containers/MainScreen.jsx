@@ -91,19 +91,19 @@ const MainScreen = () => {
     }
 
     return (
-        <div className="h-screen max-w-5xl border border-blue-300 p-4 mx-auto">
-            <div className="h-[10%] flex justify-end items-center mb-4 border border-red-200">
+        <div className="h-screen max-w-4xl mx-auto">
+            <div className="h-[10%] flex justify-end items-center">
                 <div className='h-2/3'>
                     {activeScreen === 'tabs' ?
                         <>
                             <button
-                                className="bg-green-600 text-white py-2 px-4 mx-2 rounded-md hover:bg-green-700 focus:outline-none"
+                                className="button text-white py-2 px-4 mx-2 rounded-md hover:bg-green-700 focus:outline-none"
                                 onClick={handleRandom}
                             >
                                 Random
                             </button>
                             <button
-                                className="bg-blue-600 text-white py-2 px-4 mx-2 rounded-md hover:bg-blue-700 focus:outline-none"
+                                className="button text-white py-2 px-4 mx-2 rounded-md hover:bg-blue-700 focus:outline-none"
                                 onClick={handleAddArticle}
                             >
                                 Add Article
@@ -118,7 +118,7 @@ const MainScreen = () => {
                         </button>}
                 </div>
             </div>
-            <div className='h-[90%] border border-blue-800'>
+            <div className='h-[90%]'>
                 {activeScreen === 'tabs' ?
                     <TabsScreen onEditClicked={handleEditClicked}
                         handleLinkClicked={handleLinkClicked}

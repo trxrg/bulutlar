@@ -39,9 +39,10 @@ export default function ArticleShort({ article, handleClick }) {
         return weekdays[date.getDay()];
     }
 
+
     return (
-        <div className="rounded-md bg-stone-200 hover:bg-stone-100 
-        active:bg-stone-200 active:shadow-none px-10 my-4 mx-4 py-6 shadow-xl cursor-pointer">
+        <div className="rounded-md bg-teal-200 hover:bg-teal-100 
+        active:bg-blue-500 active:shadow-none px-10 my-4 mx-4 py-6 shadow-xl cursor-pointer">
             <div onClick={() => handleClick(article.id)} >
                 <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600">{article.title}</h2>
                 <h3>{article.owner.name + '  -  ' + getFormattedDate(article.date) + ' ' + getDayOfWeek(article.date) + ' (' + article.number + ')'}</h3>
@@ -54,7 +55,7 @@ export default function ArticleShort({ article, handleClick }) {
                 </div>
             </div>
             <div>
-                <h2 className='hover:text-green-500' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>
+                <h2 className='hover:text-gray-500' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>
                 {showCode && <h2>{article.code}</h2>}
             </div>
         </div>

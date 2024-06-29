@@ -64,11 +64,10 @@ const SearchScreen = ({ handleSearchResultClicked, allArticles }) => {
         position: 'absolute',
         left: 0,
         overflow: 'hidden',
-        height: '100%',
-        background: '#174c6b'
+        height: '100%'
       }}
       paneStyle={{ overflow: 'auto' }}
-      resizerStyle={{ background: '#7c0101', cursor: 'col-resize', width: '12px' }}
+      resizerStyle={{ background: '#6b6969', cursor: 'col-resize', width: '12px' }}
     >
       <div>
         {ownersLoaded && tagsLoaded ? <SearchControls tags={tags} owners={owners} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}

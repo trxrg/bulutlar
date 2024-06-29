@@ -91,34 +91,37 @@ const MainScreen = () => {
     }
 
     return (
-        <div className="h-screen max-w-4xl mx-auto">
-            <div className="h-[10%] flex justify-end items-center">
-                <div className='h-2/3'>
-                    {activeScreen === 'tabs' ?
-                        <>
+        <div className="h-screen max-w-4xl mx-auto bg-stone-200">
+            <div className='h-[15%] flex justify-between items-center px-4 border-b-4 border-red-300'>
+                <h1 className='text-5xl text-gray-600'>BULUTLAR</h1>
+                <div className="flex justify-end items-center">
+                    <div className='h-2/3'>
+                        {activeScreen === 'tabs' ?
+                            <>
+                                <button
+                                    className="button text-white py-2 px-4 mx-2 rounded-md hover:bg-green-700 focus:outline-none"
+                                    onClick={handleRandom}
+                                >
+                                    Random
+                                </button>
+                                <button
+                                    className="button text-white py-2 px-4 mx-2 rounded-md hover:bg-blue-700 focus:outline-none"
+                                    onClick={handleAddArticle}
+                                >
+                                    Add Article
+                                </button>
+                            </>
+                            :
                             <button
-                                className="button text-white py-2 px-4 mx-2 rounded-md hover:bg-green-700 focus:outline-none"
-                                onClick={handleRandom}
+                                className="bg-red-500 text-white py-2 px-4 mx-2 rounded-md hover:bg-red-600 focus:outline-none"
+                                onClick={handleCancel}
                             >
-                                Random
-                            </button>
-                            <button
-                                className="button text-white py-2 px-4 mx-2 rounded-md hover:bg-blue-700 focus:outline-none"
-                                onClick={handleAddArticle}
-                            >
-                                Add Article
-                            </button>
-                        </>
-                        :
-                        <button
-                            className="bg-red-500 text-white py-2 px-4 mx-2 rounded-md hover:bg-red-600 focus:outline-none"
-                            onClick={handleCancel}
-                        >
-                            Cancel
-                        </button>}
+                                Cancel
+                            </button>}
+                    </div>
                 </div>
             </div>
-            <div className='h-[90%]'>
+            <div className='h-[85%]'>
                 {activeScreen === 'tabs' ?
                     <TabsScreen onEditClicked={handleEditClicked}
                         handleLinkClicked={handleLinkClicked}

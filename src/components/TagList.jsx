@@ -37,13 +37,13 @@ const TagList = React.forwardRef(({ allTags, selectedTags, onTagsChange }, ref) 
     return (
         <div>
             <label className="block text-gray-700 font-bold mb-2" htmlFor="mainText">Tags:</label>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className='flex'>
                 <input
                     type="text"
                     value={inputValue}
                     onChange={handleInputChange}
                     placeholder="Type tags..."
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <button type="button" onClick={() => handleTagClick(inputValue)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-2 rounded focus:outline-none focus:shadow-outline">Add</button>
             </div>

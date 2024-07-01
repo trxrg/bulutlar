@@ -39,7 +39,7 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
   // }, []); // Empty dependency array ensures useEffect runs only once
 
   return (
-    <div className="max-h-full overflow-auto mx-auto bg-stone-50 shadow-md rounded-lg mb-8">
+    <div className="max-h-full overflow-auto mx-auto bg-stone-50 shadow-md rounded-lg">
       <div className="p-6">
         <div className='flex justify-between'>
           <h2 className="text-3xl font-semibold text-gray-800">{title}</h2>
@@ -54,14 +54,6 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
         <p className="text-sm text-gray-600 mt-2">{owner && owner.name + " | "} {new Date(date).toLocaleDateString('tr')} ({number})</p>
         {/* <p className="text-gray-700 mt-4">{text}</p> */}
         <div className="prose text-gray-700 mt-4 text-l" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: explanation }} />
-        <div className='border border-red-500'>
-          <h3 className="text-xl font-semibold my-4">Tags</h3>
-          <div className="flex flex-wrap">
-            {tags.map((tag, index) => (
-              <span key={index} className="bg-gray-200 text-gray-800 rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2">{tag.name}</span>
-            ))}
-          </div>
-        </div>
         <div className="prose text-gray-700 mt-4 text-xl" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: text }} />
       </div>
 

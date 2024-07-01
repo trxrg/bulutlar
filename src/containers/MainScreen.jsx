@@ -91,7 +91,7 @@ const MainScreen = () => {
     }
 
     return (
-        <div className="h-screen max-w-4xl mx-auto bg-stone-200">
+        <div className="h-screen max-w-5xl mx-auto bg-stone-200">
             <div className='h-[15%] flex justify-between items-center px-4 border-b-4 border-red-300'>
                 <h1 className='text-5xl text-gray-600'>BULUTLAR</h1>
                 <div className="flex justify-end items-center">

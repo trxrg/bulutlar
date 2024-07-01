@@ -1,6 +1,6 @@
 import React from 'react';
 import SearchScreen from './SearchScreen';
-import ArticleRead from '../components/ArticleRead';
+import ReadScreen from './ReadScreen';
 
 const TabsScreen = ({ onEditClicked, handleLinkClicked, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, allArticles }) => {
 
@@ -65,7 +65,7 @@ const TabsScreen = ({ onEditClicked, handleLinkClicked, activeTabId, setActiveTa
             {tab.id == 'search' ?
               <SearchScreen handleSearchResultClicked={handleAddTab} allArticles={allArticles}></SearchScreen>
               :
-              <ArticleRead article={getArticle(tab.id)} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked}></ArticleRead>}
+              <ReadScreen article={getArticle(tab.id)} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked}></ReadScreen>}
           </div>
         ))}
       </div>

@@ -4,6 +4,7 @@ import TagButton from './TagButton';
 const TagList = React.forwardRef(({ allTags, selectedTags, onTagsChange }, ref) => {
     const suggestedTagNumber = 5;
     const [tags, setTags] = useState(selectedTags);
+    const [showSuggestions, setShowSuggestions] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const suggestedTags = allTags;
 
@@ -41,12 +42,15 @@ const TagList = React.forwardRef(({ allTags, selectedTags, onTagsChange }, ref) 
                 <input
                     type="text"
                     value={inputValue}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => setShowSuggestions(false)}
                     onChange={handleInputChange}
                     placeholder="Type tags..."
                     className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <button type="button" onClick={() => handleAddTag(inputValue)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-2 rounded focus:outline-none focus:shadow-outline">Add</button>
             </div>
+            {showSuggestions && 
             <div>
                 {suggestedTags
                     .filter(tag => tag.name.toLowerCase().includes(inputValue.toLowerCase()))
@@ -57,7 +61,7 @@ const TagList = React.forwardRef(({ allTags, selectedTags, onTagsChange }, ref) 
                             <button className='mx-2'>{tag.name}</button>
                         </span>
                     ))}
-            </div>
+            </div>}
             <div>
                 {tags.map(tag => (
                     <span key={tag.id} onClick={() => handleRemoveTag(tag)}>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
-import { addArticle, updateArticle, deleteArticle, getAllOwners, getAllTags, getAllCategories } from '../backend-adapter/BackendAdapter';
+import { addArticle, updateArticle, deleteArticle, getAllCategories } from '../backend-adapter/BackendAdapter';
 import OwnerList from '../components/OwnerList';
 import TagList from '../components/TagList';
 import RichText from '../components/RichText';
 import CategoryList from '../components/CategoryList';
 
-const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
+const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDeleteClicked }) => {
   const [dispTitle, setDispTitle] = useState(article ? article.title : '');
   const [dispDate, setDispDate] = useState(article ? new Date(article.date) : new Date());
   const [dispExplanation, setDispExplanation] = useState(article ? article.explanation : '');
@@ -14,9 +14,7 @@ const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
   const [dispComment, setDispComment] = useState(article && article.comments[0] ? article.comments[0].text : '');
   const [dispOwner, setDispOwner] = useState(article ? article.owner.name : '')
   const [dispCategory, setDispCategory] = useState(article ? article.category.name : '');
-  const [dispTags, setDispTags] = useState(article ? article.tags.map(tag => tag.name) : []);
-  const [allTags, setAllTags] = useState([]);
-  const [allOwners, setAllOwners] = useState([]);
+  const [dispTags, setDispTags] = useState(article ? article.tags : []);
   const [allCategories, setAllCategories] = useState([]);
 
   const explanationRef = useRef();
@@ -26,35 +24,18 @@ const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
   const ownerRef = useRef();
   const categoryRef = useRef();
 
+  console.log('all tags in add article')
+  console.log(allTags);
+
   useEffect(() => {
     // Logic to execute after component initialization
-    getOwners();
-    getTags();
     getCategories();
   }, []);
-
-  const getOwners = async () => {
-    try {
-      const response = await getAllOwners();
-      setAllOwners(response.map((owner) => owner.name));
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   const getCategories = async () => {
     try {
       const response = await getAllCategories();
       setAllCategories(response.map((category) => category.name));
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  const getTags = async () => {
-    try {
-      const response = await getAllTags();
-      setAllTags(response.map((tag) => tag.name));
     } catch (err) {
       console.error(err);
     }
@@ -101,21 +82,6 @@ const AddArticle = ({ article, afterSubmitClicked, afterDeleteClicked }) => {
     } catch (err) {
       console.error(err.message);
     }
-
-    // Reset form fields after submission
-    // setDispTitle('');
-    // setDispExplanation('');
-    // setDispMainText('');
-    // setDispComment('');
-    // setDispTags('');
-    // setDispOwner('');
-    // setDispDate(new Date());
-
-    // ownerRef.current.reset();
-    // explanationRef.current.reset();
-    // mainTextRef.current.reset();
-    // commentRef.current.reset();
-    // tagsRef.current.reset();
   };
 
   const handleDeleteArticle = async () => {

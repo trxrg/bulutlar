@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 
-const SearchControls = ({ tags, owners, onFilterChanged }) => {
-    const [selectedOwners, setSelectedOwners] = useState([]);
-    const [selectedTags, setSelectedTags] = useState([]);
+const SearchControls = ({ tagNames, ownerNames, onFilterChanged }) => {
+
+    const [selectedOwnerNames, setSelectedOwnerNames] = useState([]);
+    const [selectedTagNames, setSelectedTagNames] = useState([]);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [keyword, setKeyword] = useState('');
@@ -10,22 +11,22 @@ const SearchControls = ({ tags, owners, onFilterChanged }) => {
 
     useEffect(() => {
         handleFilterChanged();
-    }, [selectedOwners, selectedTags]);
+    }, [selectedOwnerNames, selectedTagNames]);
 
     const handleOwnerChange = (event) => {
         const { value, checked } = event.target;
         if (checked)
-            setSelectedOwners(prevSelectedOwners => [...prevSelectedOwners, value]);
+            setSelectedOwnerNames(prevSelectedOwnerNames => [...prevSelectedOwnerNames, value]);
         else
-            setSelectedOwners(prevSelectedOwners => prevSelectedOwners.filter((owner) => owner !== value));
-    };
+            setSelectedOwnerNames(prevSelectedOwnerNames => prevSelectedOwnerNames.filter((ownerName) => ownerName !== value));
+    };  
 
     const handleTagChange = (event) => {
         const { value, checked } = event.target;
         if (checked)
-            setSelectedTags(prevSelectedTags => [...prevSelectedTags, value]);
+            setSelectedTagNames(prevSelectedTagNames => [...prevSelectedTagNames, value]);
         else
-            setSelectedTags(prevSelectedTags => prevSelectedTags.filter((tag) => tag !== value));
+            setSelectedTagNames(prevSelectedTagNames => prevSelectedTagNames.filter((tagName) => tagName !== value));
     };
 
     const handleStartDateChange = (event) => {
@@ -46,51 +47,52 @@ const SearchControls = ({ tags, owners, onFilterChanged }) => {
 
     function handleFilterChanged() {
         onFilterChanged({
-            owners: selectedOwners,
-            tags: selectedTags,
+            ownerNames: selectedOwnerNames,
+            tagNames: selectedTagNames,
             startDate,
             endDate,
             keyword,
         });
     };
 
+
     return (
         <div className="p-4 bg-stone-200 overflow-auto">
             <div className="mb-4">
                 <label className="my-2">Tag:</label>
                 <div className="overflow-auto max-h-40 p-1 my-2 border border-green-200">
-                    {tags.map((tag) => (
-                        <div key={tag} className="mb-2">
+                    {tagNames.map(tagName => (
+                        <div key={tagName} className="mb-2">
                             <label className="inline-flex items-center">
                                 <input
                                     type="checkbox"
-                                    value={tag}
-                                    checked={selectedTags.includes(tag)}
+                                    value={tagName}
+                                    checked={selectedTagNames.includes(tagName)}
                                     onChange={handleTagChange}
                                     className="mr-1"
                                 />
                                 <span
-                                    className={selectedTags.includes(tag) ? "bg-blue-200 rounded px-2 py-1" : ""}
-                                >{tag}</span>
+                                    className={selectedTagNames.includes(tagName) ? "bg-blue-200 rounded px-2 py-1" : ""}
+                                >{tagName}</span>
                             </label>
                         </div>
                     ))}
                 </div>
                 <label className="mr-2">Owner:</label>
                 <div className="overflow-auto max-h-40 border border-green-200">
-                    {owners.map((owner) => (
-                        <div key={owner} className="mb-2">
+                    {ownerNames.map((ownerName) => (
+                        <div key={ownerName} className="mb-2">
                             <label className="inline-flex items-center">
                                 <input
                                     type="checkbox"
-                                    value={owner}
-                                    checked={selectedOwners.includes(owner)}
+                                    value={ownerName}
+                                    checked={selectedOwnerNames.includes(ownerName)}
                                     onChange={handleOwnerChange}
                                     className="mr-1"
                                 />
                                 <span
-                                    className={selectedOwners.includes(owner) ? "bg-blue-200 rounded px-2 py-1" : ""}
-                                >{owner}</span>
+                                    className={selectedOwnerNames.includes(ownerName) ? "bg-blue-200 rounded px-2 py-1" : ""}
+                                >{ownerName}</span>
                             </label>
                         </div>
                     ))}

@@ -17,11 +17,11 @@ const SearchResults = React.forwardRef(({ handleClick, articles }, ref) => {
     const applyFiltering = (allArticles, filtering) => {
         let localFilteredArticles = allArticles;
 
-        if (filtering.owners.length)
-            localFilteredArticles = localFilteredArticles.filter(art => filtering.owners.includes(art.owner.name));
+        if (filtering.ownerNames.length)
+            localFilteredArticles = localFilteredArticles.filter(art => filtering.ownerNames.includes(art.owner.name));
 
-        if (filtering.tags.length)
-            localFilteredArticles = localFilteredArticles.filter(art => filtering.tags.some(filterTag => art.tags.map(artTag => artTag.name).includes(filterTag)));
+        if (filtering.tagNames.length)
+            localFilteredArticles = localFilteredArticles.filter(art => filtering.tagNames.some(filterTagName => art.tags.map(artTag => artTag.name).includes(filterTagName)));
 
 
         setFilteredArticles(localFilteredArticles);

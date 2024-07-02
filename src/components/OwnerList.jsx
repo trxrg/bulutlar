@@ -58,8 +58,8 @@ const OwnerList = React.forwardRef(({ owners, onOwnerChange, selectedOwner }, re
             >
                 {customInput.length > 0 ? <option value={customInput}>{customInput}</option> : <option value="">Select Owner</option>}
                 {owners.map((owner, index) => (
-                    <option key={index} value={owner}>
-                        {owner}
+                    <option key={index} value={owner.name}>
+                        {owner.name}
                     </option>
                 ))}
                 <option value={customInputLabel}>{customInputLabel}</option>

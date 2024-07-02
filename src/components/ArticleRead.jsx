@@ -4,7 +4,7 @@ import '../styles.css';
 
 const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
 
-  const { title, category, owner, date, number, explanation, text, comments, tags } = article;
+  const { title, category, owner, date, number, explanation, text, comments } = article;
 
   const handleEditClicked = (article) => {
     onEditClicked(article);
@@ -23,23 +23,8 @@ const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
     setShowCode(prev => !prev);
   }
 
-  // useEffect(() => {
-  //   // Attach event listener to the component's container
-  //   const containers = document.getElementsByClassName('richText');
-  //   Array.from(containers).forEach(container => {
-  //     container.addEventListener('click', handleLinkClicked);
-  //   });
-
-  //   // Clean up the event listener
-  //   return () => {
-  //     Array.from(containers).forEach(container => {
-  //       container.removeEventListener('click', handleLinkClicked);
-  //     });
-  //   };
-  // }, []); // Empty dependency array ensures useEffect runs only once
-
   return (
-    <div className="max-h-full overflow-auto mx-auto bg-stone-50 shadow-md rounded-lg">
+    <div className="max-h-full overflow-auto mx-auto bg-stone-50">
       <div className="p-6">
         <div className='flex justify-between'>
           <h2 className="text-3xl font-semibold text-gray-800">{title}</h2>

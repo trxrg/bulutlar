@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react';
 import TabsScreen from './TabsScreen';
 import AddArticle from './AddArticle';
 
-import { getAllArticles } from '../backend-adapter/BackendAdapter';
+import { getAllArticles, getAllTags, getAllOwners } from '../backend-adapter/BackendAdapter';
 
 const MainScreen = () => {
 
     const [allArticles, setAllArticles] = useState([]);
+    const [allOwners, setAllOwners] = useState([]);
+    const [allOwnersLoaded, setAllOwnersLoaded] = useState(false);
+    const [allTags, setAllTags] = useState([]);
+    const [allTagsLoaded, setAllTagsLoaded] = useState(false);
     const [activeScreen, setActiveScreen] = useState('tabs');
     const [editedArticle, setEditedArticle] = useState();
     const [activeTabId, setActiveTabId] = useState('search');
@@ -14,7 +18,7 @@ const MainScreen = () => {
         { id: 'search', title: 'Search' }
     ]);
 
-    const getArticles = async () => {
+    const getAllArticlesFromBE = async () => {
         try {
             const response = await getAllArticles();
             setAllArticles(response);
@@ -23,9 +27,43 @@ const MainScreen = () => {
         }
     }
 
+    const getAllTagsFromBE = async () => {
+        try {
+            const response = await getAllTags();
+            setAllTags(response);
+            setAllTagsLoaded(true);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    const getAllOwnersFromBE = async () => {
+        try {
+            const response = await getAllOwners();
+            setAllOwners(response);
+            setAllOwnersLoaded(true);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    const getDataFromBE = async () => {
+        try {
+            await Promise.all(
+                getAllArticlesFromBE(),
+                getAllOwnersFromBE(),
+                getAllTagsFromBE()
+            );
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     useEffect(() => {
         // Logic to execute after component initialization
-        getArticles();
+        getAllArticlesFromBE();
+        getAllTagsFromBE();
+        getAllOwnersFromBE();
     }, []);
 
     const handleAddArticle = () => {
@@ -62,13 +100,13 @@ const MainScreen = () => {
     }
 
     const afterSubmitArticle = async (id) => {
-        await getArticles();
+        await getDataFromBE();
         handleAddTab(id);
         setActiveScreen('tabs');
     }
 
     const afterDeleteArticle = async (id) => {
-        await getArticles();
+        await getAllArticlesFromBE();
         handleCloseTab(id);
         setActiveScreen('tabs');
     }
@@ -130,10 +168,16 @@ const MainScreen = () => {
                         handleAddTab={handleAddTab}
                         handleCloseTab={handleCloseTab}
                         tabs={tabs}
-                        allArticles={allArticles}></TabsScreen>
+                        allArticles={allArticles}
+                        allOwners={allOwners}
+                        allOwnersLoaded={allOwnersLoaded}
+                        allTags={allTags}
+                        allTagsLoaded={allTagsLoaded}></TabsScreen>
                     : undefined}
                 {activeScreen === 'addArticle' ?
                     <AddArticle article={editedArticle}
+                        allTags={allTags}
+                        allOwners={allOwners}
                         afterSubmitClicked={afterSubmitArticle}
                         afterDeleteClicked={afterDeleteArticle}></AddArticle>
                     : undefined}

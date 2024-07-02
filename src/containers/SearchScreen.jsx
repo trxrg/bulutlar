@@ -1,16 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import SplitPane from 'react-split-pane';
 
-import { getAllOwners, getAllTags } from '../backend-adapter/BackendAdapter';
 import SearchResults from './SearchResults';
 import SearchControls from './SearchControls';
 
-const SearchScreen = ({ handleSearchResultClicked, allArticles }) => {
+const SearchScreen = ({ handleSearchResultClicked, allArticles, allOwners, allOwnersLoaded, allTags, allTagsLoaded }) => {
   const [paneSize, setPaneSize] = useState('30%');
-  const [owners, setOwners] = useState([]);
-  const [ownersLoaded, setOwnersLoaded] = useState(false);
-  const [tags, setTags] = useState([]);
-  const [tagsLoaded, setTagsLoaded] = useState(false);
 
   const searchResultsRef = useRef();
 
@@ -18,37 +13,11 @@ const SearchScreen = ({ handleSearchResultClicked, allArticles }) => {
     setPaneSize(size);
   };
 
-  useEffect(() => {
-    // Logic to execute after component initialization
-    getOwners();
-    getTags();
-  }, []);
-
-  const getOwners = async () => {
-    try {
-      const response = await getAllOwners();
-      setOwners(response.map((owner) => owner.name));
-      setOwnersLoaded(true);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  const getTags = async () => {
-    try {
-      const response = await getAllTags();
-      setTags(response.map((tag) => tag.name));
-      setTagsLoaded(true);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   const handleFilterChanged = (filtering) => {
     try {
       searchResultsRef.current.filter(filtering);
     } catch (e) {
-      // console.error(e);
+      console.error(e);
     }
   }
 
@@ -70,7 +39,7 @@ const SearchScreen = ({ handleSearchResultClicked, allArticles }) => {
       resizerStyle={{ background: '#6b6969', cursor: 'col-resize', width: '12px' }}
     >
       <div>
-        {ownersLoaded && tagsLoaded ? <SearchControls tags={tags} owners={owners} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
+        {allOwnersLoaded && allTagsLoaded ? <SearchControls tagNames={allTags.map(tag=>tag.name)} ownerNames={allOwners.map(owner=>owner.name)} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
       </div>
       <div>
         <SearchResults ref={searchResultsRef} articles={allArticles} handleClick={handleSearchResultClicked}></SearchResults>

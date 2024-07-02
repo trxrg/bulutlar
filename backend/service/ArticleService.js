@@ -29,8 +29,8 @@ async function addArticle(article) {
         await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category));
 
     if (article.tags)
-        for (const tagName of article.tags)
-            await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tagName));
+        for (const tag of article.tags)
+            await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
 
     if (article.comments)
         for (const comment of article.comments)
@@ -75,8 +75,8 @@ async function updateArticle(articleId, newArticle) {
             await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category));
 
         if (newArticle.tags)
-            for (const tagName of newArticle.tags)
-                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tagName));
+            for (const tag of newArticle.tags)
+                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
 
         if (newArticle.comments)
             for (const comment of newArticle.comments)

@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import TagList from '../components/TagList';
 
-const ReadControls = ({ tags }) => {
+import { updateArticle } from '../backend-adapter/BackendAdapter';
+
+const ReadControls = ({ allTags, article }) => {
+
+    const handleTagsChanged = async (newTags) => {
+        article.tags = newTags;
+        await updateArticle(article.id, article);
+    }
+
 
     return (
-        <div className='overflow-auto bg-stone-50 shadow-md rounded-lg'>
+        <div className='overflow-auto bg-stone-50'>
             <div className='p-2'>
-                <h3 className="text-xl font-semibold my-4">Tags</h3>
-                <div className="flex flex-wrap">
-                    {tags.map((tag, index) => (
-                        <span key={index} className="bg-gray-200 text-gray-800 rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2">{tag.name}</span>
-                    ))}
-                </div>
+                <TagList allTags={allTags} selectedTags={article.tags} onTagsChange={handleTagsChanged}></TagList>
             </div>
         </div>
     );

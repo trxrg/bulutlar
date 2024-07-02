@@ -2,7 +2,7 @@ import React from 'react';
 import SearchScreen from './SearchScreen';
 import ReadScreen from './ReadScreen';
 
-const TabsScreen = ({ onEditClicked, handleLinkClicked, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, allArticles }) => {
+const TabsScreen = ({ onEditClicked, handleLinkClicked, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, allArticles, allOwners, allOwnersLoaded, allTags, allTagsLoaded }) => {
 
   const handleTabClick = (tabId) => {
     setActiveTabId(tabId);
@@ -63,9 +63,9 @@ const TabsScreen = ({ onEditClicked, handleLinkClicked, activeTabId, setActiveTa
         {tabs.map(tab => (
           <div key={tab.id} className={activeTabId === tab.id ? 'h-full relative' : 'hidden'}>
             {tab.id == 'search' ?
-              <SearchScreen handleSearchResultClicked={handleAddTab} allArticles={allArticles}></SearchScreen>
+              <SearchScreen handleSearchResultClicked={handleAddTab} allArticles={allArticles} allOwners={allOwners} allOwnersLoaded={allOwnersLoaded} allTags={allTags} allTagsLoaded={allTagsLoaded}></SearchScreen>
               :
-              <ReadScreen article={getArticle(tab.id)} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked}></ReadScreen>}
+              <ReadScreen article={getArticle(tab.id)} allTags={allTags} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked}></ReadScreen>}
           </div>
         ))}
       </div>

@@ -43,7 +43,7 @@ const TagList = React.forwardRef(({ allTags, selectedTags, onTagsChange }, ref) 
                     type="text"
                     value={inputValue}
                     onFocus={() => setShowSuggestions(true)}
-                    onBlur={() => setShowSuggestions(false)}
+                    // onBlur={() => setShowSuggestions(false)}
                     onChange={handleInputChange}
                     placeholder="Type tags..."
                     className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"

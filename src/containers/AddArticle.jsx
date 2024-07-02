@@ -11,9 +11,9 @@ const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDele
   const [dispDate, setDispDate] = useState(article ? new Date(article.date) : new Date());
   const [dispExplanation, setDispExplanation] = useState(article ? article.explanation : '');
   const [dispMainText, setDispMainText] = useState(article ? article.text : '');
-  const [dispComment, setDispComment] = useState(article && article.comments[0] ? article.comments[0].text : '');
-  const [dispOwner, setDispOwner] = useState(article ? article.owner.name : '')
-  const [dispCategory, setDispCategory] = useState(article ? article.category.name : '');
+  const [dispCommentText, setDispCommentText] = useState(article && article.comments[0] ? article.comments[0].text : '');
+  const [dispOwnerName, setDispOwnerName] = useState(article ? article.owner.name : '')
+  const [dispCategoryName, setDispCategoryName] = useState(article ? article.category.name : '');
   const [dispTags, setDispTags] = useState(article ? article.tags : []);
   const [allCategories, setAllCategories] = useState([]);
 
@@ -52,9 +52,9 @@ const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDele
           date: dispDate,
           explanation: dispExplanation,
           text: dispMainText,
-          owner: dispOwner,
-          category: dispCategory,
-          comments: [dispComment],
+          owner: {name: dispOwnerName},
+          category: {name: dispCategoryName},
+          comments: [{text: dispCommentText}],
           tags: dispTags
         });
         console.log('article updated:');
@@ -66,9 +66,9 @@ const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDele
           date: dispDate,
           explanation: dispExplanation,
           text: dispMainText,
-          owner: dispOwner,
-          category: dispCategory,
-          comments: [dispComment],
+          owner: {name: dispOwnerName},
+          category: {name: dispCategoryName},
+          comments: [{text: dispCommentText}],
           tags: dispTags
         });
         console.log('article added:');
@@ -101,8 +101,8 @@ const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDele
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
-        <CategoryList ref={categoryRef} categories={allCategories} selectedCategory={dispCategory} onCategoryChange={setDispCategory}></CategoryList>
-        <OwnerList ref={ownerRef} owners={allOwners} selectedOwner={dispOwner} onOwnerChange={setDispOwner}></OwnerList>
+        <CategoryList ref={categoryRef} categories={allCategories} selectedCategory={dispCategoryName} onCategoryChange={setDispCategoryName}></CategoryList>
+        <OwnerList ref={ownerRef} owners={allOwners} selectedOwner={dispOwnerName} onOwnerChange={setDispOwnerName}></OwnerList>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>
           <input
@@ -124,7 +124,7 @@ const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDele
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="comment">Comment:</label>
-          <RichText ref={commentRef} onTextChange={setDispComment} text={dispComment}></RichText>
+          <RichText ref={commentRef} onTextChange={setDispCommentText} text={dispCommentText}></RichText>
         </div>
         <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
         <div className='flex justify-between'>

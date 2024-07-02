@@ -23,10 +23,10 @@ async function addArticle(article) {
     const entity = await sequelize.models.article.create(article);    
 
     if (article.owner)
-        await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner));
+        await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
 
     if (article.category)
-        await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category));
+        await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name));
 
     if (article.tags)
         for (const tag of article.tags)
@@ -34,7 +34,7 @@ async function addArticle(article) {
 
     if (article.comments)
         for (const comment of article.comments)
-            await entity.addComment(await commentService.addComment(comment));
+            await entity.addComment(await commentService.addComment(comment.text));
 
     return await getArticleWithId(entity.dataValues.id);
 }
@@ -54,6 +54,7 @@ async function deleteArticle(articleId) {
 
 async function updateArticle(articleId, newArticle) {
     try {
+
         const article = await sequelize.models.article.findByPk(articleId);
         let entity;
 
@@ -69,10 +70,10 @@ async function updateArticle(articleId, newArticle) {
         await entity.setTags([]);
 
         if (newArticle.owner)
-            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(newArticle.owner));
+            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(newArticle.owner.name));
 
         if (newArticle.category)
-            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category));
+            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category.name));
 
         if (newArticle.tags)
             for (const tag of newArticle.tags)
@@ -80,7 +81,7 @@ async function updateArticle(articleId, newArticle) {
 
         if (newArticle.comments)
             for (const comment of newArticle.comments)
-                await entity.addComment(await commentService.addComment(comment));
+                await entity.addComment(await commentService.addComment(comment.text));
 
         return await getArticleWithId(entity.dataValues.id);
     } catch (error) {

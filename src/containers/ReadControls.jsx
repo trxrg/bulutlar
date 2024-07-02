@@ -10,7 +10,6 @@ const ReadControls = ({ allTags, article }) => {
         await updateArticle(article.id, article);
     }
 
-
     return (
         <div className='overflow-auto bg-stone-50'>
             <div className='p-2'>

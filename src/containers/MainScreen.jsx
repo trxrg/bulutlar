@@ -49,11 +49,11 @@ const MainScreen = () => {
 
     const getDataFromBE = async () => {
         try {
-            await Promise.all(
+            await Promise.all([
                 getAllArticlesFromBE(),
                 getAllOwnersFromBE(),
                 getAllTagsFromBE()
-            );
+            ]);
         } catch (err) {
             console.error(err);
         }
@@ -61,9 +61,7 @@ const MainScreen = () => {
 
     useEffect(() => {
         // Logic to execute after component initialization
-        getAllArticlesFromBE();
-        getAllTagsFromBE();
-        getAllOwnersFromBE();
+        getDataFromBE();
     }, []);
 
     const handleAddArticle = () => {

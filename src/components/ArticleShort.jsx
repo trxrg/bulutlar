@@ -39,7 +39,6 @@ export default function ArticleShort({ article, handleClick }) {
         return weekdays[date.getDay()];
     }
 
-
     return (
         <div className="rounded-md bg-teal-200 hover:bg-teal-100 
         active:bg-blue-500 active:shadow-none px-10 my-4 mx-4 py-6 shadow-xl cursor-pointer">

@@ -24,9 +24,6 @@ const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDele
   const ownerRef = useRef();
   const categoryRef = useRef();
 
-  console.log('all tags in add article')
-  console.log(allTags);
-
   useEffect(() => {
     // Logic to execute after component initialization
     getCategories();

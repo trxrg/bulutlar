@@ -27,15 +27,12 @@ export default function ArticleShort({ article, handleClick }) {
             day = "0" + day;
 
         const result = day + "." + month + "." + year;
-
         return result;
     }
 
     const getDayOfWeek = (datestr) => {
         const date = new Date(datestr);
-
         const weekdays = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
-
         return weekdays[date.getDay()];
     }
 
@@ -49,7 +46,7 @@ export default function ArticleShort({ article, handleClick }) {
                     {parse(article.text.substring(0, numberOfCharsForText) + '...')}
                 </article>
                 <div>
-                    {article.tags.slice(0, numberOfTags).map(tag => <TagButton isCloseable={false} label={tag.name}>{tag.name}</TagButton>)}
+                    {article.tags.slice(0, numberOfTags).map(tag => <TagButton key={tag.id} isCloseable={false} label={tag.name}>{tag.name}</TagButton>)}
                     {article.tags.length > numberOfTags ? <h4 className='inline-block'>...</h4> : undefined}
                 </div>
             </div>

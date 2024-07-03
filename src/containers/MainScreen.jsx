@@ -170,7 +170,8 @@ const MainScreen = () => {
                         allOwners={allOwners}
                         allOwnersLoaded={allOwnersLoaded}
                         allTags={allTags}
-                        allTagsLoaded={allTagsLoaded}></TabsScreen>
+                        allTagsLoaded={allTagsLoaded}
+                        syncWithDB={getDataFromBE}></TabsScreen>
                     : undefined}
                 {activeScreen === 'addArticle' ?
                     <AddArticle article={editedArticle}

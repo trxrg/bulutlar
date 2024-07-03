@@ -13,15 +13,15 @@ const TagList = React.forwardRef(({ allTags, selectedTags, onTagsChange }, ref) 
 
     const handleAddTag = (tagNameToAdd) => {
         setInputValue('');
-        if (tagNameToAdd.length > 0 && !tags.map(tag=>tag.name).includes(tagNameToAdd)) {
-            const newTags = [...tags, {name: tagNameToAdd}];
+        if (tagNameToAdd.length > 0 && !tags.map(tag => tag.name).includes(tagNameToAdd)) {
+            const newTags = [...tags, { name: tagNameToAdd }];
             onTagsChange(newTags);
             setTags(newTags);
         }
     };
-    
-    const handleRemoveTag = (tagToRemove) => {
-        const newTags = tags.filter(tag => tag.name !== tagToRemove.name);
+
+    const handleRemoveTag = (tagNameToRemove) => {
+        const newTags = tags.filter(tag => tag.name !== tagNameToRemove);
         onTagsChange(newTags);
         setTags(newTags);
     };
@@ -47,23 +47,21 @@ const TagList = React.forwardRef(({ allTags, selectedTags, onTagsChange }, ref) 
                 />
                 <button type="button" onClick={() => handleAddTag(inputValue)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-2 rounded focus:outline-none focus:shadow-outline">Add</button>
             </div>
-            {inputValue.length > 0 && 
-            <div>
-                {suggestedTags
-                    .filter(tag => tag.name.toLowerCase().includes(inputValue.toLowerCase()))
-                    .filter(tag => !tags.map(t=>t.name).includes(tag.name))
-                    .slice(0, suggestedTagNumber)
-                    .map(tag => (
-                        <span key={tag.name} onClick={() => handleAddTag(tag.name)}>
-                            <button className='mx-2'>{tag.name}</button>
-                        </span>
-                    ))}
-            </div>}
+            {inputValue.length > 0 &&
+                <div>
+                    {suggestedTags
+                        .filter(tag => tag.name.toLowerCase().includes(inputValue.toLowerCase()))
+                        .filter(tag => !tags.map(t => t.name).includes(tag.name))
+                        .slice(0, suggestedTagNumber)
+                        .map(tag => (
+                            <span key={tag.name} onClick={() => handleAddTag(tag.name)}>
+                                <button className='mx-2'>{tag.name}</button>
+                            </span>
+                        ))}
+                </div>}
             <div>
                 {tags.map(tag => (
-                    <span key={tag.name} onClick={() => handleRemoveTag(tag)}>
-                        <TagButton cls="text-xl">{tag.name}</TagButton>
-                    </span>
+                    <TagButton isCloseable={true} handleClose={handleRemoveTag} label={tag.name}></TagButton>
                 ))}
             </div>
         </div>

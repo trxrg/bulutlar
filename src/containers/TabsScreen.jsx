@@ -2,7 +2,7 @@ import React from 'react';
 import SearchScreen from './SearchScreen';
 import ReadScreen from './ReadScreen';
 
-const TabsScreen = ({ onEditClicked, handleLinkClicked, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, allArticles, allOwners, allOwnersLoaded, allTags, allTagsLoaded }) => {
+const TabsScreen = ({ onEditClicked, handleLinkClicked, syncWithDB, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, allArticles, allOwners, allOwnersLoaded, allTags, allTagsLoaded }) => {
 
   const handleTabClick = (tabId) => {
     setActiveTabId(tabId);
@@ -65,7 +65,7 @@ const TabsScreen = ({ onEditClicked, handleLinkClicked, activeTabId, setActiveTa
             {tab.id == 'search' ?
               <SearchScreen handleSearchResultClicked={handleAddTab} allArticles={allArticles} allOwners={allOwners} allOwnersLoaded={allOwnersLoaded} allTags={allTags} allTagsLoaded={allTagsLoaded}></SearchScreen>
               :
-              <ReadScreen article={getArticle(tab.id)} allTags={allTags} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked}></ReadScreen>}
+              <ReadScreen article={getArticle(tab.id)} allTags={allTags} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked} syncWithDB={syncWithDB}></ReadScreen>}
           </div>
         ))}
       </div>

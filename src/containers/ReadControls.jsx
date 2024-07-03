@@ -3,11 +3,12 @@ import TagList from '../components/TagList';
 
 import { updateArticle } from '../backend-adapter/BackendAdapter';
 
-const ReadControls = ({ allTags, article }) => {
+const ReadControls = ({ allTags, article, syncWithDB }) => {
 
     const handleTagsChanged = async (newTags) => {
         article.tags = newTags;
         await updateArticle(article.id, article);
+        syncWithDB();
     }
 
     return (

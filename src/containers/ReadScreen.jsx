@@ -3,7 +3,7 @@ import SplitPane from 'react-split-pane';
 import ArticleRead from '../components/ArticleRead';
 import ReadControls from './ReadControls';
 
-const ReadScreen = ({  article, allTags, onEditClicked, onLinkClicked }) => {
+const ReadScreen = ({  article, allTags, onEditClicked, onLinkClicked, syncWithDB }) => {
   const [paneSize, setPaneSize] = useState('70%');
 
   const handleResize = (size) => {
@@ -31,7 +31,7 @@ const ReadScreen = ({  article, allTags, onEditClicked, onLinkClicked }) => {
         <ArticleRead article={article} onEditClicked={onEditClicked} onLinkClicked={onLinkClicked}></ArticleRead>
       </div>
       <div>
-        <ReadControls allTags={allTags} article={article}></ReadControls>
+        <ReadControls allTags={allTags} article={article} syncWithDB={syncWithDB}></ReadControls>
       </div>
     </SplitPane>
   );

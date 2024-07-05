@@ -67,7 +67,7 @@ const TabsScreen = ({ onEditClicked, handleLinkClicked, syncWithDB, activeTabId,
               <SearchScreen handleSearchResultClicked={handleAddTab} allArticles={allArticles} allOwners={allOwners} allOwnersLoaded={allOwnersLoaded} allTags={allTags} allTagsLoaded={allTagsLoaded}></SearchScreen>
               :
               // <ReadScreen article={getArticle(tab.id)} allTags={allTags} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked} syncWithDB={syncWithDB}></ReadScreen>
-              <NewReadScreen></NewReadScreen>
+              <NewReadScreen article={getArticle(tab.id)} allTags={allTags} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked} syncWithDB={syncWithDB}></NewReadScreen>
               }
           </div>
         ))}

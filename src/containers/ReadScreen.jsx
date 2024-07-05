@@ -3,8 +3,9 @@ import SplitPane from 'react-split-pane';
 import ArticleRead from '../components/ArticleRead';
 import ReadControls from './ReadControls';
 
-const ReadScreen = ({  article, allTags, onEditClicked, onLinkClicked, syncWithDB }) => {
+const ReadScreen = ({ article, allTags, onEditClicked, onLinkClicked, syncWithDB }) => {
   const [paneSize, setPaneSize] = useState('70%');
+
 
   const handleResize = (size) => {
     setPaneSize(size);

@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import ArticleShort from '../components/ArticleShort';
 
 const SearchResults = React.forwardRef(({ handleClick, articles }, ref) => {
 
+    /* when articles prop changes filteredArticles are not set (useState)
+        so i added useEffect to set articles to filteredArticles
+        but this causes double render each time articles prop changes
+    */
     const [filteredArticles, setFilteredArticles] = useState([...articles]);
+    
+    useEffect(() => {
+        setFilteredArticles([...articles]);
+    }, [articles]);
 
     React.useImperativeHandle(ref, () => ({
         filter

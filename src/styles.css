@@ -8,6 +8,10 @@
     transition: color 0.3s ease; /* Smooth color transition */
     /*overflow: hidden; /* Hide overflow from pseudo-element */
   }
+
+  .prose {
+    background-color: #7c0101;
+  }
   
   /* Hover effect */
   .prose a:hover {

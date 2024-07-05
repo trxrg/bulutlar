@@ -46,7 +46,7 @@ export default function ArticleShort({ article, handleClick }) {
                     {parse(article.text.substring(0, numberOfCharsForText) + '...')}
                 </article>
                 <div>
-                    {article.tags.slice(0, numberOfTags).map(tag => <TagButton key={tag.id} isCloseable={false} label={tag.name}>{tag.name}</TagButton>)}
+                    {article.tags.slice(0, numberOfTags).map(tag => <TagButton key={tag.name} isCloseable={false} label={tag.name}>{tag.name}</TagButton>)}
                     {article.tags.length > numberOfTags ? <h4 className='inline-block'>...</h4> : undefined}
                 </div>
             </div>

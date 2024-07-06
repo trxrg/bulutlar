@@ -2,76 +2,47 @@ import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import styles
 
-const QuillEditor = () => {
-  const [editorHtml, setEditorHtml] = useState('hello world!');
-  const [quillInstance, setQuillInstance] = useState(null);
+const LimitedToolbarOptions = [
+  [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+  ['link'],
+];
 
-  // Handle adding a link
-  const handleAddLink = () => {
-    // const url = prompt('Enter the URL:');
-    const url = 'google.com';
-    if (!url) return;
-    
-    const range = quillInstance.getEditor().getSelection();
-    if (range) {
-      const href = url.startsWith('http') ? url : `http://${url}`;
-      quillInstance.getEditor().format('link', href);
+const modules = {
+  toolbar: LimitedToolbarOptions,
+};
+
+const formats = [
+  'header', 'font', 'link'
+];
+
+const QuillEditor = ({ content }) => {
+  const [editorHtml, setEditorHtml] = useState(content);
+
+  const handleEditorChange = (html) => {
+    // Only update the editor content if it contains valid links
+    if (isValidContent(html)) {
+      setEditorHtml(html);
     }
   };
 
-  // Handle getting HTML content
-  const handleGetHtmlContent = () => {
-    console.log(editorHtml);
-    // Use editorHtml as needed (e.g., save to database, display, etc.)
-  };
-
-  // Quill toolbar configuration
-  const toolbarOptions = {
-    container: [
-      [{ 'header': '1'}, {'header': '2'}, { 'font': [] }],
-      ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-      ['link', 'blockquote', 'code-block'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-      [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-      [{ 'direction': 'rtl' }],                         // text direction
-      [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-      [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-      [{ 'align': [] }],
-      ['clean']                                         // remove formatting button
-    ],
-    handlers: {
-      'link': handleAddLink
-    }
+  const isValidContent = (html) => {
+    // Example: Validate that html contains only allowed tags and attributes
+    // This function should be customized based on your specific requirements
+    // For simplicity, assuming only links are allowed here
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const links = tempDiv.getElementsByTagName('a');
+    return links.length > 0; // Ensure at least one link is present
   };
 
   return (
-    <div className="mx-auto max-w-3xl mt-6 p-6 border rounded-lg shadow-lg">
-      <div className="mb-4 flex items-center">
-        <button
-          className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
-          onClick={handleAddLink}
-        >
-          Add Link
-        </button>
-        <button
-          className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
-          onClick={handleGetHtmlContent}
-        >
-          Get HTML Content
-        </button>
-      </div>
+    <div>
       <ReactQuill
+        theme="snow"
+        modules={modules}
+        formats={formats}
         value={editorHtml}
-        onChange={setEditorHtml}
-        modules={{ toolbar: toolbarOptions }}
-        formats={[
-          'header', 'font', 'bold', 'italic', 'underline', 'strike', 'blockquote',
-          'list', 'bullet', 'indent', 'script', 'link', 'image', 'color', 'align', 'size'
-        ]}
-        bounds={'.app'}
-        placeholder="Write something amazing..."
-        ref={(el) => setQuillInstance(el)}
+        onChange={handleEditorChange}
       />
     </div>
   );

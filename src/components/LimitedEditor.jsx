@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Editor, EditorState, RichUtils, ContentState, convertFromHTML, CompositeDecorator, Modifier } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import AddLinkModal from './AddLinkModal';
@@ -47,19 +47,14 @@ const createEditorStateFromHTML = (html) => {
     return EditorState.createWithContent(contentState, decorator);
 };
 
-const LimitedEditor = ({ htmlContent }) => {
+const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
 
     const [editorState, setEditorState] = useState(() => createEditorStateFromHTML(htmlContent));
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
-    const handleKeyCommand = (command) => {
-        const newState = RichUtils.handleKeyCommand(editorState, command);
-        if (newState) {
-            setEditorState(newState);
-            return 'handled';
-        }
-        return 'not-handled';
-    };
+    
+
+    
 
     const toggleInlineStyle = (style) => {
         setEditorState(RichUtils.toggleInlineStyle(editorState, style));
@@ -78,9 +73,7 @@ const LimitedEditor = ({ htmlContent }) => {
         });
 
         const entityKey = currentContent.getLastCreatedEntityKey();
-
         const selection = editorState.getSelection();
-
         const textWithEntity = Modifier.applyEntity(
             currentContent,
             selection,
@@ -91,6 +84,10 @@ const LimitedEditor = ({ htmlContent }) => {
         setEditorState(newState);
     }
 
+    React.useImperativeHandle(ref, () => ({
+        addLink
+    }));
+    
     const convertToHTMLContent = () => {
         const currentContent = editorState.getCurrentContent();
         const html = stateToHTML(currentContent);
@@ -108,6 +105,14 @@ const LimitedEditor = ({ htmlContent }) => {
             return;
         }
         setEditorState(newState);
+    };
+    const handleKeyCommand = (command) => {
+        const newState = RichUtils.handleKeyCommand(editorState, command);
+        if (newState) {
+            setEditorState(newState);
+            return 'handled';
+        }
+        return 'not-handled';
     };
 
     return (
@@ -159,6 +164,6 @@ const LimitedEditor = ({ htmlContent }) => {
             />
         </div>
     );
-};
+});
 
 export default LimitedEditor;

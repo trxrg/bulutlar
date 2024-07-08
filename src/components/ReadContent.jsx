@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { PencilIcon } from '@heroicons/react/24/outline';
 import '../styles.css';
 import LimitedEditor from './LimitedEditor';
 
 const ReadContent = ({ article, onEditClicked, onLinkClicked }) => {
+
+  const editorRef = useRef();
 
   const { title, category, owner, date, number, explanation, text, comments } = article;
 
@@ -41,7 +43,7 @@ const ReadContent = ({ article, onEditClicked, onLinkClicked }) => {
         {/* <p className="text-gray-700 mt-4">{text}</p> */}
         <div className="prose text-gray-700 mt-4 text-l" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: explanation }} />
         {/* <div className="prose text-gray-700 mt-4 text-xl" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: text }} /> */}
-        <LimitedEditor htmlContent={text}></LimitedEditor>
+        <LimitedEditor htmlContent={text} ref={editorRef}></LimitedEditor>
       </div>
 
       <div className="p-6 border-t border-gray-500">

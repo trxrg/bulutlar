@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Editor, EditorState, RichUtils, ContentState, convertFromHTML, CompositeDecorator, Modifier } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import AddLinkModal from './AddLinkModal';
@@ -87,7 +87,7 @@ const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
     React.useImperativeHandle(ref, () => ({
         addLink
     }));
-    
+
     const convertToHTMLContent = () => {
         const currentContent = editorState.getCurrentContent();
         const html = stateToHTML(currentContent);

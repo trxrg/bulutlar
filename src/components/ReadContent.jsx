@@ -30,8 +30,18 @@ const ReadContent =  React.forwardRef(({ article, onEditClicked, onLinkClicked }
     editorRef.current.addLink(url);
   }
 
+  const toggleBold = () => {
+    editorRef.current.toggleBold();
+  }
+
+  const toggleUnderline = () => {
+    editorRef.current.toggleUnderline();
+  }
+
   React.useImperativeHandle(ref, () => ({
-    addLink
+    addLink,
+    toggleUnderline,
+    toggleBold
 }));
 
   return (

@@ -17,6 +17,14 @@ const NewReadScreen = ({ article, allTags, onEditClicked, onLinkClicked, syncWit
     readContentRef.current.addLink(url);
   }
 
+  const handleToggleBold = () => {
+    readContentRef.current.toggleBold();
+  }
+
+  const handleToggleUnderline = () => {
+    readContentRef.current.toggleUnderline();
+  }
+
   return (
     <SplitPane
       split="vertical"
@@ -38,7 +46,7 @@ const NewReadScreen = ({ article, allTags, onEditClicked, onLinkClicked, syncWit
         <ReadContent article={article} onEditClicked={onEditClicked} onLinkClicked={onLinkClicked} ref={readContentRef}></ReadContent>
       </div>
       <div>
-        <ReadControls allTags={allTags} article={article} syncWithDB={syncWithDB} addLink={handleAddLink}></ReadControls>
+        <ReadControls allTags={allTags} article={article} syncWithDB={syncWithDB} onAddLink={handleAddLink} onToggleBold={handleToggleBold} onToggleUnderline={handleToggleUnderline}></ReadControls>
       </div>
     </SplitPane>
   );

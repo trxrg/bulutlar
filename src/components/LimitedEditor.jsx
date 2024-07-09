@@ -50,9 +50,6 @@ const createEditorStateFromHTML = (html) => {
 
 const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
 
-    console.log('htmlContent prop:')
-    console.log(htmlContent)
-
     const [editorState, setEditorState] = useState(() => createEditorStateFromHTML(htmlContent));
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 

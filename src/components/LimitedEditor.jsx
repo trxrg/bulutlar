@@ -52,14 +52,9 @@ const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
     const [editorState, setEditorState] = useState(() => createEditorStateFromHTML(htmlContent));
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
-    
-
-    
-
     const toggleInlineStyle = (style) => {
         setEditorState(RichUtils.toggleInlineStyle(editorState, style));
     };
-
 
     const addLink = (url) => {
         let link = url;

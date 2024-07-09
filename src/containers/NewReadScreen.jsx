@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import SplitPane from 'react-split-pane';
 import ReadControls from './ReadControls';
 import ReadContent from '../components/ReadContent';
@@ -6,10 +6,16 @@ import ReadContent from '../components/ReadContent';
 const NewReadScreen = ({ article, allTags, onEditClicked, onLinkClicked, syncWithDB }) => {
   const [paneSize, setPaneSize] = useState('70%');
 
+  const readContentRef = useRef();
 
   const handleResize = (size) => {
     setPaneSize(size);
   };
+
+  const handleAddLink = (url) => {
+    console.log('url: ' + url);
+    readContentRef.current.addLink(url);
+  }
 
   return (
     <SplitPane
@@ -29,10 +35,10 @@ const NewReadScreen = ({ article, allTags, onEditClicked, onLinkClicked, syncWit
       resizerStyle={{ background: '#6b6969', cursor: 'col-resize', width: '12px' }}
     >
       <div>
-        <ReadContent article={article} onEditClicked={onEditClicked} onLinkClicked={onLinkClicked}></ReadContent>
+        <ReadContent article={article} onEditClicked={onEditClicked} onLinkClicked={onLinkClicked} ref={readContentRef}></ReadContent>
       </div>
       <div>
-        <ReadControls allTags={allTags} article={article} syncWithDB={syncWithDB}></ReadControls>
+        <ReadControls allTags={allTags} article={article} syncWithDB={syncWithDB} addLink={handleAddLink}></ReadControls>
       </div>
     </SplitPane>
   );

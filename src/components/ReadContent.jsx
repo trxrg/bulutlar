@@ -3,7 +3,7 @@ import { PencilIcon } from '@heroicons/react/24/outline';
 import '../styles.css';
 import LimitedEditor from './LimitedEditor';
 
-const ReadContent = ({ article, onEditClicked, onLinkClicked }) => {
+const ReadContent =  React.forwardRef(({ article, onEditClicked, onLinkClicked }, ref) => {
 
   const editorRef = useRef();
 
@@ -25,6 +25,14 @@ const ReadContent = ({ article, onEditClicked, onLinkClicked }) => {
   const toggleShowCode = () => {
     setShowCode(prev => !prev);
   }
+
+  const addLink = (url) => {
+    editorRef.current.addLink(url);
+  }
+
+  React.useImperativeHandle(ref, () => ({
+    addLink
+}));
 
   return (
     <div className="max-h-full overflow-auto mx-auto bg-stone-50">
@@ -63,6 +71,6 @@ const ReadContent = ({ article, onEditClicked, onLinkClicked }) => {
       </div>
     </div>
   );
-};
+});
 
 export default ReadContent;

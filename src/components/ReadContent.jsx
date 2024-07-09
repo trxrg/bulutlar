@@ -43,7 +43,7 @@ const ReadContent =  React.forwardRef(({ article, onEditClicked, onLinkClicked }
             className="button flex items-center bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             onClick={() => handleEditClicked(article)}
           >
-            <PencilIcon className="w-4 h-4 mr-2" /> {/* Pencil icon */}
+            <PencilIcon className="w-4 h-4 mr-2" />
             Edit
           </button>
         </div>

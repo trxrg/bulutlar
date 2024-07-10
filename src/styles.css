@@ -78,3 +78,23 @@
   .button:hover {
     background-color: #7c0101; /* Darker gray on hover */
   }
+
+  .context-menu {
+    position: absolute;
+    z-index: 100;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 4px;
+  }
+  
+  .context-menu button {
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+  
+  .editor-container {
+    position: relative;
+  }

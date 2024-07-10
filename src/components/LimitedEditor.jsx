@@ -1,112 +1,170 @@
 import React, { useState } from 'react';
-import { Editor, EditorState, RichUtils, ContentState, convertFromHTML, CompositeDecorator, Modifier } from 'draft-js';
+import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import AddLinkModal from './AddLinkModal';
 import '../styles.css'
 
-const Link = ({ contentState, entityKey, children }) => {
-    const { url } = contentState.getEntity(entityKey).getData();
-    const onClick = () => {
-        console.log('link clicked url: ' + url);
+const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
+
+    const handleRightClick = (e) => {
+        console.log('handlecontextmenu');
+        e.preventDefault(); // Prevent default context menu
+        const selection = editorState.getSelection();
+        const currentContent = editorState.getCurrentContent();
+        const startKey = selection.getStartKey();
+        const startOffset = selection.getStartOffset();
+        const block = currentContent.getBlockForKey(startKey);
+        const entityKey = block.getEntityAt(startOffset);
+
+        setShowContextMenu(true);
+        // setContextMenuPosition({ x: e.clientX, y: e.clientY });
+
+        console.log(e.clientX)
+        console.log(e.clientY)
+        
+        if (entityKey) {
+            const entity = currentContent.getEntity(entityKey);
+            if (entity && entity.getType() === 'LINK') {
+                // Show custom context menu
+                setShowContextMenu(true);
+                setContextMenuPosition({ x: e.clientX, y: e.clientY });
+            }
+        }
     };
 
-    return (
-        <span className="link" onClick={onClick}>
-            {children}
-        </span>
-    );
-};
+    const handleRemoveLink = () => {
+        const selection = editorState.getSelection();
+        if (!selection.isCollapsed()) {
+            const contentState = editorState.getCurrentContent();
+            const newContentState = Modifier.applyEntity(
+                contentState,
+                selection,
+                null
+            );
 
-function findLinkEntities(contentBlock, callback, contentState) {
-    contentBlock.findEntityRanges((character) => {
-        const entityKey = character.getEntity();
+            const newEditorState = EditorState.push(
+                editorState,
+                newContentState,
+                'apply-entity'
+            );
+
+            setEditorState(EditorState.forceSelection(newEditorState, newContentState.getSelectionAfter()));
+            setShowContextMenu(false); // Hide context menu after removing link
+        }
+    };
+
+    const Link = ({ contentState, entityKey, children }) => {
+        const { url } = contentState.getEntity(entityKey).getData();
+        const onClick = () => {
+            console.log('link clicked url: ' + url);
+        };
+
+        const onContextMenu = (e) => {
+            console.log('on context menu: ' + url);
+            handleRightClick(e);
+            console.log('offfff context menu: ' + url);
+        };
+
         return (
-            entityKey !== null &&
-            contentState.getEntity(entityKey).getType() === 'LINK'
+            <span className="link" onClick={onClick} onContextMenu={onContextMenu}>
+                {children}
+            </span>
         );
-    }, callback);
-}
+    };
 
-const decorator = new CompositeDecorator([
-    {
-        strategy: findLinkEntities,
-        component: Link,
-    },
-]);
+    function findLinkEntities(contentBlock, callback, contentState) {
+        contentBlock.findEntityRanges((character) => {
+            const entityKey = character.getEntity();
+            return (
+                entityKey !== null &&
+                contentState.getEntity(entityKey).getType() === 'LINK'
+            );
+        }, callback);
+    }
 
-const createEditorStateFromHTML = (html) => {
-    if (!html) return EditorState.createEmpty();
+    const decorator = new CompositeDecorator([
+        {
+            strategy: findLinkEntities,
+            component: Link,
+        },
+    ]);
 
-    const contentState = stateFromHTML(html);
+    const createEditorStateFromHTML = (html) => {
+        if (!html) return EditorState.createEmpty();
 
-    return EditorState.createWithContent(contentState, decorator);
-};
+        const contentState = stateFromHTML(html);
 
-const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
+        return EditorState.createWithContent(contentState, decorator);
+    };
+
 
     const [editorState, setEditorState] = useState(() => createEditorStateFromHTML(htmlContent));
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
+    const [showContextMenu, setShowContextMenu] = useState(false);
+    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
-    // Function to log the content of the current selection
-    const logSelectionContent = () => {
-        const selectionState = editorState.getSelection();
-        const currentContent = editorState.getCurrentContent();
-        const startKey = selectionState.getStartKey();
-        const endKey = selectionState.getEndKey();
-        const startOffset = selectionState.getStartOffset();
-        const endOffset = selectionState.getEndOffset();
 
-        // Retrieve text within the selection range
-        let selectedText = '';
-        if (startKey === endKey) {
-            // If startKey and endKey are the same, selection is within the same block
-            const blockText = currentContent.getBlockForKey(startKey).getText();
-            selectedText = blockText.slice(startOffset, endOffset);
-        } else {
-            // Selection spans multiple blocks
-            const startBlockText = currentContent.getBlockForKey(startKey).getText();
-            const endBlockText = currentContent.getBlockForKey(endKey).getText();
-
-            // Combine text from multiple blocks
-            selectedText += startBlockText.slice(startOffset) + '\n'; // Append text from start block
-            for (let blockKey = startKey; blockKey !== endKey; blockKey = currentContent.getKeyAfter(blockKey)) {
-                const blockText = currentContent.getBlockForKey(blockKey).getText();
-                selectedText += blockText + '\n'; // Append full text of blocks in between
-            }
-            selectedText += endBlockText.slice(0, endOffset); // Append text from end block
-        }
-
-        console.log('Selected Text:', selectedText);
-    };
 
     const toggleInlineStyle = (style) => {
         // logSelectionContent();
-        setEditorState((prevState) => RichUtils.toggleInlineStyle(prevState, style));
+        setEditorState((prevState) => EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection()));
+        // editorRef.current.focus();
     };
 
     const addLink = (url) => {
-        let link = url;
+        const contentState = editorState.getCurrentContent();
+        const contentStateWithEntity = contentState.createEntity('LINK', 'MUTABLE', { url });
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
 
-        // Get the content that already present in editor to append new content into it 
-        const currentContent = editorState.getCurrentContent();
-        // Creating Link entity
-        currentContent.createEntity('LINK', 'MUTABLE', {
-            url: link,
-            target: '_blank',
-        });
-
-        const entityKey = currentContent.getLastCreatedEntityKey();
-        const selection = editorState.getSelection();
-        const textWithEntity = Modifier.applyEntity(
-            currentContent,
-            selection,
+        // Apply entity to the selected text
+        const newEditorState = RichUtils.toggleLink(
+            editorState,
+            editorState.getSelection(),
             entityKey
         );
 
-        const newState = EditorState.createWithContent(textWithEntity, decorator);
-        setEditorState(newState);
+        setEditorState(EditorState.forceSelection(newEditorState, editorState.getSelection()));
     }
+
+    const removeLink = () => {
+        const newEditorState = removeLinkEntity(editorState);
+        setEditorState(EditorState.forceSelection(newEditorState, newEditorState.getSelection()));
+    };
+
+    const removeLinkEntity = (editorState) => {
+        const selection = editorState.getSelection();
+        if (!selection.isCollapsed()) {
+            const contentState = editorState.getCurrentContent();
+            const blockKey = selection.getStartKey();
+            const startOffset = selection.getStartOffset();
+            const block = contentState.getBlockForKey(blockKey);
+            const entityKey = block.getEntityAt(startOffset);
+
+            if (entityKey) {
+                // Apply null to remove the entity
+                const newContentState = Modifier.applyEntity(
+                    contentState,
+                    selection,
+                    null
+                );
+
+                // Create a new EditorState with the updated content state
+                const newEditorState = EditorState.push(
+                    editorState,
+                    newContentState,
+                    'apply-entity'
+                );
+
+                return EditorState.forceSelection(
+                    newEditorState,
+                    newContentState.getSelectionAfter()
+                );
+            }
+        }
+
+        return editorState;
+    };
 
     const toggleBold = () => {
         toggleInlineStyle('BOLD');
@@ -137,6 +195,11 @@ const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
         return 'not-handled';
     };
 
+    const handleEditorChange = (newEditorState) => {
+        setEditorState(newEditorState);
+        setShowContextMenu(false); // Hide context menu on editor change
+    };
+
     return (
         <div className="mx-auto max-w-3xl mt-6 p-6 border rounded-lg shadow-lg">
             <div className="mb-4 flex items-center">
@@ -161,15 +224,33 @@ const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
                 </button>
                 <button
                     className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
+                    onClick={() => removeLink()}
+                >
+                    Remove Link
+                </button>
+                <button
+                    className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
                     onClick={convertToHTMLContent}
                 >
                     Get HTML Content
                 </button>
+                <button
+                    className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
+                    onClick={handleRightClick}
+                >
+                    context menu
+                </button>
+
             </div>
-            <div className="bg-white border border-gray-300 p-2 caret-transparent">
+            <div className="bg-white border border-gray-300 p-2 caret-transparent editor-container">
+                {showContextMenu && (
+                    <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
+                        <button onClick={handleRemoveLink}>Remove Link</button>
+                    </div>
+                )}
                 <Editor
                     editorState={editorState}
-                    onChange={(newState) => setEditorState(newState)}
+                    onChange={handleEditorChange}
                     // handleKeyCommand={handleKeyCommand} // what is the purpose of this
                     handleBeforeInput={() => 'handled'}
                     handleReturn={() => 'handled'}

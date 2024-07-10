@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Editor, EditorState, RichUtils, ContentState, convertFromHTML, CompositeDecorator, Modifier } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
+import { stateFromHTML } from 'draft-js-import-html';
 import AddLinkModal from './AddLinkModal';
 import '../styles.css'
-
 
 const Link = ({ contentState, entityKey, children }) => {
     const { url } = contentState.getEntity(entityKey).getData();
@@ -35,15 +35,10 @@ const decorator = new CompositeDecorator([
     },
 ]);
 
-// Function to convert HTML to Draft.js ContentState
 const createEditorStateFromHTML = (html) => {
-    if (!html) return EditorState.createEmpty(); // Handle case where html is empty
+    if (!html) return EditorState.createEmpty();
 
-    const blocksFromHTML = convertFromHTML(html);
-    const contentState = ContentState.createFromBlockArray(
-        blocksFromHTML.contentBlocks,
-        blocksFromHTML.entityMap
-    );
+    const contentState = stateFromHTML(html);
 
     return EditorState.createWithContent(contentState, decorator);
 };

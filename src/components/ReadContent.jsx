@@ -3,11 +3,16 @@ import { PencilIcon } from '@heroicons/react/24/outline';
 import '../styles.css';
 import LimitedEditor from './LimitedEditor';
 
-const ReadContent =  React.forwardRef(({ article, onEditClicked, onLinkClicked }, ref) => {
+const ReadContent = React.forwardRef(({ article, onEditClicked, onLinkClicked }, ref) => {
 
-  const editorRef = useRef();
+  const mainTextEditorRef = useRef();
+  const explanationEditorRef = useRef();
+  const commentEditorRef = useRef();
 
   const { title, category, owner, date, number, explanation, text, comments } = article;
+
+  const [isCommentPresent, setIsCommentPresent] = useState(comments.length > 0 && comments[0] && comments[0].text);
+  const [activeEditor, setActiveEditor] = useState();
 
   const handleEditClicked = (article) => {
     onEditClicked(article);
@@ -15,7 +20,7 @@ const ReadContent =  React.forwardRef(({ article, onEditClicked, onLinkClicked }
 
   const handleLinkClicked = (event) => {
     event.preventDefault();
-  
+
     if (event.target.closest('a'))
       onLinkClicked(event.target.closest('a').getAttribute('href'));
   };
@@ -27,22 +32,33 @@ const ReadContent =  React.forwardRef(({ article, onEditClicked, onLinkClicked }
   }
 
   const addLink = (url) => {
-    editorRef.current.addLink(url);
+    getActiveEditorRef() && getActiveEditorRef().current.addLink(url);
   }
 
   const toggleBold = () => {
-    editorRef.current.toggleBold();
+    getActiveEditorRef() && getActiveEditorRef().current.toggleBold();
   }
 
   const toggleUnderline = () => {
-    editorRef.current.toggleUnderline();
+    getActiveEditorRef() && getActiveEditorRef().current.toggleUnderline();
+  }
+
+  const getActiveEditorRef = () => {
+    if (activeEditor === 'mainTextEditor')
+      return mainTextEditorRef;
+    if (activeEditor === 'explanationEditor')
+      return explanationEditorRef;
+    if (activeEditor === 'commentEditor')
+      return commentEditorRef;
+
+    return null;
   }
 
   React.useImperativeHandle(ref, () => ({
     addLink,
     toggleUnderline,
     toggleBold
-}));
+  }));
 
   return (
     <div className="max-h-full overflow-auto mx-auto bg-stone-50">
@@ -59,21 +75,25 @@ const ReadContent =  React.forwardRef(({ article, onEditClicked, onLinkClicked }
         </div>
         <p className="text-sm text-gray-600 mt-2">{owner && owner.name + " | "} {new Date(date).toLocaleDateString('tr')} ({number})</p>
         {/* <p className="text-gray-700 mt-4">{text}</p> */}
-        <div className="prose text-gray-700 mt-4 text-l" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: explanation }} />
+        {/* <div className="prose text-gray-700 mt-4 text-l" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: explanation }} /> */}
         {/* <div className="prose text-gray-700 mt-4 text-xl" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: text }} /> */}
-        <LimitedEditor htmlContent={text} ref={editorRef}></LimitedEditor>
+        <span onClick={() => setActiveEditor('explanationEditor')}>
+          <LimitedEditor htmlContent={explanation} ref={explanationEditorRef}></LimitedEditor>
+        </span>
+        <span onClick={() => setActiveEditor('mainTextEditor')}>
+          <LimitedEditor htmlContent={text} ref={mainTextEditorRef}></LimitedEditor>
+        </span>
       </div>
 
-      <div className="p-6 border-t border-gray-500">
-        <h3 className="text-xl font-semibold mb-4">{comments.size > 1 ? "Comments" : "Comment"}</h3>
-        <ul className="divide-y divide-gray-200">
-          {comments.map((comment, index) => (
-            <li key={index} className="py-4">
-              <div className="prose text-gray-700 text-xl mt-4" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: comment.text }} />
-            </li>
-          ))}
-        </ul>
-      </div>
+      {isCommentPresent &&
+        <div className="p-6 border-t border-gray-500">
+          <h3 className="text-xl font-semibold mb-4">Comment</h3>
+          <ul className="divide-y divide-gray-200">
+            <span onClick={() => setActiveEditor('commentEditor')}>
+              <LimitedEditor htmlContent={comments[0]} ref={commentEditorRef}></LimitedEditor>
+            </span>
+          </ul>
+        </div>}
 
       <div className='flex'>
         <h2 className='mx-2 cursor-pointer hover:text-green-500' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>

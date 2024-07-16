@@ -3,7 +3,9 @@ import { PencilIcon } from '@heroicons/react/24/outline';
 import '../styles.css';
 import LimitedEditor from './LimitedEditor';
 
-const ReadContent = React.forwardRef(({ article, onEditClicked, onLinkClicked }, ref) => {
+import { updateArticle } from '../backend-adapter/BackendAdapter';
+
+const ReadContent = React.forwardRef(({ article, onEditClicked, onLinkClicked, syncWithDB }, ref) => {
 
   const mainTextEditorRef = useRef();
   const explanationEditorRef = useRef();
@@ -11,8 +13,31 @@ const ReadContent = React.forwardRef(({ article, onEditClicked, onLinkClicked },
 
   const { title, category, owner, date, number, explanation, text, comments } = article;
 
-  const [isCommentPresent, setIsCommentPresent] = useState(comments.length > 0 && comments[0] && comments[0].text);
+
+  const saveArticle = async () => {
+    const result = await updateArticle(article.id, {
+      title: article.title,
+      date: article.date,
+      explanation: explanationState,
+      text: mainTextState,
+      owner: { name: article.owner.name },
+      category: { name: article.category.name },
+      comments: [{ text: commentState }],
+      tags: article.tags
+    });
+    console.log('article updated:');
+    console.log(result);
+    syncWithDB();
+  }
+
   const [activeEditor, setActiveEditor] = useState();
+  const [explanationState, setExplanationState] = useState(article.explanation);
+  const [mainTextState, setMainTextState] = useState(article.text);
+  const [commentState, setCommentState] = useState(article.comments[0].text);
+
+  useEffect(() => {
+    saveArticle();
+  }, [explanationState, mainTextState, commentState]);
 
   const handleEditClicked = (article) => {
     onEditClicked(article);
@@ -54,10 +79,18 @@ const ReadContent = React.forwardRef(({ article, onEditClicked, onLinkClicked },
     return null;
   }
 
+  const getExplanation = () => explanationEditorRef.current.getHtmlContent();
+  const getMainText = () => mainTextEditorRef.current.getHtmlContent();
+  const getComment = () => commentEditorRef.current.getHtmlContent();
+
+
   React.useImperativeHandle(ref, () => ({
     addLink,
     toggleUnderline,
-    toggleBold
+    toggleBold,
+    getComment,
+    getExplanation,
+    getMainText
   }));
 
   return (
@@ -78,22 +111,23 @@ const ReadContent = React.forwardRef(({ article, onEditClicked, onLinkClicked },
         {/* <div className="prose text-gray-700 mt-4 text-l" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: explanation }} /> */}
         {/* <div className="prose text-gray-700 mt-4 text-xl" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: text }} /> */}
         <span onClick={() => setActiveEditor('explanationEditor')}>
-          <LimitedEditor htmlContent={explanation} ref={explanationEditorRef}></LimitedEditor>
+          <LimitedEditor htmlContent={explanation} handleContentChange={setExplanationState} ref={explanationEditorRef}></LimitedEditor>
         </span>
         <span onClick={() => setActiveEditor('mainTextEditor')}>
-          <LimitedEditor htmlContent={text} ref={mainTextEditorRef}></LimitedEditor>
+          <LimitedEditor htmlContent={text} handleContentChange={setMainTextState} ref={mainTextEditorRef}></LimitedEditor>
         </span>
       </div>
 
-      {isCommentPresent &&
+      <div className={comments.length > 0 && comments[0] && comments[0].text ? 'hidden' : ''}>
         <div className="p-6 border-t border-gray-500">
           <h3 className="text-xl font-semibold mb-4">Comment</h3>
           <ul className="divide-y divide-gray-200">
             <span onClick={() => setActiveEditor('commentEditor')}>
-              <LimitedEditor htmlContent={comments[0]} ref={commentEditorRef}></LimitedEditor>
+              <LimitedEditor htmlContent={comments[0]} handleContentChange={setCommentState} ref={commentEditorRef}></LimitedEditor>
             </span>
           </ul>
-        </div>}
+        </div>
+      </div>
 
       <div className='flex'>
         <h2 className='mx-2 cursor-pointer hover:text-green-500' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>

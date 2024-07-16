@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, SelectionState } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
@@ -6,64 +6,10 @@ import AddLinkModal from './AddLinkModal';
 import '../styles.css'
 
 
-const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
+const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, ref) => {
 
     const [rightClickedBlockKey, setRightClickedBlockKey] = useState();
     const [rightClickedEntityKey, setRightClickedEntityKey] = useState();
-
-    const handleRightClick = (e, blockKey, entityKey) => {
-        e.preventDefault(); // Prevent default context menu        
-
-        const grandParentRect = e.currentTarget.parentElement.getBoundingClientRect();
-
-        const posx = e.clientX - grandParentRect.left;
-        const posy = e.clientY - grandParentRect.top;
-
-        setRightClickedBlockKey(blockKey);
-        setRightClickedEntityKey(entityKey);
-        setShowContextMenu(true);
-        setContextMenuPosition({ x: posx, y: posy });
-    };
-
-    const handleRemoveLink = (e) => {        
-        e.preventDefault();
-
-        const contentState = editorState.getCurrentContent();
-        const block = contentState.getBlockForKey(rightClickedBlockKey);
-
-        // Retrieve the entity range within the block
-        let entityRange;
-        block.findEntityRanges(
-            character => {
-                const entity = character.getEntity();
-                return entity !== null && entity === rightClickedEntityKey;
-            },
-            (start, end) => {
-                entityRange = { start, end };
-            }
-        );
-
-        if (entityRange) {
-            // Create selection state for the entity range
-            const selection = SelectionState.createEmpty(rightClickedBlockKey).merge({
-                anchorOffset: entityRange.start,
-                focusOffset: entityRange.end,
-            });
-
-            // Remove the link entity from the content state
-            const newContentState = Modifier.applyEntity(contentState, selection, null);
-
-            // Update editor state with the new content state
-            const newEditorState = EditorState.push(
-                editorState,
-                newContentState,
-                'apply-entity'
-            );
-
-            setEditorState(newEditorState);
-            setShowContextMenu(false); // Hide context menu after removing link
-        }
-    };
 
     const Link = ({ contentState, blockKey, entityKey, children }) => {
 
@@ -108,17 +54,86 @@ const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
         return EditorState.createWithContent(contentState, decorator);
     };
 
-
     const [editorState, setEditorState] = useState(() => createEditorStateFromHTML(htmlContent));
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
 
+    const [htmlContentState, setHtmlContentState] = useState(htmlContent);
+
+    useEffect(() => {
+        setHtmlContentState(stateToHTML(editorState.getCurrentContent()));
+    }, [editorState]);
+
+    const handleRightClick = (e, blockKey, entityKey) => {
+        e.preventDefault(); // Prevent default context menu        
+
+        const grandParentRect = e.currentTarget.parentElement.getBoundingClientRect();
+
+        const posx = e.clientX - grandParentRect.left;
+        const posy = e.clientY - grandParentRect.top;
+
+        setRightClickedBlockKey(blockKey);
+        setRightClickedEntityKey(entityKey);
+        setShowContextMenu(true);
+        setContextMenuPosition({ x: posx, y: posy });
+    };
+
+    const handleRemoveLink = (e) => {
+        e.preventDefault();
+
+        const contentState = editorState.getCurrentContent();
+        const block = contentState.getBlockForKey(rightClickedBlockKey);
+
+        // Retrieve the entity range within the block
+        let entityRange;
+        block.findEntityRanges(
+            character => {
+                const entity = character.getEntity();
+                return entity !== null && entity === rightClickedEntityKey;
+            },
+            (start, end) => {
+                entityRange = { start, end };
+            }
+        );
+
+        if (entityRange) {
+            // Create selection state for the entity range
+            const selection = SelectionState.createEmpty(rightClickedBlockKey).merge({
+                anchorOffset: entityRange.start,
+                focusOffset: entityRange.end,
+            });
+
+            // Remove the link entity from the content state
+            const newContentState = Modifier.applyEntity(contentState, selection, null);
+
+            // Update editor state with the new content state
+            const newEditorState = EditorState.push(
+                editorState,
+                newContentState,
+                'apply-entity'
+            );
+
+            setEditorState(newEditorState);
+            setShowContextMenu(false); // Hide context menu after removing link
+        }
+    };
+
+
+
 
 
     const toggleInlineStyle = (style) => {
         // logSelectionContent();
-        setEditorState((prevState) => EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection()));
+        
+        setEditorState((prevState) => 
+            {
+                const newEditorState = EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
+                handleContentChange(stateToHTML(newEditorState.getCurrentContent()));
+                return newEditorState;
+            }
+        );
+
         // editorRef.current.focus();
     };
 
@@ -145,17 +160,22 @@ const LimitedEditor = React.forwardRef(({ htmlContent }, ref) => {
         toggleInlineStyle('UNDERLINE');
     }
 
-    React.useImperativeHandle(ref, () => ({
-        addLink,
-        toggleBold,
-        toggleUnderline
-    }));
-
     const convertToHTMLContent = () => {
         const currentContent = editorState.getCurrentContent();
         const html = stateToHTML(currentContent);
         console.log(html); // You can use this HTML content as needed (e.g., save to database, display, etc.)
     };
+
+    const getHtmlContent = () => {
+        return htmlContentState;
+    }
+
+    React.useImperativeHandle(ref, () => ({
+        addLink,
+        toggleBold,
+        toggleUnderline,
+        getHtmlContent
+    }));
 
     const handleKeyCommand = (command) => {
         console.log('in handle key command')

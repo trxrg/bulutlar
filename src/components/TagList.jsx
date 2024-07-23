@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import TagButton from './TagButton';
 
-const TagList = React.forwardRef(({ allTags, selectedTags, onTagsChange }, ref) => {
+import { AppContext } from '../store/app-context.jsx';
+
+const TagList = React.forwardRef(({ selectedTags, onTagsChange }, ref) => {
+
+    const { allTags } = useContext(AppContext);
+
     const suggestedTagNumber = 5;
     const [tags, setTags] = useState(selectedTags);
     const [inputValue, setInputValue] = useState('');

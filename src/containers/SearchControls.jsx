@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AppContext } from '../store/app-context.jsx'
 
-const SearchControls = ({ tagNames, ownerNames, onFilterChanged }) => {
+const SearchControls = ({ onFilterChanged }) => {
+
+    const { allOwners, allTags } = useContext(AppContext);
+
+    const tagNames=allTags.map(tag=>tag.name);
+    const ownerNames=allOwners.map(owner=>owner.name);
 
     const [selectedOwnerNames, setSelectedOwnerNames] = useState([]);
     const [selectedTagNames, setSelectedTagNames] = useState([]);

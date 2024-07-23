@@ -1,10 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import SplitPane from 'react-split-pane';
 
 import SearchResults from './SearchResults';
 import SearchControls from './SearchControls';
+import { AppContext } from '../store/app-context.jsx'
 
-const SearchScreen = ({ handleSearchResultClicked, allArticles, allOwners, allOwnersLoaded, allTags, allTagsLoaded }) => {
+const SearchScreen = () => {
+
+  const { allOwnersLoaded, allTagsLoaded } = useContext(AppContext);
+
   const [paneSize, setPaneSize] = useState('30%');
 
   const searchResultsRef = useRef();
@@ -39,10 +43,10 @@ const SearchScreen = ({ handleSearchResultClicked, allArticles, allOwners, allOw
       resizerStyle={{ background: '#6b6969', cursor: 'col-resize', width: '12px' }}
     >
       <div>
-        {allOwnersLoaded && allTagsLoaded ? <SearchControls tagNames={allTags.map(tag=>tag.name)} ownerNames={allOwners.map(owner=>owner.name)} onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
+        {allOwnersLoaded && allTagsLoaded ? <SearchControls onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
       </div>
       <div>
-        <SearchResults ref={searchResultsRef} articles={allArticles} handleClick={handleSearchResultClicked}></SearchResults>
+        <SearchResults ref={searchResultsRef}></SearchResults>
       </div>
     </SplitPane>
   );

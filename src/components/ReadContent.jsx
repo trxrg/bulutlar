@@ -1,11 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { PencilIcon } from '@heroicons/react/24/outline';
 import '../styles.css';
 import LimitedEditor from './LimitedEditor';
+import { AppContext } from '../store/app-context.jsx';
 
 import { updateArticle } from '../backend-adapter/BackendAdapter';
 
-const ReadContent = React.forwardRef(({ article, onEditClicked, onLinkClicked, syncWithDB }, ref) => {
+const ReadContent = React.forwardRef(({ article }, ref) => {
+
+  const { editClicked, linkClicked, syncWithDB } = useContext(AppContext);
 
   const mainTextEditorRef = useRef();
   const explanationEditorRef = useRef();
@@ -40,14 +43,14 @@ const ReadContent = React.forwardRef(({ article, onEditClicked, onLinkClicked, s
   }, [explanationState, mainTextState, commentState]);
 
   const handleEditClicked = (article) => {
-    onEditClicked(article);
+    editClicked(article);
   }
 
   const handleLinkClicked = (event) => {
     event.preventDefault();
 
     if (event.target.closest('a'))
-      onLinkClicked(event.target.closest('a').getAttribute('href'));
+      linkClicked(event.target.closest('a').getAttribute('href'));
   };
 
   const [showCode, setShowCode] = useState(false);

@@ -1,17 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import SearchScreen from './SearchScreen';
 import ReadScreen from './ReadScreen';
 import NewReadScreen from './NewReadScreen';
+import { AppContext } from '../store/app-context.jsx'
 
-const TabsScreen = ({ onEditClicked, handleLinkClicked, syncWithDB, activeTabId, setActiveTabId, handleAddTab, handleCloseTab, tabs, allArticles, allOwners, allOwnersLoaded, allTags, allTagsLoaded }) => {
+const TabsScreen = () => {
+
+  const { activeTabId, setActiveTabId, closeTab, tabs, allArticles, } = useContext(AppContext);
 
   const handleTabClick = (tabId) => {
     setActiveTabId(tabId);
   };
-
-  const handleEditClicked = (article) => {
-    onEditClicked(article);
-  }
 
   const getArticle = (articleId) => {
     const result = allArticles.find(article => article.id === articleId);
@@ -49,7 +48,7 @@ const TabsScreen = ({ onEditClicked, handleLinkClicked, syncWithDB, activeTabId,
                 className="ml-2 text-red-700 hover:text-red-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent tab click event from firing
-                  handleCloseTab(tab.id);
+                  closeTab(tab.id);
                 }}
               >
                 &#10006;
@@ -64,10 +63,10 @@ const TabsScreen = ({ onEditClicked, handleLinkClicked, syncWithDB, activeTabId,
         {tabs.map(tab => (
           <div key={tab.id} className={activeTabId === tab.id ? 'h-full relative' : 'hidden'}>
             {tab.id == 'search' ?
-              <SearchScreen handleSearchResultClicked={handleAddTab} allArticles={allArticles} allOwners={allOwners} allOwnersLoaded={allOwnersLoaded} allTags={allTags} allTagsLoaded={allTagsLoaded}></SearchScreen>
+              <SearchScreen/>
               :
               // <ReadScreen article={getArticle(tab.id)} allTags={allTags} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked} syncWithDB={syncWithDB}></ReadScreen>
-              <NewReadScreen article={getArticle(tab.id)} allTags={allTags} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked} syncWithDB={syncWithDB}></NewReadScreen>
+              <NewReadScreen article={getArticle(tab.id)}></NewReadScreen>
               }
           </div>
         ))}

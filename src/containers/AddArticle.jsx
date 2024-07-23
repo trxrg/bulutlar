@@ -1,20 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { format } from 'date-fns';
 import { addArticle, updateArticle, deleteArticle, getAllCategories } from '../backend-adapter/BackendAdapter';
 import OwnerList from '../components/OwnerList';
 import TagList from '../components/TagList';
 import RichText from '../components/RichText';
 import CategoryList from '../components/CategoryList';
+import { AppContext } from '../store/app-context.jsx'
 
-const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDeleteClicked }) => {
-  const [dispTitle, setDispTitle] = useState(article ? article.title : '');
-  const [dispDate, setDispDate] = useState(article ? new Date(article.date) : new Date());
-  const [dispExplanation, setDispExplanation] = useState(article ? article.explanation : '');
-  const [dispMainText, setDispMainText] = useState(article ? article.text : '');
-  const [dispCommentText, setDispCommentText] = useState(article && article.comments[0] ? article.comments[0].text : '');
-  const [dispOwnerName, setDispOwnerName] = useState(article ? article.owner.name : '')
-  const [dispCategoryName, setDispCategoryName] = useState(article ? article.category.name : '');
-  const [dispTags, setDispTags] = useState(article ? article.tags : []);
+const AddArticle = () => {
+
+  const { editedArticle, allTags, allOwners, afterSubmitArticle, afterDeleteArticle } = useContext(AppContext);
+
+  const [dispTitle, setDispTitle] = useState(editedArticle ? editedArticle.title : '');
+  const [dispDate, setDispDate] = useState(editedArticle ? new Date(editedArticle.date) : new Date());
+  const [dispExplanation, setDispExplanation] = useState(editedArticle ? editedArticle.explanation : '');
+  const [dispMainText, setDispMainText] = useState(editedArticle ? editedArticle.text : '');
+  const [dispCommentText, setDispCommentText] = useState(editedArticle && editedArticle.comments[0] ? editedArticle.comments[0].text : '');
+  const [dispOwnerName, setDispOwnerName] = useState(editedArticle ? editedArticle.owner.name : '')
+  const [dispCategoryName, setDispCategoryName] = useState(editedArticle ? editedArticle.category.name : '');
+  const [dispTags, setDispTags] = useState(editedArticle ? editedArticle.tags : []);
   const [allCategories, setAllCategories] = useState([]);
 
   const explanationRef = useRef();
@@ -46,8 +50,8 @@ const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDele
     e.preventDefault();
     try {
       let result;
-      if (article) {
-        result = await updateArticle(article.id, {
+      if (editedArticle) {
+        result = await updateArticle(editedArticle.id, {
           title: dispTitle,
           date: dispDate,
           explanation: dispExplanation,
@@ -75,16 +79,16 @@ const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDele
         console.log(result);
       }
 
-      afterSubmitClicked(result.id);
+      afterSubmitArticle(result.id);
     } catch (err) {
       console.error(err.message);
     }
   };
 
   const handleDeleteArticle = async () => {
-    const articleId = article.id;
+    const articleId = editedArticle.id;
     await deleteArticle(articleId);
-    afterDeleteClicked(articleId);
+    afterDeleteArticle(articleId);
   }
 
   return (
@@ -129,13 +133,13 @@ const AddArticle = ({ article, allTags, allOwners, afterSubmitClicked, afterDele
         <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
         <div className='flex justify-between'>
           <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
-            {article ? "Save" : "Submit"}
+            {editedArticle ? "Save" : "Submit"}
           </button>
 
         </div>
       </form>
       <div className='flex justify-end mx-2'>
-        {article && <button type="button" onClick={handleDeleteArticle} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
+        {editedArticle && <button type="button" onClick={handleDeleteArticle} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
           Delete Article
         </button>
         }

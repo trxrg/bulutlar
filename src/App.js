@@ -1,11 +1,8 @@
 import { useState } from 'react';
 
 import './App.css';
-import AddArticle from './containers/AddArticle';
 import MainScreen from './containers/MainScreen';
-import SearchScreen from './containers/SearchScreen';
-
-import Sketch from './test-screens/Sketch';
+import AppContextProvider from './store/app-context';
 
 function App() {
 
@@ -21,7 +18,9 @@ function App() {
 
   return (
     <div className='bg-stone-300'>
-      <MainScreen></MainScreen>
+      <AppContextProvider>
+        <MainScreen></MainScreen>
+      </AppContextProvider>
     </div>
   );
 }

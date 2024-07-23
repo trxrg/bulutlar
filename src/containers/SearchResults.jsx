@@ -1,25 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 
 import ArticleShort from '../components/ArticleShort';
+import { AppContext } from '../store/app-context.jsx';
 
-const SearchResults = React.forwardRef(({ handleClick, articles }, ref) => {
+const SearchResults = React.forwardRef((props, ref) => {
+
+    const { handleAddTab, allArticles } = useContext(AppContext);
 
     /* when articles prop changes filteredArticles are not set (useState)
         so i added useEffect to set articles to filteredArticles
         but this causes double render each time articles prop changes
     */
-    const [filteredArticles, setFilteredArticles] = useState([...articles]);
+    const [filteredArticles, setFilteredArticles] = useState([...allArticles]);
     
     useEffect(() => {
-        setFilteredArticles([...articles]);
-    }, [articles]);
+        setFilteredArticles([...allArticles]);
+    }, [allArticles]);
 
     React.useImperativeHandle(ref, () => ({
         filter
     }));
 
     const filter = (filtering) => {
-        applyFiltering(articles, filtering);
+        applyFiltering(allArticles, filtering);
     }
 
     const applyFiltering = (allArticles, filtering) => {
@@ -40,7 +43,7 @@ const SearchResults = React.forwardRef(({ handleClick, articles }, ref) => {
             <div className='flex justify-center'>
                 <h3 className='text-xl text-gray-700'>{filteredArticles.length + ' articles'}</h3>
             </div>
-            {filteredArticles.map(art => <ArticleShort handleClick={handleClick} key={art.id} article={art}></ArticleShort>)}
+            {filteredArticles.map(art => <ArticleShort handleClick={handleAddTab} key={art.id} article={art}></ArticleShort>)}
         </div>
     );
 });

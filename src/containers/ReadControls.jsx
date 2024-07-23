@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import TagList from '../components/TagList';
 import AddLinkModal from '../components/AddLinkModal';
 import { updateArticle } from '../backend-adapter/BackendAdapter';
@@ -6,9 +6,12 @@ import { updateArticle } from '../backend-adapter/BackendAdapter';
 import { LinkIcon } from '@heroicons/react/24/outline';
 
 
+import { AppContext } from '../store/app-context.jsx';
 
 
-const ReadControls = ({ allTags, article, syncWithDB, onAddLink, onToggleBold, onToggleUnderline }) => {
+const ReadControls = ({ article, onAddLink, onToggleBold, onToggleUnderline }) => {
+    
+    const { syncWithDB } = useContext(AppContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
@@ -32,7 +35,7 @@ const ReadControls = ({ allTags, article, syncWithDB, onAddLink, onToggleBold, o
                 </button>
             </div>
             <div className='p-2'>
-                <TagList allTags={allTags} selectedTags={article.tags} onTagsChange={handleTagsChanged}></TagList>
+                <TagList selectedTags={article.tags} onTagsChange={handleTagsChanged}></TagList>
             </div>
             <AddLinkModal
                 isOpen={isLinkModalOpen}

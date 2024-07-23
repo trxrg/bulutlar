@@ -18,6 +18,8 @@ function initService() {
 
 async function addArticle(article) {
 
+    console.log('adding article with id: ' + article.id);
+    
     article.number = calculateNumber(article.date);
     article.code = Math.random().toString(36).substring(2);
     const entity = await sequelize.models.article.create(article);    
@@ -99,7 +101,6 @@ async function getArticleWithId(articleId) {
                 { model: sequelize.models.tag }
             ]
         });
-    console.log(entity);
     return articleEntity2Json(entity);
 }
 
@@ -157,8 +158,6 @@ function articleEntity2Json(entity) {
         entity.dataValues.tags = entity.dataValues.tags.map(tag => entity2Json(tag));
     if (entity.dataValues.comments)
         entity.dataValues.comments = entity.dataValues.comments.map(comment => commentEntity2Json(comment));
-    console.log("ENTITY:");
-    console.log(entity.dataValues);
     return entity.dataValues;
 }
 

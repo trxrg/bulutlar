@@ -48,6 +48,7 @@ export default function AppContextProvider({ children }) {
     }
 
     const getDataFromBE = async () => {
+        console.log('syncing with DB');
         try {
             await Promise.all([
                 getAllArticlesFromBE(),

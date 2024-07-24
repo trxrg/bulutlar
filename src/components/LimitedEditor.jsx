@@ -11,6 +11,12 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
     const [rightClickedBlockKey, setRightClickedBlockKey] = useState();
     const [rightClickedEntityKey, setRightClickedEntityKey] = useState();
 
+    const styleMap = {
+        'HIGHLIGHT': {
+            backgroundColor: 'rgba(180, 180, 0, 1.0)'
+        },
+    };
+
     const Link = ({ contentState, blockKey, entityKey, children }) => {
 
         const { url } = contentState.getEntity(entityKey).getData();
@@ -34,7 +40,7 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
             const entityKey = character.getEntity();
             return (
                 entityKey !== null &&
-                contentState.getEntity(entityKey).getType() === 'LINK'
+                contentState.getEntity(entityKey).getType() === 'MYLINK'
             );
         }, callback);
     }
@@ -43,7 +49,7 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
         {
             strategy: findLinkEntities,
             component: Link,
-        },
+        }
     ]);
 
     const createEditorStateFromHTML = (html) => {
@@ -125,13 +131,12 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
 
     const toggleInlineStyle = (style) => {
         // logSelectionContent();
-        
-        setEditorState((prevState) => 
-            {
-                const newEditorState = EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
-                handleContentChange(stateToHTML(newEditorState.getCurrentContent()));
-                return newEditorState;
-            }
+
+        setEditorState((prevState) => {
+            const newEditorState = EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
+            handleContentChange(stateToHTML(newEditorState.getCurrentContent()));
+            return newEditorState;
+        }
         );
 
         // editorRef.current.focus();
@@ -139,7 +144,7 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
 
     const addLink = (url) => {
         const contentState = editorState.getCurrentContent();
-        const contentStateWithEntity = contentState.createEntity('LINK', 'MUTABLE', { url });
+        const contentStateWithEntity = contentState.createEntity('MYLINK', 'MUTABLE', { url });
         const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
 
         // Apply entity to the selected text
@@ -158,6 +163,10 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
 
     const toggleUnderline = () => {
         toggleInlineStyle('UNDERLINE');
+    }
+
+    const toggleHighlight = () => {
+        toggleInlineStyle('HIGHLIGHT');
     }
 
     const convertToHTMLContent = () => {
@@ -212,6 +221,12 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
                 >
                     Underline
                 </button>
+                <button
+                    className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
+                    onClick={() => toggleInlineStyle('HIGHLIGHT')}
+                >
+                    Highlight
+                </button>
                 {/* Font size and add link buttons */}
                 <button
                     className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
@@ -249,6 +264,7 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
                     handlePastedText={() => 'handled'}
                     readOnly={false}
                     customDecorators={[decorator]}
+                    customStyleMap={styleMap}
                     handleDrop={() => 'handled'}
                 />
             </div>

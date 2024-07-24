@@ -8,7 +8,7 @@ import { updateArticle } from '../backend-adapter/BackendAdapter';
 
 const ReadContent = React.forwardRef(({ article }, ref) => {
 
-  const { editClicked, linkClicked, syncWithDB } = useContext(AppContext);
+  const { editClicked, linkClicked, syncWithDB, getArticleWithIdFromBE } = useContext(AppContext);
 
   const mainTextEditorRef = useRef();
   const explanationEditorRef = useRef();
@@ -30,7 +30,7 @@ const ReadContent = React.forwardRef(({ article }, ref) => {
     });
     console.log('article updated:');
     console.log(result);
-    syncWithDB();
+    getArticleWithIdFromBE(article.id);
   }
 
   const [activeEditor, setActiveEditor] = useState();

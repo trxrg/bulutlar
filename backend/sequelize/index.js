@@ -9,6 +9,12 @@ const sequelize = new Sequelize({
 	storage: './backend/db/test.db',
 	logQueryParameters: true,
 	benchmark: true,
+	logging: (msg) => {
+		if (msg.startsWith('Executing (default)') && msg.includes('ERROR')) {
+			// Log only messages containing 'ERROR' (adjust condition as per your Sequelize version)
+			console.error(msg);
+		}
+	},
 	define: {
 		timestamps: true
 	}

@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { getAllArticles, getAllTags, getAllOwners } from '../backend-adapter/BackendAdapter';
+import { getAllArticles, getAllTags, getAllOwners, getArticleWithId } from '../backend-adapter/BackendAdapter';
 
 export const AppContext = createContext(
 
@@ -17,6 +17,17 @@ export default function AppContextProvider({ children }) {
     const [tabs, setTabs] = useState([
         { id: 'search', title: 'Search' }
     ]);
+
+    const getArticleWithIdFromBE = async (id) => {
+        try {
+            const updatedArticle = await getArticleWithId(id);
+
+            const updatedArticles = allArticles.map(article => article.id === id ? updatedArticle : article);
+            setAllArticles(updatedArticles);
+        } catch (err) {
+            console.error(err);
+        }
+    }
 
     const getAllArticlesFromBE = async () => {
         try {
@@ -143,6 +154,7 @@ export default function AppContextProvider({ children }) {
         handleAddTab,
         handleCancel,
         getAllArticlesFromBE,
+        getArticleWithIdFromBE,
         afterDeleteArticle,
         afterSubmitArticle
     }; // TODO fill this

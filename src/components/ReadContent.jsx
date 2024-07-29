@@ -14,8 +14,7 @@ const ReadContent = React.forwardRef(({ article }, ref) => {
   const explanationEditorRef = useRef();
   const commentEditorRef = useRef();
 
-  const { title, category, owner, date, number, explanation, text, comments } = article;
-
+  const { title, category, owner, date, number, explanation, text, textJson, comments } = article;
 
   const saveArticle = async () => {
     const result = await updateArticle(article.id, {
@@ -23,6 +22,7 @@ const ReadContent = React.forwardRef(({ article }, ref) => {
       date: article.date,
       explanation: explanationState,
       text: mainTextState,
+      textJson: mainTextRawState,
       owner: { name: article.owner.name },
       category: { name: article.category.name },
       comments: [{ text: commentState }],
@@ -37,10 +37,12 @@ const ReadContent = React.forwardRef(({ article }, ref) => {
   const [explanationState, setExplanationState] = useState(article.explanation);
   const [mainTextState, setMainTextState] = useState(article.text);
   const [commentState, setCommentState] = useState(article.comments[0].text);
-
+  
+  const [mainTextRawState, setMainTextRawState] = useState(article.textJson);
+  
   useEffect(() => {
     saveArticle();
-  }, [explanationState, mainTextState, commentState]);
+  }, [explanationState, mainTextState, mainTextRawState, commentState]);
 
   const handleEditClicked = (article) => {
     editClicked(article);
@@ -84,6 +86,7 @@ const ReadContent = React.forwardRef(({ article }, ref) => {
 
   const getExplanation = () => explanationEditorRef.current.getHtmlContent();
   const getMainText = () => mainTextEditorRef.current.getHtmlContent();
+  const getMainTextJson = () => mainTextEditorRef.current.getRawContent();
   const getComment = () => commentEditorRef.current.getHtmlContent();
 
 
@@ -95,6 +98,19 @@ const ReadContent = React.forwardRef(({ article }, ref) => {
     getExplanation,
     getMainText
   }));
+
+  const handleExplanationChange = (html, raw) => {
+    setExplanationState(html);
+  }
+
+  const handleMainTextChange = (html, raw) => {
+    setMainTextState(html);
+    setMainTextRawState(raw);
+  }
+
+  const handleCommentChange = (html, raw) => {
+    setCommentState(html);
+  }
 
   return (
     <div className="max-h-full overflow-auto mx-auto bg-stone-50">
@@ -113,24 +129,25 @@ const ReadContent = React.forwardRef(({ article }, ref) => {
         {/* <p className="text-gray-700 mt-4">{text}</p> */}
         {/* <div className="prose text-gray-700 mt-4 text-l" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: explanation }} /> */}
         {/* <div className="prose text-gray-700 mt-4 text-xl" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: text }} /> */}
-        <span onClick={() => setActiveEditor('explanationEditor')}>
-          <LimitedEditor htmlContent={explanation} handleContentChange={setExplanationState} ref={explanationEditorRef}></LimitedEditor>
-        </span>
+        {/* <span onClick={() => setActiveEditor('explanationEditor')}>
+          <LimitedEditor htmlContent={explanation} handleContentChange={handleExplanationChange} ref={explanationEditorRef}></LimitedEditor>
+        </span> */}
         <span onClick={() => setActiveEditor('mainTextEditor')}>
-          <LimitedEditor htmlContent={text} handleContentChange={setMainTextState} ref={mainTextEditorRef}></LimitedEditor>
+          <LimitedEditor htmlContent={text} rawContent={textJson} handleContentChange={handleMainTextChange} ref={mainTextEditorRef}></LimitedEditor>
         </span>
       </div>
 
-      <div className={comments.length > 0 && comments[0] && comments[0].text ? 'hidden' : ''}>
+      {/* <div className={comments.length > 0 && comments[0] && comments[0].text ? 'hidden' : ''}>
         <div className="p-6 border-t border-gray-500">
           <h3 className="text-xl font-semibold mb-4">Comment</h3>
           <ul className="divide-y divide-gray-200">
             <span onClick={() => setActiveEditor('commentEditor')}>
-              <LimitedEditor htmlContent={comments[0]} handleContentChange={setCommentState} ref={commentEditorRef}></LimitedEditor>
+              <LimitedEditor htmlContent={comments[0]} handleContentChange={handleCommentChange} ref={commentEditorRef}></LimitedEditor>
             </span>
           </ul>
         </div>
-      </div>
+      </div> */}
+
 
       <div className='flex'>
         <h2 className='mx-2 cursor-pointer hover:text-green-500' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>

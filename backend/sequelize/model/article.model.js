@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
         number: { allowNull: false, type: DataTypes.INTEGER },
         explanation: { allowNull: false, type: DataTypes.TEXT },
         text: { allowNull: false, type: DataTypes.TEXT },
+        textJson: { allowNull: true, type: DataTypes.JSON },
         code: {allowNull: false, type: DataTypes.STRING }
     });
 

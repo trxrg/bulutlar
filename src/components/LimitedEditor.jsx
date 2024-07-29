@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, SelectionState } from 'draft-js';
+import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import AddLinkModal from './AddLinkModal';
 import '../styles.css'
 
 
-const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, ref) => {
+const LimitedEditor = React.forwardRef(({ htmlContent, rawContent, handleContentChange }, ref) => {
 
     const [rightClickedBlockKey, setRightClickedBlockKey] = useState();
     const [rightClickedEntityKey, setRightClickedEntityKey] = useState();
@@ -60,15 +60,18 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
         return EditorState.createWithContent(contentState, decorator);
     };
 
-    const [editorState, setEditorState] = useState(() => createEditorStateFromHTML(htmlContent));
+    // const [editorState, setEditorState] = useState(() => createEditorStateFromHTML(htmlContent));
+    const [editorState, setEditorState] = useState(rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent));
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
 
     const [htmlContentState, setHtmlContentState] = useState(htmlContent);
+    const [rawContentState, setRawContentState] = useState(rawContent);
 
     useEffect(() => {
         setHtmlContentState(stateToHTML(editorState.getCurrentContent()));
+        setRawContentState(convertToRaw(editorState.getCurrentContent()));
     }, [editorState]);
 
     const handleRightClick = (e, blockKey, entityKey) => {
@@ -132,9 +135,12 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
     const toggleInlineStyle = (style) => {
         // logSelectionContent();
 
+        console.log('raw content');
+        console.log(convertToRaw(editorState.getCurrentContent()));
+
         setEditorState((prevState) => {
             const newEditorState = EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
-            handleContentChange(stateToHTML(newEditorState.getCurrentContent()));
+            handleContentChange(stateToHTML(newEditorState.getCurrentContent()), convertToRaw(newEditorState.getCurrentContent()));
             return newEditorState;
         }
         );
@@ -179,11 +185,16 @@ const LimitedEditor = React.forwardRef(({ htmlContent, handleContentChange }, re
         return htmlContentState;
     }
 
+    const getRawContent = () => {
+        return rawContentState;
+    }
+
     React.useImperativeHandle(ref, () => ({
         addLink,
         toggleBold,
         toggleUnderline,
-        getHtmlContent
+        getHtmlContent,
+        getRawContent
     }));
 
     const handleKeyCommand = (command) => {

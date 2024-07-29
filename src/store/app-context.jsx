@@ -22,6 +22,9 @@ export default function AppContextProvider({ children }) {
         try {
             const updatedArticle = await getArticleWithId(id);
 
+            console.log('updated article')
+            console.log(updatedArticle)
+
             const updatedArticles = allArticles.map(article => article.id === id ? updatedArticle : article);
             setAllArticles(updatedArticles);
         } catch (err) {

@@ -13,7 +13,7 @@ const LimitedEditor = React.forwardRef(({ htmlContent, rawContent, handleContent
 
     const styleMap = {
         'HIGHLIGHT': {
-            backgroundColor: 'rgba(180, 180, 0, 1.0)'
+            backgroundColor: 'rgba(240, 240, 120, 1.0)'
         },
     };
 
@@ -193,6 +193,7 @@ const LimitedEditor = React.forwardRef(({ htmlContent, rawContent, handleContent
         addLink,
         toggleBold,
         toggleUnderline,
+        toggleHighlight,
         getHtmlContent,
         getRawContent
     }));

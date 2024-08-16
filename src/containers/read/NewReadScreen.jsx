@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import SplitPane from 'react-split-pane';
 import ReadControls from './ReadControls';
-import ReadContent from '../components/ReadContent';
-import ReadContextProvider from '../store/read-context';
+import ReadContent from './ReadContent';
+import ReadContextProvider from '../../store/read-context';
 
 const NewReadScreen = ({ article }) => {
   const [paneSize, setPaneSize] = useState('70%');

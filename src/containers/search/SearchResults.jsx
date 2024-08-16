@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 
-import ArticleShort from '../components/ArticleShort';
-import { AppContext } from '../store/app-context.jsx';
+import ArticleShort from '../../components/ArticleShort.jsx';
+import { AppContext } from '../../store/app-context.jsx';
 
 const SearchResults = React.forwardRef((props, ref) => {
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SplitPane from 'react-split-pane';
-import ArticleRead from '../components/ArticleRead';
+import ArticleRead from './ArticleRead';
 import ReadControls from './ReadControls';
 
 const ReadScreen = ({ article, allTags, onEditClicked, onLinkClicked, syncWithDB }) => {

@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { PencilIcon } from '@heroicons/react/24/outline';
-import '../styles.css';
-import LimitedEditor from './LimitedEditor';
-import { AppContext } from '../store/app-context.jsx';
+import '../../styles.css';
+import LimitedEditor from './RichEditor.jsx';
+import { AppContext } from '../../store/app-context.jsx';
 
-import { updateArticle } from '../backend-adapter/BackendAdapter';
+import { updateArticle } from '../../backend-adapter/BackendAdapter.js';
 
 const ReadContent = React.forwardRef(({ article }, ref) => {
 

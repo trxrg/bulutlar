@@ -1,12 +1,12 @@
 import React, { useState, useContext } from 'react';
-import TagList from '../components/TagList';
-import AddLinkModal from '../components/AddLinkModal';
-import { updateArticle } from '../backend-adapter/BackendAdapter';
+import TagList from '../../components/TagList.jsx';
+import AddLinkModal from '../../components/AddLinkModal.jsx';
+import { updateArticle } from '../../backend-adapter/BackendAdapter.js';
 
 import { LinkIcon } from '@heroicons/react/24/outline';
 
 
-import { AppContext } from '../store/app-context.jsx';
+import { AppContext } from '../../store/app-context.jsx';
 
 
 const ReadControls = ({ article, onAddLink, onToggleBold, onToggleUnderline }) => {

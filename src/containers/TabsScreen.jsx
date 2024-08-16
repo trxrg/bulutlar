@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
-import SearchScreen from './SearchScreen';
-import ReadScreen from './ReadScreen';
-import NewReadScreen from './NewReadScreen';
+import SearchScreen from './search/SearchScreen.jsx';
+import ReadScreen from './read/ReadScreen.jsx';
+import NewReadScreen from './read/NewReadScreen.jsx';
 import { AppContext } from '../store/app-context.jsx'
 
 const TabsScreen = () => {

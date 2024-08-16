@@ -1,9 +1,9 @@
 import React, { useState, useRef, useContext } from 'react';
 import SplitPane from 'react-split-pane';
 
-import SearchResults from './SearchResults';
-import SearchControls from './SearchControls';
-import { AppContext } from '../store/app-context.jsx'
+import SearchResults from './SearchResults.jsx';
+import SearchControls from './SearchControls.jsx';
+import { AppContext } from '../../store/app-context.jsx'
 
 const SearchScreen = () => {
 

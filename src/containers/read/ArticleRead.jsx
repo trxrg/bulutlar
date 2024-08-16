@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PencilIcon } from '@heroicons/react/24/outline';
-import '../styles.css';
+import '../../styles.css';
 
 const ArticleRead = ({ article, onEditClicked, onLinkClicked }) => {
 

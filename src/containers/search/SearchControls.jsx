@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { AppContext } from '../store/app-context.jsx'
+import { AppContext } from '../../store/app-context.jsx'
 
 const SearchControls = ({ onFilterChanged }) => {
 

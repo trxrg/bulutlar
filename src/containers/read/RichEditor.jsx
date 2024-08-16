@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
-import AddLinkModal from './AddLinkModal';
-import '../styles.css'
+import AddLinkModal from '../../components/AddLinkModal';
+import '../../styles.css'
 
 
 const LimitedEditor = React.forwardRef(({ htmlContent, rawContent, handleContentChange }, ref) => {

@@ -3,12 +3,16 @@ import { PencilIcon } from '@heroicons/react/24/outline';
 import '../../styles.css';
 import LimitedEditor from './RichEditor.jsx';
 import { AppContext } from '../../store/app-context.jsx';
-
+import { ReadContext } from '../../store/read-context';
+import ReadControls from './ReadControls.jsx'
 import { updateArticle } from '../../backend-adapter/BackendAdapter.js';
 
-const ReadContent = React.forwardRef(({ article }, ref) => {
+const ReadContent = () => {
 
   const { editClicked, linkClicked, syncWithDB, getArticleWithIdFromBE } = useContext(AppContext);
+  const { article, readContentRef } = useContext(ReadContext);
+
+  const ref = readContentRef;
 
   const mainTextEditorRef = useRef();
   const explanationEditorRef = useRef();
@@ -129,6 +133,9 @@ const ReadContent = React.forwardRef(({ article }, ref) => {
         {/* <p className="text-gray-700 mt-4">{text}</p> */}
         {/* <div className="prose text-gray-700 mt-4 text-l" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: explanation }} /> */}
         {/* <div className="prose text-gray-700 mt-4 text-xl" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: text }} /> */}
+        
+        <ReadControls toggleBold={toggleBold} toggleUnderline={toggleUnderline} addLink={addLink}></ReadControls>
+        
         {/* <span onClick={() => setActiveEditor('explanationEditor')}>
           <LimitedEditor htmlContent={explanation} handleContentChange={handleExplanationChange} ref={explanationEditorRef}></LimitedEditor>
         </span> */}
@@ -155,6 +162,6 @@ const ReadContent = React.forwardRef(({ article }, ref) => {
       </div>
     </div>
   );
-});
+};
 
 export default ReadContent;

@@ -3,6 +3,7 @@ import SearchScreen from './search/SearchScreen.jsx';
 import ReadScreen from './read/ReadScreen.jsx';
 import NewReadScreen from './read/NewReadScreen.jsx';
 import { AppContext } from '../store/app-context.jsx'
+import ReadContextProvider from '../store/read-context';
 
 const TabsScreen = () => {
 
@@ -63,11 +64,13 @@ const TabsScreen = () => {
         {tabs.map(tab => (
           <div key={tab.id} className={activeTabId === tab.id ? 'h-full relative' : 'hidden'}>
             {tab.id == 'search' ?
-              <SearchScreen/>
+              <SearchScreen />
               :
               // <ReadScreen article={getArticle(tab.id)} allTags={allTags} onEditClicked={handleEditClicked} onLinkClicked={handleLinkClicked} syncWithDB={syncWithDB}></ReadScreen>
-              <NewReadScreen article={getArticle(tab.id)}></NewReadScreen>
-              }
+              <ReadContextProvider article={getArticle(tab.id)}>
+                <NewReadScreen></NewReadScreen>
+              </ReadContextProvider>
+            }
           </div>
         ))}
       </div>

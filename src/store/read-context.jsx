@@ -4,9 +4,11 @@ export const ReadContext = createContext(
 
 );
 
-export default function ReadContextProvider({ children }) {
+export default function ReadContextProvider({ children, article }) {
     
-    const ctxValue = {}; 
+    const ctxValue = {
+        article
+    };
 
     return <ReadContext.Provider value={ctxValue}>
         {children}

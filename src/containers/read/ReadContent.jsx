@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { PencilIcon } from '@heroicons/react/24/outline';
 import '../../styles.css';
-import LimitedEditor from './RichEditor.jsx';
+import RichEditor from './RichEditor.jsx';
 import { AppContext } from '../../store/app-context.jsx';
 import { ReadContext } from '../../store/read-context';
 import ReadControls from './ReadControls.jsx'
@@ -17,6 +17,9 @@ const ReadContent = () => {
   const mainTextEditorRef = useRef();
   const explanationEditorRef = useRef();
   const commentEditorRef = useRef();
+
+  console.log('article in ReadContent:')
+  console.log(article);
 
   const { title, category, owner, date, number, explanation, text, textJson, comments } = article;
 
@@ -41,9 +44,9 @@ const ReadContent = () => {
   const [explanationState, setExplanationState] = useState(article.explanation);
   const [mainTextState, setMainTextState] = useState(article.text);
   const [commentState, setCommentState] = useState(article.comments[0].text);
-  
+
   const [mainTextRawState, setMainTextRawState] = useState(article.textJson);
-  
+
   useEffect(() => {
     saveArticle();
   }, [explanationState, mainTextState, mainTextRawState, commentState]);
@@ -130,31 +133,23 @@ const ReadContent = () => {
           </button>
         </div>
         <p className="text-sm text-gray-600 mt-2">{owner && owner.name + " | "} {new Date(date).toLocaleDateString('tr')} ({number})</p>
-        {/* <p className="text-gray-700 mt-4">{text}</p> */}
-        {/* <div className="prose text-gray-700 mt-4 text-l" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: explanation }} /> */}
-        {/* <div className="prose text-gray-700 mt-4 text-xl" onClick={handleLinkClicked} dangerouslySetInnerHTML={{ __html: text }} /> */}
-        
+
         <ReadControls toggleBold={toggleBold} toggleUnderline={toggleUnderline} addLink={addLink}></ReadControls>
-        
-        {/* <span onClick={() => setActiveEditor('explanationEditor')}>
-          <LimitedEditor htmlContent={explanation} handleContentChange={handleExplanationChange} ref={explanationEditorRef}></LimitedEditor>
-        </span> */}
-        <span onClick={() => setActiveEditor('mainTextEditor')}>
-          <LimitedEditor htmlContent={text} rawContent={textJson} handleContentChange={handleMainTextChange} ref={mainTextEditorRef}></LimitedEditor>
+
+        <div onClick={() => setActiveEditor('explanationEditor')} className='border border-gray-300 rounded-lg shadow-lg p-4'>
+          <RichEditor htmlContent={explanation} handleContentChange={handleExplanationChange} ref={explanationEditorRef}></RichEditor>
+        </div>
+
+        <div onClick={() => setActiveEditor('mainTextEditor')} className='my-6'>
+          <RichEditor htmlContent={text} rawContent={textJson} handleContentChange={handleMainTextChange} ref={mainTextEditorRef}></RichEditor>
+        </div>
+
+        <h3 className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">Comment</h3>
+
+        <span onClick={() => setActiveEditor('commentEditor')}>
+          <RichEditor htmlContent={comments[0].text} handleContentChange={handleCommentChange} ref={commentEditorRef}></RichEditor>
         </span>
       </div>
-
-      {/* <div className={comments.length > 0 && comments[0] && comments[0].text ? 'hidden' : ''}>
-        <div className="p-6 border-t border-gray-500">
-          <h3 className="text-xl font-semibold mb-4">Comment</h3>
-          <ul className="divide-y divide-gray-200">
-            <span onClick={() => setActiveEditor('commentEditor')}>
-              <LimitedEditor htmlContent={comments[0]} handleContentChange={handleCommentChange} ref={commentEditorRef}></LimitedEditor>
-            </span>
-          </ul>
-        </div>
-      </div> */}
-
 
       <div className='flex'>
         <h2 className='mx-2 cursor-pointer hover:text-green-500' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>

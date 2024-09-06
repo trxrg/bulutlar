@@ -6,7 +6,7 @@ import AddLinkModal from '../../components/AddLinkModal';
 import '../../styles.css'
 
 
-const LimitedEditor = React.forwardRef(({ htmlContent, rawContent, handleContentChange }, ref) => {
+const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentChange }, ref) => {
 
     const [rightClickedBlockKey, setRightClickedBlockKey] = useState();
     const [rightClickedEntityKey, setRightClickedEntityKey] = useState();
@@ -219,49 +219,8 @@ const LimitedEditor = React.forwardRef(({ htmlContent, rawContent, handleContent
     }
 
     return (
-        <div className="mx-auto max-w-3xl mt-6 p-6 border rounded-lg shadow-lg">
-            <div className="mb-4 flex items-center">
-                <button
-                    className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
-                    onClick={() => toggleInlineStyle('BOLD')}
-                >
-                    Bold
-                </button>
-                <button
-                    className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
-                    onClick={() => toggleInlineStyle('UNDERLINE')}
-                >
-                    Underline
-                </button>
-                <button
-                    className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
-                    onClick={() => toggleInlineStyle('HIGHLIGHT')}
-                >
-                    Highlight
-                </button>
-                {/* Font size and add link buttons */}
-                <button
-                    className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
-                    onClick={() => setLinkModalOpen(true)}
-                >
-                    Add Link
-                </button>
-
-                <button
-                    className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
-                    onClick={convertToHTMLContent}
-                >
-                    Get HTML Content
-                </button>
-                <button
-                    className="mr-2 px-2 py-1 rounded-md bg-gray-200 hover:bg-gray-300 focus:outline-none"
-                    onClick={handleRightClick}
-                >
-                    context menu
-                </button>
-
-            </div>
-            <div onClick={handleEditorClick} className="bg-white border border-gray-300 p-2 caret-transparent relative">
+        <div className="mx-auto max-w-3xl">
+            <div onClick={handleEditorClick} className="caret-transparent relative">
                 {showContextMenu && (
                     <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                         <button onClick={handleRemoveLink} className='hover:bg-red-300'>Remove Link</button>
@@ -290,4 +249,4 @@ const LimitedEditor = React.forwardRef(({ htmlContent, rawContent, handleContent
     );
 });
 
-export default LimitedEditor;
+export default RichEditor;

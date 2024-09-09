@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import SplitPane from 'react-split-pane';
-import ReadContent from './ReadContent';
+import ReadMainPanel from './ReadMainPanel';
 import ReadSidePanel from './ReadSidePanel';
 
 const NewReadScreen = () => {
@@ -28,7 +28,7 @@ const NewReadScreen = () => {
       resizerStyle={{ background: '#6b6969', cursor: 'col-resize', width: '12px' }}
     >
       <div>
-        <ReadContent></ReadContent>
+        <ReadMainPanel></ReadMainPanel>
       </div>
       <div>
         <ReadSidePanel></ReadSidePanel>

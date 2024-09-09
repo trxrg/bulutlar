@@ -68,22 +68,22 @@ async function updateArticle(articleId, newArticle) {
         if (!entity)
             throw ('entity is null');
 
-        await entity.setComments([]);
-        await entity.setTags([]);
+        // await entity.setComments([]);
+        // await entity.setTags([]);
 
-        if (newArticle.owner)
-            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(newArticle.owner.name));
+        // if (newArticle.owner)
+        //     await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(newArticle.owner.name));
 
-        if (newArticle.category)
-            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category.name));
+        // if (newArticle.category)
+        //     await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category.name));
 
-        if (newArticle.tags)
-            for (const tag of newArticle.tags)
-                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
+        // if (newArticle.tags)
+        //     for (const tag of newArticle.tags)
+        //         await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
 
-        if (newArticle.comments)
-            for (const comment of newArticle.comments)
-                await entity.addComment(await commentService.addComment(comment.text));
+        // if (newArticle.comments)
+        //     for (const comment of newArticle.comments)
+        //         await entity.addComment(await commentService.addComment(comment.text));
 
         return await getArticleWithId(entity.dataValues.id);
     } catch (error) {

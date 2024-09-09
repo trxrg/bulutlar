@@ -18,7 +18,7 @@ export default function AppContextProvider({ children }) {
         { id: 'search', title: 'Search' }
     ]);
 
-    const getArticleWithIdFromBE = async (id) => {
+    const syncArticleWithIdFromBE = async (id) => {
         try {
             const updatedArticle = await getArticleWithId(id);
 
@@ -157,7 +157,7 @@ export default function AppContextProvider({ children }) {
         handleAddTab,
         handleCancel,
         getAllArticlesFromBE,
-        getArticleWithIdFromBE,
+        syncArticleWithIdFromBE,
         afterDeleteArticle,
         afterSubmitArticle
     }; // TODO fill this

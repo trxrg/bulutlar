@@ -3,7 +3,7 @@ function setRelations(sequelize) {
 
 	console.log(sequelize.models);
 
-	const { owner, article, comment, tag, category } = sequelize.models;
+	const { owner, article, comment, tag, category, group } = sequelize.models;
 
 	owner.hasMany(article);
 	article.belongsTo(owner);
@@ -16,6 +16,9 @@ function setRelations(sequelize) {
 
 	tag.belongsToMany(article, { through: 'article_tag_rel' });
 	article.belongsToMany(tag, { through: 'article_tag_rel' });
+
+	group.belongsToMany(article, { through: 'article_group_rel' });
+	article.belongsToMany(group, { through: 'article_group_rel' });
 }
 
 module.exports = { setRelations };

@@ -1,15 +1,14 @@
 module.exports = (sequelize, DataTypes) => {
-    const Category = sequelize.define('category', {
+    const Group = sequelize.define('group', {
         name: {
             allowNull: false,
             type: DataTypes.STRING,
             unique: true,
             // validate: {
-            //     is: /^\w{3,}$/
+            //     is: /^\w{1,}$/
             // }
-        },
-        color: { type: DataTypes.STRING }
+        }
     });
 
-    return Category;
+    return Group;
 }

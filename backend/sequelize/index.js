@@ -6,7 +6,7 @@ const { setRelations } = require('./relations');
 // const sequelize = new Sequelize(process.env.DB_CONNECTION_URL);
 const sequelize = new Sequelize({
 	dialect: 'sqlite',
-	storage: './backend/db/test.db',
+	storage: './data/main.db',
 	logQueryParameters: true,
 	benchmark: true,
 	logging: (msg) => {
@@ -25,7 +25,8 @@ const modelDefiners = [
 	require('./model/article.model'),
 	require('./model/tag.model'),
 	require('./model/category.model'),
-	require('./model/comment.model')
+	require('./model/comment.model'),
+	require('./model/group.model')
 ];
 
 function initDB() {

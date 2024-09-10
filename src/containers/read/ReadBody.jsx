@@ -32,10 +32,10 @@ const ReadBody = React.forwardRef(({}, ref) => {
                 <RichEditor htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} ref={mainTextEditorRef}></RichEditor>
             </div>
 
-            <h3 className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">Comment</h3>
+            <h3 onClick={() => setActiveEditorRef()} className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">Comment</h3>
 
             <div onClick={() => setActiveEditorRef(commentEditorRef)} >
-                <RichEditor htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} mainTextEditorRefhandleContentChange={updateComment} ref={commentEditorRef}></RichEditor>
+                <RichEditor htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} ref={commentEditorRef}></RichEditor>
             </div>
         </div>
     );

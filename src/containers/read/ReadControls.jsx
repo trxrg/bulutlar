@@ -35,7 +35,6 @@ const ReadControls = () => {
             <AddLinkModal
                 isOpen={isLinkModalOpen}
                 onClose={() => setLinkModalOpen(false)}
-                // onAddLink={readBodyRef.current.toggleBold}
             />
         </div>
     );

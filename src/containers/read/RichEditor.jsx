@@ -135,6 +135,9 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
     const toggleInlineStyle = (style) => {
         // logSelectionContent();
 
+        // if (editorState.getSelection().isCollapsed())
+        //     return;
+
         console.log('raw content');
         console.log(convertToRaw(editorState.getCurrentContent()));
 

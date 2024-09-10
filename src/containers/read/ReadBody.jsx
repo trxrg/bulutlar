@@ -4,7 +4,7 @@ import { ReadContext } from "../../store/read-context";
 
 const ReadBody = () => {
 
-    const { article, updateMainText, updateExplanation, updateComment, readBodyRef } = useContext(ReadContext);
+    const { article, updateMainText, updateExplanation, updateComment, readBodyRef, fontSize } = useContext(ReadContext);
 
     const [activeEditorRef, setActiveEditorRef] = useState();
 
@@ -24,7 +24,7 @@ const ReadBody = () => {
     }));
 
     return (
-        <div>
+        <div className={`${fontSize}`}>
             <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border border-gray-300 rounded-lg shadow-lg p-4'>
                 <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} ref={explanationEditorRef}></RichEditor>
             </div>

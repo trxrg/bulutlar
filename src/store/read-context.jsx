@@ -10,7 +10,7 @@ export default function ReadContextProvider({ children, article }) {
     const [fontSize, setFontSize] = useState('text-base');
     const readBodyRef = useRef();
 
-    const fonts = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl'];
+    const fonts = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl'];
 
     const updateMainText = (html, json) => {
         updateArticleMainText(article.id, { html, json });

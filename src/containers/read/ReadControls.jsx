@@ -6,7 +6,7 @@ import { ReadContext } from '../../store/read-context.jsx';
 
 const ReadControls = () => {
 
-    const { readBodyRef } = useContext(ReadContext);
+    const { readBodyRef, increaseFontSize, decreaseFontSize } = useContext(ReadContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
@@ -22,14 +22,20 @@ const ReadControls = () => {
     return (
         <div className='overflow-auto bg-stone-50'>
             <div className='p-2'>
-                <button onClick={() => setLinkModalOpen(true)} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
-                    <LinkIcon className="w-4 h-4" />
+                <button onClick={decreaseFontSize} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
+                    A-
+                </button>
+                <button onMouseDown={increaseFontSize} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
+                    A+
                 </button>
                 <button onMouseDown={(e) => handleMouseDown(e, 'bold')} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
                     <strong>B</strong>
                 </button>
                 <button onMouseDown={(e) => handleMouseDown(e, 'underline')} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx- rounded focus:outline-none focus:shadow-outline">
                     <u>U</u>
+                </button>
+                <button onClick={() => setLinkModalOpen(true)} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
+                    <LinkIcon className="w-4 h-4" />
                 </button>
             </div>
             <AddLinkModal

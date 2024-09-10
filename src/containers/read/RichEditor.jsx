@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import AddLinkModal from '../../components/AddLinkModal';
 import '../../styles.css'
+import { ReadContext } from '../../store/read-context';
 
 
 const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleContentChange }, ref) => {
+
+    const { fontSize } = useContext(ReadContext)
 
     const [rightClickedBlockKey, setRightClickedBlockKey] = useState();
     const [rightClickedEntityKey, setRightClickedEntityKey] = useState();
@@ -184,7 +187,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     return (
         <div className="mx-auto max-w-3xl">
-            <div onClick={handleEditorClick} className="caret-transparent relative">
+            <div onClick={handleEditorClick} className={`caret-transparent relative ${fontSize}`}>
                 {showContextMenu && (
                     <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                         <button onClick={handleRemoveLink} className='hover:bg-red-300'>Remove Link</button>

@@ -27,8 +27,11 @@ const ReadControls = () => {
                 <button onMouseDown={(e) => handleToggleStyle(e, 'BOLD')} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
                     <strong>B</strong>
                 </button>
-                <button onMouseDown={(e) => handleToggleStyle(e, 'UNDERLINE')} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx- rounded focus:outline-none focus:shadow-outline">
+                <button onMouseDown={(e) => handleToggleStyle(e, 'UNDERLINE')} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
                     <u>U</u>
+                </button>
+                <button onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT')} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
+                    <u>H</u>
                 </button>
                 <button onClick={() => setLinkModalOpen(true)} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
                     <LinkIcon className="w-4 h-4" />

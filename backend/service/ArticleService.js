@@ -205,7 +205,8 @@ function entity2Json(entity) {
 function commentEntity2Json(entity) {
     return {
         id: entity.dataValues.id,
-        text: entity.dataValues.text
+        text: entity.dataValues.text,
+        textJson: entity.dataValues.textJson
     };
 }
 

@@ -9,8 +9,8 @@ contextBridge.exposeInMainWorld('versions', {
 
 contextBridge.exposeInMainWorld('api', {
   article: {
-    updateArticleMainText: (articleId, newMainText) => ipcRenderer.invoke('updateArticleMainText', articleId, newMainText),
-    updateArticleExplanation: (articleId, newExplanation) => ipcRenderer.invoke('updateArticleExplanation', articleId, newExplanation),
+    updateArticleMainText: (articleId, newMainText) => ipcRenderer.invoke('article/updateMainText', articleId, newMainText),
+    updateArticleExplanation: (articleId, newExplanation) => ipcRenderer.invoke('article/updateExplanation', articleId, newExplanation),
   },
   comment: {
     updateText: (commentId, newText) => ipcRenderer.invoke('comment/updateText', commentId, newText),

@@ -7,6 +7,10 @@ const categoryService = require('./CategoryService');
 const commentService = require('./CommentService');
 
 function initService() {
+    ipcMain.handle('article/updateMainText', (event, articleId, newMainText) => updateArticleMainText(articleId, newMainText));
+    ipcMain.handle('article/updateExplanation', (event, articleId, newExplanation) => updateArticleExplanation(articleId, newExplanation));
+
+
     ipcMain.handle('addArticle', (event, article) => addArticle(article));
     ipcMain.handle('deleteArticle', (event, articleId) => deleteArticle(articleId));
     ipcMain.handle('updateArticle', (event, articleId, article) => updateArticle(articleId, article));
@@ -14,8 +18,6 @@ function initService() {
     ipcMain.handle('getArticleWithTitleLike', (event, titleLike) => getArticleWithTitleLike(titleLike));
     ipcMain.handle('getAllArticlesOfOwnerName', (event, ownerName) => getAllArticlesOfOwnerName(ownerName));
     ipcMain.handle('getAllArticles', (event) => getAllArticles());
-    ipcMain.handle('updateArticleMainText', (event, articleId, newMainText) => updateArticleMainText(articleId, newMainText));
-    ipcMain.handle('updateArticleExplanation', (event, articleId, newExplanation) => updateArticleExplanation(articleId, newExplanation));
 }
 
 async function addArticle(article) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
@@ -6,7 +6,7 @@ import AddLinkModal from '../../components/AddLinkModal';
 import '../../styles.css'
 
 
-const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentChange }, ref) => {
+const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleContentChange }, ref) => {
 
     const [rightClickedBlockKey, setRightClickedBlockKey] = useState();
     const [rightClickedEntityKey, setRightClickedEntityKey] = useState();
@@ -60,19 +60,10 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
         return EditorState.createWithContent(contentState, decorator);
     };
 
-    // const [editorState, setEditorState] = useState(() => createEditorStateFromHTML(htmlContent));
     const [editorState, setEditorState] = useState(rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent));
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
-
-    const [htmlContentState, setHtmlContentState] = useState(htmlContent);
-    const [rawContentState, setRawContentState] = useState(rawContent);
-
-    useEffect(() => {
-        setHtmlContentState(stateToHTML(editorState.getCurrentContent()));
-        setRawContentState(convertToRaw(editorState.getCurrentContent()));
-    }, [editorState]);
 
     const handleRightClick = (e, blockKey, entityKey) => {
         e.preventDefault(); // Prevent default context menu        
@@ -128,27 +119,13 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
         }
     };
 
-
-
-
-
     const toggleInlineStyle = (style) => {
-        // logSelectionContent();
-
-        // if (editorState.getSelection().isCollapsed())
-        //     return;
-
-        console.log('raw content');
-        console.log(convertToRaw(editorState.getCurrentContent()));
-
         setEditorState((prevState) => {
             const newEditorState = EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
             handleContentChange(stateToHTML(newEditorState.getCurrentContent()), convertToRaw(newEditorState.getCurrentContent()));
             return newEditorState;
         }
         );
-
-        // editorRef.current.focus();
     };
 
     const addLink = (url) => {
@@ -178,27 +155,11 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
         toggleInlineStyle('HIGHLIGHT');
     }
 
-    const convertToHTMLContent = () => {
-        const currentContent = editorState.getCurrentContent();
-        const html = stateToHTML(currentContent);
-        console.log(html); // You can use this HTML content as needed (e.g., save to database, display, etc.)
-    };
-
-    const getHtmlContent = () => {
-        return htmlContentState;
-    }
-
-    const getRawContent = () => {
-        return rawContentState;
-    }
-
     React.useImperativeHandle(ref, () => ({
         addLink,
         toggleBold,
         toggleUnderline,
-        toggleHighlight,
-        getHtmlContent,
-        getRawContent
+        toggleHighlight
     }));
 
     const handleKeyCommand = (command) => {

@@ -21,12 +21,14 @@ const ReadMainPanel = () => {
   }
 
   return (
-    <div className="max-h-full overflow-auto mx-auto bg-stone-50">
-      <div className="p-6">
+    <div className="h-full mx-auto bg-stone-50">
+      <div className="p-6 h-[25%] border-b shadow-lg">
         <ReadHeader handleEditClicked={handleEditClicked}></ReadHeader>
+      </div>
+      <div className="px-6 py-2 h-[70%]">
         <ReadBody></ReadBody>
       </div>
-      <div className='flex'>
+      <div className='flex h-[5%]'>
         <h2 className='mx-2 cursor-pointer hover:text-green-500' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>
         {showCode && <h2>{article.code}</h2>}
       </div>

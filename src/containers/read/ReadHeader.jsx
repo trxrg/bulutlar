@@ -8,7 +8,7 @@ const ReadHeader = ({ functions, handleEditClicked }) => {
   const { article } = useContext(ReadContext);
 
   return (
-    <div>
+    <div className='overflow-auto h-full'>
       <div className='flex justify-between'>
         <h2 className="text-3xl font-semibold text-gray-800">{article.title}</h2>
         <button

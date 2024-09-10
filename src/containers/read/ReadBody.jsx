@@ -13,14 +13,11 @@ const ReadBody = () => {
     const commentEditorRef = useRef();
 
     const addLink = (url) => activeEditorRef && activeEditorRef.current.addLink(url);
-    const toggleBold = () => activeEditorRef && activeEditorRef.current.toggleBold();
-    const toggleUnderline = () => activeEditorRef && activeEditorRef.current.toggleUnderline();
-
+    const toggleStyle = (style) => activeEditorRef && activeEditorRef.current.toggleInlineStyle(style);
 
     React.useImperativeHandle(readBodyRef, () => ({
         addLink,
-        toggleBold,
-        toggleUnderline
+        toggleStyle,
     }));
 
     return (

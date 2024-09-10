@@ -142,23 +142,9 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         setEditorState(EditorState.forceSelection(newEditorState, editorState.getSelection()));
     }
 
-    const toggleBold = () => {
-        toggleInlineStyle('BOLD');
-    }
-
-    const toggleUnderline = () => {
-        toggleInlineStyle('UNDERLINE');
-    }
-
-    const toggleHighlight = () => {
-        toggleInlineStyle('HIGHLIGHT');
-    }
-
     React.useImperativeHandle(ref, () => ({
         addLink,
-        toggleBold,
-        toggleUnderline,
-        toggleHighlight
+        toggleInlineStyle,
     }));
 
     const handleKeyCommand = (command) => {

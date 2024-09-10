@@ -41,6 +41,11 @@ export default function ReadContextProvider({ children, article }) {
             setFontSize(fonts[index - 1]);
     }
 
+    const toggleStyle = (style) => {
+        if (readBodyRef && readBodyRef.current)
+            readBodyRef.current.toggleStyle(style);
+    }
+
     const ctxValue = {
         article,
         readBodyRef,
@@ -50,6 +55,7 @@ export default function ReadContextProvider({ children, article }) {
         fontSize,
         increaseFontSize,
         decreaseFontSize,
+        toggleStyle,
     };
 
     return <ReadContext.Provider value={ctxValue}>

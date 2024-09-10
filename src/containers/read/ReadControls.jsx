@@ -6,17 +6,13 @@ import { ReadContext } from '../../store/read-context.jsx';
 
 const ReadControls = () => {
 
-    const { readBodyRef, increaseFontSize, decreaseFontSize } = useContext(ReadContext);
+    const { increaseFontSize, decreaseFontSize, toggleStyle } = useContext(ReadContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
-    const handleMouseDown = (event, action) => {
+    const handleToggleStyle = (event, style) => {
         event.preventDefault();
-        if (readBodyRef && readBodyRef.current)
-            if (action === 'underline')
-                readBodyRef.current.toggleUnderline();
-            else if (action === 'bold')
-                readBodyRef.current.toggleBold();
+        toggleStyle(style);
     }
 
     return (
@@ -28,10 +24,10 @@ const ReadControls = () => {
                 <button onMouseDown={increaseFontSize} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
                     A+
                 </button>
-                <button onMouseDown={(e) => handleMouseDown(e, 'bold')} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
+                <button onMouseDown={(e) => handleToggleStyle(e, 'BOLD')} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
                     <strong>B</strong>
                 </button>
-                <button onMouseDown={(e) => handleMouseDown(e, 'underline')} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx- rounded focus:outline-none focus:shadow-outline">
+                <button onMouseDown={(e) => handleToggleStyle(e, 'UNDERLINE')} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx- rounded focus:outline-none focus:shadow-outline">
                     <u>U</u>
                 </button>
                 <button onClick={() => setLinkModalOpen(true)} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">

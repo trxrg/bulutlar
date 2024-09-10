@@ -17,7 +17,7 @@ const ReadControls = () => {
 
     return (
         <div className='overflow-auto bg-stone-50'>
-            <div className='p-2'>
+            <div className='p-2 select-none'>
                 <button onClick={decreaseFontSize} className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-2 mx-1 rounded focus:outline-none focus:shadow-outline">
                     A-
                 </button>

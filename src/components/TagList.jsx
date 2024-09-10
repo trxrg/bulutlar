@@ -59,14 +59,14 @@ const TagList = React.forwardRef(({ selectedTags, onTagsChange }, ref) => {
                         .filter(tag => !tags.map(t => t.name).includes(tag.name))
                         .slice(0, suggestedTagNumber)
                         .map(tag => (
-                            <span key={tag.name} onClick={() => handleAddTag(tag.name)}>
+                            <span key={tag.id} onClick={() => handleAddTag(tag.name)}>
                                 <button className='mx-2'>{tag.name}</button>
                             </span>
                         ))}
                 </div>}
             <div>
                 {tags.map(tag => (
-                    <TagButton isCloseable={true} handleClose={handleRemoveTag} label={tag.name}></TagButton>
+                    <TagButton key={tag.id} isCloseable={true} handleClose={handleRemoveTag} label={tag.name}></TagButton>
                 ))}
             </div>
         </div>

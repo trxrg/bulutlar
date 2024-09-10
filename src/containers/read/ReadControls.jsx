@@ -2,17 +2,21 @@ import React, { useState, useContext } from 'react';
 import AddLinkModal from '../../components/AddLinkModal.jsx';
 
 import { LinkIcon } from '@heroicons/react/24/outline';
+import { ReadContext } from '../../store/read-context.jsx';
 
-const ReadControls = ({ functions }) => {
-    
+const ReadControls = () => {
+
+    const { readBodyRef } = useContext(ReadContext);
+
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
     const handleMouseDown = (event, action) => {
         event.preventDefault();
-        if (action === 'underline')
-            functions.toggleUnderline();
-        else if (action === 'bold')
-            functions.toggleBold();
+        if (readBodyRef && readBodyRef.current)
+            if (action === 'underline')
+                readBodyRef.current.toggleUnderline();
+            else if (action === 'bold')
+                readBodyRef.current.toggleBold();
     }
 
     return (
@@ -31,7 +35,7 @@ const ReadControls = ({ functions }) => {
             <AddLinkModal
                 isOpen={isLinkModalOpen}
                 onClose={() => setLinkModalOpen(false)}
-                onAddLink={functions.addLink}
+                // onAddLink={readBodyRef.current.toggleBold}
             />
         </div>
     );

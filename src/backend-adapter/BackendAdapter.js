@@ -6,14 +6,6 @@ export async function checkDbConnection() {
     return window.api.checkDbConnection();
 }
 
-export async function getFromDb() {
-    return window.api.getFromDb();
-}
-
-export async function addOwnerAndArticle() {
-    return window.api.addOwnerAndArticle();
-}
-
 export async function addOwner(ownerName) {
     try {
         return await window.api.addOwner(ownerName);
@@ -63,6 +55,14 @@ export async function updateArticle(articleId, article) {
     return window.api.updateArticle(articleId, article);
 }
 
+export async function updateArticleMainText(articleId, newMainText) {
+    return window.api.article.updateArticleMainText(articleId, newMainText);
+}
+
+export async function updateArticleExplanation(articleId, newExplanation) {
+    return window.api.article.updateArticleExplanation(articleId, newExplanation);
+}
+
 export async function getArticleWithId(articleId) {
     return window.api.getArticleWithId(articleId);
 }
@@ -81,4 +81,8 @@ export async function getAllArticles() {
 
 export async function getAllTags() {
     return window.api.getAllTags();
+}
+
+export async function updateCommentText(commentId, newText) {
+    return window.api.comment.updateText(commentId, newText)
 }

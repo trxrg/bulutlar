@@ -14,15 +14,17 @@ function initService() {
     ipcMain.handle('getArticleWithTitleLike', (event, titleLike) => getArticleWithTitleLike(titleLike));
     ipcMain.handle('getAllArticlesOfOwnerName', (event, ownerName) => getAllArticlesOfOwnerName(ownerName));
     ipcMain.handle('getAllArticles', (event) => getAllArticles());
+    ipcMain.handle('updateArticleMainText', (event, articleId, newMainText) => updateArticleMainText(articleId, newMainText));
+    ipcMain.handle('updateArticleExplanation', (event, articleId, newExplanation) => updateArticleExplanation(articleId, newExplanation));
 }
 
 async function addArticle(article) {
 
     console.log('adding article with id: ' + article.id);
-    
+
     article.number = calculateNumber(article.date);
     article.code = Math.random().toString(36).substring(2);
-    const entity = await sequelize.models.article.create(article);    
+    const entity = await sequelize.models.article.create(article);
 
     if (article.owner)
         await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
@@ -68,26 +70,56 @@ async function updateArticle(articleId, newArticle) {
         if (!entity)
             throw ('entity is null');
 
-        // await entity.setComments([]);
-        // await entity.setTags([]);
+        await entity.setComments([]);
+        await entity.setTags([]);
 
-        // if (newArticle.owner)
-        //     await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(newArticle.owner.name));
+        if (newArticle.owner)
+            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(newArticle.owner.name));
 
-        // if (newArticle.category)
-        //     await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category.name));
+        if (newArticle.category)
+            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category.name));
 
-        // if (newArticle.tags)
-        //     for (const tag of newArticle.tags)
-        //         await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
+        if (newArticle.tags)
+            for (const tag of newArticle.tags)
+                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
 
-        // if (newArticle.comments)
-        //     for (const comment of newArticle.comments)
-        //         await entity.addComment(await commentService.addComment(comment.text));
+        if (newArticle.comments)
+            for (const comment of newArticle.comments)
+                await entity.addComment(await commentService.addComment(comment.text));
 
         return await getArticleWithId(entity.dataValues.id);
     } catch (error) {
         console.error('Error updating article:', error);
+    }
+}
+
+async function updateArticleMainText(articleId, newMainText) {
+    try {
+        await sequelize.models.article.update(
+            {
+                text: newMainText.html,
+                textJson: newMainText.json
+            },
+            { where: { id: articleId } }
+        );
+
+    } catch (error) {
+        console.error('Error in updateArticleMainText', error);
+    }
+}
+
+async function updateArticleExplanation(articleId, newExplanation) {
+    try {
+        await sequelize.models.article.update(
+            {
+                explanation: newExplanation.html,
+                explanationJson: newExplanation.json
+            },
+            { where: { id: articleId } }
+        );
+
+    } catch (error) {
+        console.error('Error in updateArticleMainText', error);
     }
 }
 

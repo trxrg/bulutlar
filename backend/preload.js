@@ -8,6 +8,13 @@ contextBridge.exposeInMainWorld('versions', {
 })
 
 contextBridge.exposeInMainWorld('api', {
+  article: {
+    updateArticleMainText: (articleId, newMainText) => ipcRenderer.invoke('updateArticleMainText', articleId, newMainText),
+    updateArticleExplanation: (articleId, newExplanation) => ipcRenderer.invoke('updateArticleExplanation', articleId, newExplanation),
+  },
+  comment: {
+    updateText: (commentId, newText) => ipcRenderer.invoke('comment/updateText', commentId, newText),
+  },
   addOwner: (ownerName) => ipcRenderer.invoke('addOwner', ownerName),
   updateOwnerName: (ownerName, newName) => ipcRenderer.invoke('updateOwnerName', ownerName, newName),
   getOwnerWithName: (ownerName) => ipcRenderer.invoke('getOwnerWithName', ownerName),
@@ -15,7 +22,7 @@ contextBridge.exposeInMainWorld('api', {
   getOwnerWithId: (id) => ipcRenderer.invoke('getOwnerWithId', id),
   getAllOwners: () => ipcRenderer.invoke('getAllOwners'),
   getAllCategories: () => ipcRenderer.invoke('getAllCategories'),
-  ping: () => ipcRenderer.invoke('ping'),  
+  ping: () => ipcRenderer.invoke('ping'),
   getFromDb: () => ipcRenderer.invoke('getFromDb'),
   checkDbConnection: () => ipcRenderer.invoke('checkDbConnection'),
   addOwnerAndArticle: () => ipcRenderer.invoke('addOwnerAndArticle'),

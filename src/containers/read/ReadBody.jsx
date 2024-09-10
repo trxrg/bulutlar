@@ -4,7 +4,7 @@ import { ReadContext } from "../../store/read-context";
 
 const ReadBody = React.forwardRef(({}, ref) => {
 
-    const { article, setExplanationState, setMainTextState, setCommentState } = useContext(ReadContext);
+    const { article, updateMainText, updateExplanation, updateComment } = useContext(ReadContext);
 
     const mainTextEditorRef = useRef();
     const explanationEditorRef = useRef();
@@ -22,24 +22,24 @@ const ReadBody = React.forwardRef(({}, ref) => {
         toggleUnderline
     }));
 
-    const handleExplanationChange   = (html, json) => setExplanationState({html, json});    
-    const handleMainTextChange      = (html, json) => setMainTextState({html, json});    
-    const handleCommentChange       = (html, json) => setCommentState({html, json});
+    // const handleExplanationChange   = (html, json) => updateArticleExplanation(article.id, { html, json });    
+    // const handleMainTextChange      = (html, json) => updateArticleMainText(article.id, { html, json })
+    // const handleCommentChange       = (html, json) => setCommentState({html, json});
 
     return (
         <div>
             <div className='border border-gray-300 rounded-lg shadow-lg p-4'>
-                <RichEditor htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={handleExplanationChange} ref={explanationEditorRef}></RichEditor>
+                <RichEditor htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} ref={explanationEditorRef}></RichEditor>
             </div>
 
             <div className='my-6'>
-                <RichEditor htmlContent={article.text} rawContent={article.textJson} handleContentChange={handleMainTextChange} ref={mainTextEditorRef}></RichEditor>
+                <RichEditor htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} ref={mainTextEditorRef}></RichEditor>
             </div>
 
             <h3 className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">Comment</h3>
 
             <div>
-                <RichEditor htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={handleCommentChange} ref={commentEditorRef}></RichEditor>
+                <RichEditor htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} ref={commentEditorRef}></RichEditor>
             </div>
         </div>
     );

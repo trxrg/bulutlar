@@ -3,13 +3,32 @@ const { Op } = require("sequelize");
 const { sequelize } = require("../sequelize");
 
 function initService() {
+    ipcMain.handle('comment/updateText', (event, commentId, newText) => updateText(commentId, newText));
+
+
     ipcMain.handle('addComment', (event, commentText) => addComment(commentText));
-    ipcMain.handle('updateCommentText', (event, commentId, newText) => updateCommentText(commentId, newText));
     ipcMain.handle('getCommentById', (event, commentId) => getCommentById(commentId));
     ipcMain.handle('getCommentsWithTextLike', (event, textLike) => getCommentsWithTextLike(textLike));
     ipcMain.handle('getAllComments', getAllComments);
     ipcMain.handle('deleteCommentById', (event, commentId) => deleteCommentById(commentId));
 }
+
+async function updateText(commentId, newText) {
+    try {
+        await sequelize.models.comment.update(
+            {
+                text: newText.html,
+                textJson: newText.json
+            },
+            { where: { id: commentId } }
+        );
+
+    } catch (error) {
+        console.error('Error in commentService updateText()', error);
+    }
+}
+
+
 
 async function addComment(commentText) {
     const result = await sequelize.models.comment.create({ text: commentText });

@@ -1,15 +1,12 @@
 import React, { useRef, useState, useContext } from "react";
+
+import { updateArticleMainText, updateArticleExplanation, updateCommentText } from '../../backend-adapter/BackendAdapter.js';
 import RichEditor from "./RichEditor";
 import { ReadContext } from "../../store/read-context";
 
 const ReadBody = () => {
 
-    console.log('rendering readbody');
-
-    const { article, updateMainText, updateExplanation, updateComment, updateArticleContent, readBodyRef, fontSize, editable } = useContext(ReadContext);
-
-    console.log('article in readbody:');
-    console.log(article);
+    const { article, readBodyRef, fontSize, editable, syncArticleFromBE } = useContext(ReadContext);
 
     const [activeEditorRef, setActiveEditorRef] = useState();
 
@@ -17,11 +14,36 @@ const ReadBody = () => {
     const explanationEditorRef = useRef();
     const commentEditorRef = useRef();
 
+    const updateMainText = (html, json) => {
+        updateArticleMainText(article.id, { html, json });
+        syncArticleFromBE();
+    }
+
+    const updateExplanation = (html, json) => {
+        updateArticleExplanation(article.id, { html, json });
+        syncArticleFromBE();
+    }
+
+    const updateComment = (html, json) => {
+        updateCommentText(article.comments[0].id, { html, json });
+        syncArticleFromBE();
+    }
+
+    const updateArticleContent = (explanation, mainText, comment) => {
+        updateArticleExplanation(article.id, explanation);
+        updateArticleMainText(article.id, mainText);
+        updateCommentText(article.comments[0].id, comment);
+        syncArticleFromBE();
+    }
+
     const addLink = (url) => activeEditorRef && activeEditorRef.current.addLink(url);
+    
     const toggleStyle = (style) => activeEditorRef && activeEditorRef.current.toggleInlineStyle(style);
+    
     const saveContent = () => {
         updateArticleContent(explanationEditorRef.current.getContent(), mainTextEditorRef.current.getContent(), commentEditorRef.current.getContent());
     }
+
     const resetContent = () => {
         explanationEditorRef.current.resetContent();
         mainTextEditorRef.current.resetContent();

@@ -1,5 +1,4 @@
 import { createContext, useRef, useState, useContext } from 'react';
-import { updateArticleMainText, updateArticleExplanation, updateCommentText } from '../backend-adapter/BackendAdapter.js';
 import { AppContext } from './app-context.jsx';
 
 export const ReadContext = createContext();
@@ -13,26 +12,8 @@ export default function ReadContextProvider({ children, article }) {
     const readBodyRef = useRef();
 
     const fonts = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl'];
-
-    const updateMainText = (html, json) => {
-        updateArticleMainText(article.id, { html, json });
-        syncArticleWithIdFromBE(article.id);
-    }
-
-    const updateExplanation = (html, json) => {
-        updateArticleExplanation(article.id, { html, json });
-        syncArticleWithIdFromBE(article.id);
-    }
-
-    const updateComment = (html, json) => {
-        updateCommentText(article.comments[0].id, { html, json });
-        syncArticleWithIdFromBE(article.id);
-    }
-
-    const updateArticleContent = (explanation, mainText, comment) => {
-        updateArticleExplanation(article.id, explanation);
-        updateArticleMainText(article.id, mainText);
-        updateCommentText(article.comments[0].id, comment);
+   
+    const syncArticleFromBE = () => {
         syncArticleWithIdFromBE(article.id);
     }
 
@@ -67,17 +48,14 @@ export default function ReadContextProvider({ children, article }) {
 
     const ctxValue = {
         article,
-        readBodyRef,
-        updateMainText,
-        updateExplanation,
-        updateComment,
-        updateArticleContent,
+        readBodyRef,    
+        toggleStyle,
         saveContent,
-        resetContent,
+        resetContent,        
+        syncArticleFromBE,
         fontSize,
         increaseFontSize,
         decreaseFontSize,
-        toggleStyle,
         editable,
         setEditable,
     };

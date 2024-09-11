@@ -1,7 +1,7 @@
-const FormatButton = ({ onClick, children }) => {
+const FormatButton = ({ onClick, wfixed=true, children }) => {
     return (
         <button
-            className="flex items-center justify-center w-10 h-10 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            className= {(wfixed ? "w-10 " : "px-2 ") + "flex items-center justify-center h-10 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md shadow-sm"}
             onMouseDown={onClick}
         >
             {children}

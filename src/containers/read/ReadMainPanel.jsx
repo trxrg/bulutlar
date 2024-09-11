@@ -1,20 +1,15 @@
 import React, { useState, useContext } from 'react';
 
-import { AppContext } from '../../store/app-context.jsx';
 import { ReadContext } from '../../store/read-context';
 import ReadHeader from './ReadHeader.jsx';
 import ReadBody from './ReadBody.jsx';
 
 const ReadMainPanel = () => {
 
-  const { editClicked } = useContext(AppContext);
   const { article } = useContext(ReadContext);
 
   const [showCode, setShowCode] = useState(false);
 
-  const handleEditClicked = (article) => {
-    editClicked(article);
-  }
 
   const toggleShowCode = () => {
     setShowCode(prev => !prev);
@@ -23,7 +18,7 @@ const ReadMainPanel = () => {
   return (
     <div className="h-full mx-auto bg-stone-50">
       <div className="p-6 h-[25%] border-b shadow-lg">
-        <ReadHeader handleEditClicked={handleEditClicked}></ReadHeader>
+        <ReadHeader></ReadHeader>
       </div>
       <div className="h-[70%]">
         <ReadBody></ReadBody>

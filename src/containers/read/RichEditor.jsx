@@ -5,7 +5,7 @@ import { stateFromHTML } from 'draft-js-import-html';
 import AddLinkModal from '../../components/AddLinkModal';
 import '../../styles.css'
 
-const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleContentChange }, ref) => {
+const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleContentChange, editable }, ref) => {
 
     const [rightClickedBlockKey, setRightClickedBlockKey] = useState();
     const [rightClickedEntityKey, setRightClickedEntityKey] = useState();
@@ -142,21 +142,15 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         setEditorState(EditorState.forceSelection(newEditorState, editorState.getSelection()));
     }
 
+    const getContent = () => ({html: stateToHTML(editorState.getCurrentContent()), json: convertToRaw(editorState.getCurrentContent())});
+    const resetContent = () => (setEditorState(rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent)));
+
     React.useImperativeHandle(ref, () => ({
         addLink,
+        getContent,
+        resetContent,
         toggleInlineStyle,
     }));
-
-    const handleKeyCommand = (command) => {
-        console.log('in handle key command')
-        setShowContextMenu(false);
-        const newState = RichUtils.handleKeyCommand(editorState, command);
-        if (newState) {
-            setEditorState(newState);
-            return 'handled';
-        }
-        return 'not-handled';
-    };
 
     const handleEditorChange = (newEditorState) => {
         setEditorState(newEditorState);
@@ -169,7 +163,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     return (
         <div className="mx-auto max-w-3xl">
-            <div onClick={handleEditorClick} className='caret-transparent relative'>
+            <div onClick={handleEditorClick} className={(editable ? '' : 'caret-transparent ') + 'relative'}>
                 {showContextMenu && (
                     <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                         <button onClick={handleRemoveLink} className='hover:bg-red-300'>Remove Link</button>
@@ -178,14 +172,14 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                 <Editor
                     editorState={editorState}
                     onChange={handleEditorChange}
-                    handleKeyCommand={handleKeyCommand} // what is the purpose of this
-                    handleBeforeInput={() => 'handled'}
-                    handleReturn={() => 'handled'}
-                    handlePastedText={() => 'handled'}
+                    handleKeyCommand={editable ? undefined : () => 'handled'} // backspace enter etc.
+                    handleBeforeInput={editable ? undefined : () => 'handled'}
+                    handleReturn={editable ? undefined : () => 'handled'}
+                    handlePastedText={editable ? undefined : () => 'handled'}
                     readOnly={false}
                     customDecorators={[decorator]}
                     customStyleMap={styleMap}
-                    handleDrop={() => 'handled'}
+                    handleDrop={editable ? undefined : () => 'handled'}
                 />
             </div>
 

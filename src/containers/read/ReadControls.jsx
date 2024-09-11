@@ -6,7 +6,7 @@ import FormatButton from '../../components/FormatButton.jsx';
 
 const ReadControls = () => {
 
-    const { increaseFontSize, decreaseFontSize, toggleStyle } = useContext(ReadContext);
+    const { increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent } = useContext(ReadContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
@@ -25,10 +25,25 @@ const ReadControls = () => {
                 <FormatButton onClick={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-100'>H</span></FormatButton>
                 <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-5 h-5" /></FormatButton>
             </div>
-            <FormatButton 
-            // onClick={() => handleEditClicked(article)} 
-            ><PencilIcon className="w-4 h-4" /></FormatButton>
-            
+            <div>
+                {editable ?
+                    <div className='flex space-x-2'>
+                        <FormatButton
+                            onClick={() => {saveContent(); setEditable(false);}}
+                            wfixed={false}>
+                            Save
+                        </FormatButton>
+                        <FormatButton
+                            onClick={() => {resetContent(); setEditable(false);}}
+                            wfixed={false}>
+                            Cancel
+                        </FormatButton>
+                    </div>
+                    :
+                    <FormatButton
+                        onClick={() => setEditable(true)}
+                    ><PencilIcon className="w-4 h-4" /></FormatButton>}
+            </div>
             <AddLinkModal
                 isOpen={isLinkModalOpen}
                 onClose={() => setLinkModalOpen(false)}

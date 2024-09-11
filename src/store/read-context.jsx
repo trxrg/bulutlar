@@ -8,6 +8,8 @@ export default function ReadContextProvider({ children, article }) {
 
     const { syncArticleWithIdFromBE } = useContext(AppContext);
     const [fontSize, setFontSize] = useState('text-base');
+    const [editable, setEditable] = useState(false);
+
     const readBodyRef = useRef();
 
     const fonts = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl'];
@@ -25,6 +27,23 @@ export default function ReadContextProvider({ children, article }) {
     const updateComment = (html, json) => {
         updateCommentText(article.comments[0].id, { html, json });
         syncArticleWithIdFromBE(article.id);
+    }
+
+    const updateArticleContent = (explanation, mainText, comment) => {
+        updateArticleExplanation(article.id, explanation);
+        updateArticleMainText(article.id, mainText);
+        updateCommentText(article.comments[0].id, comment);
+        syncArticleWithIdFromBE(article.id);
+    }
+
+    const saveContent = () => {
+        if (readBodyRef && readBodyRef.current)
+            readBodyRef.current.saveContent();
+    }
+
+    const resetContent = () => {
+        if (readBodyRef && readBodyRef.current)
+            readBodyRef.current.resetContent();
     }
 
     const increaseFontSize = () => {
@@ -52,10 +71,15 @@ export default function ReadContextProvider({ children, article }) {
         updateMainText,
         updateExplanation,
         updateComment,
+        updateArticleContent,
+        saveContent,
+        resetContent,
         fontSize,
         increaseFontSize,
         decreaseFontSize,
         toggleStyle,
+        editable,
+        setEditable,
     };
 
     return <ReadContext.Provider value={ctxValue}>

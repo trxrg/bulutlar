@@ -3,6 +3,7 @@ import AddLinkModal from '../../components/AddLinkModal.jsx';
 import { LinkIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../store/read-context.jsx';
 import FormatButton from '../../components/FormatButton.jsx';
+import ActionButton from '../../components/ActionButton.jsx';
 
 const ReadControls = () => {
 
@@ -16,8 +17,8 @@ const ReadControls = () => {
     }
 
     return (
-        <div className='overflow-auto flex justify-between bg-stone-50'>
-            <div className='p-2 select-none flex space-x-2'>
+        <div className='flex justify-between bg-stone-50'>
+            <div className='p-2 flex space-x-2'>
                 <FormatButton onClick={decreaseFontSize}>A-</FormatButton>
                 <FormatButton onClick={increaseFontSize}>A+</FormatButton>
                 <FormatButton onClick={(e) => handleToggleStyle(e, 'BOLD')}><strong>B</strong></FormatButton>
@@ -28,16 +29,16 @@ const ReadControls = () => {
             <div>
                 {editable ?
                     <div className='flex space-x-2'>
-                        <FormatButton
+                        <ActionButton
                             onClick={() => {saveContent(); setEditable(false);}}
-                            wfixed={false}>
+                            color={'blue'}>
                             Save
-                        </FormatButton>
-                        <FormatButton
+                        </ActionButton>
+                        <ActionButton
                             onClick={() => {resetContent(); setEditable(false);}}
-                            wfixed={false}>
+                            color={'red'}>
                             Cancel
-                        </FormatButton>
+                        </ActionButton>
                     </div>
                     :
                     <FormatButton

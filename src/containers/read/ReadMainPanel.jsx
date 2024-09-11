@@ -25,7 +25,7 @@ const ReadMainPanel = () => {
       <div className="p-6 h-[25%] border-b shadow-lg">
         <ReadHeader handleEditClicked={handleEditClicked}></ReadHeader>
       </div>
-      <div className="px-6 py-2 h-[70%]">
+      <div className="h-[70%]">
         <ReadBody></ReadBody>
       </div>
       <div className='flex h-[5%]'>

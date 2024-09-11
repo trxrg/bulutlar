@@ -26,7 +26,7 @@ const ReadControls = () => {
                 <FormatButton onClick={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-100'>H</span></FormatButton>
                 <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-5 h-5" /></FormatButton>
             </div>
-            <div>
+            <div className='p-2'>
                 {editable ?
                     <div className='flex space-x-2'>
                         <ActionButton

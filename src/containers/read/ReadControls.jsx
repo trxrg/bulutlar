@@ -17,8 +17,8 @@ const ReadControls = () => {
     }
 
     return (
-        <div className='flex justify-between bg-stone-50'>
-            <div className='p-2 flex space-x-2'>
+        <div className='flex justify-between py-2 bg-stone-50'>
+            <div className='flex space-x-2'>
                 <FormatButton onClick={decreaseFontSize}>A-</FormatButton>
                 <FormatButton onClick={increaseFontSize}>A+</FormatButton>
                 <FormatButton onClick={(e) => handleToggleStyle(e, 'BOLD')}><strong>B</strong></FormatButton>
@@ -26,7 +26,7 @@ const ReadControls = () => {
                 <FormatButton onClick={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-100'>H</span></FormatButton>
                 <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-5 h-5" /></FormatButton>
             </div>
-            <div className='p-2'>
+            <div>
                 {editable ?
                     <div className='flex space-x-2'>
                         <ActionButton

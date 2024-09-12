@@ -18,6 +18,7 @@ const ReadBody = () => {
     const commentEditorRef = useRef();
 
     const fetchImageDatas = async () => {
+        console.log('fetchImageDatas called');
         try {
             const datas = await Promise.all(article.images.map(async image => ({ ...image, data: await getImageData(image.id) })));
             setImageDatas(datas);

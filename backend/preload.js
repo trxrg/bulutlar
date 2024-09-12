@@ -16,6 +16,9 @@ contextBridge.exposeInMainWorld('api', {
   comment: {
     updateText: (commentId, newText) => ipcRenderer.invoke('comment/updateText', commentId, newText),
   },
+  image: {
+    getImageData: (imageId) => ipcRenderer.invoke('image/getImageData', imageId),
+  },
   addOwner: (ownerName) => ipcRenderer.invoke('addOwner', ownerName),
   updateOwnerName: (ownerName, newName) => ipcRenderer.invoke('updateOwnerName', ownerName, newName),
   getOwnerWithName: (ownerName) => ipcRenderer.invoke('getOwnerWithName', ownerName),

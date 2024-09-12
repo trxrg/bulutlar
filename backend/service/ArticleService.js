@@ -189,7 +189,8 @@ async function getAllArticlesOfOwnerName(ownerName) {
             { model: sequelize.models.owner },
             { model: sequelize.models.category },
             { model: sequelize.models.comment },
-            { model: sequelize.models.tag }
+            { model: sequelize.models.tag },
+            { model: sequelize.models.image },
         ]
     });
     return entities.map(entity => articleEntity2Json(entity));
@@ -201,7 +202,8 @@ async function getAllArticles() {
             { model: sequelize.models.owner },
             { model: sequelize.models.category },
             { model: sequelize.models.comment },
-            { model: sequelize.models.tag }
+            { model: sequelize.models.tag },
+            { model: sequelize.models.image },
         ]
     });
 
@@ -240,8 +242,11 @@ function commentEntity2Json(entity) {
 function imageEntity2Json(entity) {
     return {
         id: entity.dataValues.id,
+        name: entity.dataValues.name,
+        type: entity.dataValues.type,
         path: entity.dataValues.path,
-        description: entity.dataValues.description
+        size: entity.dataValues.size,
+        description: entity.dataValues.description,
     };
 }
 

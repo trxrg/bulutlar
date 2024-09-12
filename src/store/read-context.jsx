@@ -13,8 +13,8 @@ export default function ReadContextProvider({ children, article }) {
 
     const fonts = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl'];
    
-    const syncArticleFromBE = () => {
-        syncArticleWithIdFromBE(article.id);
+    const syncArticleFromBE = async () => {
+        await syncArticleWithIdFromBE(article.id);
     }
 
     const saveContent = () => {

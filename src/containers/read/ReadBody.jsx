@@ -1,4 +1,5 @@
 import React, { useRef, useState, useContext } from "react";
+import { PhotoIcon } from '@heroicons/react/24/outline';
 
 import { updateArticleMainText, updateArticleExplanation, updateCommentText } from '../../backend-adapter/BackendAdapter.js';
 import RichEditor from "./RichEditor";
@@ -8,8 +9,10 @@ const ReadBody = () => {
 
     const { article, readBodyRef, fontSize, editable, syncArticleFromBE } = useContext(ReadContext);
 
+    const [image, setImage] = useState(null);
     const [activeEditorRef, setActiveEditorRef] = useState();
 
+    const fileInputRef = useRef(null);
     const mainTextEditorRef = useRef();
     const explanationEditorRef = useRef();
     const commentEditorRef = useRef();
@@ -37,9 +40,9 @@ const ReadBody = () => {
     }
 
     const addLink = (url) => activeEditorRef && activeEditorRef.current.addLink(url);
-    
+
     const toggleStyle = (style) => activeEditorRef && activeEditorRef.current.toggleInlineStyle(style);
-    
+
     const saveContent = () => {
         updateArticleContent(explanationEditorRef.current.getContent(), mainTextEditorRef.current.getContent(), commentEditorRef.current.getContent());
     }
@@ -55,10 +58,45 @@ const ReadBody = () => {
         saveContent,
         resetContent,
         toggleStyle,
+        addImage,
     }));
+
+
+
+    // Handle file selection
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            // Create a URL for the selected file
+            const imageUrl = URL.createObjectURL(file);
+            setImage(imageUrl);
+        }
+    };
+
+    const addImage = () => {
+        fileInputRef.current.click();
+    };
 
     return (
         <div className={`overflow-auto h-full px-6 py-2 ${fontSize}`}>
+
+            <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+            />
+            {/* Display the selected image */}
+            {image && (
+                <div className="mt-4">
+                    <img
+                        src={image}
+                        alt="Selected"
+                        className="max-w-full h-auto border border-gray-300 rounded"
+                    />
+                </div>
+            )}
             <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border border-gray-300 rounded-lg shadow-lg p-4'>
                 <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
             </div>

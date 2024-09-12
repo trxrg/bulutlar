@@ -46,10 +46,16 @@ export default function ReadContextProvider({ children, article }) {
             readBodyRef.current.toggleStyle(style);
     }
 
+    const addImage = () => {
+        if (readBodyRef && readBodyRef.current)
+            readBodyRef.current.addImage();
+    }
+
     const ctxValue = {
         article,
         readBodyRef,    
         toggleStyle,
+        addImage,
         saveContent,
         resetContent,        
         syncArticleFromBE,

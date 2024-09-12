@@ -3,6 +3,7 @@ import React, { useRef, useState, useContext, useEffect } from "react";
 import { updateArticleMainText, updateArticleExplanation, updateCommentText, addImageToArticle, getImageData } from '../../backend-adapter/BackendAdapter.js';
 import RichEditor from "./RichEditor";
 import { ReadContext } from "../../store/read-context";
+import ImageModal from "./ImageModal.jsx";
 
 const ReadBody = () => {
 
@@ -11,6 +12,8 @@ const ReadBody = () => {
     const [imageDatasLoaded, setImageDatasLoaded] = useState(false);
     const [imageDatas, setImageDatas] = useState([]);
     const [activeEditorRef, setActiveEditorRef] = useState();
+    const [selectedImage, setSelectedImage] = useState();
+    const [imageModalIsOpen, setImageModalIsOpen] = useState(false);
 
     const fileInputRef = useRef(null);
     const mainTextEditorRef = useRef();
@@ -25,7 +28,7 @@ const ReadBody = () => {
             setImageDatasLoaded(true);
         } catch (err) {
             console.error('error in fetchImageDatas', err);
-        }        
+        }
     }
 
     const updateMainText = async (html, json) => {
@@ -93,6 +96,15 @@ const ReadBody = () => {
         fetchImageDatas();
     }, [article]);
 
+    const openImageModal = (imageData) => {
+        setSelectedImage(imageData);
+        setImageModalIsOpen(true);
+    };
+
+    const closeImageModal = () => {
+        setImageModalIsOpen(false);
+    }
+
     return (
         <div className={`overflow-auto h-full px-6 py-2 ${fontSize}`}>
             <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border border-gray-300 rounded-lg shadow-lg p-4'>
@@ -109,7 +121,7 @@ const ReadBody = () => {
                 style={{ display: 'none' }}
             />
             {imageDatasLoaded && imageDatas.map(image =>
-                <div key={image.id} className="mt-4">
+                <div key={image.id} className="mt-4" onClick={() => openImageModal(image.data)}>
                     <img
                         src={image.data}
                         alt={image.description ? image.description : "image"}
@@ -123,6 +135,12 @@ const ReadBody = () => {
             <div onClick={() => setActiveEditorRef(commentEditorRef)} >
                 <RichEditor name={'comment'} htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
             </div>
+
+            <ImageModal
+                isOpen={imageModalIsOpen}
+                onRequestClose={closeImageModal}
+                imageUrl={selectedImage}
+            />
         </div>
     );
 };

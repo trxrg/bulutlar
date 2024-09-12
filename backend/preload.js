@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('api', {
   article: {
     updateArticleMainText: (articleId, newMainText) => ipcRenderer.invoke('article/updateMainText', articleId, newMainText),
     updateArticleExplanation: (articleId, newExplanation) => ipcRenderer.invoke('article/updateExplanation', articleId, newExplanation),
+    addImageToArticle: (articleId, image) => ipcRenderer.invoke('article/addImage', articleId, image),
   },
   comment: {
     updateText: (commentId, newText) => ipcRenderer.invoke('comment/updateText', commentId, newText),

@@ -3,13 +3,16 @@ function setRelations(sequelize) {
 
 	console.log(sequelize.models);
 
-	const { owner, article, comment, tag, category, group } = sequelize.models;
+	const { owner, article, comment, image, tag, category, group } = sequelize.models;
 
 	owner.hasMany(article);
 	article.belongsTo(owner);
 
 	article.hasMany(comment);
 	comment.belongsTo(article);
+
+	article.hasMany(image);
+	image.belongsTo(article);
 
 	category.hasMany(article);
 	article.belongsTo(category);

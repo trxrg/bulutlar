@@ -26,7 +26,8 @@ const modelDefiners = [
 	require('./model/tag.model'),
 	require('./model/category.model'),
 	require('./model/comment.model'),
-	require('./model/group.model')
+	require('./model/group.model'),
+	require('./model/image.model'),
 ];
 
 function initDB() {

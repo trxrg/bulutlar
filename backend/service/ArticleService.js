@@ -5,10 +5,12 @@ const tagService = require('./TagService');
 const ownerService = require('./OwnerService');
 const categoryService = require('./CategoryService');
 const commentService = require('./CommentService');
+const imageService = require('./ImageService');
 
 function initService() {
     ipcMain.handle('article/updateMainText', (event, articleId, newMainText) => updateArticleMainText(articleId, newMainText));
     ipcMain.handle('article/updateExplanation', (event, articleId, newExplanation) => updateArticleExplanation(articleId, newExplanation));
+    ipcMain.handle('article/addImage', (event, articleId, image) => addImage(articleId, image));
 
 
     ipcMain.handle('addArticle', (event, article) => addArticle(article));
@@ -125,6 +127,28 @@ async function updateArticleExplanation(articleId, newExplanation) {
     }
 }
 
+async function addImage(articleId, image) {
+    try {
+        const article = await sequelize.models.article.findByPk(articleId);
+
+        if (!article)
+            throw ('no article found with id: ' + articleId);
+
+        await article.addImage(await imageService.createImage(image));
+
+        return await getArticleWithId(articleId);
+
+    } catch (error) {
+        console.error('Error in addImage', error);
+    }
+}
+
+async function getArticleEntity(articleId) {
+    const entity = await sequelize.models.article.findByPk(articleId);
+
+    return entity;
+}
+
 async function getArticleWithId(articleId) {
     const entity = await sequelize.models.article.findByPk(articleId,
         {
@@ -132,7 +156,8 @@ async function getArticleWithId(articleId) {
                 { model: sequelize.models.owner },
                 { model: sequelize.models.category },
                 { model: sequelize.models.comment },
-                { model: sequelize.models.tag }
+                { model: sequelize.models.tag },
+                { model: sequelize.models.image },
             ]
         });
     return articleEntity2Json(entity);
@@ -190,6 +215,8 @@ function articleEntity2Json(entity) {
         entity.dataValues.category = entity2Json(entity.dataValues.category);
     if (entity.dataValues.tags)
         entity.dataValues.tags = entity.dataValues.tags.map(tag => entity2Json(tag));
+    if (entity.dataValues.images)
+        entity.dataValues.images = entity.dataValues.images.map(image => imageEntity2Json(image));
     if (entity.dataValues.comments)
         entity.dataValues.comments = entity.dataValues.comments.map(comment => commentEntity2Json(comment));
     return entity.dataValues;
@@ -210,6 +237,14 @@ function commentEntity2Json(entity) {
     };
 }
 
+function imageEntity2Json(entity) {
+    return {
+        id: entity.dataValues.id,
+        path: entity.dataValues.path,
+        description: entity.dataValues.description
+    };
+}
+
 function calculateNumber(datestr) {
     const date = new Date(datestr);
 
@@ -221,5 +256,6 @@ function calculateNumber(datestr) {
 }
 
 module.exports = {
-    initService
+    initService,
+    getArticleEntity
 };

@@ -63,6 +63,10 @@ export async function updateArticleExplanation(articleId, newExplanation) {
     return window.api.article.updateArticleExplanation(articleId, newExplanation);
 }
 
+export async function addImageToArticle(articleId, newExplanation) {
+    return window.api.article.addImageToArticle(articleId, newExplanation);
+}
+
 export async function getArticleWithId(articleId) {
     return window.api.getArticleWithId(articleId);
 }

@@ -105,6 +105,10 @@ const ReadBody = () => {
         setImageModalIsOpen(false);
     }
 
+    const deleteImage = () => {
+        console.log('delete is not implemented yet')
+    }
+
     return (
         <div className={`overflow-auto h-full px-6 py-2 ${fontSize}`}>
             <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border border-gray-300 rounded-lg shadow-lg p-4'>
@@ -138,7 +142,8 @@ const ReadBody = () => {
 
             <ImageModal
                 isOpen={imageModalIsOpen}
-                onRequestClose={closeImageModal}
+                onClose={closeImageModal}
+                onDelete={deleteImage}
                 imageUrl={selectedImage}
             />
         </div>

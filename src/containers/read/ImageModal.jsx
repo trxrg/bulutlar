@@ -6,7 +6,7 @@ import ActionButton from '../../components/ActionButton';
 
 Modal.setAppElement('#root'); // For accessibility reasons
 
-const ImageModal = ({ isOpen, onClose, onDelete, imageUrl }) => {
+const ImageModal = ({ isOpen, onClose, image }) => {
     const [scale, setScale] = useState(1);
     const [initialScale, setInitialScale] = useState(1);
     const imageRef = useRef(null);
@@ -37,10 +37,14 @@ const ImageModal = ({ isOpen, onClose, onDelete, imageUrl }) => {
             setInitialScale(newScale);
             setScale(newScale);
         }
-    }, [imageUrl, isOpen]);
+    }, [image, isOpen]);
 
     const zoomIn = () => setScale(prevScale => Math.min(prevScale * 1.2, 10)); // Cap zoom scale
     const zoomOut = () => setScale(prevScale => Math.max(prevScale / 1.2, initialScale)); // Cap zoom scale
+
+    const deleteImage = () => {
+        console.log('delete is not implemented yet')
+    }
 
     return (
         <Modal
@@ -53,8 +57,8 @@ const ImageModal = ({ isOpen, onClose, onDelete, imageUrl }) => {
             <div className="relative bg-white rounded-lg shadow-lg max-w-3xl max-h-[80vh] overflow-auto">
                 {/* Image Container */}
                 <div className="relative w-full h-full overflow-auto">
-                    <img
-                        src={imageUrl}
+                    {image && <img
+                        src={image.data}
                         alt="Zoomable"
                         ref={imageRef}
                         style={{
@@ -66,7 +70,7 @@ const ImageModal = ({ isOpen, onClose, onDelete, imageUrl }) => {
                             display: 'block',
                         }}
                         className='object-contain'
-                    />
+                    />}
                 </div>
 
                 {/* Buttons */}
@@ -92,7 +96,7 @@ const ImageModal = ({ isOpen, onClose, onDelete, imageUrl }) => {
                         </button>
                     </div>
                     <div>
-                        <ActionButton onClick={onDelete} color='red'>Delete Image</ActionButton>
+                        <ActionButton onClick={deleteImage} color='red'>Delete Image</ActionButton>
                     </div>
                 </div>
             </div>

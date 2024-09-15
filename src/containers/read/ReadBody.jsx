@@ -96,17 +96,13 @@ const ReadBody = () => {
         fetchImageDatas();
     }, [article]);
 
-    const openImageModal = (imageData) => {
-        setSelectedImage(imageData);
+    const openImageModal = (image) => {
+        setSelectedImage(image);
         setImageModalIsOpen(true);
     };
 
     const closeImageModal = () => {
         setImageModalIsOpen(false);
-    }
-
-    const deleteImage = () => {
-        console.log('delete is not implemented yet')
     }
 
     return (
@@ -125,7 +121,7 @@ const ReadBody = () => {
                 style={{ display: 'none' }}
             />
             {imageDatasLoaded && imageDatas.map(image =>
-                <div key={image.id} className="mt-4" onClick={() => openImageModal(image.data)}>
+                <div key={image.id} className="mt-4" onClick={() => openImageModal(image)}>
                     <img
                         src={image.data}
                         alt={image.description ? image.description : "image"}
@@ -140,12 +136,12 @@ const ReadBody = () => {
                 <RichEditor name={'comment'} htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
             </div>
 
-            <ImageModal
-                isOpen={imageModalIsOpen}
-                onClose={closeImageModal}
-                onDelete={deleteImage}
-                imageUrl={selectedImage}
-            />
+            {imageDatasLoaded &&
+                <ImageModal
+                    isOpen={imageModalIsOpen}
+                    onClose={closeImageModal}
+                    image={selectedImage}
+                />}
         </div>
     );
 };

@@ -10,7 +10,7 @@ function initService() {
 
 async function createImage(image) {
     try {
-        const destinationPath = path.join(__dirname, '../../data/images', image.name)
+        const destinationPath = path.join(__dirname, '../../data/images', image.name + '_' + Date.now())
 
         await fs.copyFile(image.path, destinationPath);
 
@@ -30,9 +30,18 @@ async function createImage(image) {
 }
 
 async function getImageData(imageId) {
-    const image = await sequelize.models.image.findByPk(imageId);
-    const fileData = await fs.readFile(image.path, 'base64');
-    return `data:${image.type};base64,${fileData}`;
+    try {
+        const image = await sequelize.models.image.findByPk(imageId);
+
+        if (!image)
+            throw ('no image found with id: ' + imageId);
+
+        const fileData = await fs.readFile(image.path, 'base64');
+
+        return `data:${image.type};base64,${fileData}`;
+    } catch (err) {
+        console.error('Error in getImageData', err);
+    }    
 }
 
 async function deleteImage(imageId) {

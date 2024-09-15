@@ -77,6 +77,7 @@ const ReadBody = () => {
 
     // Handle file selection
     const handleFileChange = async (event) => {
+        console.log('in handlefilechange');
         const file = event.target.files[0];
         if (file) {
 

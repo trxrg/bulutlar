@@ -71,6 +71,10 @@ export async function getImageData(imageId) {
     return window.api.image.getImageData(imageId);
 }
 
+export async function deleteImage(imageId) {
+    return window.api.image.deleteImage(imageId);
+}
+
 export async function getArticleWithId(articleId) {
     return window.api.getArticleWithId(articleId);
 }

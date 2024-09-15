@@ -1,12 +1,17 @@
 // src/components/ImageModal.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import Modal from 'react-modal';
 import { MagnifyingGlassPlusIcon, MagnifyingGlassMinusIcon, XMarkIcon } from '@heroicons/react/24/solid'; // Import v2 icons
 import ActionButton from '../../components/ActionButton';
+import { deleteImage } from '../../backend-adapter/BackendAdapter.js';
+import { ReadContext } from "../../store/read-context";
 
 Modal.setAppElement('#root'); // For accessibility reasons
 
 const ImageModal = ({ isOpen, onClose, image }) => {
+
+    const { syncArticleFromBE } = useContext(ReadContext);
+
     const [scale, setScale] = useState(1);
     const [initialScale, setInitialScale] = useState(1);
     const imageRef = useRef(null);
@@ -42,8 +47,10 @@ const ImageModal = ({ isOpen, onClose, image }) => {
     const zoomIn = () => setScale(prevScale => Math.min(prevScale * 1.2, 10)); // Cap zoom scale
     const zoomOut = () => setScale(prevScale => Math.max(prevScale / 1.2, initialScale)); // Cap zoom scale
 
-    const deleteImage = () => {
-        console.log('delete is not implemented yet')
+    const handleDeleteImage = async () => {
+        await deleteImage(image.id);
+        syncArticleFromBE();
+        onClose();
     }
 
     return (
@@ -96,7 +103,7 @@ const ImageModal = ({ isOpen, onClose, image }) => {
                         </button>
                     </div>
                     <div>
-                        <ActionButton onClick={deleteImage} color='red'>Delete Image</ActionButton>
+                        <ActionButton onClick={handleDeleteImage} color='red'>Delete Image</ActionButton>
                     </div>
                 </div>
             </div>

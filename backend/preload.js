@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('api', {
   },
   image: {
     getImageData: (imageId) => ipcRenderer.invoke('image/getImageData', imageId),
+    deleteImage: (imageId) => ipcRenderer.invoke('image/deleteImage', imageId),
   },
   addOwner: (ownerName) => ipcRenderer.invoke('addOwner', ownerName),
   updateOwnerName: (ownerName, newName) => ipcRenderer.invoke('updateOwnerName', ownerName, newName),

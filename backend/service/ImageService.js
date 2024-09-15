@@ -10,14 +10,16 @@ function initService() {
 
 async function createImage(image) {
     try {
-        const destinationPath = path.join(__dirname, '../../data/images', image.name + '_' + Date.now())
+
+        const relativePath = path.join('data/images', image.name + '_' + Date.now());
+        const destinationPath = getImageAbsPath(relativePath);
 
         await fs.copyFile(image.path, destinationPath);
 
         const result = await sequelize.models.image.create({
             name: image.name,
             type: image.type,
-            path: destinationPath,
+            path: relativePath,
             size: image.size,
             description: image.name
         });
@@ -36,7 +38,7 @@ async function getImageData(imageId) {
         if (!image)
             throw ('no image found with id: ' + imageId);
 
-        const fileData = await fs.readFile(image.path, 'base64');
+        const fileData = await fs.readFile(getImageAbsPath(image.path), 'base64');
 
         return `data:${image.type};base64,${fileData}`;
     } catch (err) {
@@ -52,13 +54,17 @@ async function deleteImage(imageId) {
         if (!image)
             throw ('no image found with id: ' + imageId);
 
-        fs.unlink(image.path);
+        fs.unlink(getImageAbsPath(image.path));
 
         await image.destroy();
 
     } catch (err) {
         console.error('Error in deleteImage', err);
     }
+}
+
+function getImageAbsPath(relativePath) {
+    return path.join(__dirname, '/../../', relativePath);
 }
 
 module.exports = {

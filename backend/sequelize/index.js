@@ -28,6 +28,7 @@ const modelDefiners = [
 	require('./model/comment.model'),
 	require('./model/group.model'),
 	require('./model/image.model'),
+	require('./model/annotation.model'),
 ];
 
 function initDB() {

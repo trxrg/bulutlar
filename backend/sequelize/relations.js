@@ -3,7 +3,7 @@ function setRelations(sequelize) {
 
 	console.log(sequelize.models);
 
-	const { owner, article, comment, image, tag, category, group } = sequelize.models;
+	const { owner, article, comment, image, annotation, tag, category, group } = sequelize.models;
 
 	owner.hasMany(article);
 	article.belongsTo(owner);
@@ -13,6 +13,9 @@ function setRelations(sequelize) {
 
 	article.hasMany(image);
 	image.belongsTo(article);
+
+	article.hasMany(annotation);
+	annotation.belongsTo(article);
 
 	category.hasMany(article);
 	article.belongsTo(category);

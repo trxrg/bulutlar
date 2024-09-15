@@ -17,8 +17,6 @@ function initService() {
     ipcMain.handle('deleteArticle', (event, articleId) => deleteArticle(articleId));
     ipcMain.handle('updateArticle', (event, articleId, article) => updateArticle(articleId, article));
     ipcMain.handle('getArticleWithId', (event, articleId) => getArticleWithId(articleId));
-    ipcMain.handle('getArticleWithTitleLike', (event, titleLike) => getArticleWithTitleLike(titleLike));
-    ipcMain.handle('getAllArticlesOfOwnerName', (event, ownerName) => getAllArticlesOfOwnerName(ownerName));
     ipcMain.handle('getAllArticles', (event) => getAllArticles());
 }
 
@@ -158,42 +156,11 @@ async function getArticleWithId(articleId) {
                 { model: sequelize.models.comment },
                 { model: sequelize.models.tag },
                 { model: sequelize.models.image },
+                { model: sequelize.models.annotation },
+                { model: sequelize.models.group },
             ]
         });
     return articleEntity2Json(entity);
-}
-
-async function getArticleWithTitleLike(titleLike) {
-    const entities = await sequelize.models.article.findAll({
-        where: {
-            title: {
-                [Op.like]: '%' + titleLike + '%'
-            }
-        },
-        include: [
-            { model: sequelize.models.owner },
-            { model: sequelize.models.category },
-            { model: sequelize.models.comment },
-            { model: sequelize.models.tag }
-        ]
-    });
-    return entities.map(entity => articleEntity2Json(entity));
-}
-
-async function getAllArticlesOfOwnerName(ownerName) {
-    const entities = await sequelize.models.article.findAll({
-        where: {
-            owner: { name: ownerName }
-        },
-        include: [
-            { model: sequelize.models.owner },
-            { model: sequelize.models.category },
-            { model: sequelize.models.comment },
-            { model: sequelize.models.tag },
-            { model: sequelize.models.image },
-        ]
-    });
-    return entities.map(entity => articleEntity2Json(entity));
 }
 
 async function getAllArticles() {
@@ -204,6 +171,8 @@ async function getAllArticles() {
             { model: sequelize.models.comment },
             { model: sequelize.models.tag },
             { model: sequelize.models.image },
+            { model: sequelize.models.annotation },
+            { model: sequelize.models.group },
         ]
     });
 
@@ -219,6 +188,8 @@ function articleEntity2Json(entity) {
         entity.dataValues.tags = entity.dataValues.tags.map(tag => entity2Json(tag));
     if (entity.dataValues.images)
         entity.dataValues.images = entity.dataValues.images.map(image => imageEntity2Json(image));
+    if (entity.dataValues.annotations)
+        entity.dataValues.annotations = entity.dataValues.annotations.map(annotation => annotationEntity2Json(annotation));
     if (entity.dataValues.comments)
         entity.dataValues.comments = entity.dataValues.comments.map(comment => commentEntity2Json(comment));
     return entity.dataValues;
@@ -247,6 +218,16 @@ function imageEntity2Json(entity) {
         path: entity.dataValues.path,
         size: entity.dataValues.size,
         description: entity.dataValues.description,
+    };
+}
+
+function annotationEntity2Json(entity) {
+    return {
+        id: entity.dataValues.id,
+        quote: entity.dataValues.quote,
+        note: entity.dataValues.note,
+        createdAt: entity.dataValues.createdAt,
+        updatedAt: entity.dataValues.updatedAt
     };
 }
 

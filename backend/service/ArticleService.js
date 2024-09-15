@@ -10,7 +10,8 @@ const imageService = require('./ImageService');
 function initService() {
     ipcMain.handle('article/updateMainText', (event, articleId, newMainText) => updateArticleMainText(articleId, newMainText));
     ipcMain.handle('article/updateExplanation', (event, articleId, newExplanation) => updateArticleExplanation(articleId, newExplanation));
-    ipcMain.handle('article/addImage', (event, articleId, image) => addImage(articleId, image));
+    ipcMain.handle('article/addImage', (event, articleId, image) => addImageToArticle(articleId, image));
+    ipcMain.handle('article/addAnnotation', (event, articleId, annotation) => addAnnotationToArticle(articleId, annotation));
 
 
     ipcMain.handle('addArticle', (event, article) => addArticle(article));
@@ -125,7 +126,7 @@ async function updateArticleExplanation(articleId, newExplanation) {
     }
 }
 
-async function addImage(articleId, image) {
+async function addImageToArticle(articleId, image) {
     try {
         const article = await sequelize.models.article.findByPk(articleId);
 
@@ -138,6 +139,22 @@ async function addImage(articleId, image) {
 
     } catch (error) {
         console.error('Error in addImage', error);
+    }
+}
+
+async function addAnnotationToArticle(articleId, annotation) {
+    try {
+        const article = await sequelize.models.article.findByPk(articleId);
+
+        if (!article)
+            throw ('no article found with id: ' + articleId);
+
+        await article.addAnnotation(await annotationService.createAnnotation(annotation));
+
+        return await getArticleWithId(articleId);
+
+    } catch (error) {
+        console.error('Error in addAnnotationToArticle', error);
     }
 }
 

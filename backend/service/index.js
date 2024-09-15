@@ -4,7 +4,8 @@ const services = [
     require('./TagService'),
     require('./CategoryService'),
     require('./CommentService'),
-    require('./ImageService')
+    require('./ImageService'),
+    require('./AnnotationService'),
 ];
 
 function initServices() {

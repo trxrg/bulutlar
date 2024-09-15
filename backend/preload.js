@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('api', {
     updateArticleMainText: (articleId, newMainText) => ipcRenderer.invoke('article/updateMainText', articleId, newMainText),
     updateArticleExplanation: (articleId, newExplanation) => ipcRenderer.invoke('article/updateExplanation', articleId, newExplanation),
     addImageToArticle: (articleId, image) => ipcRenderer.invoke('article/addImage', articleId, image),
+    addAnnotationToArticle: (articleId, annotation) => ipcRenderer.invoke('article/addAnnotation', articleId, annotation),
   },
   comment: {
     updateText: (commentId, newText) => ipcRenderer.invoke('comment/updateText', commentId, newText),
@@ -19,6 +20,10 @@ contextBridge.exposeInMainWorld('api', {
   image: {
     getImageData: (imageId) => ipcRenderer.invoke('image/getImageData', imageId),
     deleteImage: (imageId) => ipcRenderer.invoke('image/deleteImage', imageId),
+  },
+  annotation: {
+    deleteAnnotation: (annotationId) => ipcRenderer.invoke('annotation/deleteAnnotation', annotationId),
+    updateNote: (annotationId, newNote) => ipcRenderer.invoke('annotation/updateNote', annotationId, newNote),
   },
   addOwner: (ownerName) => ipcRenderer.invoke('addOwner', ownerName),
   updateOwnerName: (ownerName, newName) => ipcRenderer.invoke('updateOwnerName', ownerName, newName),

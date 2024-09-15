@@ -107,7 +107,7 @@ const ReadBody = () => {
     }
 
     return (
-        <div className={`overflow-auto h-full px-6 py-2 ${fontSize}`}>
+        <div className={`overflow-auto h-full px-6 pb-6 ${fontSize}`}>
             <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border border-gray-300 rounded-lg shadow-lg p-4'>
                 <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
             </div>

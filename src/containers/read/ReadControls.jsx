@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import AddLinkModal from '../../components/AddLinkModal.jsx';
-import { LinkIcon, PencilIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { LinkIcon, PencilIcon, PhotoIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../store/read-context.jsx';
 import FormatButton from '../../components/FormatButton.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
@@ -26,6 +26,7 @@ const ReadControls = () => {
                 <FormatButton onClick={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-100'>H</span></FormatButton>
                 <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-4 h-4" /></FormatButton>
                 <FormatButton onClick={addImage}><PhotoIcon className="w-4 h-4" /></FormatButton>
+                <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton>
             </div>
             <div>
                 {editable ?

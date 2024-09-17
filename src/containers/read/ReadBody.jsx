@@ -126,7 +126,7 @@ const ReadBody = () => {
                     <img
                         src={image.data}
                         alt={image.description ? image.description : "image"}
-                        className="max-w-full h-auto border border-gray-300 rounded"
+                        className="max-w-full h-auto border border-gray-300 rounded cursor-pointer"
                     />
                 </div>
             )}

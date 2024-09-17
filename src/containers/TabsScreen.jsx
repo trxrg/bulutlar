@@ -31,9 +31,9 @@ const TabsScreen = () => {
   }
 
   return (
-    <div className="h-full">
+    <div className="h-full flex flex-col">
       {/* Top-aligned tabs */}
-      <div className="h-[10%] flex">
+      <div className="flex-shrink-0 flex">
         {tabs.map(tab => (
           <div
             key={tab.id}
@@ -60,7 +60,7 @@ const TabsScreen = () => {
       </div>
 
       {/* Tab content */}
-      <div className='h-[90%]'>
+      <div className='flex-1'>
         {tabs.map(tab => (
           <div key={tab.id} className={activeTabId === tab.id ? 'h-full relative' : 'hidden'}>
             {tab.id == 'search' ?

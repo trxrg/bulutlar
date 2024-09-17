@@ -7,7 +7,7 @@ const ReadHeader = () => {
   const { article } = useContext(ReadContext);
 
   return (
-    <div className='overflow-auto h-full'>
+    <div className='overflow-auto'>
       <h2 className="text-3xl font-semibold text-gray-800">{article.title}</h2>
       <p className="text-sm text-gray-600 mt-2">{article.owner && article.owner.name + " | "} {new Date(article.date).toLocaleDateString('tr')} ({article.number})</p>
       <ReadControls></ReadControls>

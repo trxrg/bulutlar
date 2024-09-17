@@ -8,6 +8,7 @@ export default function ReadContextProvider({ children, article }) {
     const { syncArticleWithIdFromBE } = useContext(AppContext);
     const [fontSize, setFontSize] = useState('text-base');
     const [editable, setEditable] = useState(false);
+    const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
 
     const readBodyRef = useRef();
 
@@ -64,6 +65,8 @@ export default function ReadContextProvider({ children, article }) {
         decreaseFontSize,
         editable,
         setEditable,
+        sidePanelCollapsed,
+        setSidePanelCollapsed,
     };
 
     return <ReadContext.Provider value={ctxValue}>

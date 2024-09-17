@@ -1,13 +1,13 @@
 import React, { useState, useContext } from 'react';
 import AddLinkModal from '../../components/AddLinkModal.jsx';
-import { LinkIcon, PencilIcon, PhotoIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { LinkIcon, PencilIcon, PhotoIcon, PencilSquareIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../store/read-context.jsx';
 import FormatButton from '../../components/FormatButton.jsx';
 import ActionButton from '../../components/ActionButton.jsx';
 
 const ReadControls = () => {
 
-    const { increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent, addImage } = useContext(ReadContext);
+    const { increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent, addImage, sidePanelCollapsed, setSidePanelCollapsed } = useContext(ReadContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
@@ -28,16 +28,16 @@ const ReadControls = () => {
                 <FormatButton onClick={addImage}><PhotoIcon className="w-4 h-4" /></FormatButton>
                 <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton>
             </div>
-            <div>
+            <div className='flex space-x-2'>
                 {editable ?
                     <div className='flex space-x-2'>
                         <ActionButton
-                            onClick={() => {saveContent(); setEditable(false);}}
+                            onClick={() => { saveContent(); setEditable(false); }}
                             color={'blue'}>
                             Save
                         </ActionButton>
                         <ActionButton
-                            onClick={() => {resetContent(); setEditable(false);}}
+                            onClick={() => { resetContent(); setEditable(false); }}
                             color={'red'}>
                             Cancel
                         </ActionButton>
@@ -46,6 +46,14 @@ const ReadControls = () => {
                     <FormatButton
                         onClick={() => setEditable(true)}
                     ><PencilIcon className="w-4 h-4" /></FormatButton>}
+                {sidePanelCollapsed ?
+                    <FormatButton onClick={() => setSidePanelCollapsed(false)}>
+                        <ChevronLeftIcon className="w-4 h-4" />
+                    </FormatButton> 
+                    :
+                    <FormatButton onClick={() => setSidePanelCollapsed(true)}>
+                        <ChevronRightIcon className="w-4 h-4" />
+                    </FormatButton>}
             </div>
             <AddLinkModal
                 isOpen={isLinkModalOpen}

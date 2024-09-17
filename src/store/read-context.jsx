@@ -6,13 +6,13 @@ export const ReadContext = createContext();
 export default function ReadContextProvider({ children, article }) {
 
     const { syncArticleWithIdFromBE } = useContext(AppContext);
-    const [fontSize, setFontSize] = useState('text-base');
+    const [fontSize, setFontSize] = useState('text-xl');
     const [editable, setEditable] = useState(false);
     const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
 
     const readBodyRef = useRef();
 
-    const fonts = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl'];
+    const fonts = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
    
     const syncArticleFromBE = async () => {
         await syncArticleWithIdFromBE(article.id);

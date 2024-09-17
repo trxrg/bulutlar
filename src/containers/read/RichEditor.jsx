@@ -162,7 +162,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     }
 
     return (
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto">
             <div onClick={handleEditorClick} className={(editable ? '' : 'caret-transparent ') + 'relative'}>
                 {showContextMenu && (
                     <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>

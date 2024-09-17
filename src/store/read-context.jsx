@@ -12,7 +12,7 @@ export default function ReadContextProvider({ children, article }) {
 
     const readBodyRef = useRef();
 
-    const fonts = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
+    const fontSizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
    
     const syncArticleFromBE = async () => {
         await syncArticleWithIdFromBE(article.id);
@@ -29,17 +29,17 @@ export default function ReadContextProvider({ children, article }) {
     }
 
     const increaseFontSize = () => {
-        const index = fonts.indexOf(fontSize);
+        const index = fontSizes.indexOf(fontSize);
 
-        if (index + 1 < fonts.length)
-            setFontSize(fonts[index + 1]);
+        if (index + 1 < fontSizes.length)
+            setFontSize(fontSizes[index + 1]);
     }
 
     const decreaseFontSize = () => {
-        const index = fonts.indexOf(fontSize);
+        const index = fontSizes.indexOf(fontSize);
 
         if (index > 0)
-            setFontSize(fonts[index - 1]);
+            setFontSize(fontSizes[index - 1]);
     }
 
     const toggleStyle = (style) => {

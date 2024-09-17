@@ -63,7 +63,7 @@ const SearchControls = ({ onFilterChanged }) => {
 
 
     return (
-        <div className="p-4 bg-stone-200 overflow-auto">
+        <div className="p-4 overflow-auto">
             <div className="mb-4">
                 <label className="my-2">Tag:</label>
                 <div className="overflow-auto max-h-40 p-1 my-2 border border-green-200">

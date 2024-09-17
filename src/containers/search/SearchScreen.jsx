@@ -9,7 +9,7 @@ const SearchScreen = () => {
 
   const { allOwnersLoaded, allTagsLoaded } = useContext(AppContext);
 
-  const [paneSize, setPaneSize] = useState('30%');
+  const [paneSize, setPaneSize] = useState('300');
 
   const searchResultsRef = useRef();
 
@@ -29,11 +29,11 @@ const SearchScreen = () => {
     <SplitPane
       split="vertical"
       defaultSize={paneSize}
-      minSize={400}
+      minSize={300}
       maxSize={600}
       onChange={handleResize}
       style={{
-        padding: '10px', top: 0,
+        // padding: '10px', top: 0,
         position: 'absolute',
         left: 0,
         overflow: 'hidden',
@@ -42,7 +42,7 @@ const SearchScreen = () => {
       paneStyle={{ overflow: 'auto' }}
       resizerStyle={{ background: '#6b6969', cursor: 'col-resize', width: '12px' }}
     >
-      <div>
+      <div className='bg-stone-50 h-full'>
         {allOwnersLoaded && allTagsLoaded ? <SearchControls onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
       </div>
       <div>

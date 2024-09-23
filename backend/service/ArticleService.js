@@ -175,6 +175,11 @@ async function getArticleWithId(articleId) {
                 { model: sequelize.models.image },
                 { model: sequelize.models.annotation },
                 { model: sequelize.models.group },
+                {
+                    model: sequelize.models.article,
+                    as: 'relatedArticles',
+                    attributes: ['id', 'title']
+                },
             ]
         });
     return articleEntity2Json(entity);
@@ -209,6 +214,8 @@ function articleEntity2Json(entity) {
         entity.dataValues.annotations = entity.dataValues.annotations.map(annotation => annotationEntity2Json(annotation));
     if (entity.dataValues.comments)
         entity.dataValues.comments = entity.dataValues.comments.map(comment => commentEntity2Json(comment));
+    if (entity.dataValues.relatedArticles)
+        entity.dataValues.relatedArticles = entity.dataValues.relatedArticles.map(relatedArticle => relatedArticle2Json(relatedArticle));
     return entity.dataValues;
 }
 
@@ -216,6 +223,13 @@ function entity2Json(entity) {
     return {
         id: entity.dataValues.id,
         name: entity.dataValues.name
+    };
+}
+
+function relatedArticle2Json(entity) {
+    return {
+        id: entity.dataValues.id,
+        title: entity.dataValues.title
     };
 }
 

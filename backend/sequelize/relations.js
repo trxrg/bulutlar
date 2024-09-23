@@ -25,6 +25,8 @@ function setRelations(sequelize) {
 
 	group.belongsToMany(article, { through: 'article_group_rel' });
 	article.belongsToMany(group, { through: 'article_group_rel' });
+
+	article.belongsToMany(article, { through: 'article_article_rel', as: 'relatedArticles', foreignKey: 'articleId', otherKey: 'relatedArticleId' });
 }
 
 module.exports = { setRelations };

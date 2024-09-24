@@ -23,11 +23,13 @@ function initService() {
 
 async function addArticle(article) {
 
-    console.log('adding article with id: ' + article.id);
+    console.log('adding article with title: ' + article.title);
 
     article.number = calculateNumber(article.date);
     article.code = Math.random().toString(36).substring(2);
     const entity = await sequelize.models.article.create(article);
+
+    console.log('article added, id: ' + article.id);
 
     if (article.owner)
         await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));

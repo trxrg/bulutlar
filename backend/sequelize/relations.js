@@ -14,6 +14,9 @@ function setRelations(sequelize) {
 	article.hasMany(image);
 	image.belongsTo(article);
 
+	category.hasOne(image);
+	group.hasOne(image);
+
 	article.hasMany(annotation);
 	annotation.belongsTo(article);
 

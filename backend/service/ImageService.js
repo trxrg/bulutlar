@@ -10,16 +10,18 @@ function initService() {
 
 async function createImage(image) {
     try {
+        const imagesFolderPath = getImagesFolderAbsPath();
+        await fs.mkdir(imagesFolderPath, { recursive: true });
+        
+        const relPath = path.join(image.name + '_' + Date.now());
+        const absPath = path.join(imagesFolderPath, relPath);
 
-        const relativePath = path.join('data/images', image.name + '_' + Date.now());
-        const destinationPath = getImageAbsPath(relativePath);
-
-        await fs.copyFile(image.path, destinationPath);
+        await fs.copyFile(image.path, absPath);
 
         const result = await sequelize.models.image.create({
             name: image.name,
             type: image.type,
-            path: relativePath,
+            path: relPath,
             size: image.size,
             description: image.name
         });
@@ -63,8 +65,12 @@ async function deleteImage(imageId) {
     }
 }
 
-function getImageAbsPath(relativePath) {
-    return path.join(__dirname, '/../../', relativePath);
+function getImageAbsPath(imagePath) {
+    return path.join(getImagesFolderAbsPath(), imagePath);
+}
+
+function getImagesFolderAbsPath() {
+    return path.join(__dirname, '/../../data/images');
 }
 
 module.exports = {

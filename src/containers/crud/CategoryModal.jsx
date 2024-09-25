@@ -26,9 +26,9 @@ const CategoryModal = ({ isOpen, onClose }) => {
             className="fixed inset-0 flex items-center justify-center p-4"
             overlayClassName="fixed inset-0 bg-black bg-opacity-75"
         >
-            <div className="relative bg-white p-5 rounded-sm shadow-lg min-w-[80vh] max-w-3xl max-h-[80vh] overflow-auto">
+            <div className="relative flex flex-col bg-white p-5 rounded-sm shadow-lg max-w-[80vh] max-h-[60vh]">
                 <div className='flex justify-between mb-3'>
-                    <h2>Categories</h2>
+                    <h2 className='text-lg text-gray-600 uppercase'>Categories</h2>
                     <button
                         onClick={onClose}
                         className="text-gray p-1 rounded-full hover:bg-red-700 focus:outline-none transition-all duration-300 flex items-center justify-center"
@@ -36,12 +36,12 @@ const CategoryModal = ({ isOpen, onClose }) => {
                         <XMarkIcon className="h-6 w-6" />
                     </button>
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-300">
+                <div className="overflow-y-auto flex-1">
+                    <table className="bg-white border border-gray-300">
                         <thead>
                             <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                                <th className="py-3 px-6 text-left">Category Name</th>
-                                <th className="py-3 px-6 text-left">Number of Elements</th>
+                                <th className="py-3 px-6 text-left">Name</th>
+                                <th className="py-3 px-6 text-left">Article Count</th>
                                 <th className="py-3 px-6 text-center">Edit</th>
                                 <th className="py-3 px-6 text-center">Delete</th>
                             </tr>

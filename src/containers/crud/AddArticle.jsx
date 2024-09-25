@@ -6,7 +6,7 @@ import TagList from './TagList.jsx';
 import RichText from './RichText.jsx';
 import CategoryList from './CategoryList.jsx';
 import { AppContext } from '../../store/app-context.jsx'
-import CustomSelect from './CustomSelect.jsx';
+import CustomSelect from './CustomeSelect.jsx';
 
 const AddArticle = () => {
 

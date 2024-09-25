@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import parse from 'html-react-parser';
-import TagButton from './TagButton';
+import TagButton from '../crud/TagButton';
 import React from 'react';
 
 export default function ArticleShort({ article, handleClick }) {

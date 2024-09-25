@@ -43,10 +43,14 @@ const RichText = React.forwardRef(({ text, onTextChange }, ref) => {
         onChange={handleChange}
         readOnly={false}
         className="bg-white"
-        // style={{border: '20px !important', padding: '20px'}}
-        modules={{ toolbar: true }}
-        // formats={formats}
-        // sanitize={customSanitizer}
+        // style={{maxHeight: 'full', overflowY: 'auto'}}
+        modules={{
+          toolbar: [
+            [{ 'header': [1, 2, false] }], 
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }]
+          ]
+        }}
       />
       {/* <div>
         <h2>Preview</h2>

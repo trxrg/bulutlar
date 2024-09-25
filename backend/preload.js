@@ -25,13 +25,16 @@ contextBridge.exposeInMainWorld('api', {
     deleteAnnotation: (annotationId) => ipcRenderer.invoke('annotation/deleteAnnotation', annotationId),
     updateNote: (annotationId, newNote) => ipcRenderer.invoke('annotation/updateNote', annotationId, newNote),
   },
+  category: {
+    getAll: () => ipcRenderer.invoke('category/getAll'),
+  },
   addOwner: (ownerName) => ipcRenderer.invoke('addOwner', ownerName),
   updateOwnerName: (ownerName, newName) => ipcRenderer.invoke('updateOwnerName', ownerName, newName),
   getOwnerWithName: (ownerName) => ipcRenderer.invoke('getOwnerWithName', ownerName),
   getOwnerWithNameLike: (nameLike) => ipcRenderer.invoke('getOwnerWithNameLike', nameLike),
   getOwnerWithId: (id) => ipcRenderer.invoke('getOwnerWithId', id),
   getAllOwners: () => ipcRenderer.invoke('getAllOwners'),
-  getAllCategories: () => ipcRenderer.invoke('getAllCategories'),
+  
   ping: () => ipcRenderer.invoke('ping'),
   getFromDb: () => ipcRenderer.invoke('getFromDb'),
   checkDbConnection: () => ipcRenderer.invoke('checkDbConnection'),

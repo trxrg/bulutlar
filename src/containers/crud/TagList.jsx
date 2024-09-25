@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
-import TagButton from './TagButton';
+import TagButton from './TagButton.jsx';
 
-import { AppContext } from '../store/app-context.jsx';
+import { AppContext } from '../../store/app-context.jsx';
 
 const TagList = React.forwardRef(({ selectedTags, onTagsChange }, ref) => {
 

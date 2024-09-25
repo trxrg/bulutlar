@@ -36,7 +36,7 @@ export async function getAllOwners() {
 }
 
 export async function getAllCategories() {
-    return window.api.getAllCategories();
+    return window.api.category.getAll();
 }
 
 export async function deleteOwnerWithName(ownerName) {

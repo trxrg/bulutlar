@@ -3,13 +3,15 @@ const { Op } = require("sequelize");
 const { sequelize } = require("../sequelize");
 
 function initService() {
+    ipcMain.handle('category/getAll', getAllCategories);
+
     ipcMain.handle('addCategory', (event, categoryName) => addCategory(categoryName));
     ipcMain.handle('updateCategoryName', (event, categoryName, newName) => updateCategoryName(categoryName, newName));
     ipcMain.handle('getCategoryWithName', (event, categoryName) => getCategoryWithName(categoryName));
     ipcMain.handle('getCategoryWithNameAddIfNotPresent', (event, categoryName) => getCategoryWithNameAddIfNotPresent(categoryName));
     ipcMain.handle('getCategoryWithNameLike', (event, nameLike) => getCategoryWithNameLike(nameLike));
     ipcMain.handle('getCategoryWithId', (event, id) => getCategoryWithId(id));
-    ipcMain.handle('getAllCategories', getAllCategories);
+    
     ipcMain.handle('deleteCategoryWithName', (event, categoryName) => deleteCategoryWithName(categoryName));
 }
 
@@ -54,7 +56,21 @@ async function getCategoryWithId(id) {
 }
 
 async function getAllCategories() {
-    const result = await sequelize.models.category.findAll();
+    const result = await sequelize.models.category.findAll({
+        attributes: {
+            include: [
+                [sequelize.fn('COUNT', sequelize.col('articles.id')), 'articleCount'],
+            ]
+        },
+        include: [
+            {
+              model: sequelize.models.article,
+              as: 'articles',
+              attributes: [], // We don't need any attributes from Article
+            },
+          ],
+          group: ['Category.id'], // Group by Category ID
+    });
     return result.map(item => item.dataValues);
 }
 

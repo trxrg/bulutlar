@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { format } from 'date-fns';
-import { addArticle, updateArticle, deleteArticle, getAllCategories } from '../backend-adapter/BackendAdapter';
-import OwnerList from '../components/OwnerList';
-import TagList from '../components/TagList';
-import RichText from '../components/RichText';
-import CategoryList from '../components/CategoryList';
-import { AppContext } from '../store/app-context.jsx'
+import { addArticle, updateArticle, deleteArticle, getAllCategories } from '../../backend-adapter/BackendAdapter.js';
+import OwnerList from './OwnerList.jsx';
+import TagList from './TagList.jsx';
+import RichText from './RichText.jsx';
+import CategoryList from './CategoryList.jsx';
+import { AppContext } from '../../store/app-context.jsx'
 
 const AddArticle = () => {
 
@@ -56,9 +56,9 @@ const AddArticle = () => {
           date: dispDate,
           explanation: dispExplanation,
           text: dispMainText,
-          owner: {name: dispOwnerName},
-          category: {name: dispCategoryName},
-          comments: [{text: dispCommentText}],
+          owner: { name: dispOwnerName },
+          category: { name: dispCategoryName },
+          comments: [{ text: dispCommentText }],
           tags: dispTags
         });
         console.log('article updated:');
@@ -70,9 +70,9 @@ const AddArticle = () => {
           date: dispDate,
           explanation: dispExplanation,
           text: dispMainText,
-          owner: {name: dispOwnerName},
-          category: {name: dispCategoryName},
-          comments: [{text: dispCommentText}],
+          owner: { name: dispOwnerName },
+          category: { name: dispCategoryName },
+          comments: [{ text: dispCommentText }],
           tags: dispTags
         });
         console.log('article added:');
@@ -105,7 +105,7 @@ const AddArticle = () => {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
-        <CategoryList ref={categoryRef} categories={allCategories} selectedCategory={dispCategoryName} onCategoryChange={setDispCategoryName}></CategoryList>
+        <CategoryList showNewButton={true} onCategoryChange={setDispCategoryName}></CategoryList>
         <OwnerList ref={ownerRef} owners={allOwners} selectedOwner={dispOwnerName} onOwnerChange={setDispOwnerName}></OwnerList>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>

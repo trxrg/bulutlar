@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import TabsScreen from './TabsScreen';
-import AddArticle from './AddArticle';
+import AddArticle from './crud/AddArticle';
 import { AppContext } from '../store/app-context.jsx'
 
 const MainScreen = () => {

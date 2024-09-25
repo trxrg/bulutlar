@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { getAllArticles, getAllTags, getAllOwners, getArticleWithId } from '../backend-adapter/BackendAdapter';
+import { getAllArticles, getAllTags, getAllOwners, getAllCategories, getArticleWithId } from '../backend-adapter/BackendAdapter';
 
 export const AppContext = createContext(
 
@@ -11,6 +11,8 @@ export default function AppContextProvider({ children }) {
     const [allOwnersLoaded, setAllOwnersLoaded] = useState(false);
     const [allTags, setAllTags] = useState([]);
     const [allTagsLoaded, setAllTagsLoaded] = useState(false);
+    const [allCategories, setAllCategories] = useState([]);
+    const [allCategoriesLoaded, setAllCategoriesLoaded] = useState(false);
     const [activeScreen, setActiveScreen] = useState('tabs');
     const [editedArticle, setEditedArticle] = useState();
     const [activeTabId, setActiveTabId] = useState('search');
@@ -61,13 +63,24 @@ export default function AppContextProvider({ children }) {
         }
     }
 
+    const getAllCategoriesFromBE = async () => {
+        try {
+            const response = await getAllCategories();
+            setAllCategories(response);
+            setAllCategoriesLoaded(true);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     const getDataFromBE = async () => {
         console.log('syncing with DB');
         try {
             await Promise.all([
                 getAllArticlesFromBE(),
                 getAllOwnersFromBE(),
-                getAllTagsFromBE()
+                getAllTagsFromBE(),
+                getAllCategoriesFromBE()
             ]);
         } catch (err) {
             console.error(err);
@@ -75,7 +88,6 @@ export default function AppContextProvider({ children }) {
     }
 
     useEffect(() => {
-        // Logic to execute after component initialization
         getDataFromBE();
     }, []);
 
@@ -150,6 +162,7 @@ export default function AppContextProvider({ children }) {
         allTags,
         allOwnersLoaded,
         allTagsLoaded,
+        allCategories,
         editedArticle,
         activeScreen,
         syncWithDB: getDataFromBE,

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import TagList from '../../components/TagList.jsx' 
+import TagList from '../crud/TagList.jsx' 
 import { updateArticle } from '../../backend-adapter/BackendAdapter.js';
 import { ReadContext } from '../../store/read-context.jsx';
 import { AppContext } from '../../store/app-context.jsx';

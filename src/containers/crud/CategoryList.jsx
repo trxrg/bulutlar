@@ -1,7 +1,8 @@
 import React, { useState, useContext } from "react";
 import { AppContext } from "../../store/app-context";
 import ActionButton from "../../components/ActionButton";
-import CategoryModal from "./CategoryModal";
+import GeneralModal from "../../components/GeneralModal";
+import AddCategory from "./AddCategory";
 
 const CategoryList = ({ showNewButton, onCategoryChange }) => {
 
@@ -26,11 +27,11 @@ const CategoryList = ({ showNewButton, onCategoryChange }) => {
                     id="category"
                     onChange={handleSelectChange}
                     required
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:shadow-outline"
                 >
                     <option value="">Select Category</option>
                     {allCategories.map((category) => (
-                        <option key={category.id} value={category.name}>
+                        <option key={category.id} value={category.name} style={{ backgroundColor: category.color }}>
                             {category.name}
                         </option>
                     ))}
@@ -38,8 +39,9 @@ const CategoryList = ({ showNewButton, onCategoryChange }) => {
                 {showNewButton && <ActionButton color="blue" onClick={handleNewClicked}>New</ActionButton>}
             </div>
 
-            <CategoryModal isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)}>
-            </CategoryModal>
+            <GeneralModal isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)}>
+                <AddCategory onClose={()=>setIsModalOpen(false)}></AddCategory>
+            </GeneralModal>
         </div>
     );
 };

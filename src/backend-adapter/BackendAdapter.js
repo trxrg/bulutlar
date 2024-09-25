@@ -39,6 +39,10 @@ export async function getAllCategories() {
     return window.api.category.getAll();
 }
 
+export async function createCategory(category) {
+    return window.api.category.create(category);
+}
+
 export async function deleteOwnerWithName(ownerName) {
     return window.api.deleteOwnerWithName(ownerName);
 }

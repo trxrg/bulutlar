@@ -170,6 +170,7 @@ export default function AppContextProvider({ children }) {
         handleAddTab,
         handleCancel,
         getAllArticlesFromBE,
+        getAllCategoriesFromBE,
         syncArticleWithIdFromBE,
         afterDeleteArticle,
         afterSubmitArticle

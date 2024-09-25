@@ -6,6 +6,7 @@ import TagList from './TagList.jsx';
 import RichText from './RichText.jsx';
 import CategoryList from './CategoryList.jsx';
 import { AppContext } from '../../store/app-context.jsx'
+import CustomSelect from './CustomSelect.jsx';
 
 const AddArticle = () => {
 
@@ -106,6 +107,7 @@ const AddArticle = () => {
           />
         </div>
         <CategoryList showNewButton={true} onCategoryChange={setDispCategoryName}></CategoryList>
+        <CustomSelect></CustomSelect>
         <OwnerList ref={ownerRef} owners={allOwners} selectedOwner={dispOwnerName} onOwnerChange={setDispOwnerName}></OwnerList>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>

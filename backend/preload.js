@@ -26,6 +26,7 @@ contextBridge.exposeInMainWorld('api', {
     updateNote: (annotationId, newNote) => ipcRenderer.invoke('annotation/updateNote', annotationId, newNote),
   },
   category: {
+    create: (category) => ipcRenderer.invoke('category/create', category),
     getAll: () => ipcRenderer.invoke('category/getAll'),
   },
   addOwner: (ownerName) => ipcRenderer.invoke('addOwner', ownerName),

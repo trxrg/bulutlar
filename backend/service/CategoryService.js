@@ -4,8 +4,8 @@ const { sequelize } = require("../sequelize");
 
 function initService() {
     ipcMain.handle('category/getAll', getAllCategories);
-
-    ipcMain.handle('addCategory', (event, categoryName) => addCategory(categoryName));
+    ipcMain.handle('category/create', (event, category) => createCategory(category));
+    
     ipcMain.handle('updateCategoryName', (event, categoryName, newName) => updateCategoryName(categoryName, newName));
     ipcMain.handle('getCategoryWithName', (event, categoryName) => getCategoryWithName(categoryName));
     ipcMain.handle('getCategoryWithNameAddIfNotPresent', (event, categoryName) => getCategoryWithNameAddIfNotPresent(categoryName));
@@ -15,9 +15,9 @@ function initService() {
     ipcMain.handle('deleteCategoryWithName', (event, categoryName) => deleteCategoryWithName(categoryName));
 }
 
-async function addCategory(categoryName) {
-    const result = await sequelize.models.category.create({ name: categoryName });
-    return result.dataValues;    
+async function createCategory(category) {
+    const result = await sequelize.models.category.create({ name: category.name, color: category.color });
+    return result.dataValues;  
 }
 
 async function updateCategoryName(categoryName, newName) {
@@ -80,7 +80,7 @@ async function deleteCategoryWithName(categoryName) {
 }
 
 module.exports = {
-    addCategory,
+    addCategory: createCategory,
     getCategoryWithNameAddIfNotPresent,
     initService
 };

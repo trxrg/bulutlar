@@ -3,6 +3,7 @@ import Modal from 'react-modal';
 import { MagnifyingGlassPlusIcon, MagnifyingGlassMinusIcon, XMarkIcon } from '@heroicons/react/24/solid'; // Import v2 icons
 import ActionButton from '../../components/ActionButton';
 import { AppContext } from '../../store/app-context';
+import AddCategory from './AddCategory';
 
 Modal.setAppElement('#root'); // For accessibility reasons
 
@@ -36,6 +37,8 @@ const CategoryModal = ({ isOpen, onClose }) => {
                         <XMarkIcon className="h-6 w-6" />
                     </button>
                 </div>
+                
+                <AddCategory></AddCategory>
                 <div className="overflow-y-auto flex-1">
                     <table className="bg-white border border-gray-300">
                         <thead>
@@ -73,7 +76,7 @@ const CategoryModal = ({ isOpen, onClose }) => {
                     </table>
                 </div>
             </div>
-        </Modal>
+        </Modal >
     );
 };
 

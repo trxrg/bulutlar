@@ -4,9 +4,9 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             type: DataTypes.STRING,
             unique: true,
-            // validate: {
-            //     is: /^\w{3,}$/
-            // }
+            validate: {
+                is: /^\w{2,}$/
+            }
         }
     });
 

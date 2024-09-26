@@ -3,7 +3,9 @@ const { Op } = require("sequelize");
 const { sequelize } = require("../sequelize");
 
 function initService() {
-    ipcMain.handle('addOwner', (event, ownerName) => addOwner(ownerName));
+    ipcMain.handle('owner/create', (event, owner) => createOwner(owner));
+
+
     ipcMain.handle('updateOwnerName', (event, ownerName, newName) => updateOwnerName(ownerName, newName));
     ipcMain.handle('getOwnerWithName', (event, ownerName) => getOwnerWithName(ownerName));
     ipcMain.handle('getOwnerWithNameLike', (event, nameLike) => getOwnerWithNameLike(nameLike));
@@ -12,9 +14,13 @@ function initService() {
     ipcMain.handle('deleteOwnerWithName', (event, ownerName) => deleteOwnerWithName(ownerName));
 }
 
-async function addOwner(ownerName) {
-    const result = await sequelize.models.owner.create({ name: ownerName });
-    return result.dataValues;    
+async function createOwner(owner) {
+    try {
+        const result = await sequelize.models.owner.create({ name: owner.name });
+        return result.dataValues;
+    } catch (e) {
+        return {error: e};
+    }
 }
 
 async function updateOwnerName(ownerName, newName) {
@@ -24,17 +30,17 @@ async function updateOwnerName(ownerName, newName) {
 }
 
 async function getOwnerWithName(ownerName) {
-    return await sequelize.models.owner.findOne({ where: { name: ownerName } }); 
+    return await sequelize.models.owner.findOne({ where: { name: ownerName } });
 }
 
 async function getOwnerDataWithName(ownerName) {
     const result = await sequelize.models.owner.findOne({ where: { name: ownerName } });
-    return result.dataValues; 
+    return result.dataValues;
 }
 
 async function getOwnerWithNameAddIfNotPresent(ownerName) {
 
-    let result = await getOwnerWithName(ownerName); 
+    let result = await getOwnerWithName(ownerName);
     if (!result)
         result = await sequelize.models.owner.create({ name: ownerName });
 
@@ -68,7 +74,7 @@ async function deleteOwnerWithName(ownerName) {
 }
 
 module.exports = {
-    addOwner,
+    addOwner: createOwner,
     getOwnerWithNameAddIfNotPresent,
     initService
 };

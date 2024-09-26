@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld('api', {
     addImageToArticle: (articleId, image) => ipcRenderer.invoke('article/addImage', articleId, image),
     addAnnotationToArticle: (articleId, annotation) => ipcRenderer.invoke('article/addAnnotation', articleId, annotation),
   },
+  owner: {
+    create: (owner) => ipcRenderer.invoke('owner/create', owner),
+  },
   comment: {
     updateText: (commentId, newText) => ipcRenderer.invoke('comment/updateText', commentId, newText),
   },
@@ -29,7 +32,6 @@ contextBridge.exposeInMainWorld('api', {
     create: (category) => ipcRenderer.invoke('category/create', category),
     getAll: () => ipcRenderer.invoke('category/getAll'),
   },
-  addOwner: (ownerName) => ipcRenderer.invoke('addOwner', ownerName),
   updateOwnerName: (ownerName, newName) => ipcRenderer.invoke('updateOwnerName', ownerName, newName),
   getOwnerWithName: (ownerName) => ipcRenderer.invoke('getOwnerWithName', ownerName),
   getOwnerWithNameLike: (nameLike) => ipcRenderer.invoke('getOwnerWithNameLike', nameLike),

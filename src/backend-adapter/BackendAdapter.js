@@ -6,13 +6,8 @@ export async function checkDbConnection() {
     return window.api.checkDbConnection();
 }
 
-export async function addOwner(ownerName) {
-    try {
-        return await window.api.addOwner(ownerName);
-    } catch(err) {
-        console.error(err);
-        throw new Error("Kişi eklenemedi!");
-    }    
+export async function createOwner(owner) {
+    return await window.api.owner.create(owner);
 }
 
 export async function updateOwnerName(ownerName, newName) {

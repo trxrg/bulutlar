@@ -4,9 +4,8 @@ import { addArticle, updateArticle, deleteArticle, getAllCategories } from '../.
 import OwnerList from './OwnerList.jsx';
 import TagList from './TagList.jsx';
 import RichText from './RichText.jsx';
-import CategoryList from './CategoryList.jsx';
 import { AppContext } from '../../store/app-context.jsx'
-import CustomSelect from './CustomeSelect.jsx';
+import CategoryList2 from './CategoryList.jsx';
 
 const AddArticle = () => {
 
@@ -106,8 +105,7 @@ const AddArticle = () => {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
-        <CategoryList showNewButton={true} onCategoryChange={setDispCategoryName}></CategoryList>
-        <CustomSelect></CustomSelect>
+        <CategoryList2 onCategoryChange={setDispCategoryName}></CategoryList2>
         <OwnerList ref={ownerRef} owners={allOwners} selectedOwner={dispOwnerName} onOwnerChange={setDispOwnerName}></OwnerList>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>

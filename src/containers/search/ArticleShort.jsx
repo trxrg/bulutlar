@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import parse from 'html-react-parser';
 import TagButton from '../crud/TagButton';
 import React from 'react';
@@ -7,12 +5,6 @@ import React from 'react';
 export default function ArticleShort({ article, handleClick }) {
     const numberOfTags = 3;
     const numberOfCharsForText = 50;
-
-    const [showCode, setShowCode] = useState(false);
-
-    const toggleShowCode = () => {
-        setShowCode(prev => !prev);
-    }
 
     const getFormattedDate = (datestr) => {
         const date = new Date(datestr);
@@ -49,11 +41,7 @@ export default function ArticleShort({ article, handleClick }) {
                     {article.tags.slice(0, numberOfTags).map(tag => <TagButton key={tag.name} isCloseable={false} label={tag.name}>{tag.name}</TagButton>)}
                     {article.tags.length > numberOfTags ? <h4 className='inline-block'>...</h4> : undefined}
                 </div>
-            </div>
-            <div>
-                <h2 className='hover:text-gray-500' onClick={(toggleShowCode)}>{showCode ? 'Hide' : 'Show'} Code</h2>
-                {showCode && <h2>{article.code}</h2>}
-            </div>
+            </div>            
         </div>
     );
 }

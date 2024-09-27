@@ -46,13 +46,13 @@ const AddCategory = ({ onClose }) => {
 
     return (
         <div>
-            {msg ? <span className="text-red-400">{msg}</span> : <span>Enter category name:</span> }
+            {msg ? <span className="text-red-400">{msg}</span> : <span>Enter category name and pick color:</span> }
             <div className='flex gap-2'>
                 <input
                     type="text"
                     value={name}
                     onChange={handleTextChange}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="shadow appearance-none border rounded flex-1 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <input
                     type="color"

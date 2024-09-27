@@ -3,7 +3,10 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             allowNull: false,
             type: DataTypes.STRING,
-            unique: true,
+            unique: {
+                args: true,
+                msg: "This owner is already added."
+            },
             validate: {
                 len: {
                     args: [1, 255],

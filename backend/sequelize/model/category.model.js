@@ -3,7 +3,10 @@ module.exports = (sequelize, DataTypes) => {
         name: {
             allowNull: false,
             type: DataTypes.STRING,
-            unique: true,
+            unique: {
+                args: true,
+                msg: "This category is already added."
+            },
             validate: {
                 len: {
                     args: [1, 255],
@@ -15,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
                 is: {
                     args: [/^(?=.*[a-zA-Z0-9]).+$/], // Requires at least one alphanumeric character
                     msg: "Category name must contain at least one alphanumeric character."
-                },                
+                },
             }
         },
         color: { type: DataTypes.STRING }

@@ -42,7 +42,7 @@ const MainScreen = () => {
                     </div>
                 </div>
             </div>
-            <div className='flex flex-1 overflow-auto mx-5 justify-center'>
+            <div className='flex flex-1 overflow-auto px-5 justify-center'>
                 {activeScreen === 'tabs' ?
                     <TabsScreen/>
                     : undefined}

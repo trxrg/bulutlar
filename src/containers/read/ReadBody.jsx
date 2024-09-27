@@ -1,6 +1,6 @@
 import React, { useRef, useState, useContext, useEffect } from "react";
 
-import { updateArticleMainText, updateArticleExplanation, updateCommentText, addImageToArticle, getImageData } from '../../backend-adapter/BackendAdapter.js';
+import { updateArticleMainText, updateArticleExplanation, updateCommentText, addImageToArticle, getImageDataById } from '../../backend-adapter/BackendAdapter.js';
 import RichEditor from "./RichEditor";
 import { ReadContext } from "../../store/read-context";
 import ImageModal from "./ImageModal.jsx";
@@ -24,7 +24,7 @@ const ReadBody = () => {
     const fetchImageDatas = async () => {
         console.log('fetchImageDatas called');
         try {
-            const datas = await Promise.all(article.images.map(async image => ({ ...image, data: await getImageData(image.id) })));
+            const datas = await Promise.all(article.images.map(async image => ({ ...image, data: await getImageDataById(image.id) })));
             setImageDatas(datas);
             setImageDatasLoaded(true);
         } catch (err) {

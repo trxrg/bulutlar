@@ -5,7 +5,8 @@ const { sequelize } = require("../sequelize");
 
 function initService() {
     ipcMain.handle('image/deleteImage', (event, imageId) => deleteImage(imageId));
-    ipcMain.handle('image/getImageData', (event, image) => getImageData(image));
+    ipcMain.handle('image/getImageDataById', (event, imageId) => getImageDataById(imageId));
+    ipcMain.handle('image/getImageDataByPath', (event, path) => getImageDataByPath(path));
 }
 
 async function createImage(image) {
@@ -33,7 +34,7 @@ async function createImage(image) {
     }
 }
 
-async function getImageData(imageId) {
+async function getImageDataById(imageId) {
     try {
         const image = await sequelize.models.image.findByPk(imageId);
 
@@ -45,6 +46,16 @@ async function getImageData(imageId) {
         return `data:${image.type};base64,${fileData}`;
     } catch (err) {
         console.error('Error in getImageData', err);
+    }    
+}
+
+async function getImageDataByPath(image) {
+    try {
+        const fileData = await fs.readFile(image.path, 'base64');
+
+        return `data:${image.type};base64,${fileData}`;
+    } catch (err) {
+        console.error('Error in getImageDataByPath', err);
     }    
 }
 

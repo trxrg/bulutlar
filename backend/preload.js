@@ -21,7 +21,8 @@ contextBridge.exposeInMainWorld('api', {
     updateText: (commentId, newText) => ipcRenderer.invoke('comment/updateText', commentId, newText),
   },
   image: {
-    getImageData: (imageId) => ipcRenderer.invoke('image/getImageData', imageId),
+    getImageDataById: (imageId) => ipcRenderer.invoke('image/getImageDataById', imageId),
+    getImageDataByPath: (image) => ipcRenderer.invoke('image/getImageDataByPath', image),
     deleteImage: (imageId) => ipcRenderer.invoke('image/deleteImage', imageId),
   },
   annotation: {

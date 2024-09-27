@@ -1,49 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import ImageInput from './ImageInput';
+import ActionButton from '../../components/ActionButton';
+import { getImageDataByPath } from '../../backend-adapter/BackendAdapter.js';
 
 const ImageUpload = () => {
-  const [images, setImages] = useState([]);
 
-  const handleImageChange = (event) => {
-    const files = Array.from(event.target.files);
-    const newImages = files.map((file) => ({
-      id: URL.createObjectURL(file),
-      file: file,
-    }));
-    setImages((prevImages) => [...prevImages, ...newImages]);
-  };
+    const imageInputRef = useRef();
+    const [images, setImages] = useState([]);
+    const [imageDatas, setImageDatas] = useState([]);    
 
-  const handleDeleteImage = (id) => {
-    setImages((prevImages) => prevImages.filter((image) => image.id !== id));
-  };
+    const handleButtonClick = (e) => {
+        e.preventDefault();
+        imageInputRef.current.addImage();
+    }
 
-  return (
-    <div className="max-w-md mx-auto p-4">
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        multiple
-        className="mb-4"
-      />
-      <div className="grid grid-cols-3 gap-4">
-        {images.map((image) => (
-          <div key={image.id} className="relative">
-            <img
-              src={image.id}
-              alt="Thumbnail"
-              className="w-full h-auto object-cover rounded"
-            />
-            <button
-              onClick={() => handleDeleteImage(image.id)}
-              className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
-            >
-              &times;
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+    const handleSelectImages = (newImages) => {
+        setImages((prevImages) => {
+            return [
+                ...prevImages,
+                ...newImages.filter(newImage =>
+                    !prevImages.some(existingImage => existingImage.path === newImage.path))
+            ];
+        })
+    };
+
+    const handleDeleteImage = (e, path) => {
+        e.preventDefault();
+        setImages((prevImages) => prevImages.filter((image) => image.path !== path));
+    };
+
+    useEffect(() => {
+        const fetchImageDatas = async () => {
+            console.log('fetchImageDatas called');
+            try {
+                const datas = await Promise.all(images.map(async image => ({ ...image, data: await getImageDataByPath(image) })));
+                setImageDatas(datas);
+            } catch (err) {
+                console.error('error in fetchImageDatas', err);
+            }
+        }
+        fetchImageDatas();
+    }, [images]);
+
+    return (
+        <div className='mb-4'>
+            <ActionButton color={'blue'} onClick={handleButtonClick}>Add Image</ActionButton>
+            <ImageInput onSelectImages={handleSelectImages} ref={imageInputRef}></ImageInput>
+            <div className="grid grid-cols-3 gap-4">
+                {imageDatas.map((imageData) => (
+                    <div key={imageData.path} className="relative">
+                        <img
+                            src={imageData.data}
+                            alt="Thumbnail"
+                            className="w-full h-auto object-cover rounded"
+                        />
+                        <button
+                            onClick={(e) => handleDeleteImage(e, imageData.path)}
+                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                        >
+                            &times;
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 };
 
 export default ImageUpload;

@@ -66,8 +66,12 @@ export async function addImageToArticle(articleId, newExplanation) {
     return window.api.article.addImageToArticle(articleId, newExplanation);
 }
 
-export async function getImageData(imageId) {
-    return window.api.image.getImageData(imageId);
+export async function getImageDataById(imageId) {
+    return window.api.image.getImageDataById(imageId);
+}
+
+export async function getImageDataByPath(image) {
+    return window.api.image.getImageDataByPath(image);
 }
 
 export async function deleteImage(imageId) {

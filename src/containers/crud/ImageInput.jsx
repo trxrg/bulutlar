@@ -15,11 +15,10 @@ const ImageInput = React.forwardRef(({ onSelectImages }, ref) => {
             type: file.type, 
             size: file.size
         }));
-
-        console.log('images in imageinput')
-        console.log(images)
         
         onSelectImages(images);
+
+        fileInputRef.current.value = null;
     }
 
     React.useImperativeHandle(ref, () => ({

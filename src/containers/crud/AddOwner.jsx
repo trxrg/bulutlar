@@ -22,7 +22,7 @@ const AddOwner = ({ onClose }) => {
         if (result.error) {
             console.log('createOwner returned an error');
             console.log(result);
-            setMsg('Owner names must be unique');
+            setMsg(result.error.message || 'validation error');
             return;
         }
         getAllOwnersFromBE();

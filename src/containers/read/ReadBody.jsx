@@ -4,6 +4,7 @@ import { updateArticleMainText, updateArticleExplanation, updateCommentText, add
 import RichEditor from "./RichEditor";
 import { ReadContext } from "../../store/read-context";
 import ImageModal from "./ImageModal.jsx";
+import ImageInput from "../crud/ImageInput.jsx";
 
 const ReadBody = () => {
 
@@ -15,7 +16,7 @@ const ReadBody = () => {
     const [selectedImage, setSelectedImage] = useState();
     const [imageModalIsOpen, setImageModalIsOpen] = useState(false);
 
-    const fileInputRef = useRef(null);
+    const imageInputRef = useRef(null);
     const mainTextEditorRef = useRef();
     const explanationEditorRef = useRef();
     const commentEditorRef = useRef();
@@ -75,22 +76,17 @@ const ReadBody = () => {
         addImage,
     }));
 
-    // Handle file selection
-    const handleFileChange = async (event) => {
-        console.log('in handlefilechange');
-        const file = event.target.files[0];
-        if (file) {
-
-            console.log('file:');
-            console.log(file);
-
-            await addImageToArticle(article.id, { name: file.name, path: file.path, type: file.type, size: file.size });
-            syncArticleFromBE();
-        }
+    const handleImageSelect = async (images) => {
+        console.log('images')
+        console.log(images)
+        const promises = [];
+        images.forEach((image) => promises.push(addImageToArticle(article.id, image)));
+        await Promise.all(promises);
+        syncArticleFromBE();
     };
 
     const addImage = () => {
-        fileInputRef.current.click();
+        imageInputRef.current.addImage();
     };
 
     useEffect(() => {
@@ -114,13 +110,6 @@ const ReadBody = () => {
             <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
                 <RichEditor name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
             </div>
-            <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-            />
             {imageDatasLoaded && imageDatas.map(image =>
                 <div key={image.id} className="mt-4" onClick={() => openImageModal(image)}>
                     <img
@@ -143,6 +132,8 @@ const ReadBody = () => {
                     onClose={closeImageModal}
                     image={selectedImage}
                 />}
+
+            <ImageInput onSelectImages={handleImageSelect} ref={imageInputRef}></ImageInput>
         </div>
     );
 };

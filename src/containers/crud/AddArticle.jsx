@@ -7,6 +7,7 @@ import RichText from './RichText.jsx';
 import { AppContext } from '../../store/app-context.jsx'
 import CategoryList2 from './CategoryList.jsx';
 import OwnerList2 from './OwnerList2.jsx';
+import ImageUpload from './ImageUpdload.jsx';
 
 const AddArticle = () => {
 
@@ -130,6 +131,10 @@ const AddArticle = () => {
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="comment">Comment:</label>
           <RichText ref={commentRef} onTextChange={setDispCommentText} text={dispCommentText}></RichText>
+        </div>
+        <div>
+        <label className="block text-gray-700 font-bold mb-2">Images:</label>
+          <ImageUpload></ImageUpload>
         </div>
         <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
         <div className='flex justify-between'>

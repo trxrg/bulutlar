@@ -32,7 +32,7 @@ const AddCategory = ({ onClose }) => {
         if (result.error) {
             console.log('createCategory returned an error');
             console.log(result);
-            setMsg('Category names must be unique');
+            setMsg(result.error.message || 'validation error');
             return;
         }
         getAllCategoriesFromBE();

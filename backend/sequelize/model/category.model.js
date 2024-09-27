@@ -5,7 +5,17 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             unique: true,
             validate: {
-                is: /^\w{2,}$/
+                len: {
+                    args: [1, 255],
+                    msg: "Category name must be at least 1 character long.",
+                },
+                notEmpty: {
+                    msg: "Category name cannot be empty."
+                },
+                is: {
+                    args: [/^(?=.*[a-zA-Z0-9]).+$/], // Requires at least one alphanumeric character
+                    msg: "Category name must contain at least one alphanumeric character."
+                },                
             }
         },
         color: { type: DataTypes.STRING }

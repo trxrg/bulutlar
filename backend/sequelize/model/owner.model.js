@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
                 },
                 is: {
                     args: [/^(?=.*[a-zA-Z0-9]).+$/], // Requires at least one alphanumeric character
-                    msg: "Content must contain at least one alphanumeric character."
+                    msg: "Owner name must contain at least one alphanumeric character."
                 },
                 // isValidContent(value) {
                 //     // Check if the content consists only of whitespace or non-alphanumeric characters

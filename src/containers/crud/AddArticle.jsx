@@ -22,6 +22,7 @@ const AddArticle = () => {
   const [dispCategoryName, setDispCategoryName] = useState(editedArticle ? editedArticle.category.name : '');
   const [dispTags, setDispTags] = useState(editedArticle ? editedArticle.tags : []);
   const [allCategories, setAllCategories] = useState([]);
+  const [images, setImages] = useState([]);
 
   const explanationRef = useRef();
   const mainTextRef = useRef();
@@ -75,7 +76,8 @@ const AddArticle = () => {
           owner: { name: dispOwnerName },
           category: { name: dispCategoryName },
           comments: [{ text: dispCommentText }],
-          tags: dispTags
+          tags: dispTags,
+          images: images
         });
         console.log('article added:');
         console.log(result);
@@ -134,7 +136,7 @@ const AddArticle = () => {
         </div>
         <div>
         <label className="block text-gray-700 font-bold mb-2">Images:</label>
-          <ImageUpload></ImageUpload>
+          <ImageUpload images={images} setImages={setImages}></ImageUpload>
         </div>
         <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
         <div className='flex justify-between'>

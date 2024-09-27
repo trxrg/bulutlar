@@ -3,10 +3,9 @@ import ImageInput from './ImageInput';
 import ActionButton from '../../components/ActionButton';
 import { getImageDataByPath } from '../../backend-adapter/BackendAdapter.js';
 
-const ImageUpload = () => {
+const ImageUpload = ({ images, setImages}) => {
 
     const imageInputRef = useRef();
-    const [images, setImages] = useState([]);
     const [imageDatas, setImageDatas] = useState([]);    
 
     const handleButtonClick = (e) => {
@@ -15,6 +14,7 @@ const ImageUpload = () => {
     }
 
     const handleSelectImages = (newImages) => {
+        console.log('in handleSelectImages');
         setImages((prevImages) => {
             return [
                 ...prevImages,

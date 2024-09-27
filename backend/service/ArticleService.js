@@ -21,7 +21,7 @@ function initService() {
     ipcMain.handle('getAllArticles', (event) => getAllArticles());
 }
 
-async function addArticle(article) {
+async function addArticle(article) { // TODO must be transactional
 
     console.log('adding article with title: ' + article.title);
 
@@ -44,6 +44,11 @@ async function addArticle(article) {
     if (article.comments)
         for (const comment of article.comments)
             await entity.addComment(await commentService.addComment(comment.text));
+
+    if (article.images)
+        for (const image of article.images)
+            await entity.addImage(await imageService.createImage(image));
+            
 
     return await getArticleWithId(entity.dataValues.id);
 }

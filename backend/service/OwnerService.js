@@ -16,7 +16,7 @@ function initService() {
 
 async function createOwner(owner) {
     try {
-        const result = await sequelize.models.owner.create({ name: owner.name });
+        const result = await sequelize.models.owner.create({ name: owner.name.trim() });
         return result.dataValues;
     } catch (e) {
         return {error: e};

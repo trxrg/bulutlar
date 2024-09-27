@@ -17,7 +17,7 @@ function initService() {
 
 async function createCategory(category) {
     try {
-        const result = await sequelize.models.category.create({ name: category.name, color: category.color });
+        const result = await sequelize.models.category.create({ name: category.name.trim(), color: category.color });
         return result.dataValues;
     } catch (e) {
         return {error: e};

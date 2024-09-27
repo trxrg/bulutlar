@@ -42,7 +42,7 @@ const TabsScreen = () => {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full w-full flex flex-col">
       {/* Top-aligned tabs */}
       <div className="flex-shrink-0 flex overflow-auto relative">
         {tabs.map(tab => (

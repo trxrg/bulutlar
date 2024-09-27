@@ -93,7 +93,7 @@ const AddArticle = () => {
   }
 
   return (
-    <div>
+    <div className='max-w-5xl w-full'>
       <form onSubmit={handleSubmit} className="mx-auto p-6 bg-stone-50 shadow-md">
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="title">Title:</label>

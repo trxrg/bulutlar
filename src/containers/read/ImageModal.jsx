@@ -61,7 +61,7 @@ const ImageModal = ({ isOpen, onClose, image }) => {
             overlayClassName="fixed inset-0 bg-black bg-opacity-75"
         >
             {/* Modal Content */}
-            <div className="relative bg-white rounded-lg shadow-lg max-w-[80vh] max-h-[80vh] overflow-auto">
+            <div className="relative bg-white rounded-lg shadow-lg max-w-[80%] max-h-[80%] overflow-auto">
                 {/* Image Container */}
                 <div className="relative w-full h-full overflow-auto">
                     {image && <img

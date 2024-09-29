@@ -212,7 +212,7 @@ function articleEntity2Json(entity) {
     if (entity.dataValues.owner)
         entity.dataValues.owner = entity2Json(entity.dataValues.owner);
     if (entity.dataValues.category)
-        entity.dataValues.category = entity2Json(entity.dataValues.category);
+        entity.dataValues.category = category2Json(entity.dataValues.category);
     if (entity.dataValues.tags)
         entity.dataValues.tags = entity.dataValues.tags.map(tag => entity2Json(tag));
     if (entity.dataValues.images)
@@ -230,6 +230,14 @@ function entity2Json(entity) {
     return {
         id: entity.dataValues.id,
         name: entity.dataValues.name
+    };
+}
+
+function category2Json(entity) {
+    return {
+        id: entity.dataValues.id,
+        name: entity.dataValues.name,
+        color: entity.dataValues.color
     };
 }
 

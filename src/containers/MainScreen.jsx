@@ -14,7 +14,7 @@ const MainScreen = () => {
     return (
         <div className="h-screen flex flex-col mx-auto bg-stone-200">
             <div className='flex-shrink-0 flex justify-between items-center p-4 border-b-4 border-red-300'>
-                <h1 className='text-5xl text-gray-600'>HAZİNE</h1>
+                <h1 className='text-5xl text-gray-600'>BULUTLAR</h1>
                 <div className="flex justify-end items-center">
                     <div className='h-2/3'>
                         {activeScreen === 'tabs' ?

@@ -163,7 +163,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     return (
         <div className="mx-auto">
-            <div onClick={handleEditorClick} className={(editable ? '' : 'caret-transparent ') + 'relative'}>
+            <div onClick={handleEditorClick} className={(editable ? 'border-2 border-stone-300 bg-white ' : 'caret-transparent ') + 'relative'}>
                 {showContextMenu && (
                     <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                         <button onClick={handleRemoveLink} className='hover:bg-red-300'>Remove Link</button>

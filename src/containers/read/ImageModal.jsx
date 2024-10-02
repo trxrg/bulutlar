@@ -13,22 +13,22 @@ const ImageModal = ({ isOpen, onClose, image }) => {
     const { syncArticleFromBE } = useContext(ReadContext);
 
     const [scale, setScale] = useState(1);
-    const [initialScale, setInitialScale] = useState(1);
+    // const [initialScale, setInitialScale] = useState(1);
     const imageRef = useRef();
 
-    // useEffect(() => {
-    //     if (isOpen) {
-    //         setScale(1);
-    //         setInitialScale(1);
-    //     }
-    // }, [isOpen]);
+    useEffect(() => {
+        if (isOpen) {
+            setScale(1);
+            // setInitialScale(1);
+        }
+    }, [isOpen]);
 
     // useEffect(() => {
     //     console.log('in useEffect');
     //     if (imageRef.current) {
     //         // Get the dimensions of the image and modal container
     //         const img = imageRef.current;
-    //         const modal = img.parentElement;
+    //         const modal = img.parentElement.parentElement;
 
     //         // Calculate the scale to fit the image within the modal
     //         const imgWidth = img.naturalWidth;
@@ -63,10 +63,10 @@ const ImageModal = ({ isOpen, onClose, image }) => {
     //         setInitialScale(newScale);
     //         setScale(newScale);
     //     }
-    // }, [imageRef]);
+    // }, [imageRef, isOpen]);
 
     const zoomIn = () => setScale(prevScale => Math.min(prevScale * 1.2, 10)); // Cap zoom scale
-    const zoomOut = () => setScale(prevScale => Math.max(prevScale / 1.2, initialScale)); // Cap zoom scale
+    const zoomOut = () => setScale(prevScale => Math.max(prevScale / 1.2, 0.1)); // Cap zoom scale
 
     const handleDeleteImage = async () => {
         await deleteImage(image.id);
@@ -82,9 +82,9 @@ const ImageModal = ({ isOpen, onClose, image }) => {
             overlayClassName="fixed inset-0 bg-black bg-opacity-75"
         >
             {/* Modal Content */}
-            <div className="relative bg-white rounded-lg shadow-lg">
+            <div className="relative rounded-lg shadow-lg">
                 {/* Image Container */}
-                <div className="relative w-full h-full max-w-[80vw] max-h-[80vh] overflow-auto">
+                <div className="max-w-[80vw] max-h-[80vh] overflow-auto">
                     {image && <img
                         src={image.data}
                         alt="Zoomable"
@@ -93,13 +93,14 @@ const ImageModal = ({ isOpen, onClose, image }) => {
                             transform: `scale(${scale})`,
                             transformOrigin: 'left top',
                             transition: 'transform 0.3s',
-                            maxWidth: '100%',
-                            maxHeight: '100%',
+                            maxWidth: '80vw',
+                            maxHeight: '80vh',
                             display: 'block',
+                            objectFit: 'contain'
                         }}
-                        className='object-contain'
                     />}
                 </div>
+
 
                 {/* Buttons */}
                 <div className="fixed top-4 right-4 z-30 flex flex-col h-[80vh] justify-between items-center">

@@ -14,35 +14,56 @@ const ImageModal = ({ isOpen, onClose, image }) => {
 
     const [scale, setScale] = useState(1);
     const [initialScale, setInitialScale] = useState(1);
-    const imageRef = useRef(null);
+    const imageRef = useRef();
 
-    useEffect(() => {
-        if (isOpen) {
-            setScale(1);
-            setInitialScale(1);
-        }
-    }, [isOpen]);
+    // useEffect(() => {
+    //     if (isOpen) {
+    //         setScale(1);
+    //         setInitialScale(1);
+    //     }
+    // }, [isOpen]);
 
-    useEffect(() => {
-        if (imageRef.current) {
-            // Get the dimensions of the image and modal container
-            const img = imageRef.current;
-            const modal = img.parentElement;
+    // useEffect(() => {
+    //     console.log('in useEffect');
+    //     if (imageRef.current) {
+    //         // Get the dimensions of the image and modal container
+    //         const img = imageRef.current;
+    //         const modal = img.parentElement;
 
-            // Calculate the scale to fit the image within the modal
-            const imgWidth = img.naturalWidth;
-            const imgHeight = img.naturalHeight;
-            const modalWidth = modal.clientWidth;
-            const modalHeight = modal.clientHeight;
+    //         // Calculate the scale to fit the image within the modal
+    //         const imgWidth = img.naturalWidth;
+    //         const imgHeight = img.naturalHeight;
+    //         const modalWidth = modal.clientWidth;
+    //         const modalHeight = modal.clientHeight;
 
-            const widthScale = modalWidth / imgWidth;
-            const heightScale = modalHeight / imgHeight;
-            const newScale = Math.min(widthScale, heightScale);
+    //         const widthScale = modalWidth / imgWidth;
+    //         const heightScale = modalHeight / imgHeight;
+    //         const newScale = Math.min(widthScale, heightScale);
 
-            setInitialScale(newScale);
-            setScale(newScale);
-        }
-    }, [image, isOpen]);
+    //         console.log('modalHeight')
+    //         console.log(modalHeight)
+
+    //         console.log('modalWidth')
+    //         console.log(modalWidth)
+
+    //         console.log('imgWidth')
+    //         console.log(imgWidth)
+
+    //         console.log('imgHeight')
+    //         console.log(imgHeight)
+            
+    //         console.log('widthScale')
+    //         console.log(widthScale)
+
+    //         console.log('heightScale')
+    //         console.log(heightScale)
+
+
+
+    //         setInitialScale(newScale);
+    //         setScale(newScale);
+    //     }
+    // }, [imageRef]);
 
     const zoomIn = () => setScale(prevScale => Math.min(prevScale * 1.2, 10)); // Cap zoom scale
     const zoomOut = () => setScale(prevScale => Math.max(prevScale / 1.2, initialScale)); // Cap zoom scale
@@ -61,9 +82,9 @@ const ImageModal = ({ isOpen, onClose, image }) => {
             overlayClassName="fixed inset-0 bg-black bg-opacity-75"
         >
             {/* Modal Content */}
-            <div className="relative bg-white rounded-lg shadow-lg max-w-[80%] max-h-[80%] overflow-auto">
+            <div className="relative bg-white rounded-lg shadow-lg">
                 {/* Image Container */}
-                <div className="relative w-full h-full overflow-auto">
+                <div className="relative w-full h-full max-w-[80vw] max-h-[80vh] overflow-auto">
                     {image && <img
                         src={image.data}
                         alt="Zoomable"

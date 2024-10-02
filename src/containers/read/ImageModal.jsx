@@ -4,6 +4,7 @@ import { MagnifyingGlassPlusIcon, MagnifyingGlassMinusIcon, XMarkIcon } from '@h
 import ActionButton from '../../components/ActionButton';
 import { deleteImage } from '../../backend-adapter/BackendAdapter.js';
 import { ReadContext } from "../../store/read-context";
+import RoundButton from '../../components/RoundButton.jsx';
 
 Modal.setAppElement('#root');
 
@@ -22,9 +23,9 @@ const ImageModal = ({ isOpen, onClose, image }) => {
     const zoomOut = () => setScale(prevScale => Math.max(prevScale / 1.2, 1));
 
     const handleDeleteImage = async () => {
+        onClose();
         await deleteImage(image.id);
         syncArticleFromBE();
-        onClose();
     }
 
     return (
@@ -32,7 +33,8 @@ const ImageModal = ({ isOpen, onClose, image }) => {
             isOpen={isOpen}
             onRequestClose={onClose}
             className="fixed inset-0 flex items-center justify-center p-4"
-            overlayClassName="fixed inset-0 bg-black bg-opacity-75"
+            overlayClassName="fixed top-0 left-0 z-50 w-full h-full bg-black bg-opacity-75"
+            shouldCloseOnOverlayClick={true}
         >
             <div className="relative rounded-lg shadow-lg">
                 <div className="max-w-[80vw] max-h-[80vh] overflow-auto">
@@ -53,24 +55,15 @@ const ImageModal = ({ isOpen, onClose, image }) => {
 
                 <div className="fixed top-4 right-4 z-30 flex flex-col h-[80vh] justify-between items-center">
                     <div className='space-y-2'>
-                        <button
-                            onClick={zoomIn}
-                            className="bg-blue-600 text-white p-3 rounded-full shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 flex items-center justify-center"
-                        >
+                        <RoundButton onClick={zoomIn} color='blue'>
                             <MagnifyingGlassPlusIcon className="h-6 w-6" />
-                        </button>
-                        <button
-                            onClick={zoomOut}
-                            className="bg-blue-600 text-white p-3 rounded-full shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-300 flex items-center justify-center"
-                        >
+                        </RoundButton>
+                        <RoundButton onClick={zoomOut} color='blue'>
                             <MagnifyingGlassMinusIcon className="h-6 w-6" />
-                        </button>
-                        <button
-                            onClick={onClose}
-                            className="bg-red-600 text-white p-3 rounded-full shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 transition-all duration-300 flex items-center justify-center"
-                        >
+                        </RoundButton>
+                        <RoundButton onClick={onClose} color='red'>
                             <XMarkIcon className="h-6 w-6" />
-                        </button>
+                        </RoundButton>
                     </div>
                     <div>
                         <ActionButton onClick={handleDeleteImage} color='red'>Delete Image</ActionButton>

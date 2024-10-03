@@ -111,7 +111,7 @@ const ReadBody = () => {
                 <RichEditor name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
             </div>
             {imageDatasLoaded && imageDatas.map(image =>
-                <div key={image.id} className="mt-4" onClick={() => openImageModal(image)}>
+                <div key={image.id} className="mt-4 flex justify-center" onClick={() => openImageModal(image)}>
                     <img
                         src={image.data}
                         alt={image.description ? image.description : "image"}

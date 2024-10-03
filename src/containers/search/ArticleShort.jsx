@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function ArticleShort({ article, handleClick }) {
     const numberOfTags = 3;
-    const numberOfCharsForText = 50;
+    const numberOfCharsForText = 150;
 
     const getFormattedDate = (datestr) => {
         const date = new Date(datestr);

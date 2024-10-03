@@ -102,11 +102,19 @@ const ReadBody = () => {
         setImageModalIsOpen(false);
     }
 
+    const isHtmlStringEmpty = (htmlString) => {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlString;
+
+        // Check if the text content is empty
+        return !tempDiv.textContent.trim();
+    }
+
     return (
         <div className={`overflow-auto h-full px-6 pb-6 leading-normal ${fontSize}`}>
-            <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border border-gray-300 rounded-lg shadow-lg p-4'>
+            {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border border-gray-300 rounded-lg shadow-lg p-4'>
                 <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
-            </div>
+            </div>}
             <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
                 <RichEditor name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
             </div>
@@ -119,12 +127,15 @@ const ReadBody = () => {
                     />
                 </div>
             )}
-            <div>
-                <h3 onClick={() => setActiveEditorRef()} className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">Comment</h3>
-            </div>
-            <div onClick={() => setActiveEditorRef(commentEditorRef)} >
-                <RichEditor name={'comment'} htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
-            </div>
+            {(!isHtmlStringEmpty(article.comments[0].text) || editable) &&
+                <div>
+                    <div>
+                        <h3 onClick={() => setActiveEditorRef()} className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">Comment</h3>
+                    </div>
+                    <div onClick={() => setActiveEditorRef(commentEditorRef)} >
+                        <RichEditor name={'comment'} htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
+                    </div>
+                </div>}
 
             {imageDatasLoaded &&
                 <ImageModal

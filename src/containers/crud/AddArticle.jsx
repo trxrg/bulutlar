@@ -64,9 +64,12 @@ const AddArticle = () => {
           comments: [{ text: dispCommentText }],
           tags: dispTags
         });
-        console.log('article updated:');
-        console.log(result);
-        // article = result;
+        if (result.error) {
+          console.error(result.error);
+        } else {
+          console.log('article updated:');
+          console.log(result);
+        }
       } else {
         result = await addArticle({
           title: dispTitle,
@@ -79,8 +82,12 @@ const AddArticle = () => {
           tags: dispTags,
           images: images
         });
-        console.log('article added:');
-        console.log(result);
+        if (result.error) {
+          console.error(result.error);
+        } else {
+          console.log('article added:');
+          console.log(result);
+        }
       }
 
       afterSubmitArticle(result.id);
@@ -135,7 +142,7 @@ const AddArticle = () => {
           <RichText ref={commentRef} onTextChange={setDispCommentText} text={dispCommentText}></RichText>
         </div>
         <div>
-        <label className="block text-gray-700 font-bold mb-2">Images:</label>
+          <label className="block text-gray-700 font-bold mb-2">Images:</label>
           <ImageUpload images={images} setImages={setImages}></ImageUpload>
         </div>
         <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>

@@ -43,7 +43,7 @@ const customStyles = {
     }),
 };
 
-const CategoryList2 = ({ onCategoryChange }) => {
+const CategoryList = ({ onCategoryChange }) => {
 
     const { allCategories } = useContext(AppContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -87,4 +87,4 @@ const CategoryList2 = ({ onCategoryChange }) => {
     );
 };
 
-export default CategoryList2;
+export default CategoryList;

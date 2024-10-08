@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { getAllArticles, getAllTags, getAllOwners, getAllCategories, getArticleWithId } from '../backend-adapter/BackendAdapter';
+import { getAllArticles, getAllTags, getAllOwners, getAllCategories, getArticleWithId, getCategoryById } from '../backend-adapter/BackendAdapter';
 
 export const AppContext = createContext(
 
@@ -29,6 +29,20 @@ export default function AppContextProvider({ children }) {
 
             const updatedArticles = allArticles.map(article => article.id === id ? updatedArticle : article);
             setAllArticles(updatedArticles);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    const syncCategoryWithIdFromBE = async (id) => {
+        try {
+            const updatedCategory = await getCategoryById(id);
+
+            console.log('updated category')
+            console.log(updatedCategory)
+
+            const updatedCategories = allCategories.map(category => category.id === id ? updatedCategory : category);
+            setAllCategories(updatedCategories);
         } catch (err) {
             console.error(err);
         }
@@ -165,6 +179,7 @@ export default function AppContextProvider({ children }) {
         allCategories,
         editedArticle,
         activeScreen,
+        setActiveScreen,
         syncWithDB: getDataFromBE,
         handleAddArticle,
         handleAddTab,
@@ -174,7 +189,8 @@ export default function AppContextProvider({ children }) {
         getAllCategoriesFromBE,
         syncArticleWithIdFromBE,
         afterDeleteArticle,
-        afterSubmitArticle
+        afterSubmitArticle,
+        syncCategoryWithIdFromBE
     }; // TODO fill this
 
     return <AppContext.Provider value={ctxValue}>

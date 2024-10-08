@@ -38,6 +38,22 @@ export async function createCategory(category) {
     return window.api.category.create(category);
 }
 
+export async function updateCategoryName(categoryId, newName) {
+    return window.api.category.updateName(categoryId, newName);
+}
+
+export async function updateCategoryColor(categoryId, newColor) {
+    return window.api.category.updateColor(categoryId, newColor);
+}
+
+export async function getCategoryById(categoryId) {
+    return window.api.category.getById(categoryId);
+}
+
+export async function deleteCategory(categoryId) {
+    return window.api.category.deleteCategory(categoryId);
+}
+
 export async function deleteOwnerWithName(ownerName) {
     return window.api.deleteOwnerWithName(ownerName);
 }

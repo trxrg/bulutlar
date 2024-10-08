@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { format } from 'date-fns';
 import { addArticle, updateArticle, deleteArticle, getAllCategories } from '../../backend-adapter/BackendAdapter.js';
-import OwnerList from './OwnerList.jsx';
 import TagList from './TagList.jsx';
 import RichText from './RichText.jsx';
 import { AppContext } from '../../store/app-context.jsx'
-import CategoryList2 from './CategoryList.jsx';
-import OwnerList2 from './OwnerList2.jsx';
+import CategoryList from './CategoryList.jsx';
+import OwnerList from './OwnerList.jsx';
 import ImageUpload from './ImageUpdload.jsx';
 
 const AddArticle = () => {
@@ -116,8 +115,8 @@ const AddArticle = () => {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
-        <CategoryList2 onCategoryChange={setDispCategoryName}></CategoryList2>
-        <OwnerList2 onOwnerChange={setDispOwnerName}></OwnerList2>
+        <CategoryList onCategoryChange={setDispCategoryName}></CategoryList>
+        <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>
           <input

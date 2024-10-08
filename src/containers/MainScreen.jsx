@@ -2,10 +2,12 @@ import React, { useContext } from 'react';
 import TabsScreen from './TabsScreen';
 import AddArticle from './crud/AddArticle';
 import { AppContext } from '../store/app-context.jsx'
+import ActionButton from '../components/ActionButton.jsx';
+import CategoryScreen from './crud/CategoryScreen.jsx';
 
 const MainScreen = () => {
 
-    const { handleAddArticle, handleCancel, activeScreen } = useContext(AppContext);
+    const { handleAddArticle, handleCancel, activeScreen, setActiveScreen } = useContext(AppContext);
 
     const handleRandom = () => {
         console.log('random clicked');
@@ -18,20 +20,11 @@ const MainScreen = () => {
                 <div className="flex justify-end items-center">
                     <div className='h-2/3'>
                         {activeScreen === 'tabs' ?
-                            <>
-                                <button
-                                    className="button text-white py-2 px-4 mx-2 rounded-md hover:bg-green-700 focus:outline-none"
-                                    onClick={handleRandom}
-                                >
-                                    Random
-                                </button>
-                                <button
-                                    className="button text-white py-2 px-4 mx-2 rounded-md hover:bg-blue-700 focus:outline-none"
-                                    onClick={handleAddArticle}
-                                >
-                                    Add Article
-                                </button>
-                            </>
+                            <div className='flex gap-2'>
+                                <ActionButton color='blue' onClick={() => setActiveScreen('categories')}>Categories</ActionButton>   
+                                <ActionButton color='blue' onClick={handleRandom}>Random</ActionButton>
+                                <ActionButton color='blue' onClick={handleAddArticle}>Add Article</ActionButton>                                
+                            </div>
                             :
                             <button
                                 className="bg-red-500 text-white py-2 px-4 mx-2 rounded-md hover:bg-red-600 focus:outline-none"
@@ -44,10 +37,13 @@ const MainScreen = () => {
             </div>
             <div className='flex flex-1 overflow-auto px-5 justify-center'>
                 {activeScreen === 'tabs' ?
-                    <TabsScreen/>
+                    <TabsScreen />
                     : undefined}
                 {activeScreen === 'addArticle' ?
-                    <AddArticle/>
+                    <AddArticle />
+                    : undefined}
+                {activeScreen === 'categories' ?
+                    <CategoryScreen />
                     : undefined}
             </div>
         </div>

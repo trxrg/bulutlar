@@ -37,6 +37,8 @@ const AddCategory = ({ onClose }) => {
         }
         getAllCategoriesFromBE();
         onClose();
+        setName('');
+        setColor(generateRandomColor());
     }
 
     const handleTextChange = (e) => {

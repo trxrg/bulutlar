@@ -1,79 +1,86 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from 'react';
+import Select, { components } from 'react-select';
+import { AppContext } from '../../store/app-context';
+import ActionButton from '../../components/ActionButton';
+import GeneralModal from "../../components/GeneralModal";
+import AddOwner from './AddOwner';
 
-const customInputLabel = 'new';
-const OwnerList = React.forwardRef(({ owners, onOwnerChange, selectedOwner }, ref) => {
+const CustomOption = (props) => {
+    return (
+        <components.Option {...props}>
+            <div className="flex items-center w-full p-2">
+                <span>{props.data.label}</span>
+            </div>
+        </components.Option>
+    );
+};
 
-    const [isShowTextInput, setIsShowTextInput] = useState(false);
-    const [customInput, setCustomInput] = useState('');
-    const [activeValue, setActiveValue] = useState(selectedOwner ? selectedOwner : '');
+const customStyles = {
+    control: (base) => ({
+        ...base,
+        border: '1px solid #ccc',
+        boxShadow: 'none',
+        '&:hover': {
+            border: '1px solid #007bff',
+        },
+    }),
+    option: (base, state) => {
+        const border = state.isFocused ? '2px solid' : 'none';
+        const color = '#333';
 
-    const handleSelectChange = (event) => {
+        return {
+            ...base,
+            color,
+            border,
+            cursor: 'pointer'
+        };
+    },
+    singleValue: (base, state) => ({
+        ...base,
+        color: '#333',
+    }),
+};
 
-        const value = event.target.value;
-        if (value === customInputLabel) {
-            setIsShowTextInput(true);
-        } else {
-            setActiveValue(value);
-            onOwnerChange(value);
-        }
-    };
+const OwnerList = ({ onOwnerChange }) => {
 
-    const handleCustomInputChange = (event) => {
-        setCustomInput(event.target.value);
-    }
+    const { allOwners } = useContext(AppContext);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleCustomInputSubmit = (event) => {
-        event.preventDefault();
-
-        setIsShowTextInput(false);
-        event.target.value = customInput;
-        handleSelectChange(event);
-    }
-
-    const handleNewOwnerCancel = (event) => {
-        event.preventDefault();
-        setCustomInput('');
-        setIsShowTextInput(false);
-    }
-
-    const reset = () => {
-       setIsShowTextInput(false);
-        setCustomInput('');
-        setActiveValue('');
-    }
-
-    React.useImperativeHandle(ref, () => ({
-        reset
+    const ownerOptions = allOwners.map(owner => ({
+        value: owner.name,
+        label: owner.name
     }));
 
+    const handleChange = (selectedOption) => {
+        onOwnerChange(selectedOption.label);
+    };
+
+    const handleNewClicked = (event) => {
+        event.preventDefault();
+        setIsModalOpen(true);
+    }
+
     return (
-        <div className="mb-4">
-            <label className="block text-gray-700 font-bold mb-2" htmlFor="owner">Owner:</label>
-            {!isShowTextInput && <select
-                id="owner"
-                value={activeValue}
-                onChange={handleSelectChange}
-                required
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            >
-                {customInput.length > 0 ? <option value={customInput}>{customInput}</option> : <option value="">Select Owner</option>}
-                {owners.map((owner, index) => (
-                    <option key={index} value={owner.name}>
-                        {owner.name}
-                    </option>
-                ))}
-                <option value={customInputLabel}>{customInputLabel}</option>
-            </select>}
-            {isShowTextInput && (
-                <div>
-                    <input type="text" value={customInput} onChange={handleCustomInputChange} onBlur={handleCustomInputSubmit} placeholder="Enter new owner"
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                    <button onClick={handleCustomInputSubmit} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-2 rounded focus:outline-none focus:shadow-outline">Submit</button>
-                    <button onClick={handleNewOwnerCancel} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-2 rounded focus:outline-none focus:shadow-outline">Cancel</button>
-                </div>
-            )}
+        <div className='my-2'>
+            <label className="block text-gray-700 font-bold mb-2">Owner:</label>
+            <div className="flex gap-2 w-full">
+                <Select
+                    options={ownerOptions}
+                    onChange={handleChange}
+                    components={{ Option: CustomOption }} // Use the custom option
+                    className="react-select flex-1"
+                    classNamePrefix="select"
+                    styles={customStyles}
+                    placeholder="Select Owner"
+                    noOptionsMessage={() => 'No such owner'}
+                />
+                <ActionButton color="blue" onClick={handleNewClicked}>New</ActionButton>
+            </div>
+            <GeneralModal title={'Add New Owner'} isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)}>
+                <AddOwner onClose={()=>setIsModalOpen(false)}></AddOwner>
+            </GeneralModal>
         </div>
     );
-});
+};
 
 export default OwnerList;

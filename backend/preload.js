@@ -32,6 +32,10 @@ contextBridge.exposeInMainWorld('api', {
   category: {
     create: (category) => ipcRenderer.invoke('category/create', category),
     getAll: () => ipcRenderer.invoke('category/getAll'),
+    updateName: (categoryId, newName) => ipcRenderer.invoke('category/updateName', categoryId, newName),
+    updateColor: (categoryId, newColor) => ipcRenderer.invoke('category/updateColor', categoryId, newColor),
+    getById: (categoryId) => ipcRenderer.invoke('category/getById', categoryId),
+    deleteCategory: (categoryId) => ipcRenderer.invoke('category/deleteCategory', categoryId),
   },
   updateOwnerName: (ownerName, newName) => ipcRenderer.invoke('updateOwnerName', ownerName, newName),
   getOwnerWithName: (ownerName) => ipcRenderer.invoke('getOwnerWithName', ownerName),

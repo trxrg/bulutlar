@@ -4,6 +4,7 @@ import AddArticle from './crud/AddArticle';
 import { AppContext } from '../store/app-context.jsx'
 import ActionButton from '../components/ActionButton.jsx';
 import CategoryScreen from './crud/CategoryScreen.jsx';
+import OwnerScreen from './crud/OwnerScreen.jsx';
 
 const MainScreen = () => {
 
@@ -21,6 +22,7 @@ const MainScreen = () => {
                     <div className='h-2/3'>
                         {activeScreen === 'tabs' ?
                             <div className='flex gap-2'>
+                                <ActionButton color='blue' onClick={() => setActiveScreen('owners')}>Owners</ActionButton>   
                                 <ActionButton color='blue' onClick={() => setActiveScreen('categories')}>Categories</ActionButton>   
                                 <ActionButton color='blue' onClick={handleRandom}>Random</ActionButton>
                                 <ActionButton color='blue' onClick={handleAddArticle}>Add Article</ActionButton>                                
@@ -44,6 +46,9 @@ const MainScreen = () => {
                     : undefined}
                 {activeScreen === 'categories' ?
                     <CategoryScreen />
+                    : undefined}
+                {activeScreen === 'owners' ?
+                    <OwnerScreen />
                     : undefined}
             </div>
         </div>

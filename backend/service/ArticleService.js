@@ -31,33 +31,31 @@ async function addArticle(article) { // TODO must be transactional
 
         article.number = calculateNumber(article.date);
         article.code = Math.random().toString(36).substring(2);
-        const entity = await sequelize.models.article.create(article, { transaction });
+        const entity = await sequelize.models.article.create(article);
 
         console.log('article added, id: ' + article.id);
 
         if (article.owner)
-            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name), { transaction });
+            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
 
         if (article.category)
-            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name), { transaction });
+            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name));
 
         if (article.tags)
             for (const tag of article.tags)
-                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name), { transaction });
+                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
 
         if (article.comments)
             for (const comment of article.comments)
-                await entity.addComment(await commentService.addComment(comment.text), { transaction });
+                await entity.addComment(await commentService.addComment(comment.text));
 
         if (article.images)
             for (const image of article.images)
-                await entity.addImage(await imageService.createImage(image), { transaction });
-
+                await entity.addImage(await imageService.createImage(image));
 
         return await getArticleWithId(entity.dataValues.id);
     } catch (e) {
         console.error('Error adding article:', e);
-        await transaction.rollback();
         return {error: e};
     }
 }

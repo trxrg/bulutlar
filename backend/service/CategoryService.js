@@ -7,14 +7,14 @@ function initService() {
     ipcMain.handle('category/create', (event, category) => createCategory(category));
     ipcMain.handle('category/updateName', (event, id, newName) => updateCategoryName(id, newName));
     ipcMain.handle('category/updateColor', (event, id, newColor) => updateCategoryColor(id, newColor));
-    ipcMain.handle('category/getById', (event, id) => getCategoryWithId(id));
+    ipcMain.handle('category/getById', (event, id) => getById(id));
     ipcMain.handle('category/deleteCategory', (event, id) => deleteCategory(id));
 
 
     ipcMain.handle('getCategoryWithName', (event, categoryName) => getCategoryWithName(categoryName));
     ipcMain.handle('getCategoryWithNameAddIfNotPresent', (event, categoryName) => getCategoryWithNameAddIfNotPresent(categoryName));
     ipcMain.handle('getCategoryWithNameLike', (event, nameLike) => getCategoryWithNameLike(nameLike));
-    ipcMain.handle('getCategoryWithId', (event, id) => getCategoryWithId(id));
+    ipcMain.handle('getCategoryWithId', (event, id) => getById(id));
 
     ipcMain.handle('deleteCategoryWithName', (event, categoryName) => deleteCategoryWithName(categoryName));
 }
@@ -50,7 +50,7 @@ async function updateCategoryColor(categoryId, newColor) {
     }
 }
 
-async function getCategoryWithId(id) {
+async function getById(id) {
     const result = await sequelize.models.category.findByPk(id, {
         attributes: {
             include: [
@@ -76,6 +76,7 @@ async function deleteCategory(id) {
     try {
         const category = await sequelize.models.category.findByPk(id);
         const articleCount = await category.countArticles();
+        
         if (articleCount > 0)
             throw ('Cannot delete category with articles');
         
@@ -87,14 +88,6 @@ async function deleteCategory(id) {
     } catch (err) {
         console.error('Error in deleteCategory', err);
     }
-}
-
-async function countArticles(categoryId) {
-    return await sequelize.models.article.count({
-        where: {
-            categoryId: categoryId
-        }
-    });
 }
 
 async function getCategoryWithName(categoryName) {

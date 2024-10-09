@@ -1,4 +1,3 @@
-// Assuming you have a state to update categories
 import React, { useState, useContext } from 'react';
 import RichInput from '../../components/RichInput';
 import { updateCategoryName, updateCategoryColor, deleteCategory } from '../../backend-adapter/BackendAdapter';
@@ -57,6 +56,7 @@ const CategoryScreen = () => {
                                         type="color"
                                         value={category.color}
                                         onChange={(e) => handleColorChange(category.id, e.target.value)}
+                                        className='cursor-pointer'
                                     />
                                 </td>
                                 <td className="py-2 px-4 border-b flex">

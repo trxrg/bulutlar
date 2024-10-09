@@ -28,10 +28,12 @@ export default function ArticleShort({ article, handleClick }) {
         return weekdays[date.getDay()];
     }
 
+
+
     return (
         <div className="rounded-md bg-gray-100 hover:bg-white border-4
         active:bg-gray-300 active:shadow-none px-10 my-4 mx-4 py-6 shadow-xl cursor-pointer"
-            style={{ borderColor: article.category.color }}
+            style={{ borderColor: article.category && article.category.color }}
         >
             <div onClick={() => handleClick(article.id)} >
                 <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600">{article.title}</h2>

@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { getAllArticles, getAllTags, getAllOwners, getAllCategories, getArticleWithId, getCategoryById } from '../backend-adapter/BackendAdapter';
+import { getAllArticles, getAllTags, getAllOwners, getAllCategories, getArticleWithId, getCategoryById, getOwnerById } from '../backend-adapter/BackendAdapter';
 
 export const AppContext = createContext(
 
@@ -43,6 +43,20 @@ export default function AppContextProvider({ children }) {
 
             const updatedCategories = allCategories.map(category => category.id === id ? updatedCategory : category);
             setAllCategories(updatedCategories);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    const syncOwnerWithIdFromBE = async (id) => {
+        try {
+            const updatedOwner = await getOwnerById(id);
+
+            console.log('updated owner')
+            console.log(updatedOwner)
+
+            const updatedOwners = allOwners.map(owner => owner.id === id ? updatedOwner : owner);
+            setAllOwners(updatedOwners);
         } catch (err) {
             console.error(err);
         }
@@ -188,6 +202,7 @@ export default function AppContextProvider({ children }) {
         getAllOwnersFromBE,
         getAllCategoriesFromBE,
         syncArticleWithIdFromBE,
+        syncOwnerWithIdFromBE,
         afterDeleteArticle,
         afterSubmitArticle,
         syncCategoryWithIdFromBE

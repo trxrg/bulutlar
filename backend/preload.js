@@ -16,6 +16,9 @@ contextBridge.exposeInMainWorld('api', {
   },
   owner: {
     create: (owner) => ipcRenderer.invoke('owner/create', owner),
+    getById: (id) => ipcRenderer.invoke('owner/getById', id),
+    deleteOwner: (id) => ipcRenderer.invoke('owner/deleteOwner', id),
+    updateName: (id, newName) => ipcRenderer.invoke('owner/updateName', id, newName),
   },
   comment: {
     updateText: (commentId, newText) => ipcRenderer.invoke('comment/updateText', commentId, newText),
@@ -37,10 +40,9 @@ contextBridge.exposeInMainWorld('api', {
     getById: (categoryId) => ipcRenderer.invoke('category/getById', categoryId),
     deleteCategory: (categoryId) => ipcRenderer.invoke('category/deleteCategory', categoryId),
   },
-  updateOwnerName: (ownerName, newName) => ipcRenderer.invoke('updateOwnerName', ownerName, newName),
+  
   getOwnerWithName: (ownerName) => ipcRenderer.invoke('getOwnerWithName', ownerName),
   getOwnerWithNameLike: (nameLike) => ipcRenderer.invoke('getOwnerWithNameLike', nameLike),
-  getOwnerWithId: (id) => ipcRenderer.invoke('getOwnerWithId', id),
   getAllOwners: () => ipcRenderer.invoke('getAllOwners'),
   
   ping: () => ipcRenderer.invoke('ping'),

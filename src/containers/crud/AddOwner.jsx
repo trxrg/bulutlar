@@ -25,6 +25,7 @@ const AddOwner = ({ onClose }) => {
             setMsg(result.error.message || 'validation error');
             return;
         }
+        setName('');
         getAllOwnersFromBE();
         onClose();
     }

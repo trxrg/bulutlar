@@ -10,8 +10,16 @@ export async function createOwner(owner) {
     return await window.api.owner.create(owner);
 }
 
-export async function updateOwnerName(ownerName, newName) {
-    return window.api.updateOwnerName(ownerName, newName);
+export async function deleteOwner(ownerId) {
+    return window.api.owner.deleteOwner(ownerId);
+}
+
+export async function updateOwnerName(id, newName) {
+    return window.api.owner.updateName(id, newName);
+}
+
+export async function getOwnerById(id) {
+    return window.api.owner.getById(id);
 }
 
 export async function getOwnerWithName(ownerName) {
@@ -20,10 +28,6 @@ export async function getOwnerWithName(ownerName) {
 
 export async function getOwnerWithNameLike(nameLike) {
     return window.api.getOwnerWithNameLike(nameLike);
-}
-
-export async function getOwnerWithId(id) {
-    return window.api.getOwnerWithId(id);
 }
 
 export async function getAllOwners() {

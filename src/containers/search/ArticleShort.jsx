@@ -33,18 +33,18 @@ export default function ArticleShort({ article, handleClick }) {
     return (
         <div className="rounded-md bg-gray-100 hover:bg-white border-4
         active:bg-gray-300 active:shadow-none px-10 my-4 mx-4 py-6 shadow-xl cursor-pointer"
-            style={{ borderColor: article.category && article.category.color }}
+            // style={{ borderColor: article.category && article.category.color }}
         >
             <div onClick={() => handleClick(article.id)} >
                 <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600">{article.title}</h2>
-                <h3>{article.owner.name + '  -  ' + getFormattedDate(article.date) + ' ' + getDayOfWeek(article.date) + ' (' + article.number + ')'}</h3>
+                {/* <h3>{article.owner.name + '  -  ' + getFormattedDate(article.date) + ' ' + getDayOfWeek(article.date) + ' (' + article.number + ')'}</h3>
                 <article className='my-2'>
                     {parse(article.text.substring(0, numberOfCharsForText) + '...')}
                 </article>
                 <div>
                     {article.tags.slice(0, numberOfTags).map(tag => <TagButton key={tag.name} isCloseable={false} label={tag.name}>{tag.name}</TagButton>)}
                     {article.tags.length > numberOfTags ? <h4 className='inline-block'>...</h4> : undefined}
-                </div>
+                </div> */}
             </div>
         </div >
     );

@@ -62,28 +62,24 @@ export async function deleteOwnerWithName(ownerName) {
     return window.api.deleteOwnerWithName(ownerName);
 }
 
-export async function addArticle(article) {
-    return window.api.addArticle(article);
+export async function createArticle(article) {
+    return window.api.article.create(article);
 }
 
-export async function deleteArticle(articleId) {
-    return window.api.deleteArticle(articleId);
-}
-
-export async function updateArticle(articleId, article) {
-    return window.api.updateArticle(articleId, article);
+export async function deleteArticleById(articleId) {
+    return window.api.article.deleteById(articleId);
 }
 
 export async function updateArticleMainText(articleId, newMainText) {
-    return window.api.article.updateArticleMainText(articleId, newMainText);
+    return window.api.article.updateMainText(articleId, newMainText);
 }
 
 export async function updateArticleExplanation(articleId, newExplanation) {
-    return window.api.article.updateArticleExplanation(articleId, newExplanation);
+    return window.api.article.updateExplanation(articleId, newExplanation);
 }
 
 export async function addImageToArticle(articleId, newExplanation) {
-    return window.api.article.addImageToArticle(articleId, newExplanation);
+    return window.api.article.addImage(articleId, newExplanation);
 }
 
 export async function getImageDataById(imageId) {
@@ -98,20 +94,12 @@ export async function deleteImage(imageId) {
     return window.api.image.deleteImage(imageId);
 }
 
-export async function getArticleWithId(articleId) {
-    return window.api.getArticleWithId(articleId);
-}
-
-export async function getArticleWithTitleLike(titleLike) {
-    return window.api.getArticleWithTitleLike(titleLike);
-}
-
-export async function getAllArticlesOfOwnerName(ownerName) {
-    return window.api.getAllArticlesOfOwnerName(ownerName);
+export async function getArticleById(articleId) {
+    return window.api.article.getById(articleId);
 }
 
 export async function getAllArticles() {
-    return window.api.getAllArticles();
+    return window.api.article.getAll();
 }
 
 export async function getAllTags() {

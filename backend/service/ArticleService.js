@@ -12,20 +12,15 @@ function initService() {
     ipcMain.handle('article/updateExplanation', (event, articleId, newExplanation) => updateArticleExplanation(articleId, newExplanation));
     ipcMain.handle('article/addImage', (event, articleId, image) => addImageToArticle(articleId, image));
     ipcMain.handle('article/addAnnotation', (event, articleId, annotation) => addAnnotationToArticle(articleId, annotation));
-
-
-    ipcMain.handle('addArticle', (event, article) => addArticle(article));
-    ipcMain.handle('deleteArticle', (event, articleId) => deleteArticle(articleId));
-    ipcMain.handle('updateArticle', (event, articleId, article) => updateArticle(articleId, article));
-    ipcMain.handle('getArticleWithId', (event, articleId) => getArticleWithId(articleId));
-    ipcMain.handle('getAllArticles', (event) => getAllArticles());
+    ipcMain.handle('article/create', (event, article) => createArticle(article));
+    ipcMain.handle('article/getAll', getAllArticles);
+    ipcMain.handle('article/getById', (event, articleId) => getArticleById(articleId));
+    ipcMain.handle('article/deleteById', (event, articleId) => deleteArticleById(articleId));
 }
 
-async function addArticle(article) { // TODO must be transactional
+async function createArticle(article) { // TODO must be transactional
 
     console.log('adding article with title: ' + article.title);
-
-    const transaction = await sequelize.transaction();
 
     try {
 
@@ -33,7 +28,7 @@ async function addArticle(article) { // TODO must be transactional
         article.code = Math.random().toString(36).substring(2);
         const entity = await sequelize.models.article.create(article);
 
-        console.log('article added, id: ' + article.id);
+        console.log('article added, id: ' + entity.id);
 
         if (article.owner)
             await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
@@ -53,14 +48,14 @@ async function addArticle(article) { // TODO must be transactional
             for (const image of article.images)
                 await entity.addImage(await imageService.createImage(image));
 
-        return await getArticleWithId(entity.dataValues.id);
+        return await getArticleById(entity.dataValues.id);
     } catch (e) {
         console.error('Error adding article:', e);
-        return {error: e};
+        return { error: e };
     }
 }
 
-async function deleteArticle(articleId) {
+async function deleteArticleById(articleId) {
     try {
         const article = await sequelize.models.article.findByPk(articleId);
 
@@ -70,43 +65,6 @@ async function deleteArticle(articleId) {
         await article.destroy();
     } catch (error) {
         console.error('Error deleting article:', error);
-    }
-}
-
-async function updateArticle(articleId, newArticle) {
-    try {
-
-        const article = await sequelize.models.article.findByPk(articleId);
-        let entity;
-
-        if (!article)
-            throw ('no article found with id: ' + articleId);
-
-        entity = await article.update(newArticle);
-
-        if (!entity)
-            throw ('entity is null');
-
-        await entity.setComments([]);
-        await entity.setTags([]);
-
-        if (newArticle.owner)
-            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(newArticle.owner.name));
-
-        if (newArticle.category)
-            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(newArticle.category.name));
-
-        if (newArticle.tags)
-            for (const tag of newArticle.tags)
-                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
-
-        if (newArticle.comments)
-            for (const comment of newArticle.comments)
-                await entity.addComment(await commentService.addComment(comment.text));
-
-        return await getArticleWithId(entity.dataValues.id);
-    } catch (error) {
-        console.error('Error updating article:', error);
     }
 }
 
@@ -149,7 +107,7 @@ async function addImageToArticle(articleId, image) {
 
         await article.addImage(await imageService.createImage(image));
 
-        return await getArticleWithId(articleId);
+        return await getArticleById(articleId);
 
     } catch (error) {
         console.error('Error in addImage', error);
@@ -165,7 +123,7 @@ async function addAnnotationToArticle(articleId, annotation) {
 
         await article.addAnnotation(await annotationService.createAnnotation(annotation));
 
-        return await getArticleWithId(articleId);
+        return await getArticleById(articleId);
 
     } catch (error) {
         console.error('Error in addAnnotationToArticle', error);
@@ -178,12 +136,10 @@ async function getArticleEntity(articleId) {
     return entity;
 }
 
-async function getArticleWithId(articleId) {
+async function getArticleById(articleId) {
     const entity = await sequelize.models.article.findByPk(articleId,
         {
             include: [
-                { model: sequelize.models.owner },
-                { model: sequelize.models.category },
                 { model: sequelize.models.comment },
                 { model: sequelize.models.tag },
                 { model: sequelize.models.image },
@@ -196,19 +152,24 @@ async function getArticleWithId(articleId) {
                 },
             ]
         });
+    if (!entity)
+        return { error: 'Article not found' };
     return articleEntity2Json(entity);
 }
 
 async function getAllArticles() {
     let entities = await sequelize.models.article.findAll({
         include: [
-            { model: sequelize.models.owner },
-            { model: sequelize.models.category },
             { model: sequelize.models.comment },
             { model: sequelize.models.tag },
             { model: sequelize.models.image },
             { model: sequelize.models.annotation },
             { model: sequelize.models.group },
+            {
+                model: sequelize.models.article,
+                as: 'relatedArticles',
+                attributes: ['id', 'title']
+            },
         ]
     });
 
@@ -216,72 +177,18 @@ async function getAllArticles() {
 }
 
 function articleEntity2Json(entity) {
-    if (entity.dataValues.owner)
-        entity.dataValues.owner = entity2Json(entity.dataValues.owner);
-    if (entity.dataValues.category)
-        entity.dataValues.category = category2Json(entity.dataValues.category);
     if (entity.dataValues.tags)
-        entity.dataValues.tags = entity.dataValues.tags.map(tag => entity2Json(tag));
+        entity.dataValues.tags = entity.dataValues.tags.map(tag => ({ id: tag.id }));
     if (entity.dataValues.images)
-        entity.dataValues.images = entity.dataValues.images.map(image => imageEntity2Json(image));
+        entity.dataValues.images = entity.dataValues.images.map(image => ({ id: image.id }));
     if (entity.dataValues.annotations)
-        entity.dataValues.annotations = entity.dataValues.annotations.map(annotation => annotationEntity2Json(annotation));
+        entity.dataValues.annotations = entity.dataValues.annotations.map(annotation => ({ id: annotation.id }));
     if (entity.dataValues.comments)
-        entity.dataValues.comments = entity.dataValues.comments.map(comment => commentEntity2Json(comment));
+        entity.dataValues.comments = entity.dataValues.comments.map(comment => ({ id: comment.id }));
     if (entity.dataValues.relatedArticles)
-        entity.dataValues.relatedArticles = entity.dataValues.relatedArticles.map(relatedArticle => relatedArticle2Json(relatedArticle));
+        entity.dataValues.relatedArticles = entity.dataValues.relatedArticles.map(
+            relatedArticle => ({ id: relatedArticle.id, title: relatedArticle.title }));
     return entity.dataValues;
-}
-
-function entity2Json(entity) {
-    return {
-        id: entity.dataValues.id,
-        name: entity.dataValues.name
-    };
-}
-
-function category2Json(entity) {
-    return {
-        id: entity.dataValues.id,
-        name: entity.dataValues.name,
-        color: entity.dataValues.color
-    };
-}
-
-function relatedArticle2Json(entity) {
-    return {
-        id: entity.dataValues.id,
-        title: entity.dataValues.title
-    };
-}
-
-function commentEntity2Json(entity) {
-    return {
-        id: entity.dataValues.id,
-        text: entity.dataValues.text,
-        textJson: entity.dataValues.textJson
-    };
-}
-
-function imageEntity2Json(entity) {
-    return {
-        id: entity.dataValues.id,
-        name: entity.dataValues.name,
-        type: entity.dataValues.type,
-        path: entity.dataValues.path,
-        size: entity.dataValues.size,
-        description: entity.dataValues.description,
-    };
-}
-
-function annotationEntity2Json(entity) {
-    return {
-        id: entity.dataValues.id,
-        quote: entity.dataValues.quote,
-        note: entity.dataValues.note,
-        createdAt: entity.dataValues.createdAt,
-        updatedAt: entity.dataValues.updatedAt
-    };
 }
 
 function calculateNumber(datestr) {

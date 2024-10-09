@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { getAllArticles, getAllTags, getAllOwners, getAllCategories, getArticleWithId, getCategoryById, getOwnerById } from '../backend-adapter/BackendAdapter';
+import { getAllArticles, getAllTags, getAllOwners, getAllCategories, getArticleById, getCategoryById, getOwnerById } from '../backend-adapter/BackendAdapter';
 
 export const AppContext = createContext(
 
@@ -14,7 +14,6 @@ export default function AppContextProvider({ children }) {
     const [allCategories, setAllCategories] = useState([]);
     const [allCategoriesLoaded, setAllCategoriesLoaded] = useState(false);
     const [activeScreen, setActiveScreen] = useState('tabs');
-    const [editedArticle, setEditedArticle] = useState();
     const [activeTabId, setActiveTabId] = useState('search');
     const [tabs, setTabs] = useState([
         { id: 'search', title: 'Search' }
@@ -22,7 +21,7 @@ export default function AppContextProvider({ children }) {
 
     const syncArticleWithIdFromBE = async (id) => {
         try {
-            const updatedArticle = await getArticleWithId(id);
+            const updatedArticle = await getArticleById(id);
 
             console.log('updated article')
             console.log(updatedArticle)
@@ -143,11 +142,6 @@ export default function AppContextProvider({ children }) {
         }
     };
 
-    const handleEditClicked = (article) => {
-        setEditedArticle(article);
-        setActiveScreen('addArticle');
-    }
-
     const handleLinkClicked = (articleCode) => {
         const article = allArticles.find(article => article.code === articleCode);
         if (!article)
@@ -157,7 +151,6 @@ export default function AppContextProvider({ children }) {
     }
 
     const handleAddArticle = () => {
-        setEditedArticle(undefined);
         setActiveScreen('addArticle');
     }
 
@@ -178,7 +171,6 @@ export default function AppContextProvider({ children }) {
     }
 
     const ctxValue = {
-        editClicked: handleEditClicked,
         linkClicked: handleLinkClicked,
         activeTabId: activeTabId,
         setActiveTabId: setActiveTabId,
@@ -191,7 +183,6 @@ export default function AppContextProvider({ children }) {
         allOwnersLoaded,
         allTagsLoaded,
         allCategories,
-        editedArticle,
         activeScreen,
         setActiveScreen,
         syncWithDB: getDataFromBE,

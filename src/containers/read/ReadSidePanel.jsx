@@ -9,10 +9,10 @@ const ReadSidePanel = () => {
     const { article } = useContext(ReadContext);
     const { syncWithDB } = useContext(AppContext);
 
-    const handleTagsChanged = async (newTags) => {
-        article.tags = newTags;
-        await updateArticle(article.id, article);
-        syncWithDB();
+    const handleTagsChanged = async (newTags) => { // TODO write updateTags method in BackendAdapter 
+        // article.tags = newTags;
+        // await updateArticle(article.id, article);
+        // syncWithDB();
     }
 
     return (

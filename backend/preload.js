@@ -9,10 +9,14 @@ contextBridge.exposeInMainWorld('versions', {
 
 contextBridge.exposeInMainWorld('api', {
   article: {
-    updateArticleMainText: (articleId, newMainText) => ipcRenderer.invoke('article/updateMainText', articleId, newMainText),
-    updateArticleExplanation: (articleId, newExplanation) => ipcRenderer.invoke('article/updateExplanation', articleId, newExplanation),
-    addImageToArticle: (articleId, image) => ipcRenderer.invoke('article/addImage', articleId, image),
-    addAnnotationToArticle: (articleId, annotation) => ipcRenderer.invoke('article/addAnnotation', articleId, annotation),
+    updateMainText: (articleId, newMainText) => ipcRenderer.invoke('article/updateMainText', articleId, newMainText),
+    updateExplanation: (articleId, newExplanation) => ipcRenderer.invoke('article/updateExplanation', articleId, newExplanation),
+    addImage: (articleId, image) => ipcRenderer.invoke('article/addImage', articleId, image),
+    addAnnotation: (articleId, annotation) => ipcRenderer.invoke('article/addAnnotation', articleId, annotation),
+    create: (article) => ipcRenderer.invoke('article/create', article),
+    getAll: () => ipcRenderer.invoke('article/getAll'),
+    getById: (articleId) => ipcRenderer.invoke('article/getById', articleId),
+    deleteById: (articleId) => ipcRenderer.invoke('article/deleteById', articleId),
   },
   owner: {
     create: (owner) => ipcRenderer.invoke('owner/create', owner),
@@ -49,12 +53,9 @@ contextBridge.exposeInMainWorld('api', {
   getFromDb: () => ipcRenderer.invoke('getFromDb'),
   checkDbConnection: () => ipcRenderer.invoke('checkDbConnection'),
   addOwnerAndArticle: () => ipcRenderer.invoke('addOwnerAndArticle'),
-  getAllArticles: () => ipcRenderer.invoke('getAllArticles'),
+  
   deleteOwnerWithName: (ownerName) => ipcRenderer.invoke('deleteOwnerWithName', ownerName),
-  addArticle: (article) => ipcRenderer.invoke('addArticle', article),
-  deleteArticle: (articleId) => ipcRenderer.invoke('deleteArticle', articleId),
-  updateArticle: (articleId, article) => ipcRenderer.invoke('updateArticle', articleId, article),
-  getArticleWithId: (articleId) => ipcRenderer.invoke('getArticleWithId', articleId),
+    
   getArticleWithTitleLike: (titleLike) => ipcRenderer.invoke('getArticleWithTitleLike', titleLike),
   getAllArticlesOfOwnerName: (ownerName) => ipcRenderer.invoke('getAllArticlesOfOwnerName', ownerName),
   getAllTags: () => ipcRenderer.invoke('getAllTags'),

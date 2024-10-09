@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { format } from 'date-fns';
-import { addArticle, updateArticle, deleteArticle, getAllCategories } from '../../backend-adapter/BackendAdapter.js';
+import { createArticle, getAllCategories } from '../../backend-adapter/BackendAdapter.js';
 import TagList from './TagList.jsx';
 import RichText from './RichText.jsx';
 import { AppContext } from '../../store/app-context.jsx'
@@ -10,16 +10,16 @@ import ImageUpload from './ImageUpdload.jsx';
 
 const AddArticle = () => {
 
-  const { editedArticle, allTags, allOwners, afterSubmitArticle, afterDeleteArticle } = useContext(AppContext);
+  const { allTags, allOwners, afterSubmitArticle, afterDeleteArticle } = useContext(AppContext);
 
-  const [dispTitle, setDispTitle] = useState(editedArticle ? editedArticle.title : '');
-  const [dispDate, setDispDate] = useState(editedArticle ? new Date(editedArticle.date) : new Date());
-  const [dispExplanation, setDispExplanation] = useState(editedArticle ? editedArticle.explanation : '');
-  const [dispMainText, setDispMainText] = useState(editedArticle ? editedArticle.text : '');
-  const [dispCommentText, setDispCommentText] = useState(editedArticle && editedArticle.comments[0] ? editedArticle.comments[0].text : '');
-  const [dispOwnerName, setDispOwnerName] = useState(editedArticle ? editedArticle.owner.name : '')
-  const [dispCategoryName, setDispCategoryName] = useState(editedArticle ? editedArticle.category.name : '');
-  const [dispTags, setDispTags] = useState(editedArticle ? editedArticle.tags : []);
+  const [dispTitle, setDispTitle] = useState('');
+  const [dispDate, setDispDate] = useState(new Date());
+  const [dispExplanation, setDispExplanation] = useState('');
+  const [dispMainText, setDispMainText] = useState('');
+  const [dispCommentText, setDispCommentText] = useState('');
+  const [dispOwnerName, setDispOwnerName] = useState('')
+  const [dispCategoryName, setDispCategoryName] = useState('');
+  const [dispTags, setDispTags] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [images, setImages] = useState([]);
 
@@ -51,42 +51,22 @@ const AddArticle = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      let result;
-      if (editedArticle) {
-        result = await updateArticle(editedArticle.id, {
-          title: dispTitle,
-          date: dispDate,
-          explanation: dispExplanation,
-          text: dispMainText,
-          owner: { name: dispOwnerName },
-          category: { name: dispCategoryName },
-          comments: [{ text: dispCommentText }],
-          tags: dispTags
-        });
-        if (result.error) {
-          console.error(result.error);
-        } else {
-          console.log('article updated:');
-          console.log(result);
-        }
+      const result = await createArticle({
+        title: dispTitle,
+        date: dispDate,
+        explanation: dispExplanation,
+        text: dispMainText,
+        owner: { name: dispOwnerName },
+        category: { name: dispCategoryName },
+        comments: [{ text: dispCommentText }],
+        tags: dispTags,
+        images: images
+      });
+      if (result.error) {
+        console.error(result.error);
       } else {
-        result = await addArticle({
-          title: dispTitle,
-          date: dispDate,
-          explanation: dispExplanation,
-          text: dispMainText,
-          owner: { name: dispOwnerName },
-          category: { name: dispCategoryName },
-          comments: [{ text: dispCommentText }],
-          tags: dispTags,
-          images: images
-        });
-        if (result.error) {
-          console.error(result.error);
-        } else {
-          console.log('article added:');
-          console.log(result);
-        }
+        console.log('article added:');
+        console.log(result);
       }
 
       afterSubmitArticle(result.id);
@@ -94,12 +74,6 @@ const AddArticle = () => {
       console.error(err.message);
     }
   };
-
-  const handleDeleteArticle = async () => {
-    const articleId = editedArticle.id;
-    await deleteArticle(articleId);
-    afterDeleteArticle(articleId);
-  }
 
   return (
     <div className='max-w-5xl w-full'>
@@ -147,17 +121,11 @@ const AddArticle = () => {
         <TagList ref={tagsRef} allTags={allTags} selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
         <div className='flex justify-between'>
           <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
-            {editedArticle ? "Save" : "Submit"}
+            Submit
           </button>
 
         </div>
-      </form>
-      <div className='flex justify-end mx-2'>
-        {editedArticle && <button type="button" onClick={handleDeleteArticle} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
-          Delete Article
-        </button>
-        }
-      </div>
+      </form>      
     </div>
   );
 };

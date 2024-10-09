@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import ActionButton from "../../components/ActionButton";
 import { createCategory } from "../../backend-adapter/BackendAdapter";
-import { AppContext } from "../../store/app-context";
+import { DBContext } from "../../store/db-context";
 
 const generateRandomColor = () => {
     const randomColor = Math.floor(Math.random() * 16777215).toString(16);
@@ -14,7 +14,7 @@ const AddCategory = ({ onClose }) => {
     const [name, setName] = useState('');
     const [msg, setMsg] = useState('');
 
-    const { getAllCategoriesFromBE } = useContext(AppContext);
+    const { getAllCategoriesFromBE } = useContext(DBContext);
 
     useEffect(() => {
         setColor(generateRandomColor());

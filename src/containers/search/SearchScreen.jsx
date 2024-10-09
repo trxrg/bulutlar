@@ -43,7 +43,7 @@ const SearchScreen = () => {
       resizerStyle={{ background: '#6b6969', cursor: 'col-resize', width: '12px' }}
     >
       <div className='bg-stone-50 h-full'>
-        {allOwnersLoaded && allTagsLoaded ? <SearchControls onFilterChanged={handleFilterChanged}></SearchControls> : "Loading..."}
+        <SearchControls onFilterChanged={handleFilterChanged}></SearchControls>
       </div>
       <div>
         <SearchResults ref={searchResultsRef}></SearchResults>

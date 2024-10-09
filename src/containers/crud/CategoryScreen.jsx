@@ -1,13 +1,13 @@
 import React, { useState, useContext } from 'react';
 import RichInput from '../../components/RichInput';
 import { updateCategoryName, updateCategoryColor, deleteCategory } from '../../backend-adapter/BackendAdapter';
-import { AppContext } from '../../store/app-context';
+import { DBContext } from '../../store/db-context';
 import ActionButton from '../../components/ActionButton';
 import AddCategory from './AddCategory';
 
 const CategoryScreen = () => {
 
-    const { allCategories, syncCategoryWithIdFromBE, getAllCategoriesFromBE } = useContext(AppContext);
+    const { allCategories, syncCategoryWithIdFromBE, getAllCategoriesFromBE } = useContext(DBContext);
 
     const handleColorChange = async (id, newColor) => {
         await updateCategoryColor(id, newColor);

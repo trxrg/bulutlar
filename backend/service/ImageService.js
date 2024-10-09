@@ -7,6 +7,7 @@ function initService() {
     ipcMain.handle('image/deleteImage', (event, imageId) => deleteImage(imageId));
     ipcMain.handle('image/getImageDataById', (event, imageId) => getImageDataById(imageId));
     ipcMain.handle('image/getImageDataByPath', (event, path) => getImageDataByPath(path));
+    ipcMain.handle('image/getInfoById', (event, imageId) => getInfoById(imageId));
 }
 
 async function createImage(image) {
@@ -56,6 +57,19 @@ async function getImageDataByPath(image) {
         return `data:${image.type};base64,${fileData}`;
     } catch (err) {
         console.error('Error in getImageDataByPath', err);
+    }    
+}
+
+async function getInfoById(id) {
+    try {
+        const image = await sequelize.models.image.findByPk(id);
+
+        if (!image)
+            throw ('no image found with id: ' + id);
+
+        return image.dataValues;
+    } catch (err) {
+        console.error('Error in getInfoById', err);
     }    
 }
 

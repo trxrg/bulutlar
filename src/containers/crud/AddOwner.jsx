@@ -1,14 +1,14 @@
 import { useState, useContext } from "react";
 import ActionButton from "../../components/ActionButton";
 import { createOwner } from "../../backend-adapter/BackendAdapter";
-import { AppContext } from "../../store/app-context";
+import { DBContext } from "../../store/db-context";
 
 const AddOwner = ({ onClose }) => {
 
     const [name, setName] = useState('');
     const [msg, setMsg] = useState('');
 
-    const { getAllOwnersFromBE } = useContext(AppContext);
+    const { getAllOwnersFromBE } = useContext(DBContext);
 
     const handleAddOwner = async (event) => {
         event.preventDefault();

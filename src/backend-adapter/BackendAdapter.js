@@ -6,106 +6,48 @@ export async function checkDbConnection() {
     return window.api.checkDbConnection();
 }
 
-export async function createOwner(owner) {
-    return await window.api.owner.create(owner);
-}
+export const ownerApi = {
+    create: async (owner) => await window.api.owner.create(owner),
+    delete: async (ownerId) => window.api.owner.deleteOwner(ownerId),
+    updateName: async (id, newName) => window.api.owner.updateName(id, newName),
+    getById: async (id) => window.api.owner.getById(id),
+    getWithName: async (ownerName) => window.api.getOwnerWithName(ownerName),
+    getWithNameLike: async (nameLike) => window.api.getOwnerWithNameLike(nameLike),
+    getAll: async () => window.api.getAllOwners(),
+    deleteWithName: async (ownerName) => window.api.deleteOwnerWithName(ownerName)
+};
 
-export async function deleteOwner(ownerId) {
-    return window.api.owner.deleteOwner(ownerId);
-}
+export const categoryApi = {
+    getAll: async () => window.api.category.getAll(),
+    create: async (category) => window.api.category.create(category),
+    updateName: async (categoryId, newName) => window.api.category.updateName(categoryId, newName),
+    updateColor: async (categoryId, newColor) => window.api.category.updateColor(categoryId, newColor),
+    getById: async (categoryId) => window.api.category.getById(categoryId),
+    delete: async (categoryId) => window.api.category.deleteCategory(categoryId)
+};
 
-export async function updateOwnerName(id, newName) {
-    return window.api.owner.updateName(id, newName);
-}
+export const articleApi = {
+    create: async (article) => window.api.article.create(article),
+    deleteById: async (articleId) => window.api.article.deleteById(articleId),
+    updateMainText: async (articleId, newMainText) => window.api.article.updateMainText(articleId, newMainText),
+    updateExplanation: async (articleId, newExplanation) => window.api.article.updateExplanation(articleId, newExplanation),
+    addImage: async (articleId, newExplanation) => window.api.article.addImage(articleId, newExplanation),
+    getById: async (articleId) => window.api.article.getById(articleId),
+    getAll: async () => window.api.article.getAll()
+};
 
-export async function getOwnerById(id) {
-    return window.api.owner.getById(id);
-}
+export const imageApi = {
+    getImageDataById: async (imageId) => window.api.image.getImageDataById(imageId),
+    getImageDataByPath: async (image) => window.api.image.getImageDataByPath(image),
+    getInfoById: async (id) => window.api.image.getInfoById(id),
+    delete: async (imageId) => window.api.image.deleteImage(imageId)
+};
 
-export async function getOwnerWithName(ownerName) {
-    return window.api.getOwnerWithName(ownerName);
-}
+export const tagApi = {
+    getAll: async () => window.api.getAllTags()
+};
 
-export async function getOwnerWithNameLike(nameLike) {
-    return window.api.getOwnerWithNameLike(nameLike);
-}
-
-export async function getAllOwners() {
-    return window.api.getAllOwners();
-}
-
-export async function getAllCategories() {
-    return window.api.category.getAll();
-}
-
-export async function createCategory(category) {
-    return window.api.category.create(category);
-}
-
-export async function updateCategoryName(categoryId, newName) {
-    return window.api.category.updateName(categoryId, newName);
-}
-
-export async function updateCategoryColor(categoryId, newColor) {
-    return window.api.category.updateColor(categoryId, newColor);
-}
-
-export async function getCategoryById(categoryId) {
-    return window.api.category.getById(categoryId);
-}
-
-export async function deleteCategory(categoryId) {
-    return window.api.category.deleteCategory(categoryId);
-}
-
-export async function deleteOwnerWithName(ownerName) {
-    return window.api.deleteOwnerWithName(ownerName);
-}
-
-export async function createArticle(article) {
-    return window.api.article.create(article);
-}
-
-export async function deleteArticleById(articleId) {
-    return window.api.article.deleteById(articleId);
-}
-
-export async function updateArticleMainText(articleId, newMainText) {
-    return window.api.article.updateMainText(articleId, newMainText);
-}
-
-export async function updateArticleExplanation(articleId, newExplanation) {
-    return window.api.article.updateExplanation(articleId, newExplanation);
-}
-
-export async function addImageToArticle(articleId, newExplanation) {
-    return window.api.article.addImage(articleId, newExplanation);
-}
-
-export async function getImageDataById(imageId) {
-    return window.api.image.getImageDataById(imageId);
-}
-
-export async function getImageDataByPath(image) {
-    return window.api.image.getImageDataByPath(image);
-}
-
-export async function deleteImage(imageId) {
-    return window.api.image.deleteImage(imageId);
-}
-
-export async function getArticleById(articleId) {
-    return window.api.article.getById(articleId);
-}
-
-export async function getAllArticles() {
-    return window.api.article.getAll();
-}
-
-export async function getAllTags() {
-    return window.api.getAllTags();
-}
-
-export async function updateCommentText(commentId, newText) {
-    return window.api.comment.updateText(commentId, newText)
-}
+export const commentApi = {
+    updateText: async (commentId, newText) => window.api.comment.updateText(commentId, newText),
+    getById: async (commentId) => window.api.comment.getById(commentId),
+};

@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import RichInput from '../../components/RichInput';
 import { updateOwnerName, deleteOwner } from '../../backend-adapter/BackendAdapter';
-import { AppContext } from '../../store/app-context';
+import { DBContext } from '../../store/db-context';
 import ActionButton from '../../components/ActionButton';
 import AddOwner from './AddOwner';
 
 const OwnerScreen = () => {
-    const { allOwners, syncOwnerWithIdFromBE, getAllOwnersFromBE } = useContext(AppContext);
+    const { allOwners, syncOwnerWithIdFromBE, getAllOwnersFromBE } = useContext(DBContext);
 
     const handleNameChange = async (id, newName) => {
         await updateOwnerName(id, newName);

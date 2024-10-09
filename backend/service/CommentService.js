@@ -4,10 +4,10 @@ const { sequelize } = require("../sequelize");
 
 function initService() {
     ipcMain.handle('comment/updateText', (event, commentId, newText) => updateText(commentId, newText));
-
+    ipcMain.handle('comment/getById', (event, commentId) => getById(commentId));
 
     ipcMain.handle('addComment', (event, commentText) => addComment(commentText));
-    ipcMain.handle('getCommentById', (event, commentId) => getCommentById(commentId));
+    ipcMain.handle('getCommentById', (event, commentId) => getById(commentId));
     ipcMain.handle('getCommentsWithTextLike', (event, textLike) => getCommentsWithTextLike(textLike));
     ipcMain.handle('getAllComments', getAllComments);
     ipcMain.handle('deleteCommentById', (event, commentId) => deleteCommentById(commentId));
@@ -35,16 +35,7 @@ async function addComment(commentText) {
     return result;   
 }
 
-async function updateCommentText(commentId, newText) {
-    const comment = await sequelize.models.comment.findByPk(commentId);
-    if (!comment) {
-        throw new Error(`Comment with ID ${commentId} not found`);
-    }
-    const result = await comment.update({ text: newText });
-    return result.dataValues;
-}
-
-async function getCommentById(commentId) {
+async function getById(commentId) {
     const result = await sequelize.models.comment.findByPk(commentId);
     return result ? result.dataValues : null;
 }

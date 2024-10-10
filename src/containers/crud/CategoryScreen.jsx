@@ -1,4 +1,5 @@
-import React, { useContext } from 'react';
+import React, { useContext, useCallback } from 'react';
+import debounce from 'lodash.debounce';
 import RichInput from '../../components/RichInput';
 import { categoryApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
@@ -9,10 +10,13 @@ const CategoryScreen = () => {
 
     const { allCategories, fetchCategoryById, fetchAllCategories } = useContext(DBContext);
 
-    const handleColorChange = async (id, newColor) => {
-        await categoryApi.updateColor(id, newColor);
-        fetchCategoryById(id);
-    };
+    const handleColorChange = useCallback(
+        debounce(async (id, newColor) => {
+            await categoryApi.updateColor(id, newColor);
+            fetchCategoryById(id);
+        }, 1000), // Adjust the debounce delay as needed
+        []
+    );
 
     const handleNameChange = async (id, newName) => {
         await categoryApi.updateName(id, newName);

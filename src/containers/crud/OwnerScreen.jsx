@@ -1,21 +1,21 @@
 import React, { useContext } from 'react';
 import RichInput from '../../components/RichInput';
-import { updateOwnerName, deleteOwner } from '../../backend-adapter/BackendAdapter';
+import { ownerApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
 import ActionButton from '../../components/ActionButton';
 import AddOwner from './AddOwner';
 
 const OwnerScreen = () => {
-    const { allOwners, syncOwnerWithIdFromBE, getAllOwnersFromBE } = useContext(DBContext);
+    const { allOwners, fetchOwnerById, fetchAllOwners } = useContext(DBContext);
 
     const handleNameChange = async (id, newName) => {
-        await updateOwnerName(id, newName);
-        syncOwnerWithIdFromBE(id);
+        await ownerApi.updateName(id, newName);
+        fetchOwnerById(id);
     };
 
     const handleDeleteOwner = async (id) => {
-        await deleteOwner(id);
-        getAllOwnersFromBE();
+        await ownerApi.deleteById(id);
+        fetchAllOwners();
     }
 
     return (

@@ -3,20 +3,12 @@ const { Op } = require("sequelize");
 const { sequelize } = require("../sequelize");
 
 function initService() {
-    ipcMain.handle('category/getAll', getAllCategories);
     ipcMain.handle('category/create', (event, category) => createCategory(category));
     ipcMain.handle('category/updateName', (event, id, newName) => updateCategoryName(id, newName));
     ipcMain.handle('category/updateColor', (event, id, newColor) => updateCategoryColor(id, newColor));
-    ipcMain.handle('category/getById', (event, id) => getById(id));
-    ipcMain.handle('category/deleteCategory', (event, id) => deleteCategory(id));
-
-
-    ipcMain.handle('getCategoryWithName', (event, categoryName) => getCategoryWithName(categoryName));
-    ipcMain.handle('getCategoryWithNameAddIfNotPresent', (event, categoryName) => getCategoryWithNameAddIfNotPresent(categoryName));
-    ipcMain.handle('getCategoryWithNameLike', (event, nameLike) => getCategoryWithNameLike(nameLike));
-    ipcMain.handle('getCategoryWithId', (event, id) => getById(id));
-
-    ipcMain.handle('deleteCategoryWithName', (event, categoryName) => deleteCategoryWithName(categoryName));
+    ipcMain.handle('category/getAll', getAllCategories);
+    ipcMain.handle('category/getById', (event, id) => getCategoryById(id));
+    ipcMain.handle('category/deleteById', (event, id) => deleteCategoryById(id));
 }
 
 async function createCategory(category) {
@@ -50,7 +42,7 @@ async function updateCategoryColor(categoryId, newColor) {
     }
 }
 
-async function getById(id) {
+async function getCategoryById(id) {
     const result = await sequelize.models.category.findByPk(id, {
         attributes: {
             include: [
@@ -71,7 +63,7 @@ async function getById(id) {
     return result.dataValues;
 }
 
-async function deleteCategory(id) {
+async function deleteCategoryById(id) {
 
     try {
         const category = await sequelize.models.category.findByPk(id);
@@ -103,17 +95,6 @@ async function getCategoryWithNameAddIfNotPresent(categoryName) {
     return result;
 }
 
-async function getCategoryWithNameLike(nameLike) {
-    const result = await sequelize.models.category.findAll({
-        where: {
-            name: {
-                [Op.like]: '%' + nameLike + '%'
-            }
-        }
-    });
-    return result.map(item => item.dataValues);
-}
-
 async function getAllCategories() {
     const result = await sequelize.models.category.findAll({
         attributes: {
@@ -131,11 +112,6 @@ async function getAllCategories() {
         group: ['Category.id'], // Group by Category ID
     });
     return result.map(item => item.dataValues);
-}
-
-async function deleteCategoryWithName(categoryName) {
-    await sequelize.models.category.destroy({ where: { name: categoryName } });
-    return getAllCategories();
 }
 
 module.exports = {

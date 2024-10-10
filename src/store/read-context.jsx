@@ -1,11 +1,11 @@
 import { createContext, useRef, useState, useContext } from 'react';
-import { AppContext } from './app-context.jsx';
+import { DBContext } from './db-context';
 
 export const ReadContext = createContext();
 
 export default function ReadContextProvider({ children, article }) {
 
-    const { syncArticleWithIdFromBE } = useContext(AppContext);
+    const { fetchArticleById } = useContext(DBContext);
     const [fontSize, setFontSize] = useState('text-xl');
     const [editable, setEditable] = useState(false);
     const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
@@ -15,7 +15,7 @@ export default function ReadContextProvider({ children, article }) {
     const fontSizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
    
     const syncArticleFromBE = async () => {
-        await syncArticleWithIdFromBE(article.id);
+        await fetchArticleById(article.id);
     }
 
     const saveContent = () => {

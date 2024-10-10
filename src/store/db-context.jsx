@@ -1,19 +1,15 @@
-import { createContext, useState, useEffect } from 'react';
-import { ownerApi, categoryApi, articleApi, imageApi } from '../backend-adapter/BackendAdapter';
+import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { ownerApi, categoryApi, articleApi, tagApi } from '../backend-adapter/BackendAdapter';
 
-export const DBContext = createContext(
-
-);
+export const DBContext = createContext();
 
 export default function DBContextProvider({ children }) {
     const [allArticles, setAllArticles] = useState([]);
     const [allOwners, setAllOwners] = useState([]);
     const [allTags, setAllTags] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
-    const [allComments, setAllComments] = useState([]);
-    const [allImageInfos, setAllImageInfos] = useState([]);
-    
-    const fethArticleById = async (id) => {
+
+    const fetchArticleById = useCallback(async (id) => {
         try {
             const updatedArticle = await articleApi.getById(id);
 
@@ -25,9 +21,9 @@ export default function DBContextProvider({ children }) {
         } catch (err) {
             console.error(err);
         }
-    }
+    }, [allArticles]);
 
-    const fetchCategoryById = async (id) => {
+    const fetchCategoryById = useCallback(async (id) => {
         try {
             const updatedCategory = await categoryApi.getById(id);
 
@@ -39,9 +35,9 @@ export default function DBContextProvider({ children }) {
         } catch (err) {
             console.error(err);
         }
-    }
+    }, [allCategories]);
 
-    const fetchOwnerById = async (id) => {
+    const fetchOwnerById = useCallback(async (id) => {
         try {
             const updatedOwner = await ownerApi.getById(id);
 
@@ -53,123 +49,111 @@ export default function DBContextProvider({ children }) {
         } catch (err) {
             console.error(err);
         }
-    }
+    }, [allOwners]);
 
-    const fetchCommentById = async (id) => {
+    const fetchTagById = useCallback(async (id) => {
         try {
-            const updatedComment = await commentApi.getById(id);
+            const updatedTag = await tagApi.getById(id);
 
-            console.log('updated comment')
-            console.log(updatedComment)
+            console.log('updated tag')
+            console.log(updatedTag)
 
-            const updatedComments = allComments.map(comment => comment.id === id ? updatedComment : comment);
-            setAllComments(updatedComments);
+            const updatedTags = allTags.map(tag => tag.id === id ? updatedTag : tag);
+            setAllTags(updatedTags);
         } catch (err) {
             console.error(err);
         }
-    }
+    }, [allTags]);
 
-    const fetchImageInfoById = async (id) => {       
+    const fetchAllArticles = useCallback(async () => {
         try {
-            const updatedImageInfo = await imageApi.getInfoById(id);
-
-            console.log('updated image')
-            console.log(updatedImageInfo)
-
-            const updatedImageInfos = allImageInfos.map(image => image.id === id ? updatedImageInfo : image);
-            setAllImageInfos(updatedImageInfos);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const fetchAllArticles = async () => {
-        try {
-            const response = await getAllArticles();
+            const response = await articleApi.getAll();
             setAllArticles(response);
         } catch (err) {
             console.error(err);
         }
-    }
+    }, []);
 
-    const fetchAllTags = async () => {
+    const fetchAllTags = useCallback(async () => {
         try {
-            const response = await getAllTags();
+            const response = await tagApi.getAll();
             setAllTags(response);
         } catch (err) {
             console.error(err);
         }
-    }
+    }, []);
 
-    const fetchAllOwners = async () => {
+    const fetchAllOwners = useCallback(async () => {
         try {
-            const response = await getAllOwners();
+            const response = await ownerApi.getAll();
             setAllOwners(response);
         } catch (err) {
             console.error(err);
         }
-    }
+    }, []);
 
-    const fetchAllCategories = async () => {
+    const fetchAllCategories = useCallback(async () => {
         try {
-            const response = await getAllCategories();
+            const response = await categoryApi.getAll();
             setAllCategories(response);
         } catch (err) {
             console.error(err);
         }
-    }
+    }, []);
 
-    const fetchAllComments = async () => {
-        try {
-            const response = await getAllComments();
-            setAllComments(response);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const fetchAllImageInfos = async () => {
-        try {
-            const response = await getAllImageInfos();
-            setAllImageInfos(response);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const fetchAllData = async () => {
+    const fetchAllData = useCallback(async () => {
         console.log('syncing with DB');
         try {
             await Promise.all([
                 fetchAllArticles(),
                 fetchAllOwners(),
+                fetchAllCategories(),
                 fetchAllTags(),
-                fetchAllCategories()
             ]);
         } catch (err) {
             console.error(err);
         }
-    }
+    }, []);
+
+    const getCategoryById = useCallback((id) => {
+        return allCategories.find(category => category.id === id);
+    }, [allCategories]);
+
+    const getOwnerById = useCallback((id) => {
+        return allOwners.find(owner => owner.id === id);
+    }, [allOwners]);
+
+    const getTagById = useCallback((id) => {
+        return allTags.find(tag => tag.id === id);
+    }, [allTags]);
+
+    const getArticleById = useCallback((id) => {
+        return allArticles.find(article => article.id === id);
+    }, [allArticles]);
 
     useEffect(() => {
         fetchAllData();
     }, []);
 
-    const ctxValue = {
+    const ctxValue = useMemo(() => ({
         allArticles,
         allOwners,
         allTags,
         allCategories,
-        allComments,
-        allImages: allImageInfos,
         fetchAllData,
         fetchAllArticles,
         fetchAllOwners,
         fetchAllCategories,
-        fethArticleById,
+        fetchAllTags,
+        fetchArticleById,
         fetchOwnerById,
-        fetchCategoryById
-    };
+        fetchCategoryById,
+        fetchTagById,
+        getArticleById,
+        getOwnerById,
+        getCategoryById,
+        getTagById,
+    }), [allArticles, allOwners, allTags, allCategories]);
 
     return <DBContext.Provider value={ctxValue}>
         {children}

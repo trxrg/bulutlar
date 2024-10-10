@@ -1,6 +1,6 @@
 import React, { useRef, useState, useContext, useEffect } from "react";
 
-import { updateArticleMainText, updateArticleExplanation, updateCommentText, addImageToArticle, getImageDataById } from '../../backend-adapter/BackendAdapter.js';
+import { articleApi, commentApi, imageApi, } from '../../backend-adapter/BackendAdapter.js';
 import RichEditor from "./RichEditor";
 import { ReadContext } from "../../store/read-context";
 import ImageModal from "./ImageModal.jsx";
@@ -24,7 +24,7 @@ const ReadBody = () => {
     const fetchImageDatas = async () => {
         console.log('fetchImageDatas called');
         try {
-            const datas = await Promise.all(article.images.map(async image => ({ ...image, data: await getImageDataById(image.id) })));
+            const datas = await Promise.all(article.images.map(async image => ({ ...image, data: await imageApi.getDataById(image.id) })));
             setImageDatas(datas);
             setImageDatasLoaded(true);
         } catch (err) {
@@ -33,24 +33,24 @@ const ReadBody = () => {
     }
 
     const updateMainText = async (html, json) => {
-        await updateArticleMainText(article.id, { html, json });
+        await articleApi.updateMainText(article.id, { html, json });
         await syncArticleFromBE();
     }
 
     const updateExplanation = async (html, json) => {
-        await updateArticleExplanation(article.id, { html, json });
+        await articleApi.updateExplanation(article.id, { html, json });
         await syncArticleFromBE();
     }
 
     const updateComment = async (html, json) => {
-        await updateCommentText(article.comments[0].id, { html, json });
+        await commentApi.updateText(article.comments[0].id, { html, json });
         await syncArticleFromBE();
     }
 
     const updateArticleContent = async (explanation, mainText, comment) => {
-        await updateArticleExplanation(article.id, explanation);
-        await updateArticleMainText(article.id, mainText);
-        await updateCommentText(article.comments[0].id, comment);
+        await articleApi.updateExplanation(article.id, explanation);
+        await articleApi.updateMainText(article.id, mainText);
+        await commentApi.updateText(article.comments[0].id, comment);
         await syncArticleFromBE();
     }
 
@@ -77,10 +77,8 @@ const ReadBody = () => {
     }));
 
     const handleImageSelect = async (images) => {
-        console.log('images')
-        console.log(images)
         const promises = [];
-        images.forEach((image) => promises.push(addImageToArticle(article.id, image)));
+        images.forEach((image) => promises.push(articleApi.addImage(article.id, image)));
         await Promise.all(promises);
         syncArticleFromBE();
     };

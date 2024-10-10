@@ -1,28 +1,27 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import RichInput from '../../components/RichInput';
-import { updateCategoryName, updateCategoryColor, deleteCategory } from '../../backend-adapter/BackendAdapter';
+import { categoryApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
 import ActionButton from '../../components/ActionButton';
 import AddCategory from './AddCategory';
 
 const CategoryScreen = () => {
 
-    const { allCategories, syncCategoryWithIdFromBE, getAllCategoriesFromBE } = useContext(DBContext);
+    const { allCategories, fetchCategoryById, fetchAllCategories } = useContext(DBContext);
 
     const handleColorChange = async (id, newColor) => {
-        await updateCategoryColor(id, newColor);
-        syncCategoryWithIdFromBE(id);
-
+        await categoryApi.updateColor(id, newColor);
+        fetchCategoryById(id);
     };
 
     const handleNameChange = async (id, newName) => {
-        await updateCategoryName(id, newName);
-        syncCategoryWithIdFromBE(id);
+        await categoryApi.updateName(id, newName);
+        fetchCategoryById(id);
     };
 
     const handleDeleteCategory = async (id) => {
-        await deleteCategory(id);
-        getAllCategoriesFromBE();
+        await categoryApi.deleteById(id);
+        fetchAllCategories();
     }
 
     return (

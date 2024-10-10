@@ -7,15 +7,16 @@ const categoryService = require('./CategoryService');
 const commentService = require('./CommentService');
 const imageService = require('./ImageService');
 
+
 function initService() {
-    ipcMain.handle('article/updateMainText', (event, articleId, newMainText) => updateArticleMainText(articleId, newMainText));
-    ipcMain.handle('article/updateExplanation', (event, articleId, newExplanation) => updateArticleExplanation(articleId, newExplanation));
-    ipcMain.handle('article/addImage', (event, articleId, image) => addImageToArticle(articleId, image));
-    ipcMain.handle('article/addAnnotation', (event, articleId, annotation) => addAnnotationToArticle(articleId, annotation));
     ipcMain.handle('article/create', (event, article) => createArticle(article));
+    ipcMain.handle('article/updateMainText', (event, id, newMainText) => updateArticleMainText(id, newMainText));
+    ipcMain.handle('article/updateExplanation', (event, id, newExplanation) => updateArticleExplanation(id, newExplanation));
+    ipcMain.handle('article/addImage', (event, id, image) => addImageToArticle(id, image));
+    ipcMain.handle('article/addAnnotation', (event, id, annotation) => addAnnotationToArticle(id, annotation));
     ipcMain.handle('article/getAll', getAllArticles);
-    ipcMain.handle('article/getById', (event, articleId) => getArticleById(articleId));
-    ipcMain.handle('article/deleteById', (event, articleId) => deleteArticleById(articleId));
+    ipcMain.handle('article/getById', (event, id) => getArticleById(id));
+    ipcMain.handle('article/deleteById', (event, id) => deleteArticleById(id));
 }
 
 async function createArticle(article) { // TODO must be transactional
@@ -30,23 +31,23 @@ async function createArticle(article) { // TODO must be transactional
 
         console.log('article added, id: ' + entity.id);
 
-        if (article.owner)
-            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
+        // if (article.owner)
+        //     await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
 
-        if (article.category)
-            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name));
+        // if (article.category)
+        //     await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name));
 
-        if (article.tags)
-            for (const tag of article.tags)
-                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
+        // if (article.tags)
+        //     for (const tag of article.tags)
+        //         await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
 
-        if (article.comments)
-            for (const comment of article.comments)
-                await entity.addComment(await commentService.addComment(comment.text));
+        // if (article.comments)
+        //     for (const comment of article.comments)
+        //         await entity.addComment(await commentService.addComment(comment.text));
 
-        if (article.images)
-            for (const image of article.images)
-                await entity.addImage(await imageService.createImage(image));
+        // if (article.images)
+        //     for (const image of article.images)
+        //         await entity.addImage(await imageService.createImage(image));
 
         return await getArticleById(entity.dataValues.id);
     } catch (e) {
@@ -55,12 +56,12 @@ async function createArticle(article) { // TODO must be transactional
     }
 }
 
-async function deleteArticleById(articleId) {
+async function deleteArticleById(id) {
     try {
-        const article = await sequelize.models.article.findByPk(articleId);
+        const article = await sequelize.models.article.findByPk(id);
 
         if (!article)
-            throw ('no article found with id: ' + articleId);
+            throw ('no article found with id: ' + id);
 
         await article.destroy();
     } catch (error) {
@@ -68,14 +69,14 @@ async function deleteArticleById(articleId) {
     }
 }
 
-async function updateArticleMainText(articleId, newMainText) {
+async function updateArticleMainText(id, newMainText) {
     try {
         await sequelize.models.article.update(
             {
                 text: newMainText.html,
                 textJson: newMainText.json
             },
-            { where: { id: articleId } }
+            { where: { id: id } }
         );
 
     } catch (error) {
@@ -83,14 +84,14 @@ async function updateArticleMainText(articleId, newMainText) {
     }
 }
 
-async function updateArticleExplanation(articleId, newExplanation) {
+async function updateArticleExplanation(id, newExplanation) {
     try {
         await sequelize.models.article.update(
             {
                 explanation: newExplanation.html,
                 explanationJson: newExplanation.json
             },
-            { where: { id: articleId } }
+            { where: { id: id } }
         );
 
     } catch (error) {
@@ -98,46 +99,46 @@ async function updateArticleExplanation(articleId, newExplanation) {
     }
 }
 
-async function addImageToArticle(articleId, image) {
+async function addImageToArticle(id, image) {
     try {
-        const article = await sequelize.models.article.findByPk(articleId);
+        const article = await sequelize.models.article.findByPk(id);
 
         if (!article)
-            throw ('no article found with id: ' + articleId);
+            throw ('no article found with id: ' + id);
 
         await article.addImage(await imageService.createImage(image));
 
-        return await getArticleById(articleId);
+        return await getArticleById(id);
 
     } catch (error) {
         console.error('Error in addImage', error);
     }
 }
 
-async function addAnnotationToArticle(articleId, annotation) {
+async function addAnnotationToArticle(id, annotation) {
     try {
-        const article = await sequelize.models.article.findByPk(articleId);
+        const article = await sequelize.models.article.findByPk(id);
 
         if (!article)
-            throw ('no article found with id: ' + articleId);
+            throw ('no article found with id: ' + id);
 
         await article.addAnnotation(await annotationService.createAnnotation(annotation));
 
-        return await getArticleById(articleId);
+        return await getArticleById(id);
 
     } catch (error) {
         console.error('Error in addAnnotationToArticle', error);
     }
 }
 
-async function getArticleEntity(articleId) {
-    const entity = await sequelize.models.article.findByPk(articleId);
+async function getArticleEntity(id) {
+    const entity = await sequelize.models.article.findByPk(id);
 
     return entity;
 }
 
-async function getArticleById(articleId) {
-    const entity = await sequelize.models.article.findByPk(articleId,
+async function getArticleById(id) {
+    const entity = await sequelize.models.article.findByPk(id,
         {
             include: [
                 { model: sequelize.models.comment },
@@ -180,15 +181,34 @@ function articleEntity2Json(entity) {
     if (entity.dataValues.tags)
         entity.dataValues.tags = entity.dataValues.tags.map(tag => ({ id: tag.id }));
     if (entity.dataValues.images)
-        entity.dataValues.images = entity.dataValues.images.map(image => ({ id: image.id }));
+        entity.dataValues.images = entity.dataValues.images.map(image => imageEntity2Json(image));
     if (entity.dataValues.annotations)
         entity.dataValues.annotations = entity.dataValues.annotations.map(annotation => ({ id: annotation.id }));
     if (entity.dataValues.comments)
-        entity.dataValues.comments = entity.dataValues.comments.map(comment => ({ id: comment.id }));
+        entity.dataValues.comments = entity.dataValues.comments.map(comment => commentEntity2Json(comment));
     if (entity.dataValues.relatedArticles)
         entity.dataValues.relatedArticles = entity.dataValues.relatedArticles.map(
             relatedArticle => ({ id: relatedArticle.id, title: relatedArticle.title }));
     return entity.dataValues;
+}
+
+function commentEntity2Json(entity) {
+    return {
+        id: entity.dataValues.id,
+        text: entity.dataValues.text,
+        textJson: entity.dataValues.textJson
+    };
+}
+
+function imageEntity2Json(entity) {
+    return {
+        id: entity.dataValues.id,
+        name: entity.dataValues.name,
+        type: entity.dataValues.type,
+        path: entity.dataValues.path,
+        size: entity.dataValues.size,
+        description: entity.dataValues.description,
+    };
 }
 
 function calculateNumber(datestr) {

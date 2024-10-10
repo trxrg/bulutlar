@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { format } from 'date-fns';
-import { createArticle, getAllCategories } from '../../backend-adapter/BackendAdapter.js';
+import { articleApi, categoryApi } from '../../backend-adapter/BackendAdapter.js';
 import TagList from './TagList.jsx';
 import RichText from './RichText.jsx';
 import { AppContext } from '../../store/app-context.jsx'
+import { DBContext } from '../../store/db-context.jsx';
 import CategoryList from './CategoryList.jsx';
 import OwnerList from './OwnerList.jsx';
 import ImageUpload from './ImageUpdload.jsx';
 
 const AddArticle = () => {
 
-  const { allTags, allOwners, afterSubmitArticle, afterDeleteArticle } = useContext(AppContext);
+  const { afterSubmitArticle, afterDeleteArticle } = useContext(AppContext);
+  const { allTags, allOwners, } = useContext(DBContext);
 
   const [dispTitle, setDispTitle] = useState('');
   const [dispDate, setDispDate] = useState(new Date());
@@ -37,7 +39,9 @@ const AddArticle = () => {
 
   const getCategories = async () => {
     try {
-      const response = await getAllCategories();
+      const response = await categoryApi.getAll();
+      console.log('categories:');
+      console.log(response);
       setAllCategories(response.map((category) => category.name));
     } catch (err) {
       console.error(err);
@@ -51,7 +55,7 @@ const AddArticle = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const result = await createArticle({
+      const result = await articleApi.create({
         title: dispTitle,
         date: dispDate,
         explanation: dispExplanation,

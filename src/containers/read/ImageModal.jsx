@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-modal';
 import { MagnifyingGlassPlusIcon, MagnifyingGlassMinusIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import ActionButton from '../../components/ActionButton';
-import { deleteImage } from '../../backend-adapter/BackendAdapter.js';
+import { imageApi } from '../../backend-adapter/BackendAdapter.js';
 import { ReadContext } from "../../store/read-context";
 import RoundButton from '../../components/RoundButton.jsx';
 
@@ -24,7 +24,7 @@ const ImageModal = ({ isOpen, onClose, image }) => {
 
     const handleDeleteImage = async () => {
         onClose();
-        await deleteImage(image.id);
+        await imageApi.deleteById(image.id);
         syncArticleFromBE();
     }
 

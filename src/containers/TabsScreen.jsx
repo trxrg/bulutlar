@@ -2,13 +2,15 @@ import React, { useContext } from 'react';
 import SearchScreen from './search/SearchScreen.jsx';
 import NewReadScreen from './read/NewReadScreen.jsx';
 import { AppContext } from '../store/app-context.jsx'
+import { DBContext } from '../store/db-context.jsx';
 import ReadContextProvider from '../store/read-context';
 
 import { XMarkIcon } from '@heroicons/react/24/solid';
 
 const TabsScreen = () => {
 
-  const { activeTabId, setActiveTabId, closeTab, tabs, allArticles, } = useContext(AppContext);
+  const { activeTabId, setActiveTabId, closeTab, tabs } = useContext(AppContext);
+  const { allArticles, } = useContext(DBContext);
 
   const handleTabClick = (tabId) => {
     setActiveTabId(tabId);

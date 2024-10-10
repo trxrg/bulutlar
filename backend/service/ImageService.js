@@ -4,10 +4,9 @@ const fs = require('fs').promises;
 const { sequelize } = require("../sequelize");
 
 function initService() {
-    ipcMain.handle('image/deleteImage', (event, imageId) => deleteImage(imageId));
-    ipcMain.handle('image/getImageDataById', (event, imageId) => getImageDataById(imageId));
-    ipcMain.handle('image/getImageDataByPath', (event, path) => getImageDataByPath(path));
-    ipcMain.handle('image/getInfoById', (event, imageId) => getInfoById(imageId));
+    ipcMain.handle('image/getDataById', (event, id) => getImageDataById(id));
+    ipcMain.handle('image/getDataByPath', (event, path) => getImageDataByPath(path));
+    ipcMain.handle('image/deleteById', (event, id) => deleteImageById(id));
 }
 
 async function createImage(image) {
@@ -60,20 +59,7 @@ async function getImageDataByPath(image) {
     }    
 }
 
-async function getInfoById(id) {
-    try {
-        const image = await sequelize.models.image.findByPk(id);
-
-        if (!image)
-            throw ('no image found with id: ' + id);
-
-        return image.dataValues;
-    } catch (err) {
-        console.error('Error in getInfoById', err);
-    }    
-}
-
-async function deleteImage(imageId) {
+async function deleteImageById(imageId) {
 
     try {
         const image = await sequelize.models.image.findByPk(imageId);

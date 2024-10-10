@@ -3,8 +3,8 @@ const { Op } = require("sequelize");
 const { sequelize } = require("../sequelize");
 
 function initService() {
-    ipcMain.handle('comment/updateText', (event, commentId, newText) => updateText(commentId, newText));
-    ipcMain.handle('comment/getById', (event, commentId) => getById(commentId));
+    ipcMain.handle('comment/updateText', (event, id, newText) => updateText(id, newText));
+    ipcMain.handle('comment/getById', (event, id) => getById(id));
 
     ipcMain.handle('addComment', (event, commentText) => addComment(commentText));
     ipcMain.handle('getCommentById', (event, commentId) => getById(commentId));

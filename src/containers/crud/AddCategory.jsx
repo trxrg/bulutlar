@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import ActionButton from "../../components/ActionButton";
-import { createCategory } from "../../backend-adapter/BackendAdapter";
+import { categoryApi } from "../../backend-adapter/BackendAdapter";
 import { DBContext } from "../../store/db-context";
 
 const generateRandomColor = () => {
@@ -14,7 +14,7 @@ const AddCategory = ({ onClose }) => {
     const [name, setName] = useState('');
     const [msg, setMsg] = useState('');
 
-    const { getAllCategoriesFromBE } = useContext(DBContext);
+    const { fetchAllCategories } = useContext(DBContext);
 
     useEffect(() => {
         setColor(generateRandomColor());
@@ -28,14 +28,14 @@ const AddCategory = ({ onClose }) => {
             return;
         }
 
-        const result = await createCategory({ name: name, color: color });
+        const result = await categoryApi.create({ name: name, color: color });
         if (result.error) {
             console.log('createCategory returned an error');
             console.log(result);
             setMsg(result.error.message || 'validation error');
             return;
         }
-        getAllCategoriesFromBE();
+        fetchAllCategories();
         onClose();
         setName('');
         setColor(generateRandomColor());

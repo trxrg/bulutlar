@@ -3,17 +3,15 @@ const { Op } = require("sequelize");
 const { sequelize } = require("../sequelize");
 
 function initService() {
-    ipcMain.handle('addTag', (event, tagName) => addTag(tagName));
-    ipcMain.handle('updateTagName', (event, tagName, newName) => updateTagName(tagName, newName));
-    ipcMain.handle('getTagWithName', (event, tagName) => getTagWithName(tagName));
-    ipcMain.handle('getTagWithNameLike', (event, nameLike) => getTagWithNameLike(nameLike));
-    ipcMain.handle('getTagWithId', (event, id) => getTagWithId(id));
-    ipcMain.handle('getAllTags', getAllTags);
-    ipcMain.handle('deleteTagWithName', deleteTagWithName);
+    ipcMain.handle('tag/create', (event, tag) => createTag(tag));
+    ipcMain.handle('tag/updateName', (event, id, newName) => updateTagName(id, newName));
+    ipcMain.handle('tag/getAll', getAllTags);
+    ipcMain.handle('tag/getById', (event, id) => getTagWithId(id));
+    ipcMain.handle('tag/deleteById', (event, id) => deleteTagById(id));
 }
 
-async function addTag(tagName) {
-    const result = await sequelize.models.tag.create({ name: tagName });
+async function createTag(tag) {
+    const result = await sequelize.models.tag.create({ name: tag.name });
     return result.dataValues;
 }
 
@@ -68,13 +66,13 @@ async function getAllTags() {
     return result.map(item => item.dataValues);
 }
 
-async function deleteTagWithName(tagName) {
+async function deleteTagById(tagName) {
     await sequelize.models.tag.destroy({ where: { name: tagName } });
     return getAllTags();
 }
 
 module.exports = {
-    addTag,
+    addTag: createTag,
     addTagIfNotPresent,
     getTagWithName,
     getTagWithNameAddIfNotPresent,

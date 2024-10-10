@@ -1,8 +1,7 @@
-import { useState } from 'react';
-
 import './App.css';
 import MainScreen from './containers/MainScreen';
 import AppContextProvider from './store/app-context';
+import DBContextProvider from './store/db-context';
 
 function App() {
 
@@ -18,9 +17,11 @@ function App() {
 
   return (
     <div className='bg-stone-300'>
-      <AppContextProvider>
-        <MainScreen></MainScreen>
-      </AppContextProvider>
+      <DBContextProvider>
+        <AppContextProvider>
+          <MainScreen></MainScreen>
+        </AppContextProvider>
+      </DBContextProvider>
     </div>
   );
 }

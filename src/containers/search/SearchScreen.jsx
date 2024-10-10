@@ -1,21 +1,12 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useRef } from 'react';
 import SplitPane from 'react-split-pane';
 
 import SearchResults from './SearchResults.jsx';
 import SearchControls from './SearchControls.jsx';
-import { AppContext } from '../../store/app-context.jsx'
 
 const SearchScreen = () => {
 
-  const { allOwnersLoaded, allTagsLoaded } = useContext(AppContext);
-
-  const [paneSize, setPaneSize] = useState('300');
-
   const searchResultsRef = useRef();
-
-  const handleResize = (size) => {
-    setPaneSize(size);
-  };
 
   const handleFilterChanged = (filtering) => {
     try {
@@ -28,12 +19,10 @@ const SearchScreen = () => {
   return (
     <SplitPane
       split="vertical"
-      defaultSize={paneSize}
       minSize={300}
       maxSize={600}
-      onChange={handleResize}
+      size={'30%'}
       style={{
-        // padding: '10px', top: 0,
         position: 'absolute',
         left: 0,
         overflow: 'hidden',

@@ -17,7 +17,7 @@ const ReadSidePanel = () => {
 
     return (
         <div className='p-2'>
-            <TagList selectedTags={article.tags} onTagsChange={handleTagsChanged}></TagList>
+            {/* <TagList selectedTags={article.tags} onTagsChange={handleTagsChanged}></TagList> */}
         </div>
     );
 }

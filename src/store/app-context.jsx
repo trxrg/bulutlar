@@ -1,122 +1,16 @@
-import { createContext, useState, useEffect } from 'react';
-import { getAllArticles, getAllTags, getAllOwners, getAllCategories, getArticleById, getCategoryById, getOwnerById } from '../backend-adapter/BackendAdapter';
+import { createContext, useState, useContext } from 'react';
+import { DBContext } from './db-context';
 
-export const AppContext = createContext(
-
-);
+export const AppContext = createContext();
 
 export default function AppContextProvider({ children }) {
-    const [allArticles, setAllArticles] = useState([]);
-    const [allOwners, setAllOwners] = useState([]);
-    const [allOwnersLoaded, setAllOwnersLoaded] = useState(false);
-    const [allTags, setAllTags] = useState([]);
-    const [allTagsLoaded, setAllTagsLoaded] = useState(false);
-    const [allCategories, setAllCategories] = useState([]);
-    const [allCategoriesLoaded, setAllCategoriesLoaded] = useState(false);
     const [activeScreen, setActiveScreen] = useState('tabs');
     const [activeTabId, setActiveTabId] = useState('search');
     const [tabs, setTabs] = useState([
         { id: 'search', title: 'Search' }
     ]);
 
-    const syncArticleWithIdFromBE = async (id) => {
-        try {
-            const updatedArticle = await getArticleById(id);
-
-            console.log('updated article')
-            console.log(updatedArticle)
-
-            const updatedArticles = allArticles.map(article => article.id === id ? updatedArticle : article);
-            setAllArticles(updatedArticles);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const syncCategoryWithIdFromBE = async (id) => {
-        try {
-            const updatedCategory = await getCategoryById(id);
-
-            console.log('updated category')
-            console.log(updatedCategory)
-
-            const updatedCategories = allCategories.map(category => category.id === id ? updatedCategory : category);
-            setAllCategories(updatedCategories);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const syncOwnerWithIdFromBE = async (id) => {
-        try {
-            const updatedOwner = await getOwnerById(id);
-
-            console.log('updated owner')
-            console.log(updatedOwner)
-
-            const updatedOwners = allOwners.map(owner => owner.id === id ? updatedOwner : owner);
-            setAllOwners(updatedOwners);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const getAllArticlesFromBE = async () => {
-        try {
-            const response = await getAllArticles();
-            setAllArticles(response);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const getAllTagsFromBE = async () => {
-        try {
-            const response = await getAllTags();
-            setAllTags(response);
-            setAllTagsLoaded(true);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const getAllOwnersFromBE = async () => {
-        try {
-            const response = await getAllOwners();
-            setAllOwners(response);
-            setAllOwnersLoaded(true);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const getAllCategoriesFromBE = async () => {
-        try {
-            const response = await getAllCategories();
-            setAllCategories(response);
-            setAllCategoriesLoaded(true);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const getDataFromBE = async () => {
-        console.log('syncing with DB');
-        try {
-            await Promise.all([
-                getAllArticlesFromBE(),
-                getAllOwnersFromBE(),
-                getAllTagsFromBE(),
-                getAllCategoriesFromBE()
-            ]);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    useEffect(() => {
-        getDataFromBE();
-    }, []);
+    const { allArticles, fetchAllArticles, fetchAllData } = useContext(DBContext);
 
     const handleAddTab = (articleId) => {
         if (!allArticles.map(article => article.id).includes(articleId))
@@ -159,45 +53,32 @@ export default function AppContextProvider({ children }) {
     }
 
     const afterSubmitArticle = async (id) => {
-        await getDataFromBE();
+        await fetchAllData();
         handleAddTab(id);
         setActiveScreen('tabs');
     }
 
     const afterDeleteArticle = async (id) => {
-        await getAllArticlesFromBE();
+        await fetchAllArticles();
         handleCloseTab(id);
         setActiveScreen('tabs');
     }
 
     const ctxValue = {
         linkClicked: handleLinkClicked,
-        activeTabId: activeTabId,
+        activeTabId,
         setActiveTabId: setActiveTabId,
         addTab: handleAddTab,
         closeTab: handleCloseTab,
-        tabs: tabs,
-        allArticles,
-        allOwners,
-        allTags,
-        // allOwnersLoaded,
-        // allTagsLoaded,
-        allCategories,
+        tabs,
         activeScreen,
         setActiveScreen,
-        syncWithDB: getDataFromBE,
         handleAddArticle,
         handleAddTab,
         handleCancel,
-        getAllArticlesFromBE,
-        getAllOwnersFromBE,
-        getAllCategoriesFromBE,
-        syncArticleWithIdFromBE,
-        syncOwnerWithIdFromBE,
         afterDeleteArticle,
         afterSubmitArticle,
-        syncCategoryWithIdFromBE
-    }; // TODO fill this
+    };
 
     return <AppContext.Provider value={ctxValue}>
         {children}

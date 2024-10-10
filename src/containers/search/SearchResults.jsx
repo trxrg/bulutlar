@@ -2,10 +2,12 @@ import React, { useState, useEffect, useContext } from 'react';
 
 import ArticleShort from './ArticleShort.jsx';
 import { AppContext } from '../../store/app-context.jsx';
+import { DBContext } from '../../store/db-context.jsx';
 
 const SearchResults = React.forwardRef((props, ref) => {
 
-    const { handleAddTab, allArticles } = useContext(AppContext);
+    const { handleAddTab } = useContext(AppContext);
+    const { allArticles } = useContext(DBContext);
 
     /* when articles prop changes filteredArticles are not set (useState)
         so i added useEffect to set articles to filteredArticles

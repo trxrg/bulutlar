@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ImageInput from './ImageInput';
 import ActionButton from '../../components/ActionButton';
-import { getImageDataByPath } from '../../backend-adapter/BackendAdapter.js';
+import { imageApi } from '../../backend-adapter/BackendAdapter.js';
 
 const ImageUpload = ({ images, setImages}) => {
 
@@ -33,7 +33,7 @@ const ImageUpload = ({ images, setImages}) => {
         const fetchImageDatas = async () => {
             console.log('fetchImageDatas called');
             try {
-                const datas = await Promise.all(images.map(async image => ({ ...image, data: await getImageDataByPath(image) })));
+                const datas = await Promise.all(images.map(async image => ({ ...image, data: await imageApi.getDataByPath(image) })));
                 setImageDatas(datas);
             } catch (err) {
                 console.error('error in fetchImageDatas', err);

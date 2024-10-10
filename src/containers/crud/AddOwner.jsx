@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import ActionButton from "../../components/ActionButton";
-import { createOwner } from "../../backend-adapter/BackendAdapter";
+import { ownerApi } from "../../backend-adapter/BackendAdapter";
 import { DBContext } from "../../store/db-context";
 
 const AddOwner = ({ onClose }) => {
@@ -8,7 +8,7 @@ const AddOwner = ({ onClose }) => {
     const [name, setName] = useState('');
     const [msg, setMsg] = useState('');
 
-    const { getAllOwnersFromBE } = useContext(DBContext);
+    const { fetchAllOwners } = useContext(DBContext);
 
     const handleAddOwner = async (event) => {
         event.preventDefault();
@@ -18,7 +18,7 @@ const AddOwner = ({ onClose }) => {
             return;
         }
 
-        const result = await createOwner({ name: name });
+        const result = await ownerApi.create({ name: name });
         if (result.error) {
             console.log('createOwner returned an error');
             console.log(result);
@@ -26,7 +26,7 @@ const AddOwner = ({ onClose }) => {
             return;
         }
         setName('');
-        getAllOwnersFromBE();
+        fetchAllOwners();
         onClose();
     }
 

@@ -4,14 +4,14 @@ const { sequelize } = require("../sequelize");
 
 function initService() {
     ipcMain.handle('owner/create', (event, owner) => createOwner(owner));
-    ipcMain.handle('owner/getById', (event, id) => getById(id));
-    ipcMain.handle('owner/deleteOwner', (event, id) => deleteOwnerById(id));
-    ipcMain.handle('owner/updateName', (event, id, newName) => updateName(id, newName));
+    ipcMain.handle('owner/updateName', (event, id, newName) => updateOwnerName(id, newName));
+    ipcMain.handle('owner/getAll', getAllOwners);
+    ipcMain.handle('owner/getById', (event, id) => getOwnerById(id));
+    ipcMain.handle('owner/deleteById', (event, id) => deleteOwnerById(id));
 
     ipcMain.handle('getOwnerWithName', (event, ownerName) => getOwnerWithName(ownerName));
     ipcMain.handle('getOwnerWithNameLike', (event, nameLike) => getOwnerWithNameLike(nameLike));
-    
-    ipcMain.handle('getAllOwners', getAllOwners);
+
     ipcMain.handle('deleteOwnerWithName', (event, ownerName) => deleteOwnerWithName(ownerName));
 }
 
@@ -20,19 +20,19 @@ async function createOwner(owner) {
         const result = await sequelize.models.owner.create({ name: owner.name.trim() });
         return result.dataValues;
     } catch (e) {
-        return {error: e};
+        return { error: e };
     }
 }
 
-async function updateName(id, newName) {
+async function updateOwnerName(id, newName) {
     try {
         const owner = await sequelize.models.owner.findByPk(id);
         const result = await owner.update({ name: newName });
         return result.dataValues;
     } catch (e) {
         console.error('Error updating owner name:', e);
-        return {error: e};
-    }    
+        return { error: e };
+    }
 }
 
 async function getOwnerWithName(ownerName) {
@@ -53,10 +53,10 @@ async function getOwnerWithNameAddIfNotPresent(ownerName) {
     return result;
 }
 
-async function getById(id) {
+async function getOwnerById(id) {
     const result = await sequelize.models.owner.findByPk(id);
     if (!result)
-        return {error: 'Owner not found'};
+        return { error: 'Owner not found' };
     result.dataValues.articleCount = await result.countArticles();
     return result.dataValues;
 }
@@ -83,7 +83,7 @@ async function getAllOwners() {
             {
                 model: sequelize.models.article,
                 as: 'articles',
-                attributes: [], 
+                attributes: [],
             },
         ],
         group: ['Owner.id'],
@@ -101,10 +101,10 @@ async function deleteOwnerById(id) {
     try {
         const owner = await sequelize.models.owner.findByPk(id);
         const articleCount = await owner.countArticles();
-        
+
         if (articleCount > 0)
             throw ('Cannot delete owner with articles');
-        
+
         if (!owner)
             throw ('no owner found with id: ' + id);
 

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import Select, { components } from 'react-select';
-import { AppContext } from '../../store/app-context';
+import { DBContext } from '../../store/db-context';
 import ActionButton from '../../components/ActionButton';
 import GeneralModal from "../../components/GeneralModal";
 import AddCategory from "./AddCategory";
@@ -45,7 +45,7 @@ const customStyles = {
 
 const CategoryList = ({ onCategoryChange }) => {
 
-    const { allCategories } = useContext(AppContext);
+    const { allCategories } = useContext(DBContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const categoryOptions = allCategories.map(category => ({

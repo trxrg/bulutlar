@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import Select, { components } from 'react-select';
-import { AppContext } from '../../store/app-context';
+import { DBContext } from '../../store/db-context';
 import ActionButton from '../../components/ActionButton';
 import GeneralModal from "../../components/GeneralModal";
 import AddOwner from './AddOwner';
@@ -43,7 +43,7 @@ const customStyles = {
 
 const OwnerList = ({ onOwnerChange }) => {
 
-    const { allOwners } = useContext(AppContext);
+    const { allOwners } = useContext(DBContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const ownerOptions = allOwners.map(owner => ({
@@ -84,3 +84,4 @@ const OwnerList = ({ onOwnerChange }) => {
 };
 
 export default OwnerList;
+

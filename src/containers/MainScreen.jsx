@@ -22,10 +22,10 @@ const MainScreen = () => {
                     <div className='h-2/3'>
                         {activeScreen === 'tabs' ?
                             <div className='flex gap-2'>
-                                <ActionButton color='blue' onClick={() => setActiveScreen('owners')}>Owners</ActionButton>   
-                                <ActionButton color='blue' onClick={() => setActiveScreen('categories')}>Categories</ActionButton>   
+                                <ActionButton color='blue' onClick={() => setActiveScreen('owners')}>Owners</ActionButton>
+                                <ActionButton color='blue' onClick={() => setActiveScreen('categories')}>Categories</ActionButton>
                                 <ActionButton color='blue' onClick={handleRandom}>Random</ActionButton>
-                                <ActionButton color='blue' onClick={handleAddArticle}>Add Article</ActionButton>                                
+                                <ActionButton color='blue' onClick={handleAddArticle}>Add Article</ActionButton>
                             </div>
                             :
                             <button

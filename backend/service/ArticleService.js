@@ -31,23 +31,23 @@ async function createArticle(article) { // TODO must be transactional
 
         console.log('article added, id: ' + entity.id);
 
-        // if (article.owner)
-        //     await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
+        if (article.owner)
+            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
 
-        // if (article.category)
-        //     await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name));
+        if (article.category)
+            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name));
 
-        // if (article.tags)
-        //     for (const tag of article.tags)
-        //         await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
+        if (article.tags)
+            for (const tag of article.tags)
+                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
 
-        // if (article.comments)
-        //     for (const comment of article.comments)
-        //         await entity.addComment(await commentService.addComment(comment.text));
+        if (article.comments)
+            for (const comment of article.comments)
+                await entity.addComment(await commentService.addComment(comment.text));
 
-        // if (article.images)
-        //     for (const image of article.images)
-        //         await entity.addImage(await imageService.createImage(image));
+        if (article.images)
+            for (const image of article.images)
+                await entity.addImage(await imageService.createImage(image));
 
         return await getArticleById(entity.dataValues.id);
     } catch (e) {

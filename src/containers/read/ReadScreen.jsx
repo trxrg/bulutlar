@@ -1,38 +1,34 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import SplitPane from 'react-split-pane';
-import ArticleRead from './ArticleRead';
-import ReadControls from './ReadControls';
+import ReadMainPanel from './ReadMainPanel';
+import ReadSidePanel from './ReadSidePanel';
+import { ReadContext } from '../../store/read-context';
 
-const ReadScreen = ({ article, allTags, onEditClicked, onLinkClicked, syncWithDB }) => {
-  const [paneSize, setPaneSize] = useState('70%');
-
-
-  const handleResize = (size) => {
-    setPaneSize(size);
-  };
+const ReadScreen = () => {
+  
+  const { sidePanelCollapsed } = useContext(ReadContext);
 
   return (
     <SplitPane
       split="vertical"
-      defaultSize={paneSize}
       minSize={400}
       maxSize={-200}
-      onChange={handleResize}
+      size={sidePanelCollapsed ? '100%' : '70%'}
       style={{
-        // padding: '10px', top: 0,
         position: 'absolute',
         left: 0,
         overflow: 'hidden',
-        height: '100%'
+        height: '100%',
+        transition: 'all 0.3s ease'
       }}
-      paneStyle={{ overflow: 'auto' }}
+      paneStyle={{ }}
       resizerStyle={{ background: '#6b6969', cursor: 'col-resize', width: '12px' }}
     >
-      <div>
-        <ArticleRead article={article} onEditClicked={onEditClicked} onLinkClicked={onLinkClicked}></ArticleRead>
+      <div className='h-full'>
+        <ReadMainPanel></ReadMainPanel>
       </div>
-      <div>
-        <ReadControls allTags={allTags} article={article} syncWithDB={syncWithDB}></ReadControls>
+      <div className={`bg-gray-200 transition-transform duration-300 ${sidePanelCollapsed ? 'transform translate-x-full w-0' : 'w-full'}`}>
+        <ReadSidePanel></ReadSidePanel>
       </div>
     </SplitPane>
   );

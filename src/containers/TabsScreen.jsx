@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import SearchScreen from './search/SearchScreen.jsx';
-import NewReadScreen from './read/NewReadScreen.jsx';
+import ReadScreen from './read/ReadScreen.jsx';
 import { AppContext } from '../store/app-context.jsx'
 import { DBContext } from '../store/db-context.jsx';
 import ReadContextProvider from '../store/read-context';
@@ -80,7 +80,7 @@ const TabsScreen = () => {
               <SearchScreen />
               :
               <ReadContextProvider article={getArticle(tab.id)}>
-                <NewReadScreen></NewReadScreen>
+                <ReadScreen></ReadScreen>
               </ReadContextProvider>
             }
           </div>

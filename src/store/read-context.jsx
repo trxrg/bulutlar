@@ -1,4 +1,4 @@
-import { createContext, useRef, useState, useContext } from 'react';
+import { createContext, useRef, useState, useContext, useEffect } from 'react';
 import { DBContext } from './db-context';
 
 export const ReadContext = createContext();
@@ -10,6 +10,7 @@ export default function ReadContextProvider({ children, article }) {
     const [editable, setEditable] = useState(false);
     const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
     const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
+    const [fullScreen, setFullScreen] = useState(false);
 
     const readBodyRef = useRef();
 
@@ -53,6 +54,16 @@ export default function ReadContextProvider({ children, article }) {
             readBodyRef.current.addImage();
     }
 
+    useEffect(() => {
+        if (fullScreen) {
+            setLeftPanelCollapsed(true);
+            setRightPanelCollapsed(true);
+        } else {
+            setLeftPanelCollapsed(false);
+            setRightPanelCollapsed(false);
+        }
+    }, [fullScreen]);
+
     const ctxValue = {
         article,
         readBodyRef,    
@@ -70,6 +81,8 @@ export default function ReadContextProvider({ children, article }) {
         setRightPanelCollapsed,
         leftPanelCollapsed,
         setLeftPanelCollapsed,
+        fullScreen,
+        setFullScreen,
     };
 
     return <ReadContext.Provider value={ctxValue}>

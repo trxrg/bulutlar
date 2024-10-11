@@ -1,13 +1,13 @@
 import React, { useState, useContext } from 'react';
 import AddLinkModal from '../../common/AddLinkModal.jsx';
-import { LinkIcon, PencilIcon, PhotoIcon, PencilSquareIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { LinkIcon, PencilIcon, PhotoIcon, PencilSquareIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import FormatButton from '../../common/FormatButton.jsx';
 import ActionButton from '../../common/ActionButton.jsx';
 
 const ReadControls = () => {
 
-    const { increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
+    const { increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, fullScreen, setFullScreen } = useContext(ReadContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
@@ -54,6 +54,14 @@ const ReadControls = () => {
                     <FormatButton
                         onClick={() => setEditable(true)}
                     ><PencilIcon className="w-4 h-4" /></FormatButton>}
+                {fullScreen ? 
+                <FormatButton onClick={() => setFullScreen(false)}>
+                    <ArrowsPointingInIcon className="w-4 h-4" />
+                </FormatButton>
+                :
+                <FormatButton onClick={() => setFullScreen(true)}>
+                    <ArrowsPointingOutIcon className="w-4 h-4" />
+                </FormatButton>}
                 {rightPanelCollapsed ?
                     <FormatButton onClick={() => setRightPanelCollapsed(false)}>
                         <ChevronLeftIcon className="w-4 h-4" />

@@ -42,7 +42,7 @@ export default function ArticleShort({ article, handleClick }) {
         >
             <div onClick={() => handleClick(article.id)} >
                 <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600">{article.title}</h2>
-                <h3>{owner.name + '  -  ' + getFormattedDate(article.date) + ' ' + getDayOfWeek(article.date) + ' (' + article.number + ')'}</h3>
+                <h3>{owner.name + '  -  ' + category.name + ' - ' + getFormattedDate(article.date) + ' ' + getDayOfWeek(article.date) + ' (' + article.number + ')'}</h3>
                 <article className='my-2'>
                     {parse(article.text.substring(0, numberOfCharsForText) + '...')}
                 </article>

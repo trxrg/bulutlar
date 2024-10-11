@@ -8,7 +8,8 @@ export default function ReadContextProvider({ children, article }) {
     const { fetchArticleById } = useContext(DBContext);
     const [fontSize, setFontSize] = useState('text-xl');
     const [editable, setEditable] = useState(false);
-    const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
+    const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
+    const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
 
     const readBodyRef = useRef();
 
@@ -65,8 +66,10 @@ export default function ReadContextProvider({ children, article }) {
         decreaseFontSize,
         editable,
         setEditable,
-        sidePanelCollapsed,
-        setSidePanelCollapsed,
+        rightPanelCollapsed,
+        setRightPanelCollapsed,
+        leftPanelCollapsed,
+        setLeftPanelCollapsed,
     };
 
     return <ReadContext.Provider value={ctxValue}>

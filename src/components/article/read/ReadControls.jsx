@@ -7,7 +7,7 @@ import ActionButton from '../../common/ActionButton.jsx';
 
 const ReadControls = () => {
 
-    const { increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent, addImage, sidePanelCollapsed, setSidePanelCollapsed } = useContext(ReadContext);
+    const { increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
 
@@ -17,8 +17,16 @@ const ReadControls = () => {
     }
 
     return (
-        <div className='flex justify-between py-2 bg-stone-50'>
+        <div className='flex justify-between py-2'>
             <div className='flex space-x-2'>
+                {leftPanelCollapsed ?
+                    <FormatButton onClick={() => setLeftPanelCollapsed(false)}>
+                        <ChevronRightIcon className="w-4 h-4" />
+                    </FormatButton>
+                    :
+                    <FormatButton onClick={() => setLeftPanelCollapsed(true)}>
+                        <ChevronLeftIcon className="w-4 h-4" />
+                    </FormatButton>}
                 <FormatButton onClick={decreaseFontSize}>A-</FormatButton>
                 <FormatButton onClick={increaseFontSize}>A+</FormatButton>
                 <FormatButton onClick={(e) => handleToggleStyle(e, 'BOLD')}><strong>B</strong></FormatButton>
@@ -46,12 +54,12 @@ const ReadControls = () => {
                     <FormatButton
                         onClick={() => setEditable(true)}
                     ><PencilIcon className="w-4 h-4" /></FormatButton>}
-                {sidePanelCollapsed ?
-                    <FormatButton onClick={() => setSidePanelCollapsed(false)}>
+                {rightPanelCollapsed ?
+                    <FormatButton onClick={() => setRightPanelCollapsed(false)}>
                         <ChevronLeftIcon className="w-4 h-4" />
-                    </FormatButton> 
+                    </FormatButton>
                     :
-                    <FormatButton onClick={() => setSidePanelCollapsed(true)}>
+                    <FormatButton onClick={() => setRightPanelCollapsed(true)}>
                         <ChevronRightIcon className="w-4 h-4" />
                     </FormatButton>}
             </div>

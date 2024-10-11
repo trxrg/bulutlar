@@ -5,8 +5,8 @@ import ReadBody from './ReadBody.jsx';
 
 const ReadScreen = () => {
   return (
-    <div className="flex flex-col h-full mx-auto bg-stone-50">
-      <div className="p-6 flex-shrink-0 border-b shadow-lg">
+    <div className="flex flex-col h-full">
+      <div className="flex-shrink-0">
         <ReadHeader />
       </div>
       <div className="flex-1">

@@ -4,11 +4,11 @@ import ReadContent from './ReadContent';
 
 const ReadBodyMain = () => {
     return (
-        <div className='container flex flex-col h-full border border-blue-500'>
-            <div className='p-6 flex-shrink-0'>
+        <div className='flex flex-col h-full'>
+            <div className='p-6 flex-shrink-0 border-b shadow-lg bg-stone-100'>
                 <ReadControls />
             </div>
-            <div className='flex-1 overflow-y-auto border border-red-500'>
+            <div className='flex-1 overflow-y-auto bg-stone-50'>
                 <ReadContent />
             </div>
         </div>

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 
-import { ReadContext } from '../store/read-context.jsx';
+import { ReadContext } from '../../store/read-context.jsx';
 
 const AddLinkModal = ({ isOpen, onClose }) => {
 

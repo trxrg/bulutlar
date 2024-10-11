@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 
 import ArticleShort from './ArticleShort.jsx';
-import { AppContext } from '../../store/app-context.jsx';
-import { DBContext } from '../../store/db-context.jsx';
+import { AppContext } from '../../../store/app-context.jsx';
+import { DBContext } from '../../../store/db-context.jsx';
 
 const SearchResults = React.forwardRef((props, ref) => {
 

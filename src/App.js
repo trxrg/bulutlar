@@ -1,5 +1,5 @@
 import './App.css';
-import MainScreen from './containers/MainScreen';
+import MainScreen from './components/MainScreen';
 import AppContextProvider from './store/app-context';
 import DBContextProvider from './store/db-context';
 

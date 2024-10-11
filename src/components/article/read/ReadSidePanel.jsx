@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import TagList from '../crud/TagList.jsx' 
-import { updateArticle } from '../../backend-adapter/BackendAdapter.js';
-import { ReadContext } from '../../store/read-context.jsx';
-import { AppContext } from '../../store/app-context.jsx';
+import TagList from '../../tag/TagList.jsx' 
+import { updateArticle } from '../../../backend-adapter/BackendAdapter.js';
+import { ReadContext } from '../../../store/read-context.jsx';
+import { AppContext } from '../../../store/app-context.jsx';
 
 const ReadSidePanel = () => {
 
@@ -16,7 +16,7 @@ const ReadSidePanel = () => {
     }
 
     return (
-        <div className='p-2'>
+        <div className='p-2 h-full border border-red-500'>
             {/* <TagList selectedTags={article.tags} onTagsChange={handleTagsChanged}></TagList> */}
         </div>
     );

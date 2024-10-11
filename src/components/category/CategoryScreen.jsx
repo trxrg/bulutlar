@@ -1,9 +1,9 @@
 import React, { useContext, useCallback } from 'react';
 import debounce from 'lodash.debounce';
-import RichInput from '../../components/RichInput';
+import RichInput from '../common/RichInput';
 import { categoryApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
-import ActionButton from '../../components/ActionButton';
+import ActionButton from '../common/ActionButton';
 import AddCategory from './AddCategory';
 
 const CategoryScreen = () => {

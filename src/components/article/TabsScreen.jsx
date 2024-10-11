@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import SearchScreen from './search/SearchScreen.jsx';
-import ReadScreen from './read/ReadScreen.jsx';
-import { AppContext } from '../store/app-context.jsx'
-import { DBContext } from '../store/db-context.jsx';
-import ReadContextProvider from '../store/read-context';
+import ReadBody from './read/ReadBody.jsx';
+import { AppContext } from '../../store/app-context.jsx'
+import { DBContext } from '../../store/db-context.jsx';
+import ReadContextProvider from '../../store/read-context.jsx';
 
 import { XMarkIcon } from '@heroicons/react/24/solid';
+import ReadScreen from './read/ReadScreen.jsx';
 
 const TabsScreen = () => {
 
@@ -73,14 +74,14 @@ const TabsScreen = () => {
       </div>
 
       {/* Tab content */}
-      <div className='flex-1'>
+      <div className='flex-1 overflow-hidden'>
         {tabs.map(tab => (
           <div key={tab.id} className={activeTabId === tab.id ? 'h-full relative' : 'hidden'}>
             {tab.id == 'search' ?
               <SearchScreen />
               :
               <ReadContextProvider article={getArticle(tab.id)}>
-                <ReadScreen></ReadScreen>
+                <ReadScreen />
               </ReadContextProvider>
             }
           </div>

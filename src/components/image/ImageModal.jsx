@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-modal';
 import { MagnifyingGlassPlusIcon, MagnifyingGlassMinusIcon, XMarkIcon } from '@heroicons/react/24/solid';
-import ActionButton from '../../components/ActionButton';
+
+import RoundButton from '../common/RoundButton.jsx';
+import ActionButton from '../common/ActionButton.jsx';
+
 import { imageApi } from '../../backend-adapter/BackendAdapter.js';
-import { ReadContext } from "../../store/read-context";
-import RoundButton from '../../components/RoundButton.jsx';
+import { ReadContext } from "../../store/read-context.jsx";
+
 
 Modal.setAppElement('#root');
 

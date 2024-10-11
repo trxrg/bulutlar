@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import ActionButton from "../../components/ActionButton";
+import ActionButton from "../common/ActionButton";
 import { categoryApi } from "../../backend-adapter/BackendAdapter";
 import { DBContext } from "../../store/db-context";
 

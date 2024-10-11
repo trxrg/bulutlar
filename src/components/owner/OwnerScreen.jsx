@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import RichInput from '../../components/RichInput';
+import RichInput from '../common/RichInput';
 import { ownerApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
-import ActionButton from '../../components/ActionButton';
+import ActionButton from '../common/ActionButton';
 import AddOwner from './AddOwner';
 
 const OwnerScreen = () => {

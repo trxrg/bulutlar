@@ -1,7 +1,7 @@
 import parse from 'html-react-parser';
-import TagButton from '../crud/TagButton';
+import TagButton from '../../tag/TagButton';
 import React, { useContext } from 'react';
-import { DBContext } from '../../store/db-context';
+import { DBContext } from '../../../store/db-context';
 
 export default function ArticleShort({ article, handleClick }) {
 

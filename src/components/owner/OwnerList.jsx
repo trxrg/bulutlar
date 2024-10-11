@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import Select, { components } from 'react-select';
 import { DBContext } from '../../store/db-context';
-import ActionButton from '../../components/ActionButton';
-import GeneralModal from "../../components/GeneralModal";
-import AddOwner from './AddOwner';
+import ActionButton from '../common/ActionButton';
+import GeneralModal from "../common/GeneralModal";
+import AddOwner from '../owner/AddOwner';
 
 const CustomOption = (props) => {
     return (

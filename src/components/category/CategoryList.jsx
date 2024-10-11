@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
 import Select, { components } from 'react-select';
 import { DBContext } from '../../store/db-context';
-import ActionButton from '../../components/ActionButton';
-import GeneralModal from "../../components/GeneralModal";
+import ActionButton from '../common/ActionButton';
+import GeneralModal from "../common/GeneralModal";
 import AddCategory from "./AddCategory";
 
 const CustomOption = (props) => {

@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
-import AddLinkModal from '../../components/AddLinkModal.jsx';
+import AddLinkModal from '../../common/AddLinkModal.jsx';
 import { LinkIcon, PencilIcon, PhotoIcon, PencilSquareIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import { ReadContext } from '../../store/read-context.jsx';
-import FormatButton from '../../components/FormatButton.jsx';
-import ActionButton from '../../components/ActionButton.jsx';
+import { ReadContext } from '../../../store/read-context.jsx';
+import FormatButton from '../../common/FormatButton.jsx';
+import ActionButton from '../../common/ActionButton.jsx';
 
 const ReadControls = () => {
 

@@ -1,12 +1,12 @@
 import React, { useRef, useState, useContext, useEffect } from "react";
 
-import { articleApi, commentApi, imageApi, } from '../../backend-adapter/BackendAdapter.js';
-import RichEditor from "./RichEditor";
-import { ReadContext } from "../../store/read-context";
-import ImageModal from "./ImageModal.jsx";
-import ImageInput from "../crud/ImageInput.jsx";
+import { articleApi, commentApi, imageApi, } from '../../../backend-adapter/BackendAdapter.js';
+import RichEditor from "./RichEditor.jsx";
+import { ReadContext } from "../../../store/read-context.jsx";
+import ImageModal from "../../image/ImageModal.jsx";
+import ImageInput from "../../image/ImageInput.jsx";
 
-const ReadBody = () => {
+const ReadContent = () => {
 
     const { article, readBodyRef, fontSize, editable, syncArticleFromBE } = useContext(ReadContext);
 
@@ -109,7 +109,7 @@ const ReadBody = () => {
     }
 
     return (
-        <div className={`overflow-auto h-full px-6 pb-6 leading-normal ${fontSize}`}>
+        <div className={`h-full leading-normal ${fontSize}`}>
             {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border border-gray-300 rounded-lg shadow-lg p-4'>
                 <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
             </div>}
@@ -147,4 +147,4 @@ const ReadBody = () => {
     );
 };
 
-export default ReadBody;
+export default ReadContent;

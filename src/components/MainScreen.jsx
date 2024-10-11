@@ -1,10 +1,12 @@
 import React, { useContext } from 'react';
-import TabsScreen from './TabsScreen';
-import AddArticle from './crud/AddArticle';
-import { AppContext } from '../store/app-context.jsx'
-import ActionButton from '../components/ActionButton.jsx';
-import CategoryScreen from './crud/CategoryScreen.jsx';
-import OwnerScreen from './crud/OwnerScreen.jsx';
+
+import TabsScreen from './article/TabsScreen';
+import AddArticle from './article/AddArticle';
+import CategoryScreen from './category/CategoryScreen';
+import OwnerScreen from './owner/OwnerScreen';
+import ActionButton from './common/ActionButton';
+
+import { AppContext } from '../store/app-context';
 
 const MainScreen = () => {
 

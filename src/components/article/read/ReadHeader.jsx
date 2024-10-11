@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 
-import { ReadContext } from '../../store/read-context.jsx';
-import { DBContext } from '../../store/db-context.jsx';
+import { ReadContext } from '../../../store/read-context.jsx';
+import { DBContext } from '../../../store/db-context.jsx';
 import ReadControls from './ReadControls.jsx';
 
 const ReadHeader = () => {

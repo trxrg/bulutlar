@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import ArticleShort from './ArticleShort.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
+import BodyWithFixedHeader from '../../common/BodyWithFixedHeader.jsx';
 
 const SearchResults = React.forwardRef((props, ref) => {
 
@@ -14,7 +15,7 @@ const SearchResults = React.forwardRef((props, ref) => {
         but this causes double render each time articles prop changes
     */
     const [filteredArticles, setFilteredArticles] = useState([...allArticles]);
-    
+
     useEffect(() => {
         setFilteredArticles([...allArticles]);
     }, [allArticles]);
@@ -41,12 +42,12 @@ const SearchResults = React.forwardRef((props, ref) => {
     }
 
     return (
-        <div className='overflow-hidden'>
-            <div className='flex justify-center'>
-                <h3 className='text-xl text-gray-700'>{filteredArticles.length + ' articles'}</h3>
+        <BodyWithFixedHeader>
+            <h3 className='text-xl text-gray-700 py-2 flex justify-center'>{filteredArticles.length + ' articles'}</h3>
+            <div>
+                {filteredArticles.map(art => <ArticleShort handleClick={handleAddTab} key={art.id} article={art}></ArticleShort>)}
             </div>
-            {filteredArticles.map(art => <ArticleShort handleClick={handleAddTab} key={art.id} article={art}></ArticleShort>)}
-        </div>
+        </BodyWithFixedHeader>
     );
 });
 

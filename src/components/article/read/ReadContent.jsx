@@ -109,7 +109,7 @@ const ReadContent = () => {
     }
 
     return (
-        <div className={`h-full leading-normal ${fontSize}`}>
+        <div className={`leading-normal bg-stone-50 p-2 ${fontSize}`}>
             {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border border-gray-300 rounded-lg shadow-lg p-4'>
                 <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
             </div>}

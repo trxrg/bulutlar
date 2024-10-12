@@ -10,7 +10,7 @@ const ActionButton = ({ onClick, color='', children }) => {
 
     return (
         <button
-            className= {colorStyle + " flex items-center justify-center h-10 px-2 rounded-md shadow-sm select-none"}
+            className= {colorStyle + " flex items-center justify-center h-10 px-2 m-1 rounded-md shadow-sm select-none"}
             onClick={onClick}
         >
             {children}

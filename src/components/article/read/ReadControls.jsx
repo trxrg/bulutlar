@@ -22,8 +22,8 @@ const ReadControls = () => {
     }
 
     return (
-        <div className='flex justify-between py-2'>
-            <div className='flex space-x-2'>
+        <div className='flex flex-wrap justify-between p-2 bg-stone-50 border-b shadow-lg'>
+            <div className='flex flex-wrap'>
                 {leftPanelCollapsed ?
                     <FormatButton onClick={() => setLeftPanelCollapsed(false)}>
                         <ChevronRightIcon className="w-4 h-4" />
@@ -41,10 +41,10 @@ const ReadControls = () => {
                 <FormatButton onClick={addImage}><PhotoIcon className="w-4 h-4" /></FormatButton>
                 <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton>
             </div>
-            <div className='flex space-x-2'>
+            <div className='flex flex-wrap'>
                 <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>Delete Article</ActionButton>
                 {editable ?
-                    <div className='flex space-x-2'>
+                    <div className='flex flex-wrap'>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}
                             color={'blue'}>

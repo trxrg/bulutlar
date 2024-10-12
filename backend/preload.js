@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('api', {
     create:            (article)            => ipcRenderer.invoke('article/create', article),
     updateMainText:    (id, newMainText)    => ipcRenderer.invoke('article/updateMainText', id, newMainText),
     updateExplanation: (id, newExplanation) => ipcRenderer.invoke('article/updateExplanation', id, newExplanation),
+    updateTitle:       (id, newtitle)       => ipcRenderer.invoke('article/updateTitle', id, newtitle),
     addImage:          (id, image)          => ipcRenderer.invoke('article/addImage', id, image),
     addAnnotation:     (id, annotation)     => ipcRenderer.invoke('article/addAnnotation', id, annotation),
     getAll:            ()                   => ipcRenderer.invoke('article/getAll'),

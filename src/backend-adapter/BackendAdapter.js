@@ -5,6 +5,7 @@ export const articleApi = {
     create:             async (article)             => window.api.article.create(article),
     updateMainText:     async (id, newMainText)     => window.api.article.updateMainText(id, newMainText),
     updateExplanation:  async (id, newExplanation)  => window.api.article.updateExplanation(id, newExplanation),
+    updateTitle:        async (id, newTitle)        => window.api.article.updateTitle(id, newTitle),
     addImage:           async (id, newExplanation)  => window.api.article.addImage(id, newExplanation),
     getAll:             async ()                    => window.api.article.getAll(),
     getById:            async (id)                  => window.api.article.getById(id),

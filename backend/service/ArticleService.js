@@ -12,6 +12,7 @@ function initService() {
     ipcMain.handle('article/create', (event, article) => createArticle(article));
     ipcMain.handle('article/updateMainText', (event, id, newMainText) => updateArticleMainText(id, newMainText));
     ipcMain.handle('article/updateExplanation', (event, id, newExplanation) => updateArticleExplanation(id, newExplanation));
+    ipcMain.handle('article/updateTitle', (event, id, newTitle) => updateArticleTitle(id, newTitle));
     ipcMain.handle('article/addImage', (event, id, image) => addImageToArticle(id, image));
     ipcMain.handle('article/addAnnotation', (event, id, annotation) => addAnnotationToArticle(id, annotation));
     ipcMain.handle('article/getAll', getAllArticles);
@@ -96,6 +97,20 @@ async function updateArticleExplanation(id, newExplanation) {
 
     } catch (error) {
         console.error('Error in updateArticleMainText', error);
+    }
+}
+
+async function updateArticleTitle(id, newTitle) {
+    try {
+        await sequelize.models.article.update(
+            {
+                title: newTitle
+            },
+            { where: { id: id } }
+        );
+
+    } catch (error) {
+        console.error('Error in updateArticleTitle', error);
     }
 }
 

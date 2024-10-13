@@ -10,10 +10,10 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
     const inputRef = useRef(null);
 
     useEffect(() => {
-        if (inputType === 'text' && textRef.current) {
+        if (textRef.current) {
             setInputWidth(`${textRef.current.scrollWidth}px`);
         }
-    }, []);
+    }, [initialText]);
 
     useEffect(() => {
         if (inputRef.current) {

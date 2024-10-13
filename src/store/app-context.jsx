@@ -5,6 +5,7 @@ export const AppContext = createContext();
 
 export default function AppContextProvider({ children }) {
     const [activeScreen, setActiveScreen] = useState('tabs');
+    const [fullScreen, setFullScreen] = useState(false);
     const [activeTabId, setActiveTabId] = useState('search');
     const [tabs, setTabs] = useState([
         { id: 'search', title: 'Search' }
@@ -78,6 +79,8 @@ export default function AppContextProvider({ children }) {
         handleCancel,
         afterDeleteArticle,
         afterSubmitArticle,
+        fullScreen,
+        setFullScreen,
     };
 
     return <AppContext.Provider value={ctxValue}>

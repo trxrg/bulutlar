@@ -1,16 +1,17 @@
 import { createContext, useRef, useState, useContext, useEffect } from 'react';
 import { DBContext } from './db-context';
+import { AppContext } from './app-context';
 
 export const ReadContext = createContext();
 
 export default function ReadContextProvider({ children, article }) {
 
     const { fetchArticleById } = useContext(DBContext);
+    const { fullScreen } = useContext(AppContext);
     const [fontSize, setFontSize] = useState('text-xl');
     const [editable, setEditable] = useState(false);
     const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
     const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
-    const [fullScreen, setFullScreen] = useState(false);
 
     const readBodyRef = useRef();
 
@@ -81,8 +82,6 @@ export default function ReadContextProvider({ children, article }) {
         setRightPanelCollapsed,
         leftPanelCollapsed,
         setLeftPanelCollapsed,
-        fullScreen,
-        setFullScreen,
     };
 
     return <ReadContext.Provider value={ctxValue}>

@@ -36,7 +36,7 @@ const ReadBody = () => {
           split="vertical"
           minSize={containerWidth * 0.1}
           maxSize={containerWidth * 0.3}
-          size={leftPanelCollapsed ? '0%' : containerWidth * 0.3}
+          size={leftPanelCollapsed ? '0%' : containerWidth * 0.2}
           resizerStyle={leftPanelCollapsed ? { display: 'none' } : { background: '#6b6969', cursor: 'col-resize', width: '12px' }}
         >
           <div className={`h-full transition-transform duration-300 ${leftPanelCollapsed ? 'transform -translate-x-full w-0' : 'w-full'}`}>

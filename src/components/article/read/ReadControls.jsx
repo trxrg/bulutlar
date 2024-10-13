@@ -10,8 +10,9 @@ import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 
 const ReadControls = () => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, fullScreen, setFullScreen } = useContext(ReadContext);
-    const { afterDeleteArticle } = useContext(AppContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
+    
+    const { afterDeleteArticle, fullScreen, setFullScreen } = useContext(AppContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);

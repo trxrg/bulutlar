@@ -2,11 +2,13 @@ import React, { useContext } from 'react';
 
 import { ReadContext } from '../../../store/read-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
+import { AppContext } from '../../../store/app-context.jsx';
 import RichInput from '../../common/RichInput';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 
 const ReadHeader = () => {
-  const { article, fullScreen } = useContext(ReadContext);
+  const { article } = useContext(ReadContext);
+  const { fullScreen } = useContext(AppContext);
   const { getOwnerById, getCategoryById, fetchArticleById } = useContext(DBContext);
 
   const handleTitleChange = async (newName) => {

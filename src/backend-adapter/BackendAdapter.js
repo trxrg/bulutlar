@@ -47,3 +47,7 @@ export const tagApi = {
     getById:            async (id)                  => window.api.tag.getById(id),
     deleteById:         async (id)                  => window.api.tag.deleteById(id),
 };
+
+export const dbApi = {
+    loadArticles: async () => window.api.db.loadArticles(),
+}

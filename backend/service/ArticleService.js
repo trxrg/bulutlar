@@ -7,7 +7,6 @@ const categoryService = require('./CategoryService');
 const commentService = require('./CommentService');
 const imageService = require('./ImageService');
 
-
 function initService() {
     ipcMain.handle('article/create', (event, article) => createArticle(article));
     ipcMain.handle('article/updateMainText', (event, id, newMainText) => updateArticleMainText(id, newMainText));
@@ -51,6 +50,37 @@ async function createArticle(article) { // TODO must be transactional
                 await entity.addImage(await imageService.createImage(image));
 
         return await getArticleById(entity.dataValues.id);
+    } catch (e) {
+        console.error('Error adding article:', e);
+        return { error: e };
+    }
+}
+
+async function createArticleProgrammatically(article) {
+    console.log('adding article with title: ' + article.title);
+
+    try {
+
+        article.date = new Date();
+        article.number = calculateNumber(article.date);
+        article.code = Math.random().toString(36).substring(2);
+        article.category = {name: 'Art'};
+        article.comments = [{text: '<p><br></p>'}];
+
+        const entity = await sequelize.models.article.create(article);
+
+        console.log('article added, id: ' + entity.id);
+
+        if (article.owner)
+            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
+
+        if (article.category)
+            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name));
+
+        if (article.comments)
+            for (const comment of article.comments)
+                await entity.addComment(await commentService.addComment(comment.text));
+
     } catch (e) {
         console.error('Error adding article:', e);
         return { error: e };
@@ -238,5 +268,6 @@ function calculateNumber(datestr) {
 
 module.exports = {
     initService,
-    getArticleEntity
+    getArticleEntity,
+    createArticleProgrammatically,
 };

@@ -7,13 +7,27 @@ import OwnerScreen from './owner/OwnerScreen';
 import ActionButton from './common/ActionButton';
 
 import { AppContext } from '../store/app-context';
+import { DBContext } from '../store/db-context';
+
+import { dbApi } from '../backend-adapter/BackendAdapter';
+
 
 const MainScreen = () => {
 
     const { handleAddArticle, handleCancel, activeScreen, setActiveScreen, fullScreen } = useContext(AppContext);
+    const { fetchAllData } = useContext(DBContext);
 
     const handleRandom = () => {
         console.log('random clicked');
+    }
+
+    const handleLoadArticles = async () => {
+        await dbApi.loadArticles();
+        await fetchAllData();
+    }
+
+    const handleRefresh = async () => {
+        await fetchAllData();
     }
 
     return (
@@ -28,6 +42,8 @@ const MainScreen = () => {
                                 <ActionButton color='blue' onClick={() => setActiveScreen('categories')}>Categories</ActionButton>
                                 <ActionButton color='blue' onClick={handleRandom}>Random</ActionButton>
                                 <ActionButton color='blue' onClick={handleAddArticle}>Add Article</ActionButton>
+                                <ActionButton color='blue' onClick={handleLoadArticles}>Load Articles</ActionButton>
+                                <ActionButton color='blue' onClick={handleRefresh}>Refresh</ActionButton>
                             </div>
                             :
                             <button

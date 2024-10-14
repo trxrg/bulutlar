@@ -52,6 +52,9 @@ contextBridge.exposeInMainWorld('api', {
     getById:         (annotationId)           => ipcRenderer.invoke('annotation/getById', annotationId),
     updateNote:       (annotationId, newNote) => ipcRenderer.invoke('annotation/updateNote', annotationId, newNote),
   },
+  db: {
+    loadArticles: () => ipcRenderer.invoke('DB/loadArticles'),
+  },
   getOwnerWithName:          (ownerName)   => ipcRenderer.invoke('getOwnerWithName', ownerName),
   getOwnerWithNameLike:      (nameLike)    => ipcRenderer.invoke('getOwnerWithNameLike', nameLike),
   ping:                      ()            => ipcRenderer.invoke('ping'),

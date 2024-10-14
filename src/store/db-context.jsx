@@ -68,6 +68,8 @@ export default function DBContextProvider({ children }) {
     const fetchAllArticles = useCallback(async () => {
         try {
             const response = await articleApi.getAll();
+            console.log('allArticles')
+            console.log(response)
             setAllArticles(response);
         } catch (err) {
             console.error(err);
@@ -104,12 +106,10 @@ export default function DBContextProvider({ children }) {
     const fetchAllData = useCallback(async () => {
         console.log('syncing with DB');
         try {
-            await Promise.all([
-                fetchAllArticles(),
-                fetchAllOwners(),
-                fetchAllCategories(),
-                fetchAllTags(),
-            ]);
+            await fetchAllOwners();
+            await fetchAllCategories();
+            await fetchAllTags();
+            await fetchAllArticles();
         } catch (err) {
             console.error(err);
         }

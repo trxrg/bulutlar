@@ -38,6 +38,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "cheerio": "^1.0.0",
     "concurrently": "^8.2.2",
     "electron": "^28.1.4",
     "electron-is-dev": "^2.0.0",
@@ -54,6 +55,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "date-fns": "^3.6.0",
+    "docx": "^9.0.1",
     "draft-convert": "^2.1.13",
     "draft-js": "^0.11.7",
     "draft-js-export-html": "^1.4.1",
@@ -64,6 +66,7 @@
     "draftjs-to-html": "^0.9.1",
     "html-react-parser": "^5.0.11",
     "lodash.debounce": "^4.0.8",
+    "mammoth": "^1.8.0",
     "postcss-cli": "^11.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

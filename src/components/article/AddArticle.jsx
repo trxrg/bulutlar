@@ -95,8 +95,14 @@ const AddArticle = () => {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />
         </div>
-        <CategoryList onCategoryChange={setDispCategoryName}></CategoryList>
-        <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
+        <div>
+          <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Category:</label>
+          <CategoryList onCategoryChange={setDispCategoryName}></CategoryList>
+        </div>
+        <div>
+          <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Owner:</label>
+          <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
+        </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">Date:</label>
           <input
@@ -131,7 +137,7 @@ const AddArticle = () => {
           </button>
 
         </div>
-      </form>      
+      </form>
     </div>
   );
 };

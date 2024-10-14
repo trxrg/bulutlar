@@ -41,7 +41,7 @@ const customStyles = {
     }),
 };
 
-const OwnerList = ({ onOwnerChange }) => {
+const OwnerList = ({ onOwnerChange, initialValue }) => {
 
     const { allOwners } = useContext(DBContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,7 +51,10 @@ const OwnerList = ({ onOwnerChange }) => {
         label: owner.name
     }));
 
+    const [selectedOwner, setSelectedOwner] = useState(ownerOptions.find(option => option.label === initialValue));
+
     const handleChange = (selectedOption) => {
+        setSelectedOwner(selectedOption);
         onOwnerChange(selectedOption.label);
     };
 
@@ -62,9 +65,9 @@ const OwnerList = ({ onOwnerChange }) => {
 
     return (
         <div className='my-2'>
-            <label className="block text-gray-700 font-bold mb-2">Owner:</label>
             <div className="flex gap-2 w-full">
                 <Select
+                    value={selectedOwner}
                     options={ownerOptions}
                     onChange={handleChange}
                     components={{ Option: CustomOption }} // Use the custom option

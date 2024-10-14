@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         explanationJson: { type: DataTypes.JSON },
         text: { type: DataTypes.TEXT },
         textJson: { type: DataTypes.JSON },
-        code: { allowNull: false, type: DataTypes.STRING }
+        code: { allowNull: false, type: DataTypes.STRING },
     }, {
         indexes: [
             {

@@ -66,7 +66,6 @@ const CategoryList = ({ onCategoryChange }) => {
 
     return (
         <div className='my-2'>
-            <label className="block text-gray-700 font-bold mb-2" htmlFor="category">Category:</label>
             <div className="flex gap-2 w-full">
                 <Select
                     options={categoryOptions}

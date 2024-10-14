@@ -11,6 +11,7 @@ function initService() {
     ipcMain.handle('article/create', (event, article) => createArticle(article));
     ipcMain.handle('article/updateMainText', (event, id, newMainText) => updateArticleMainText(id, newMainText));
     ipcMain.handle('article/updateExplanation', (event, id, newExplanation) => updateArticleExplanation(id, newExplanation));
+    ipcMain.handle('article/updateOwner', (event, id, newOwner) => updateArticleOwner(id, newOwner));
     ipcMain.handle('article/updateTitle', (event, id, newTitle) => updateArticleTitle(id, newTitle));
     ipcMain.handle('article/addImage', (event, id, image) => addImageToArticle(id, image));
     ipcMain.handle('article/addAnnotation', (event, id, annotation) => addAnnotationToArticle(id, annotation));
@@ -141,6 +142,17 @@ async function updateArticleTitle(id, newTitle) {
 
     } catch (error) {
         console.error('Error in updateArticleTitle', error);
+    }
+}
+
+async function updateArticleOwner(id, newOwnerName) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+        const owner = await ownerService.getOwnerWithNameAddIfNotPresent(newOwnerName);
+        article.setOwner(owner);
+
+    } catch (error) {
+        console.error('Error in updateArticleOwner', error);
     }
 }
 

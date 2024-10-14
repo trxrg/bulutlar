@@ -20,7 +20,7 @@ const sequelize = new Sequelize({
 // Configure Umzug for migrations
 const umzug = new Umzug({
   migrations: {
-    glob: 'migrations/*.js',
+    glob: '../migrations/*.js',
   },
   storage: new SequelizeStorage({ sequelize }),
   context: sequelize.getQueryInterface(),

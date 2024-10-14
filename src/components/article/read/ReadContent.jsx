@@ -116,15 +116,17 @@ const ReadContent = () => {
             <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
                 <RichEditor name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
             </div>
-            {imageDatasLoaded && imageDatas.map(image =>
-                <div key={image.id} className="my-4 flex justify-center" onClick={() => openImageModal(image)}>
-                    <img
-                        src={image.data}
-                        alt={image.description ? image.description : "image"}
-                        className="max-w-full h-auto border border-gray-300 rounded cursor-pointer"
-                    />
-                </div>
-            )}
+            <div className="flex flex-col justify-center items-center w-full">
+                {imageDatasLoaded && imageDatas.map(image =>
+                    <div key={image.id} className="my-4 w-full max-w-4xl" onClick={() => openImageModal(image)}>
+                        <img
+                            src={image.data}
+                            alt={image.description ? image.description : "image"}
+                            className="w-full h-auto border border-gray-300 rounded cursor-pointer"
+                        />
+                    </div>
+                )}
+            </div>
             {(!isHtmlStringEmpty(article.comments[0].text) || editable) &&
                 <div>
                     <div>

@@ -11,7 +11,8 @@ function initService() {
     ipcMain.handle('article/create', (event, article) => createArticle(article));
     ipcMain.handle('article/updateMainText', (event, id, newMainText) => updateArticleMainText(id, newMainText));
     ipcMain.handle('article/updateExplanation', (event, id, newExplanation) => updateArticleExplanation(id, newExplanation));
-    ipcMain.handle('article/updateOwner', (event, id, newOwner) => updateArticleOwner(id, newOwner));
+    ipcMain.handle('article/updateOwner', (event, id, newOwnerName) => updateArticleOwner(id, newOwnerName));
+    ipcMain.handle('article/updateCategory', (event, id, newCategoryName) => updateArticleCategory(id, newCategoryName));
     ipcMain.handle('article/updateTitle', (event, id, newTitle) => updateArticleTitle(id, newTitle));
     ipcMain.handle('article/addImage', (event, id, image) => addImageToArticle(id, image));
     ipcMain.handle('article/addAnnotation', (event, id, annotation) => addAnnotationToArticle(id, annotation));
@@ -153,6 +154,17 @@ async function updateArticleOwner(id, newOwnerName) {
 
     } catch (error) {
         console.error('Error in updateArticleOwner', error);
+    }
+}
+
+async function updateArticleCategory(id, newCategoryName) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+        const cat = await categoryService.getCategoryWithNameAddIfNotPresent(newCategoryName);
+        article.setCategory(cat);
+
+    } catch (error) {
+        console.error('Error in updateArticleCategory', error);
     }
 }
 

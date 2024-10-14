@@ -41,7 +41,7 @@ const customStyles = {
     }),
 };
 
-const OwnerList = ({ onOwnerChange, initialValue }) => {
+const OwnerList = ({ initialValue, onOwnerChange }) => {
 
     const { allOwners } = useContext(DBContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,7 +79,7 @@ const OwnerList = ({ onOwnerChange, initialValue }) => {
                 />
                 <ActionButton color="blue" onClick={handleNewClicked}>New</ActionButton>
             </div>
-            <GeneralModal title={'Add New Owner'} isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)}>
+            <GeneralModal title={'Add New Owner'} isOpen={isModalOpen} onRequestClose={()=>setIsModalOpen(false)}>
                 <AddOwner onClose={()=>setIsModalOpen(false)}></AddOwner>
             </GeneralModal>
         </div>

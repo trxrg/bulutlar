@@ -43,7 +43,7 @@ const customStyles = {
     }),
 };
 
-const CategoryList = ({ onCategoryChange }) => {
+const CategoryList = ({ initialValue, onCategoryChange }) => {
 
     const { allCategories } = useContext(DBContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,7 +55,10 @@ const CategoryList = ({ onCategoryChange }) => {
         articleCount: category.articleCount
     }));
 
+    const [selectedCategory, setSelectedCategory] = useState(categoryOptions.find(option => option.label === initialValue));
+
     const handleChange = (selectedOption) => {
+        setSelectedCategory(selectedOption);
         onCategoryChange(selectedOption.label);
     };
 
@@ -68,6 +71,7 @@ const CategoryList = ({ onCategoryChange }) => {
         <div className='my-2'>
             <div className="flex gap-2 w-full">
                 <Select
+                    value={selectedCategory}
                     options={categoryOptions}
                     onChange={handleChange}
                     components={{ Option: CustomOption }} // Use the custom option
@@ -79,8 +83,8 @@ const CategoryList = ({ onCategoryChange }) => {
                 />
                 <ActionButton color="blue" onClick={handleNewClicked}>New</ActionButton>
             </div>
-            <GeneralModal title={'Add New Category'} isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)}>
-                <AddCategory onClose={()=>setIsModalOpen(false)}></AddCategory>
+            <GeneralModal title={'Add New Category'} isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
+                <AddCategory onClose={() => setIsModalOpen(false)}></AddCategory>
             </GeneralModal>
         </div>
     );

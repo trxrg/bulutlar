@@ -14,6 +14,7 @@ function initService() {
     ipcMain.handle('article/updateOwner', (event, id, newOwnerName) => updateArticleOwner(id, newOwnerName));
     ipcMain.handle('article/updateCategory', (event, id, newCategoryName) => updateArticleCategory(id, newCategoryName));
     ipcMain.handle('article/updateTitle', (event, id, newTitle) => updateArticleTitle(id, newTitle));
+    ipcMain.handle('article/updateDate', (event, id, newDate) => updateArticleDate(id, newDate));
     ipcMain.handle('article/addImage', (event, id, image) => addImageToArticle(id, image));
     ipcMain.handle('article/addAnnotation', (event, id, annotation) => addAnnotationToArticle(id, annotation));
     ipcMain.handle('article/getAll', getAllArticles);
@@ -141,6 +142,19 @@ async function updateArticleTitle(id, newTitle) {
             { where: { id: id } }
         );
 
+    } catch (error) {
+        console.error('Error in updateArticleTitle', error);
+    }
+}
+
+async function updateArticleDate(id, newDate) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+
+        if (!article)
+            throw ('no article found with id: ' + id);
+        
+        article.update({ date: newDate });
     } catch (error) {
         console.error('Error in updateArticleTitle', error);
     }

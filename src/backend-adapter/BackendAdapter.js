@@ -8,6 +8,7 @@ export const articleApi = {
     updateTitle:        async (id, newTitle)        => window.api.article.updateTitle(id, newTitle),
     updateOwner:        async (id, newOwnerName)    => window.api.article.updateOwner(id, newOwnerName),
     updateCategory:     async (id, newCategoryName) => window.api.article.updateCategory(id, newCategoryName),
+    updateDate:         async (id, newDate)         => window.api.article.updateDate(id, newDate),
     addImage:           async (id, image)           => window.api.article.addImage(id, image),
     getAll:             async ()                    => window.api.article.getAll(),
     getById:            async (id)                  => window.api.article.getById(id),

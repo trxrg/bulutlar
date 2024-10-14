@@ -13,11 +13,11 @@ import { articleApi, categoryApi } from '../../backend-adapter/BackendAdapter.js
 
 const AddArticle = () => {
 
-  const { afterSubmitArticle, afterDeleteArticle } = useContext(AppContext);
-  const { allTags, allOwners, } = useContext(DBContext);
+  const { afterSubmitArticle } = useContext(AppContext);
+  const { allTags } = useContext(DBContext);
 
   const [dispTitle, setDispTitle] = useState('');
-  const [dispDate, setDispDate] = useState(new Date());
+  const [dispDate, setDispDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [dispExplanation, setDispExplanation] = useState('');
   const [dispMainText, setDispMainText] = useState('');
   const [dispCommentText, setDispCommentText] = useState('');
@@ -108,7 +108,7 @@ const AddArticle = () => {
           <input
             type="date"
             id="dateInput"
-            value={format(dispDate, 'yyyy-MM-dd')}
+            value={dispDate}
             onChange={(e) => setDispDate(e.target.value)}
             required
             className='border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:border-blue-500'
@@ -135,7 +135,6 @@ const AddArticle = () => {
           <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 my-2 rounded focus:outline-none focus:shadow-outline">
             Submit
           </button>
-
         </div>
       </form>
     </div>

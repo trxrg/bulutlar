@@ -11,6 +11,7 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    title: 'Bulutlar',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -25,7 +26,8 @@ const createWindow = () => {
           // Add more directives as needed
         }
       }
-    }
+    },
+    title: 'Bulutlar',
   })
 
   mainWindow.setMenuBarVisibility(false);

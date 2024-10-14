@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         text: { type: DataTypes.TEXT },
         textJson: { type: DataTypes.JSON },
         code: { allowNull: false, type: DataTypes.STRING },
+        isEditable: {type: DataTypes.BOOLEAN, defaultValue: true},
     }, {
         indexes: [
             {

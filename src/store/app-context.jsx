@@ -11,7 +11,7 @@ export default function AppContextProvider({ children }) {
         { id: 'search', title: 'Search' }
     ]);
 
-    const { allArticles, fetchAllArticles, fetchAllData } = useContext(DBContext);
+    const { allArticles, fetchAllData } = useContext(DBContext);
 
     const handleAddTab = (articleId) => {
         if (!allArticles.map(article => article.id).includes(articleId))
@@ -60,7 +60,7 @@ export default function AppContextProvider({ children }) {
     }
 
     const afterDeleteArticle = async (id) => {
-        await fetchAllArticles();
+        await fetchAllData();
         handleCloseTab(id);
         setActiveScreen('tabs');
     }

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import SplitPane from 'react-split-pane';
 
 import SearchResults from './SearchResults.jsx';
@@ -7,6 +7,19 @@ import SearchControls from './SearchControls.jsx';
 const SearchScreen = () => {
 
   const searchResultsRef = useRef();
+
+  const [containerWidth, setContainerWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setContainerWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleFilterChanged = (filtering) => {
     try {
@@ -19,9 +32,9 @@ const SearchScreen = () => {
   return (
     <SplitPane
       split="vertical"
-      minSize={300}
-      maxSize={600}
-      size={'30%'}
+      minSize={containerWidth * 0.2}
+      maxSize={containerWidth * 0.6}
+      size={containerWidth * 0.3}
       style={{
         position: 'absolute',
         left: 0,

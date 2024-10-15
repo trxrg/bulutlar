@@ -59,9 +59,6 @@ export default function ReadContextProvider({ children, article }) {
         if (fullScreen) {
             setLeftPanelCollapsed(true);
             setRightPanelCollapsed(true);
-        } else {
-            setLeftPanelCollapsed(false);
-            setRightPanelCollapsed(false);
         }
     }, [fullScreen]);
 

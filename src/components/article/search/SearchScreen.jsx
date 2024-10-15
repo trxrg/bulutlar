@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import SplitPane from 'react-split-pane';
 
-import SearchResults from './SearchResults.jsx';
+import SearchResults from './search-results/SearchResults.jsx';
 import SearchControls from './SearchControls.jsx';
 
 const SearchScreen = () => {

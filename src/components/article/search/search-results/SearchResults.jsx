@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 
 import ArticleShort from './ArticleShort.jsx';
-import { AppContext } from '../../../store/app-context.jsx';
-import { DBContext } from '../../../store/db-context.jsx';
-import BodyWithFixedHeader from '../../common/BodyWithFixedHeader.jsx';
+import { AppContext } from '../../../../store/app-context.jsx';
+import { DBContext } from '../../../../store/db-context.jsx';
+import BodyWithFixedHeader from '../../../common/BodyWithFixedHeader.jsx';
 
 const SearchResults = React.forwardRef((props, ref) => {
 

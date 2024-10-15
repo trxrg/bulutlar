@@ -1,5 +1,5 @@
 import './App.css';
-import MainScreen from './components/MainScreen';
+import AppScreen from './components/app/AppScreen';
 import AppContextProvider from './store/app-context';
 import DBContextProvider from './store/db-context';
 
@@ -19,7 +19,7 @@ function App() {
     <div className='bg-stone-300'>
       <DBContextProvider>
         <AppContextProvider>
-          <MainScreen></MainScreen>
+          <AppScreen />
         </AppContextProvider>
       </DBContextProvider>
     </div>

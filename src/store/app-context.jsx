@@ -4,7 +4,7 @@ import { DBContext } from './db-context';
 export const AppContext = createContext();
 
 export default function AppContextProvider({ children }) {
-    const [activeScreen, setActiveScreen] = useState('tabs');
+    const [activeScreen, setActiveScreen] = useState('home');
     const [fullScreen, setFullScreen] = useState(false);
     const [activeTabId, setActiveTabId] = useState('search');
     const [tabs, setTabs] = useState([
@@ -65,6 +65,22 @@ export default function AppContextProvider({ children }) {
         setActiveScreen('tabs');
     }
 
+    const getActiveScreenTitle = () => {
+        if (activeScreen === 'addArticle') {
+            return 'Add Article';
+        } else if (activeScreen === 'tabs') {
+            return 'Articles';
+        } else if (activeScreen === 'home') {
+            return 'Home';
+        } else if (activeScreen === 'categories') {
+            return 'Categories';
+        } else if (activeScreen === 'owners') {
+            return 'Owners';
+        }
+
+        return 'Noname'; 
+    }
+
     const ctxValue = {
         linkClicked: handleLinkClicked,
         activeTabId,
@@ -81,6 +97,7 @@ export default function AppContextProvider({ children }) {
         afterSubmitArticle,
         fullScreen,
         setFullScreen,
+        getActiveScreenTitle,
     };
 
     return <AppContext.Provider value={ctxValue}>

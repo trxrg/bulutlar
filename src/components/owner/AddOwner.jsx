@@ -37,12 +37,13 @@ const AddOwner = ({ onClose }) => {
 
     return (
         <div>
-            {msg ? <span className="text-red-400">{msg}</span> : <span>Enter owner name:</span> }
+            {msg && <span className="text-red-400">{msg}</span>}
             <div className='flex gap-2'>
                 <input
                     type="text"
                     value={name}
                     onChange={handleTextChange}
+                    placeholder="Owner name"
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <ActionButton color='blue' onClick={handleAddOwner}>Add</ActionButton>

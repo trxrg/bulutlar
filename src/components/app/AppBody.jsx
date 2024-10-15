@@ -4,6 +4,7 @@ import TabsScreen from '../article/TabsScreen';
 import AddArticle from '../article/AddArticle';
 import CategoryScreen from '../category/CategoryScreen';
 import OwnerScreen from '../owner/OwnerScreen';
+import HomeScreen from '../home/HomeScreen';
 import { AppContext } from '../../store/app-context';
 
 
@@ -13,6 +14,9 @@ const AppBody = () => {
    
     return (
         <div className='flex px-5 justify-center h-full w-full'>
+            {activeScreen === 'home' ?
+                <HomeScreen />
+                : undefined}
             {activeScreen === 'tabs' ?
                 <TabsScreen />
                 : undefined}

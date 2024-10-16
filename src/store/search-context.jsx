@@ -9,14 +9,24 @@ export default function SearchContextProvider({ children }) {
     const { fullScreen } = useContext(AppContext);
 
     const [filtering, setFiltering] = useState({});
-    const [sidePanelCollapsed, setSidePanelCollapsed] = useState({});
+    const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
     const [filteredArticles, setFilteredArticles] = useState([...allArticles]);
+
+    const [selectedOwnerNames, setSelectedOwnerNames] = useState([]);
+    const [selectedTagNames, setSelectedTagNames] = useState([]);
 
     useEffect(() => {
         if (fullScreen) {
             setSidePanelCollapsed(true);
         }
     }, [fullScreen]);
+
+    useEffect(() => {
+        setFiltering({
+            ownerNames: selectedOwnerNames,
+            tagNames: selectedTagNames,
+        });
+    }, [selectedOwnerNames, selectedTagNames]);
 
     const ctxValue = {
         filtering,
@@ -25,6 +35,10 @@ export default function SearchContextProvider({ children }) {
         setFilteredArticles,
         sidePanelCollapsed,
         setSidePanelCollapsed,
+        selectedOwnerNames,
+        setSelectedOwnerNames,
+        selectedTagNames,
+        setSelectedTagNames,
     };
 
     return (

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import SplitPane from 'react-split-pane';
 
 import SearchResults from './search-results/SearchResults.jsx';
-import SearchControls from './filtering/SearchControls.jsx';
+import SearchFilterings from './filtering/SearchFilterings.jsx';
 import { SearchContext } from '../../../store/search-context.jsx';
 
 const SearchBody = () => {
@@ -30,7 +30,7 @@ const SearchBody = () => {
             paneStyle={{ overflow: 'auto' }}
             resizerStyle={sidePanelCollapsed ? { display: 'none' } : { background: '#6b6969', cursor: 'col-resize', width: '12px' }}
         >
-            <SearchControls></SearchControls>
+            <SearchFilterings></SearchFilterings>
             <SearchResults></SearchResults>
         </SplitPane>
     );

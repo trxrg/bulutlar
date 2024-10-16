@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from '@heroicons/react/24/outline';
 import { SearchContext } from '../../../../store/search-context.jsx';
 import FormatButton from '../../../common/FormatButton.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
@@ -10,8 +10,8 @@ const SearchResultsHeader = () => {
     const { fullScreen, setFullScreen } = useContext(AppContext);
 
     return (
-        <div className='flex justify-between px-2 py-1 shadow-lg bg-stone-50'>
-            <div>
+        <div className='flex flex-wrap justify-between px-2 py-1 shadow-lg bg-stone-50'>
+            <div className='flex flex-wrap gap-1'>
                 {sidePanelCollapsed ?
                     <FormatButton onClick={() => setSidePanelCollapsed(false)}>
                         <ChevronRightIcon className="w-4 h-4" />
@@ -24,7 +24,8 @@ const SearchResultsHeader = () => {
             <div>
                 <h3 className='text-xl text-gray-700 py-2 flex justify-center'>{filteredArticles.length + ' articles'}</h3>
             </div>
-            <div>
+            <div className='flex flex-wrap gap-1'>
+                <FormatButton><PlusIcon className="w-4 h-4" /></FormatButton>
                 {fullScreen ?
                     <FormatButton onClick={() => setFullScreen(false)}>
                         <ArrowsPointingInIcon className="w-4 h-4" />

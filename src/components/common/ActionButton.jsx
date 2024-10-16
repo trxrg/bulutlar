@@ -7,10 +7,12 @@ const ActionButton = ({ onClick, color='', children }) => {
         colorStyle = "bg-red-500 hover:bg-red-600 text-gray-100";
     else if (color === 'blue')
         colorStyle = "bg-blue-500 hover:bg-blue-600 text-gray-100";
+    else
+        colorStyle = "bg-[#0C3B2E] hover:bg-[#1D4C3F] text-white";
 
     return (
         <button
-            className= {colorStyle + " flex items-center justify-center h-10 px-2 m-1 rounded-md shadow-sm select-none"}
+            className= {colorStyle + " h-10 px-2 m-1 rounded-md shadow-sm select-none"}
             onClick={onClick}
         >
             {children}

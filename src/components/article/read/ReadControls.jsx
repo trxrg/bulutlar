@@ -23,7 +23,7 @@ const ReadControls = () => {
     }
 
     return (
-        <div className='flex flex-wrap justify-between p-2 bg-stone-50 border-b shadow-lg'>
+        <div className='flex flex-wrap justify-between p-2 shadow-lg'>
             <div className='flex flex-wrap'>
                 {leftPanelCollapsed ?
                     <FormatButton onClick={() => setLeftPanelCollapsed(false)}>
@@ -38,7 +38,7 @@ const ReadControls = () => {
                 <FormatButton onClick={(e) => handleToggleStyle(e, 'BOLD')}><strong>B</strong></FormatButton>
                 <FormatButton onClick={(e) => handleToggleStyle(e, 'ITALIC')}><i>I</i></FormatButton>
                 <FormatButton onClick={(e) => handleToggleStyle(e, 'UNDERLINE')}><u>U</u></FormatButton>
-                <FormatButton onClick={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-100'>H</span></FormatButton>
+                <FormatButton onClick={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-600'>H</span></FormatButton>
                 <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-4 h-4" /></FormatButton>
                 <FormatButton onClick={addImage}><PhotoIcon className="w-4 h-4" /></FormatButton>
                 <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton>

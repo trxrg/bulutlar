@@ -109,8 +109,8 @@ const ReadContent = () => {
     }
 
     return (
-        <div className={`leading-normal bg-stone-50 p-2 ${fontSize}`}>
-            {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border border-gray-300 rounded-lg shadow-lg p-4'>
+        <div className={`leading-normal p-2 ${fontSize}`}>
+            {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='rounded-lg shadow-lg p-4'>
                 <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
             </div>}
             <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
@@ -122,7 +122,7 @@ const ReadContent = () => {
                         <img
                             src={image.data}
                             alt={image.description ? image.description : "image"}
-                            className="w-full h-auto border border-gray-300 rounded cursor-pointer"
+                            className="w-full h-auto rounded cursor-pointer"
                         />
                     </div>
                 )}

@@ -8,7 +8,7 @@ const HomeScreen = () => {
 
     return (
         <div className='flex flex-col items-center w-full h-full'>
-            <h1>Welcome to the Home Screen</h1>
+            <h1 className='text-5xl text-stone-600 p-4'>BULUTLAR</h1>
             <div className='flex'>
                 <ActionButton color='blue' onClick={() => setActiveScreen('tabs')}>Articles</ActionButton>
                 <ActionButton color='blue' onClick={() => setActiveScreen('addArticle')}>Add</ActionButton>

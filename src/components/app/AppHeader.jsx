@@ -24,8 +24,8 @@ const AppHeader = () => {
     // }
 
     return (
-        <div className={'flex justify-between items-center p-4 border-b-4 border-red-300 w-full h-full'}>
-            <h1 className='text-5xl text-gray-600'>{getActiveScreenTitle()}</h1>
+        <div className={'flex justify-between items-center py-2 px-4 border-b-4 border-red-300 w-full h-full'}>
+            <h1 className='text-3xl text-gray-600'>{getActiveScreenTitle()}</h1>
             <div className="flex justify-end items-center">
                 <div className='flex gap-2'>
                     <ActionButton color='blue' onClick={() => setActiveScreen('home')}><HomeIcon className='w-5 h-5' /></ActionButton>

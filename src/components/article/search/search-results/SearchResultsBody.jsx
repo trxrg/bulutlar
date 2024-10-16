@@ -33,7 +33,7 @@ const SearchResultsBody = () => {
     }
 
     return (
-        <div className='flex flex-col gap-2 px-2 mt-2'>
+        <div className='flex flex-col gap-5 px-5 mt-5'>
             {filteredArticles.map(art => <ArticleShort handleClick={handleAddTab} key={art.id} article={art}></ArticleShort>)}
         </div>
     );

@@ -24,7 +24,7 @@ const ReadControls = () => {
 
     return (
         <div className='flex flex-wrap justify-between p-2 shadow-lg'>
-            <div className='flex flex-wrap'>
+            <div className='flex flex-wrap gap-1'>
                 {leftPanelCollapsed ?
                     <FormatButton onClick={() => setLeftPanelCollapsed(false)}>
                         <ChevronRightIcon className="w-4 h-4" />
@@ -43,7 +43,7 @@ const ReadControls = () => {
                 <FormatButton onClick={addImage}><PhotoIcon className="w-4 h-4" /></FormatButton>
                 <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton>
             </div>
-            <div className='flex flex-wrap'>
+            <div className='flex flex-wrap gap-1'>
                 <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>Delete Article</ActionButton>
                 {editable ?
                     <div className='flex flex-wrap'>

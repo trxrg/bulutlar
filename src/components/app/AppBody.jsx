@@ -13,7 +13,7 @@ const AppBody = () => {
     const { activeScreen } = useContext(AppContext);
    
     return (
-        <div className='flex px-5 justify-center h-full w-full'>
+        <div className='flex justify-center h-full w-full'>
             {activeScreen === 'home' ?
                 <HomeScreen />
                 : undefined}

@@ -10,7 +10,7 @@ const SearchResultsHeader = () => {
     const { fullScreen, setFullScreen } = useContext(AppContext);
 
     return (
-        <div className='flex justify-between px-2 py-1'>
+        <div className='flex justify-between px-2 py-1 shadow-lg'>
             <div>
                 {sidePanelCollapsed ?
                     <FormatButton onClick={() => setSidePanelCollapsed(false)}>

@@ -5,12 +5,10 @@ import CategoryFiltering from './CategoryFiltering.jsx';
 
 const SearchFilterings = () => {
     return (
-        <div className="p-4 overflow-auto">
-            <div className="mb-4">
-                <CategoryFiltering />
-                <OwnerFiltering />
-                <TagFiltering />
-            </div>
+        <div className="flex flex-col gap-4 p-4 overflow-auto">
+            <CategoryFiltering />
+            <OwnerFiltering />
+            <TagFiltering />
         </div>
     );
 };

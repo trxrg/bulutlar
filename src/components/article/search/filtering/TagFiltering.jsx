@@ -18,9 +18,9 @@ const TagFiltering = () => {
     };
 
     return (
-        <div className="mb-4">
+        <div className='bg-stone-50 p-1 rounded-md'>
             <label className="my-2">Tag:</label>
-            <div className="overflow-auto max-h-40 p-1 my-2 border border-green-200">
+            <div className="overflow-auto max-h-40">
                 {tagNames.map(tagName => (
                     <div key={tagName} className="mb-2">
                         <label className="inline-flex items-center">

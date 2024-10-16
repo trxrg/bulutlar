@@ -7,7 +7,7 @@ const OwnerFiltering = () => {
     const { allOwners } = useContext(DBContext);
     const { selectedOwnerNames, setSelectedOwnerNames } = useContext(SearchContext);
 
-    const ownerNames = allOwners.map(owner=>owner.name);
+    const ownerNames = allOwners.map(owner => owner.name);
 
     const handleOwnerChange = (event) => {
         const { value, checked } = event.target;
@@ -15,12 +15,14 @@ const OwnerFiltering = () => {
             setSelectedOwnerNames(prevSelectedOwnerNames => [...prevSelectedOwnerNames, value]);
         else
             setSelectedOwnerNames(prevSelectedOwnerNames => prevSelectedOwnerNames.filter((ownerName) => ownerName !== value));
-    };  
+    };
 
     return (
-        <div>
-            <label className="mr-2">Owner:</label>
-            <div className="overflow-auto max-h-40 border border-green-200">
+        <div className='flex flex-col bg-stone-50 p-1 rounded-md'>
+            <div className='flex flex-shrink-0'>
+                <label className="mr-2 border-b-2">Owner:</label>
+            </div>
+            <div className="flex flex-col flex-1 overflow-auto max-h-40">
                 {ownerNames.map((ownerName) => (
                     <div key={ownerName} className="mb-2">
                         <label className="inline-flex items-center">

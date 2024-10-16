@@ -8,7 +8,7 @@ import BodyWithFixedHeader from '../../../common/BodyWithFixedHeader.jsx';
 const SearchResults = React.forwardRef((props, ref) => {
 
     const { handleAddTab } = useContext(AppContext);
-    const { allArticles } = useContext(DBContext);
+    const { allArticles, getOwnerById } = useContext(DBContext);
 
     /* when articles prop changes filteredArticles are not set (useState)
         so i added useEffect to set articles to filteredArticles
@@ -32,7 +32,7 @@ const SearchResults = React.forwardRef((props, ref) => {
         let localFilteredArticles = allArticles;
 
         if (filtering.ownerNames.length)
-            localFilteredArticles = localFilteredArticles.filter(art => filtering.ownerNames.includes(art.owner.name));
+            localFilteredArticles = localFilteredArticles.filter(art => filtering.ownerNames.includes(getOwnerById(art.ownerId).name));
 
         if (filtering.tagNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => filtering.tagNames.some(filterTagName => art.tags.map(artTag => artTag.name).includes(filterTagName)));

@@ -10,8 +10,8 @@ export default function ReadContextProvider({ children, article }) {
     const { fullScreen } = useContext(AppContext);
     const [fontSize, setFontSize] = useState('text-xl');
     const [editable, setEditable] = useState(false);
-    const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
-    const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
+    const [rightPanelCollapsed, setRightPanelCollapsed] = useState(true);
+    const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(true);
 
     const readBodyRef = useRef();
 

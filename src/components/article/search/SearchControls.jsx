@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { DBContext } from '../../../store/db-context.jsx';
-
-const SearchControls = ({ onFilterChanged }) => {
+import { SearchContext } from '../../../store/search-context.jsx';
+const SearchControls = () => {
 
     const { allOwners, allTags } = useContext(DBContext);
+    const { setFiltering } = useContext(SearchContext);
 
     const tagNames=allTags.map(tag=>tag.name);
     const ownerNames=allOwners.map(owner=>owner.name);
@@ -52,7 +53,7 @@ const SearchControls = ({ onFilterChanged }) => {
     }
 
     function handleFilterChanged() {
-        onFilterChanged({
+        setFiltering({
             ownerNames: selectedOwnerNames,
             tagNames: selectedTagNames,
             startDate,

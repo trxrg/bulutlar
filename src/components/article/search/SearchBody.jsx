@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import SplitPane from 'react-split-pane';
 
 import SearchResults from './search-results/SearchResults.jsx';
-import SearchControls from './SearchControls.jsx';
+import SearchControls from './filtering/SearchControls.jsx';
 import { SearchContext } from '../../../store/search-context.jsx';
 
 const SearchBody = () => {

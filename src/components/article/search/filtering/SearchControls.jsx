@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { DBContext } from '../../../store/db-context.jsx';
-import { SearchContext } from '../../../store/search-context.jsx';
+import { DBContext } from '../../../../store/db-context.jsx';
+import { SearchContext } from '../../../../store/search-context.jsx';
+
 const SearchControls = () => {
 
     const { allOwners, allTags } = useContext(DBContext);

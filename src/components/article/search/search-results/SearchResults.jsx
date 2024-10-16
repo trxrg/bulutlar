@@ -4,7 +4,7 @@ import BodyWithFixedHeader from '../../../common/BodyWithFixedHeader.jsx';
 import SearchResultsHeader from './SearchResultsHeader.jsx';
 import SearchResultsBody from './SearchResultsBody.jsx';
 
-const SearchResults = () => { 
+const SearchResults = () => {
     return (
         <BodyWithFixedHeader>
             <SearchResultsHeader></SearchResultsHeader>

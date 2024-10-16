@@ -8,11 +8,13 @@ const SearchScreen = () => {
 
   return (
     <SearchContextProvider>
-      <div className="flex-shrink-0">
-        <SearchHeader />
-      </div>
-      <div className="flex-1">
-        <SearchBody />
+      <div className='flex flex-col h-full'>
+        <div className="flex-shrink-0">
+          <SearchHeader />
+        </div>
+        <div className="flex-1">
+          <SearchBody />
+        </div>
       </div>
     </SearchContextProvider>
   );

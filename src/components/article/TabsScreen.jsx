@@ -76,7 +76,7 @@ const TabsScreen = () => {
       {/* Tab content */}
       <div className='flex-1 overflow-hidden'>
         {tabs.map(tab => (
-          <div key={tab.id} className={activeTabId === tab.id ? 'h-full relative' : 'hidden'}>
+          <div key={tab.id} className={activeTabId === tab.id ? 'h-full' : 'hidden'}>
             {tab.id == 'search' ?
               <SearchScreen />
               :

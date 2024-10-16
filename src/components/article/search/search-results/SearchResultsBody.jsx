@@ -8,7 +8,7 @@ import { SearchContext } from '../../../../store/search-context.jsx';
 const SearchResultsBody = () => {
 
     const { handleAddTab } = useContext(AppContext);
-    const { allArticles, getOwnerById, getTagById } = useContext(DBContext);
+    const { allArticles, getOwnerById, getTagById, getCategoryById } = useContext(DBContext);
     const { filtering, filteredArticles, setFilteredArticles } = useContext(SearchContext);
 
     useEffect(() => {
@@ -27,6 +27,9 @@ const SearchResultsBody = () => {
 
         if (filtering.tagNames && filtering.tagNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => filtering.tagNames.some(filterTagName => art.tags.map(artTag => getTagById(artTag.id).name).includes(filterTagName)));
+        
+        if (filtering.categoryNames && filtering.categoryNames.length)
+            localFilteredArticles = localFilteredArticles.filter(art => filtering.categoryNames.includes(getCategoryById(art.categoryId).name));
 
 
         setFilteredArticles(localFilteredArticles);

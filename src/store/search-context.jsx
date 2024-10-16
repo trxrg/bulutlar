@@ -14,6 +14,7 @@ export default function SearchContextProvider({ children }) {
 
     const [selectedOwnerNames, setSelectedOwnerNames] = useState([]);
     const [selectedTagNames, setSelectedTagNames] = useState([]);
+    const [selectedCategoryNames, setSelectedCategoryNames] = useState([]);
 
     useEffect(() => {
         if (fullScreen) {
@@ -25,8 +26,9 @@ export default function SearchContextProvider({ children }) {
         setFiltering({
             ownerNames: selectedOwnerNames,
             tagNames: selectedTagNames,
+            categoryNames: selectedCategoryNames,
         });
-    }, [selectedOwnerNames, selectedTagNames]);
+    }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames]);
 
     const ctxValue = {
         filtering,
@@ -39,6 +41,8 @@ export default function SearchContextProvider({ children }) {
         setSelectedOwnerNames,
         selectedTagNames,
         setSelectedTagNames,
+        selectedCategoryNames,
+        setSelectedCategoryNames,
     };
 
     return (

@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
 import { DBContext } from '../../../../store/db-context';
 import { SearchContext } from '../../../../store/search-context';
+import { useTranslation } from 'react-i18next';
 
 const CategoryFiltering = () => {
 
+    const { t } = useTranslation();
     const { allCategories } = useContext(DBContext);
     const { selectedCategoryNames, setSelectedCategoryNames } = useContext(SearchContext);
 
@@ -19,7 +21,7 @@ const CategoryFiltering = () => {
 
     return (
         <div className='bg-stone-50 p-1 rounded-md'>
-            <label className="my-2">Category:</label>
+            <label className="my-2">{t('category')}:</label>
             <div className="overflow-auto max-h-40">
                 {categoryNames.map(catName => (
                     <div key={catName} className="mb-2">

@@ -4,11 +4,14 @@ import ReadBody from './read/ReadBody.jsx';
 import { AppContext } from '../../store/app-context.jsx'
 import { DBContext } from '../../store/db-context.jsx';
 import ReadContextProvider from '../../store/read-context.jsx';
+import { useTranslation } from 'react-i18next';
 
 import { XMarkIcon } from '@heroicons/react/24/solid';
 import ReadScreen from './read/ReadScreen.jsx';
 
 const TabsScreen = () => {
+
+  const { t } = useTranslation();
 
   const { activeTabId, setActiveTabId, closeTab, tabs } = useContext(AppContext);
   const { allArticles, } = useContext(DBContext);
@@ -24,7 +27,7 @@ const TabsScreen = () => {
 
   const getTitle = (articleId) => {
     if (articleId === 'search')
-      return 'Search';
+      return t('search');
 
     const result = allArticles.find(article => article.id == articleId);
 

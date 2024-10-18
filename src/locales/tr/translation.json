@@ -1,11 +1,31 @@
-{    
+{   
+    "home": "Anasayfa",
+ 
     "article": "Yazı",
     "articles": "Yazılar",
-    "search": "Ara",
+    "articlesTR": "Yazı",
     
     "category": "Kategori",
+    "categories": "Kategoriler",
 
-    "welcome": "Hoşgeldiniz",
-    "owner": "Sahip",
-    "tag": "Etiket"
-  }
+    "comment": "Yorum",
+    "comments": "Yorumlar",
+        
+    "owner": "Kişi",
+    "owners": "Kişiler",
+        
+    "tag": "Etiket",
+    "tags": "Etiketler",
+
+    "filters": "Filtreler",
+
+    "keyword": "Anahtar kelime",
+
+    "search": "Ara",
+    "add": "Ekle",
+    "remove": "Kaldır",
+    "delete article": "Yazıyı Sil",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "ok": "Tamam"
+}

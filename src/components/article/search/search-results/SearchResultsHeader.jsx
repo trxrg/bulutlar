@@ -7,7 +7,7 @@ import { AppContext } from '../../../../store/app-context.jsx';
 const SearchResultsHeader = () => {
 
     const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed } = useContext(SearchContext);
-    const { fullScreen, setFullScreen } = useContext(AppContext);
+    const { fullScreen, setFullScreen, translate: t } = useContext(AppContext);
 
     return (
         <div className='flex flex-wrap justify-between px-2 py-1 shadow-lg bg-stone-50'>
@@ -22,7 +22,7 @@ const SearchResultsHeader = () => {
                     </FormatButton>}
             </div>
             <div>
-                <h3 className='text-xl text-gray-700 py-2 flex justify-center'>{filteredArticles.length + ' articles'}</h3>
+                <h3 className='text-xl text-gray-700 py-2 flex justify-center'>{filteredArticles.length + ' ' + t('articlesTR')}</h3>
             </div>
             <div className='flex flex-wrap gap-1'>
                 <FormatButton><PlusIcon className="w-4 h-4" /></FormatButton>

@@ -12,7 +12,7 @@ const ReadControls = () => {
 
     const { article, increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
     
-    const { afterDeleteArticle, fullScreen, setFullScreen } = useContext(AppContext);
+    const { afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
@@ -44,18 +44,18 @@ const ReadControls = () => {
                 <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton>
             </div>
             <div className='flex flex-wrap gap-1'>
-                <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>Delete Article</ActionButton>
+                <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                 {editable ?
                     <div className='flex flex-wrap'>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}
                             color={'blue'}>
-                            Save
+                            {t('save')}
                         </ActionButton>
                         <ActionButton
                             onClick={() => { resetContent(); setEditable(false); }}
                             color={'red'}>
-                            Cancel
+                            {t('cancel')}
                         </ActionButton>
                     </div>
                     :

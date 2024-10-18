@@ -1,5 +1,6 @@
 import { createContext, useState, useContext } from 'react';
 import i18n from '../i18n';
+import { useTranslation } from 'react-i18next';
 import { DBContext } from './db-context';
 
 export const AppContext = createContext();
@@ -13,6 +14,8 @@ export default function AppContextProvider({ children }) {
     ]);
 
     const { allArticles, fetchAllData } = useContext(DBContext);
+
+    const { t } = useTranslation();
 
     const handleAddTab = (articleId) => {
         if (!allArticles.map(article => article.id).includes(articleId))
@@ -68,19 +71,20 @@ export default function AppContextProvider({ children }) {
     }
 
     const getActiveScreenTitle = () => {
+        let result = '';
         if (activeScreen === 'addArticle') {
-            return 'Add Article';
+            result = 'Add Article';
         } else if (activeScreen === 'tabs') {
-            return 'Articles';
+            result = 'articles';
         } else if (activeScreen === 'home') {
-            return 'Home';
+            result = 'home';
         } else if (activeScreen === 'categories') {
-            return 'Categories';
+            result = 'categories';
         } else if (activeScreen === 'owners') {
-            return 'Owners';
+            result = 'owners';
         }
 
-        return 'Noname'; 
+        return t(result); 
     }
 
     const changeLanguage = () => {
@@ -108,6 +112,7 @@ export default function AppContextProvider({ children }) {
         setFullScreen,
         getActiveScreenTitle,
         changeLanguage,
+        translate: t,
     };
 
     return <AppContext.Provider value={ctxValue}>

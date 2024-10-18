@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
 import { DBContext } from '../../../../store/db-context';
 import { SearchContext } from '../../../../store/search-context';
+import { AppContext } from '../../../../store/app-context';
 
 const TagFiltering = () => {
 
+    const { translate: t } = useContext(AppContext);
     const { allTags } = useContext(DBContext);
     const { selectedTagNames, setSelectedTagNames } = useContext(SearchContext);
 
@@ -19,7 +21,7 @@ const TagFiltering = () => {
 
     return (
         <div className='bg-stone-50 p-1 rounded-md'>
-            <label className="my-2">Tag:</label>
+            <label className="my-2">{t('tag')}:</label>
             <div className="overflow-auto max-h-40">
                 {tagNames.map(tagName => (
                     <div key={tagName} className="mb-2">

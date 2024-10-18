@@ -1,9 +1,12 @@
 import React, { useContext } from 'react';
 import { DBContext } from '../../../../store/db-context';
 import { SearchContext } from '../../../../store/search-context';
+import { AppContext } from '../../../../store/app-context';
+import { useTranslation } from 'react-i18next';
 
 const OwnerFiltering = () => {
 
+    const { translate: t } = useContext(AppContext);
     const { allOwners } = useContext(DBContext);
     const { selectedOwnerNames, setSelectedOwnerNames } = useContext(SearchContext);
 
@@ -20,7 +23,7 @@ const OwnerFiltering = () => {
     return (
         <div className='flex flex-col bg-stone-50 p-1 rounded-md'>
             <div className='flex flex-shrink-0'>
-                <label className="mr-2 border-b-2">Owner:</label>
+                <label className="mr-2 border-b-2">{t('owner')}:</label>
             </div>
             <div className="flex flex-col flex-1 overflow-auto max-h-40">
                 {ownerNames.map((ownerName) => (

@@ -1,11 +1,31 @@
-{  
+{    
+    "home": "Home",
+    
     "article": "Article",
     "articles": "Articles",
-    "search": "Search",
+    "articlesTR": "Articles",
     
     "category": "Category",
+    "categories": "Categories",
 
-    "welcome": "Welcome",
+    "comment": "Comment",
+    "comments": "Comments",
+    
     "owner": "Owner",
-    "tag": "Tag"
+    "owners": "Owners",
+    
+    "tag": "Tag",
+    "tags": "Tags",
+
+    "filters": "Filters",
+
+    "keyword": "Keyword",
+
+    "search": "Search",
+    "add": "Add",
+    "remove": "Remove",
+    "delete article": "Delete Article",
+    "save": "Save",
+    "cancel": "Cancel",
+    "ok": "OK"
   }

@@ -3,12 +3,14 @@ import React, { useRef, useState, useContext, useEffect } from "react";
 import { articleApi, commentApi, imageApi, } from '../../../backend-adapter/BackendAdapter.js';
 import RichEditor from "./RichEditor.jsx";
 import { ReadContext } from "../../../store/read-context.jsx";
+import { AppContext } from "../../../store/app-context.jsx";
 import ImageModal from "../../image/ImageModal.jsx";
 import ImageInput from "../../image/ImageInput.jsx";
 
 const ReadContent = () => {
 
     const { article, readBodyRef, fontSize, editable, syncArticleFromBE } = useContext(ReadContext);
+    const { translate:t } = useContext(AppContext);
 
     const [imageDatasLoaded, setImageDatasLoaded] = useState(false);
     const [imageDatas, setImageDatas] = useState([]);
@@ -130,7 +132,7 @@ const ReadContent = () => {
             {(!isHtmlStringEmpty(article.comments[0].text) || editable) &&
                 <div>
                     <div>
-                        <h3 onClick={() => setActiveEditorRef()} className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">Comment</h3>
+                        <h3 onClick={() => setActiveEditorRef()} className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">{t('comment')}</h3>
                     </div>
                     <div onClick={() => setActiveEditorRef(commentEditorRef)} >
                         <RichEditor name={'comment'} htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>

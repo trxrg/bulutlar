@@ -3,7 +3,7 @@ import TagButton from '../../../tag/TagButton';
 import React, { useContext } from 'react';
 import { DBContext } from '../../../../store/db-context';
 
-export default function ArticleShort({ article, handleClick }) {
+export default function ArticleShort({ article, keywords, handleClick }) {
 
     const { getCategoryById, getTagById, getOwnerById } = useContext(DBContext);
 
@@ -34,6 +34,52 @@ export default function ArticleShort({ article, handleClick }) {
         const weekdays = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
         return weekdays[date.getDay()];
     }
+
+    const normalizeText = (text) => {
+        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    };
+
+    const highlightKeywords = (text, keywords) => {
+        const normalizedText = normalizeText(text);
+        let highlightedText = text;
+        const matches = [];
+    
+        keywords.forEach(keyword => {
+            const normalizedKeyword = normalizeText(keyword);
+            const regex = new RegExp(`(${normalizedKeyword})`, 'gi');
+            let match;
+            while ((match = regex.exec(normalizedText)) !== null) {
+                matches.push({ start: match.index, end: regex.lastIndex });
+            }
+        });
+    
+        // Sort matches by start position
+        matches.sort((a, b) => a.start - b.start);
+    
+        // Highlight the original text based on matches
+        let offset = 0;
+        matches.forEach(({ start, end }) => {
+            const originalStart = start + offset;
+            const originalEnd = end + offset;
+            highlightedText = highlightedText.slice(0, originalStart) + '<mark>' + highlightedText.slice(originalStart, originalEnd) + '</mark>' + highlightedText.slice(originalEnd);
+            offset += '<mark>'.length + '</mark>'.length;
+        });
+    
+        return highlightedText;
+    };
+
+    // const getHighlightedArticle = () => {
+
+
+    // if (keywords) {        
+    //         const highlightedTitle = highlightKeywords(article.title, keywords);
+    //         const highlightedText = highlightKeywords(article.text, keywords);
+    //         const highlightedExplanation = highlightKeywords(article.explanation, keywords);
+    //         const highlightedComments = article.comments.map(comment => ({
+    //             ...comment,
+    //             text: highlightKeywords(comment.text, keywords)
+    //         }));
+    // }
 
     return (
         <div className="rounded-md bg-gray-100 hover:bg-white border-4

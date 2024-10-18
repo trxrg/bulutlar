@@ -1,4 +1,5 @@
 import { createContext, useState, useContext } from 'react';
+import i18n from '../i18n';
 import { DBContext } from './db-context';
 
 export const AppContext = createContext();
@@ -26,6 +27,7 @@ export default function AppContextProvider({ children }) {
         setTabs(newTabs);
         setActiveTabId(newTabId);
     };
+
 
     const handleCloseTab = (tabId) => {
         let updatedTabs = [...tabs];
@@ -81,6 +83,13 @@ export default function AppContextProvider({ children }) {
         return 'Noname'; 
     }
 
+    const changeLanguage = () => {
+        if (i18n.language === 'tr')
+            i18n.changeLanguage('en');
+        else
+            i18n.changeLanguage('tr');
+    }
+
     const ctxValue = {
         linkClicked: handleLinkClicked,
         activeTabId,
@@ -98,6 +107,7 @@ export default function AppContextProvider({ children }) {
         fullScreen,
         setFullScreen,
         getActiveScreenTitle,
+        changeLanguage,
     };
 
     return <AppContext.Provider value={ctxValue}>

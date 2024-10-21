@@ -2,6 +2,7 @@ import './App.css';
 import AppScreen from './components/app/AppScreen';
 import AppContextProvider from './store/app-context';
 import DBContextProvider from './store/db-context';
+import { useEffect } from 'react';
 
 function App() {
 
@@ -14,6 +15,14 @@ function App() {
       // app.quit();
     });
   }
+
+  useEffect(() => {
+    // Detect if the user is on Windows
+    const isWindows = navigator.platform.indexOf('Win') > -1;
+    if (isWindows) {
+      document.body.classList.add('windows');
+    }
+  }, []);
 
   return (
     <div className='bg-stone-300'>

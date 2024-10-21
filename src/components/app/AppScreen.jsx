@@ -10,9 +10,9 @@ const AppScreen = () => {
 
     return (
         <div className='h-screen flex flex-col mx-auto bg-stone-200 w-screen'>
-            <div className={'flex flex-shrink-0 overflow-hidden w-full'}>
+            {/* <div className={'flex flex-shrink-0 overflow-hidden w-full'}>
                 <CustomTitleBar />
-            </div>
+            </div> */}
             <div className={fullScreen | activeScreen === 'home' ? 'hidden' : 'flex flex-shrink-0 overflow-hidden'}>
                 <AppHeader />
             </div>

@@ -13,7 +13,7 @@ const createWindow = () => {
     width: 800,
     height: 600,
     title: 'Bulutlar',
-    frame: false, // Hide the default title bar
+    // frame: false, // Hide the default title bar
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       enableRemoteModule: true, // Enable remote module

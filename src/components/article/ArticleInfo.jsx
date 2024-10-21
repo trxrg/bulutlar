@@ -35,7 +35,7 @@ const ArticleInfo = ({ article }) => {
 
     return (
         <div className="text-md text-gray-600" >
-            <span className='cursor-pointer select-none' onDoubleClick={() => setOwnerModalIsOpen(true)}>{owner.name + " | "}</span>
+            <span className='cursor-pointer select-none' onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => {e.stopPropagation(); setOwnerModalIsOpen(true)}}>{owner.name + " | "}</span>
             <span className='cursor-pointer select-none' onDoubleClick={() => setCategoryModalIsOpen(true)}>{category.name + " | "}</span>
             <span className='inline-flex'><RichInput className='flex' initialText={new Date(article.date).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate}></RichInput></span>
             <span>({article.number})</span>

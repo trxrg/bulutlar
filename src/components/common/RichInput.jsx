@@ -8,7 +8,7 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
     const [inputWidth, setInputWidth] = useState('auto');
     const textRef = useRef(null);
     const inputRef = useRef(null);
-    
+
     useEffect(() => {
         if (textRef.current) {
             setInputWidth(`${textRef.current.scrollWidth}px`);
@@ -25,16 +25,19 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
         }
     }, [isEditing]);
 
-    const handleEditClick = () => {
+    const handleEditClick = (e) => {
+        e.stopPropagation();
         setIsEditing(true);
     };
 
-    const handleConfirmClick = () => {
+    const handleConfirmClick = (e) => {
+        e.stopPropagation();
         setIsEditing(false);
         handleSave(inputValue);
     };
 
-    const handleCancelClick = () => {
+    const handleCancelClick = (e) => {
+        e.stopPropagation();
         setIsEditing(false);
         setInputValue(inputType === 'date' ? convertDateFormat(initialText) : initialText);
     };
@@ -47,36 +50,32 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
     return (
         <div {...props}>
             <div className="relative group inline-flex items-center">
-                {isEditing ? (
-                    <div className='flex'>
+                <div className='flex'>
+                    {isEditing ? (
                         <input
                             ref={inputRef}
                             type={inputType}
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
-                            className="rounded-md, px-1 transition-width duration-300"
-                            style={{ width: inputType === 'text' ? inputWidth : 'auto' }}
-                        />
-                        <FormatButton onClick={handleConfirmClick}>
-                            <CheckIcon className="w-3 h-3" />
-                        </FormatButton>
-                        <FormatButton onClick={handleCancelClick}>
-                            <XMarkIcon className="w-3 h-3" />
-                        </FormatButton>
-                    </div>
-                ) : (
-                    <div className='flex flex-wrap'>
-                        <div className='flex items-center px-1' ref={textRef} >{initialText}</div>
-                        <FormatButton
-                            className="opacity-0 transform -translate-x-full transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
+                            className="rounded-md, px-1"
+                            style={{ minWidth: inputType === 'text' ? inputWidth : 'auto' }}
+                        />)
+                        :
+                        (<div className='px-1 rounded-md border-2 border-transparent hover:border-blue-500 transition-colors duration-300'
                             onClick={handleEditClick}
-                        >
-                            <PencilIcon className="w-3 h-3" />
-                        </FormatButton>
-                    </div>
-                )}
+                            ref={textRef} >{initialText}</div>
+                        )}                    
+                        <div className={`flex gap-1 ' + ${isEditing ? 'opacity-100' : 'opacity-0'}`}>
+                            <FormatButton onClick={handleConfirmClick}>
+                                <CheckIcon className="w-3 h-3" />
+                            </FormatButton>
+                            <FormatButton onClick={handleCancelClick}>
+                                <XMarkIcon className="w-3 h-3" />
+                            </FormatButton>
+                        </div>                    
+                </div>
             </div>
-        </div>
+        </div >
     );
 };
 

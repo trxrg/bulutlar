@@ -6,7 +6,7 @@ export const ReadContext = createContext();
 
 export default function ReadContextProvider({ children, article }) {
 
-    const { fetchArticleById } = useContext(DBContext);
+    const { getOwnerById, getCategoryById, fetchArticleById } = useContext(DBContext);
     const { fullScreen } = useContext(AppContext);
     const [fontSize, setFontSize] = useState('text-xl');
     const [editable, setEditable] = useState(false);
@@ -55,6 +55,22 @@ export default function ReadContextProvider({ children, article }) {
             readBodyRef.current.addImage();
     }
 
+    const getOwnerName = () => {
+        if (article) {
+            const owner = getOwnerById(article.ownerId);
+            return owner ? owner.name : '';
+        }
+        return '';
+    }
+
+    const getCategoryName = () => {
+        if (article) {
+            const category = getCategoryById(article.categoryId);
+            return category ? category.name : '';
+        }
+        return '';
+    }
+
     useEffect(() => {
         if (fullScreen) {
             setLeftPanelCollapsed(true);
@@ -79,6 +95,8 @@ export default function ReadContextProvider({ children, article }) {
         setRightPanelCollapsed,
         leftPanelCollapsed,
         setLeftPanelCollapsed,
+        getCategoryName,
+        getOwnerName,
     };
 
     return <ReadContext.Provider value={ctxValue}>

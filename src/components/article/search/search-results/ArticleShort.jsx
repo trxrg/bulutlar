@@ -2,6 +2,7 @@ import parse from 'html-react-parser';
 import TagButton from '../../../tag/TagButton';
 import React, { useContext } from 'react';
 import { DBContext } from '../../../../store/db-context';
+import ArticleInfo from '../../ArticleInfo';
 
 export default function ArticleShort({ article, keywords, handleClick }) {
 
@@ -88,11 +89,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         >
             <div onClick={() => handleClick(article.id)} >
                 <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600">{article.title}</h2>
-                <h3>
-                    <span>{owner ? owner.name : "No owner"}</span>
-                    <span>{" | " + (category ? category.name : "No category")}</span>
-                    <span>{" | " + getFormattedDate(article.date) + ' | ' + getDayOfWeek(article.date) + ' | (' + article.number + ')'}</span>
-                </h3>
+                <ArticleInfo article={article} />
                 <article className='my-2'>
                     {parse(article.text.substring(0, numberOfCharsForText) + '...')}
                 </article>

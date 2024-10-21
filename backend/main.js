@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path')
+require('@electron/remote/main').initialize();
 const isDev = app.isPackaged ? false : require('electron-is-dev');
 
 const { initDB } = require('./sequelize');
@@ -12,8 +13,10 @@ const createWindow = () => {
     width: 800,
     height: 600,
     title: 'Bulutlar',
+    frame: false, // Hide the default title bar
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      enableRemoteModule: true, // Enable remote module
       contextIsolation: true,
       sandbox: true,
       webSecurity: true,
@@ -27,10 +30,12 @@ const createWindow = () => {
         }
       }
     },
-    title: 'Bulutlar',
   })
 
   mainWindow.setMenuBarVisibility(false);
+
+  
+  require('@electron/remote/main').enable(mainWindow.webContents);
 
   mainWindow.loadURL(
     isDev

@@ -40,8 +40,8 @@
 
 /* Custom scrollbar for WebKit browsers */
 body.windows ::-webkit-scrollbar {
-  height: 4px;
   width: 8px; /* Width of the scrollbar */
+  height: 4px; /* Height of the scrollbar for horizontal scrolling */
 }
 
 body.windows ::-webkit-scrollbar-track {
@@ -49,10 +49,14 @@ body.windows ::-webkit-scrollbar-track {
 }
 
 body.windows ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.5); /* Semi-transparent thumb */
+  background: rgba(0, 0, 0, 0.4); /* Semi-transparent thumb */
   border-radius: 10px; /* Rounded corners */
 }
 
 body.windows ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.8); /* Darker on hover */
+  background: rgba(0, 0, 0, 0.6); /* Darker on hover */
+}
+
+body.windows ::-webkit-scrollbar-thumb:active {
+  background: rgba(0, 0, 0, 0.8); /* Even darker when active */
 }

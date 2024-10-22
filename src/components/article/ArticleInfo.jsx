@@ -40,7 +40,7 @@ const ArticleInfo = ({ article, isEditable = true }) => {
     const category = getCategoryById(article.categoryId);
 
     return (
-        <div className="text-md text-gray-600" >
+        <div className="text-lg text-gray-700 py-2" >
             <span className='cursor-pointer select-none' onDoubleClick={isEditable ? () => setOwnerModalIsOpen(true) : undefined}>{owner.name + " | "}</span>
             <span className='cursor-pointer select-none' onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category.name + " | "}</span>
             <span className='inline-flex'>{isEditable ?

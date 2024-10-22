@@ -10,7 +10,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     const { getCategoryById, getTagById, getOwnerById } = useContext(DBContext);
 
     const numberOfTags = 3;
-    const numberOfCharsForText = 150;
+    const numberOfCharsForText = 400;
 
     const category = getCategoryById(article.categoryId);
     const owner = getOwnerById(article.ownerId);
@@ -67,7 +67,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
 
     return (
         <div className="rounded-md bg-gray-100 hover:bg-white border-4
-        active:bg-gray-300 active:shadow-none pl-2 pr-10 py-6 shadow-xl cursor-pointer flex"
+        active:bg-gray-300 active:shadow-none pl-2 pr-10 py-6 shadow-xl cursor-pointer flex flex-row w-full overflow-hidden"
             style={{ borderColor: category && category.color }}
         >
             <div className='min-h-full flex items-center px-3 cursor-normal' onClick={handleCheckboxChange}>
@@ -78,8 +78,8 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                     className="form-checkbox h-6 w-6 text-blue-600 mr-2"
                 />
             </div>
-            <div className='flex flex-col' onClick={(e) => handleClick(e, article.id)} >
-                <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 overflow-hidden">{article.title}</h2>
+            <div className='flex flex-1 flex-col overflow-hidden' onClick={(e) => handleClick(e, article.id)} >
+                <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{article.title}</h2>
                 <ArticleInfo article={article} isEditable={false} />
                 <article className='my-2'>
                     {parse(article.text.substring(0, numberOfCharsForText) + '...')}

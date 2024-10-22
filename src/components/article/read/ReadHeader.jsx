@@ -40,16 +40,8 @@ const ReadHeader = () => {
   }
 
   return (
-    <div className={fullScreen ? 'hidden' : 'overflow-auto p-6 bg-stone-100 border-b-4 border-red-300'}>
+    <div className={fullScreen ? 'hidden' : 'overflow-auto px-6 py-3 bg-stone-100 border-b-4 border-red-300'}>
       <RichInput initialText={article.title} handleSave={(newName) => handleChangeTitle(newName)} className="text-3xl font-semibold text-gray-800"></RichInput>
-      {/* <div className="text-md text-gray-600">
-        <span className='cursor-pointer select-none' onDoubleClick={() => setOwnerModalIsOpen(true)}>{getOwnerName() + " | "}</span>
-        <span className='cursor-pointer select-none' onDoubleClick={() => setCategoryModalIsOpen(true)}>{getCategoryName() + " | "}</span>
-        <span className='inline-flex'><RichInput className='flex' initialText={new Date(article.date).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate}></RichInput></span>
-        <span>({article.number})</span>
-      </div>
-      <OwnerModal isOpen={ownerModalIsOpen} onRequestClose={() => setOwnerModalIsOpen(false)} initialOwnerName={getOwnerName()} onConfirm={handleUpdateOwner}></OwnerModal>
-      <CategoryModal isOpen={categoryModalIsOpen} onRequestClose={() => setCategoryModalIsOpen(false)} initialCategoryName={getCategoryName()} onConfirm={handleUpdateCategory}></CategoryModal> */}
       <ArticleInfo article={article}></ArticleInfo>
     </div>
   );

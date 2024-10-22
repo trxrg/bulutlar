@@ -1,11 +1,14 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import Modal from 'react-modal';
 
 import ActionButton from '../common/ActionButton.jsx';
+import { AppContext } from '../../store/app-context.jsx';
 
 Modal.setAppElement('#root');
 
 const ConfirmModal = ({ message, isOpen, onClose, onConfirm }) => {
+
+    const { translate: t } = useContext(AppContext);
 
     return (
         <Modal
@@ -18,8 +21,8 @@ const ConfirmModal = ({ message, isOpen, onClose, onConfirm }) => {
             <div className="relative rounded-lg shadow-lg bg-white p-4">
                 <div className="text-lg">{message}</div>
                 <div className='flex justify-end gap-2 mt-4'>
-                    <ActionButton onClick={onConfirm} color='blue'>Yes</ActionButton>
-                    <ActionButton onClick={onClose} color='red'>No</ActionButton>
+                    <ActionButton onClick={onConfirm} color='blue'>{t('yes')}</ActionButton>
+                    <ActionButton onClick={onClose} color='red'>{t('cancel')}</ActionButton>
                 </div>
             </div>
         </Modal>

@@ -83,7 +83,7 @@ const ReadControls = () => {
                 isOpen={isLinkModalOpen}
                 onClose={() => setLinkModalOpen(false)}
             />
-            <ConfirmModal message={"Are you sure deleting this article?"}
+            <ConfirmModal message={t('article delete confirmation question')}
                 onClose={() => setDeleteConfirmModalOpen(false)}
                 onConfirm={async () => {
                     await articleApi.deleteById(article.id);

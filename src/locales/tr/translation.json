@@ -9,6 +9,7 @@
     "article count": "Yazı Sayısı",
     "delete article": "Yazıyı Sil",
     "go to articles": "Yazılara Git",
+    "article delete confirmation question": "Bu yazıyı silmek istediğinizden emin misiniz?",
     
     "category": "Kategori",
     "categories": "Kategoriler",
@@ -41,6 +42,8 @@
     "save": "Kaydet",
     "cancel": "İptal",
     "ok": "Tamam",
+    "yes": "Evet",
+    "no": "Hayır",
     "change": "Değiştir",
     "new": "Yeni"
 }

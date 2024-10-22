@@ -9,6 +9,7 @@
     "article count": "Article Count",
     "delete article": "Delete Article",
     "go to articles": "Go to Articles",
+    "article delete confirmation question": "Are you sure you want to delete this article?",
     
     "category": "Category",
     "categories": "Categories",
@@ -41,6 +42,8 @@
     "save": "Save",
     "cancel": "Cancel",
     "ok": "OK",
+    "yes": "Yes",
+    "no": "No",
     "change": "Change",
     "new": "New"
   }

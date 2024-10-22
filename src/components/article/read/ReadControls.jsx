@@ -35,10 +35,10 @@ const ReadControls = () => {
                     </FormatButton>}
                 <FormatButton onClick={decreaseFontSize}>A-</FormatButton>
                 <FormatButton onClick={increaseFontSize}>A+</FormatButton>
-                <FormatButton onClick={(e) => handleToggleStyle(e, 'BOLD')}><strong>B</strong></FormatButton>
-                <FormatButton onClick={(e) => handleToggleStyle(e, 'ITALIC')}><i>I</i></FormatButton>
-                <FormatButton onClick={(e) => handleToggleStyle(e, 'UNDERLINE')}><u>U</u></FormatButton>
-                <FormatButton onClick={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-600'>H</span></FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'BOLD')}><strong>B</strong></FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'ITALIC')}><i>I</i></FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'UNDERLINE')}><u>U</u></FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-600'>H</span></FormatButton>
                 <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-4 h-4" /></FormatButton>
                 <FormatButton onClick={addImage}><PhotoIcon className="w-4 h-4" /></FormatButton>
                 <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton>

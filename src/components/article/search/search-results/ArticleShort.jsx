@@ -14,28 +14,6 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     const category = getCategoryById(article.categoryId);
     const owner = getOwnerById(article.ownerId);
 
-    const getFormattedDate = (datestr) => {
-        const date = new Date(datestr);
-
-        const year = date.getFullYear();
-        let month = date.getMonth() + 1;
-        let day = date.getDate();
-
-        if (month < 10)
-            month = "0" + month;
-        if (day < 10)
-            day = "0" + day;
-
-        const result = day + "." + month + "." + year;
-        return result;
-    }
-
-    const getDayOfWeek = (datestr) => {
-        const date = new Date(datestr);
-        const weekdays = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
-        return weekdays[date.getDay()];
-    }
-
     const normalizeText = (text) => {
         return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     };
@@ -87,9 +65,9 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         active:bg-gray-300 active:shadow-none px-10 py-6 shadow-xl cursor-pointer"
             style={{ borderColor: category && category.color }}
         >
-            <div onClick={() => handleClick(article.id)} >
+            <div onClick={(e) => handleClick(e, article.id)} >
                 <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600">{article.title}</h2>
-                <ArticleInfo article={article} onClick={(e) => e.stopPropagation()}/>
+                <ArticleInfo article={article} isEditable={false}/>
                 <article className='my-2'>
                     {parse(article.text.substring(0, numberOfCharsForText) + '...')}
                 </article>

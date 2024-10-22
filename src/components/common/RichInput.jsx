@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import FormatButton from './FormatButton';
 
 const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) => {
@@ -61,18 +61,18 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
                             style={{ minWidth: inputType === 'text' ? inputWidth : 'auto' }}
                         />)
                         :
-                        (<div className='px-1 rounded-md border-2 border-transparent hover:border-blue-500 transition-colors duration-300'
+                        (<div className='px-1'
                             onClick={handleEditClick}
                             ref={textRef} >{initialText}</div>
-                        )}                    
-                        <div className={`flex gap-1 ' + ${isEditing ? 'opacity-100' : 'opacity-0'}`}>
-                            <FormatButton onClick={handleConfirmClick}>
-                                <CheckIcon className="w-3 h-3" />
-                            </FormatButton>
-                            <FormatButton onClick={handleCancelClick}>
-                                <XMarkIcon className="w-3 h-3" />
-                            </FormatButton>
-                        </div>                    
+                        )}
+                    <div className={`flex ml-1 gap-1 ' + ${isEditing ? 'opacity-100' : 'opacity-0'}`}>
+                        <FormatButton onClick={handleConfirmClick}>
+                            <CheckIcon className="w-3 h-3" />
+                        </FormatButton>
+                        <FormatButton onClick={handleCancelClick}>
+                            <XMarkIcon className="w-3 h-3" />
+                        </FormatButton>
+                    </div>
                 </div>
             </div>
         </div >

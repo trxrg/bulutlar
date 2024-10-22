@@ -17,18 +17,20 @@ export default function AppContextProvider({ children }) {
 
     const { t } = useTranslation();
 
-    const handleAddTab = (articleId) => {
+    const handleAddTab = (e, articleId) => {
         if (!allArticles.map(article => article.id).includes(articleId))
             return;
 
         if (tabs.map(tab => tab.id).includes(articleId)) {
-            setActiveTabId(articleId);
+            if (!e.ctrlKey && !e.metaKey)
+                setActiveTabId(articleId);
             return;
         }
         const newTabId = articleId;
         const newTabs = [...tabs, { id: newTabId }];
         setTabs(newTabs);
-        setActiveTabId(newTabId);
+        if (!e.ctrlKey && !e.metaKey)
+            setActiveTabId(newTabId);
     };
 
 

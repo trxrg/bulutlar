@@ -23,7 +23,7 @@ const KeywordFiltering = () => {
     return (
         <div className='bg-stone-50 p-1 rounded-md'>
             <label className="my-2">{t('keyword')}:</label>
-            <div className="flex justify-between p-1 overflow-auto max-h-40">
+            <div className="flex flex-wrap justify-between p-1 overflow-auto max-h-40">
                 <input
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}

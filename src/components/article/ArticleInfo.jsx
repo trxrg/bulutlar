@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { DBContext } from '../../store/db-context';
+import { AppContext } from '../../store/app-context.jsx';
 
 import { articleApi } from '../../backend-adapter/BackendAdapter.js';
 import OwnerModal from '../owner/OwnerModal.jsx';
@@ -8,6 +9,7 @@ import RichInput from '../common/RichInput';
 
 const ArticleInfo = ({ article, isEditable = true }) => {
 
+    const { translate: t } = useContext(AppContext);
     const { fetchAllData, getOwnerById, fetchArticleById, getCategoryById } = useContext(DBContext);
 
     const [ownerModalIsOpen, setOwnerModalIsOpen] = useState(false);
@@ -15,8 +17,8 @@ const ArticleInfo = ({ article, isEditable = true }) => {
 
     const getDayOfWeek = () => {
         const date = article.date;
-        const weekdays = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
-        return weekdays[date.getDay()];
+        const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        return t(weekdays[date.getDay()]);
     }
 
     const handleUpdateOwner = async (newOwnerName) => {

@@ -1,11 +1,12 @@
 import parse from 'html-react-parser';
 import TagButton from '../../../tag/TagButton';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { DBContext } from '../../../../store/db-context';
 import ArticleInfo from '../../ArticleInfo';
 
 export default function ArticleShort({ article, keywords, handleClick }) {
 
+    const [isSelected, setIsSelected] = useState(false);
     const { getCategoryById, getTagById, getOwnerById } = useContext(DBContext);
 
     const numberOfTags = 3;
@@ -22,7 +23,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         const normalizedText = normalizeText(text);
         let highlightedText = text;
         const matches = [];
-    
+
         keywords.forEach(keyword => {
             const normalizedKeyword = normalizeText(keyword);
             const regex = new RegExp(`(${normalizedKeyword})`, 'gi');
@@ -31,10 +32,10 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                 matches.push({ start: match.index, end: regex.lastIndex });
             }
         });
-    
+
         // Sort matches by start position
         matches.sort((a, b) => a.start - b.start);
-    
+
         // Highlight the original text based on matches
         let offset = 0;
         matches.forEach(({ start, end }) => {
@@ -43,8 +44,12 @@ export default function ArticleShort({ article, keywords, handleClick }) {
             highlightedText = highlightedText.slice(0, originalStart) + '<mark>' + highlightedText.slice(originalStart, originalEnd) + '</mark>' + highlightedText.slice(originalEnd);
             offset += '<mark>'.length + '</mark>'.length;
         });
-    
+
         return highlightedText;
+    };
+
+    const handleCheckboxChange = () => {
+        setIsSelected(!isSelected);
     };
 
     // const getHighlightedArticle = () => {
@@ -62,12 +67,20 @@ export default function ArticleShort({ article, keywords, handleClick }) {
 
     return (
         <div className="rounded-md bg-gray-100 hover:bg-white border-4
-        active:bg-gray-300 active:shadow-none px-10 py-6 shadow-xl cursor-pointer"
+        active:bg-gray-300 active:shadow-none pl-2 pr-10 py-6 shadow-xl cursor-pointer flex"
             style={{ borderColor: category && category.color }}
         >
-            <div onClick={(e) => handleClick(e, article.id)} >
+            <div className='min-h-full flex items-center px-3 cursor-normal' onClick={handleCheckboxChange}>
+                <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={handleCheckboxChange}
+                    className="form-checkbox h-6 w-6 text-blue-600 mr-2"
+                />
+            </div>
+            <div className='flex flex-col' onClick={(e) => handleClick(e, article.id)} >
                 <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 overflow-hidden">{article.title}</h2>
-                <ArticleInfo article={article} isEditable={false}/>
+                <ArticleInfo article={article} isEditable={false} />
                 <article className='my-2'>
                     {parse(article.text.substring(0, numberOfCharsForText) + '...')}
                 </article>

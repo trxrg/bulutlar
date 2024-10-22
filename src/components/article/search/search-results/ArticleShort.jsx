@@ -66,7 +66,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
             style={{ borderColor: category && category.color }}
         >
             <div onClick={(e) => handleClick(e, article.id)} >
-                <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600">{article.title}</h2>
+                <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 overflow-hidden">{article.title}</h2>
                 <ArticleInfo article={article} isEditable={false}/>
                 <article className='my-2'>
                     {parse(article.text.substring(0, numberOfCharsForText) + '...')}

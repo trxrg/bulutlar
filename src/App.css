@@ -49,8 +49,7 @@ body.windows ::-webkit-scrollbar-track {
 }
 
 body.windows ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.4); /* Semi-transparent thumb */
-  border-radius: 10px; /* Rounded corners */
+  background: rgba(0, 0, 0, 0.4); /* Semi-transparent thumb */  
 }
 
 body.windows ::-webkit-scrollbar-thumb:hover {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import FormatButton from './FormatButton';
 
 const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) => {
@@ -52,27 +52,29 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
             <div className="relative group inline-flex items-center">
                 <div className='flex'>
                     {isEditing ? (
-                        <input
-                            ref={inputRef}
-                            type={inputType}
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            className="rounded-md, px-1"
-                            style={{ minWidth: inputType === 'text' ? inputWidth : 'auto' }}
-                        />)
+                        <div className={'flex flex-wrap ml-1 gap-1 w-full'}>
+                            <input
+                                ref={inputRef}
+                                type={inputType}
+                                value={inputValue}
+                                onChange={(e) => setInputValue(e.target.value)}
+                                className="rounded-md, p-1"
+                                style={{ minWidth: inputWidth }}
+                            />
+                            <FormatButton onClick={handleConfirmClick}>
+                                <CheckIcon className="w-3 h-3" />
+                            </FormatButton>
+                            <FormatButton onClick={handleCancelClick}>
+                                <XMarkIcon className="w-3 h-3" />
+                            </FormatButton>
+                        </div>
+                    )
                         :
-                        (<div className='px-1'
+                        (<div className=''
                             onClick={handleEditClick}
                             ref={textRef} >{initialText}</div>
                         )}
-                    <div className={`flex ml-1 gap-1 ' + ${isEditing ? 'opacity-100' : 'opacity-0'}`}>
-                        <FormatButton onClick={handleConfirmClick}>
-                            <CheckIcon className="w-3 h-3" />
-                        </FormatButton>
-                        <FormatButton onClick={handleCancelClick}>
-                            <XMarkIcon className="w-3 h-3" />
-                        </FormatButton>
-                    </div>
+
                 </div>
             </div>
         </div >

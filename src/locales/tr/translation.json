@@ -1,18 +1,31 @@
 {   
     "home": "Anasayfa",
+    "name": "Ad",
+    "color": "Renk",
  
     "article": "Yazı",
     "articles": "Yazılar",
     "articlesTR": "Yazı",
+    "article count": "Yazı Sayısı",
+    "delete article": "Yazıyı Sil",
+    "go to articles": "Yazılara Git",
     
     "category": "Kategori",
     "categories": "Kategoriler",
+    "change category": "Kategoriyi Değiştir",
+    "add new category": "Yeni Kategori Ekle",
+    "category name": "Kategori Adı",
+    "select category": "Kategori Seç",
 
     "comment": "Yorum",
     "comments": "Yorumlar",
         
     "owner": "Kişi",
     "owners": "Kişiler",
+    "owner name": "Kişi Adı",
+    "add new owner": "Yeni Kişi Ekle",
+    "change owner": "Kişiyi Değiştir",
+    "select owner": "Kişi Seç",
         
     "tag": "Etiket",
     "tags": "Etiketler",
@@ -24,8 +37,10 @@
     "search": "Ara",
     "add": "Ekle",
     "remove": "Kaldır",
-    "delete article": "Yazıyı Sil",
+    "delete": "Sil",
     "save": "Kaydet",
     "cancel": "İptal",
-    "ok": "Tamam"
+    "ok": "Tamam",
+    "change": "Değiştir",
+    "new": "Yeni"
 }

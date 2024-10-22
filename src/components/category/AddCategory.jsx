@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import ActionButton from "../common/ActionButton";
 import { categoryApi } from "../../backend-adapter/BackendAdapter";
 import { DBContext } from "../../store/db-context";
+import { AppContext } from "../../store/app-context";
 
 const generateRandomColor = () => {
     const randomColor = Math.floor(Math.random() * 16777215).toString(16);
@@ -15,6 +16,7 @@ const AddCategory = ({ onClose }) => {
     const [msg, setMsg] = useState('');
 
     const { fetchAllCategories } = useContext(DBContext);
+    const { translate: t } = useContext(AppContext);
 
     useEffect(() => {
         setColor(generateRandomColor());
@@ -53,7 +55,7 @@ const AddCategory = ({ onClose }) => {
                 <input
                     type="text"
                     value={name}
-                    placeholder="Category name"
+                    placeholder={t('category name')}
                     onChange={handleTextChange}
                     className="shadow appearance-none border rounded flex-1 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
@@ -62,7 +64,7 @@ const AddCategory = ({ onClose }) => {
                     value={color}
                     onChange={e => setColor(e.target.value)}
                     className="mt-1 border-0 p-0 cursor-pointer" />
-                <ActionButton color='blue' onClick={handleAddCategory}>Add</ActionButton>
+                <ActionButton color='blue' onClick={handleAddCategory}>{t('add')}</ActionButton>
             </div>
         </div>
     );

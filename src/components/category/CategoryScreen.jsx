@@ -3,11 +3,13 @@ import debounce from 'lodash.debounce';
 import RichInput from '../common/RichInput';
 import { categoryApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
+import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
 import AddCategory from './AddCategory';
 
 const CategoryScreen = () => {
 
+    const { translate: t } = useContext(AppContext);
     const { allCategories, fetchCategoryById, fetchAllCategories } = useContext(DBContext);
 
     const handleColorChange = useCallback(
@@ -32,7 +34,7 @@ const CategoryScreen = () => {
         <div className="container flex flex-col h-full mx-auto p-4">
             <div className='flex-shrink-0'>
                 <div className='mb-2 p-2 bg-white'>
-                    <h2>Add new category</h2>
+                    <h2 className='mb-1'>{t('add new category')}</h2>
                     <AddCategory onClose={() => { }}></AddCategory>
                 </div>
             </div>
@@ -40,10 +42,10 @@ const CategoryScreen = () => {
                 <table className="min-w-full bg-white">
                     <thead>
                         <tr>
-                            <th className="py-2 px-4 border-b">Name</th>
-                            <th className="py-2 px-4 border-b">Article Count</th>
-                            <th className="py-2 px-4 border-b">Color</th>
-                            <th className="py-2 px-4 border-b">Actions</th>
+                            <th className="py-2 px-4 border-b">{t('name')}</th>
+                            <th className="py-2 px-4 border-b">{t('article count')}</th>
+                            <th className="py-2 px-4 border-b">{t('color')}</th>
+                            <th className="py-2 px-4 border-b">{''}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -62,8 +64,8 @@ const CategoryScreen = () => {
                                     />
                                 </td>
                                 <td className="py-2 px-4 border-b flex">
-                                    <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2">Go to Articles</button>
-                                    {category.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteCategory(category.id)}>Delete</ActionButton>}
+                                    <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2">{t('go to articles')}</button>
+                                    {category.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteCategory(category.id)}>{t('delete')}</ActionButton>}
                                 </td>
                             </tr>
                         ))}

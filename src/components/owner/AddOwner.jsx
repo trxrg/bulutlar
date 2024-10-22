@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import ActionButton from "../common/ActionButton";
 import { ownerApi } from "../../backend-adapter/BackendAdapter";
 import { DBContext } from "../../store/db-context";
+import { AppContext } from "../../store/app-context";
 
 const AddOwner = ({ onClose }) => {
 
@@ -9,6 +10,7 @@ const AddOwner = ({ onClose }) => {
     const [msg, setMsg] = useState('');
 
     const { fetchAllOwners } = useContext(DBContext);
+    const { translate: t } = useContext(AppContext);
 
     const handleAddOwner = async (event) => {
         event.preventDefault();
@@ -43,10 +45,10 @@ const AddOwner = ({ onClose }) => {
                     type="text"
                     value={name}
                     onChange={handleTextChange}
-                    placeholder="Owner name"
+                    placeholder={t('owner name')}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
-                <ActionButton color='blue' onClick={handleAddOwner}>Add</ActionButton>
+                <ActionButton color='blue' onClick={handleAddOwner}>{t('add')}</ActionButton>
             </div>
         </div>
     );

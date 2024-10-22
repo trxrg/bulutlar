@@ -1,18 +1,31 @@
 {    
     "home": "Home",
+    "name": "Name",
+    "color": "Color",
     
     "article": "Article",
     "articles": "Articles",
     "articlesTR": "Articles",
+    "article count": "Article Count",
+    "delete article": "Delete Article",
+    "go to articles": "Go to Articles",
     
     "category": "Category",
     "categories": "Categories",
+    "change category": "Change Category",
+    "add new category": "Add New Category",
+    "category name": "Category Name",
+    "select category": "Select Category",
 
     "comment": "Comment",
     "comments": "Comments",
     
     "owner": "Owner",
     "owners": "Owners",
+    "owner name": "Owner Name",
+    "add new owner": "Add New Owner",
+    "change owner": "Change Owner",
+    "select owner": "Select Owner",
     
     "tag": "Tag",
     "tags": "Tags",
@@ -24,8 +37,10 @@
     "search": "Search",
     "add": "Add",
     "remove": "Remove",
-    "delete article": "Delete Article",
+    "delete": "Delete",
     "save": "Save",
     "cancel": "Cancel",
-    "ok": "OK"
+    "ok": "OK",
+    "change": "Change",
+    "new": "New"
   }

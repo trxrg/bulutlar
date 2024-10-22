@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import Select, { components } from 'react-select';
 import { DBContext } from '../../store/db-context';
+import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
 import GeneralModal from "../common/GeneralModal";
 import AddOwner from '../owner/AddOwner';
@@ -44,6 +45,7 @@ const customStyles = {
 const OwnerList = ({ initialValue, onOwnerChange }) => {
 
     const { allOwners } = useContext(DBContext);
+    const { translate: t } = useContext(AppContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const ownerOptions = allOwners.map(owner => ({
@@ -74,10 +76,10 @@ const OwnerList = ({ initialValue, onOwnerChange }) => {
                     className="react-select flex-1"
                     classNamePrefix="select"
                     styles={customStyles}
-                    placeholder="Select Owner"
+                    placeholder={t('select owner')}
                     noOptionsMessage={() => 'No such owner'}
                 />
-                <ActionButton color="blue" onClick={handleNewClicked}>New</ActionButton>
+                <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>
             <GeneralModal title={'Add New Owner'} isOpen={isModalOpen} onRequestClose={()=>setIsModalOpen(false)}>
                 <AddOwner onClose={()=>setIsModalOpen(false)}></AddOwner>

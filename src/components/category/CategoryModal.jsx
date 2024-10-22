@@ -1,21 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import GeneralModal from '../common/GeneralModal';
 import CategoryList from './CategoryList';
 import ActionButton from '../common/ActionButton';
+import { AppContext } from '../../store/app-context';
 
 const CategoryModal = ({ isOpen, onRequestClose, initialCategoryName, onConfirm }) => {
+
+    const { translate: t } = useContext(AppContext);
 
     const [selectedCategory, setSelectedCategory] = useState(initialCategoryName);
     return (
         <GeneralModal
             isOpen={isOpen}
             onRequestClose={onRequestClose}
-            title="Change Category"
+            title={t('change category')}
         >
             <CategoryList initialValue={initialCategoryName} onCategoryChange={setSelectedCategory} />
             <div className='flex justify-end gap-2 mt-4'>
-                <ActionButton onClick={() => onConfirm(selectedCategory)} color='blue'>Change</ActionButton>
-                <ActionButton onClick={onRequestClose} color='red'>Cancel</ActionButton>
+                <ActionButton onClick={() => onConfirm(selectedCategory)} color='blue'>{t('change')}</ActionButton>
+                <ActionButton onClick={onRequestClose} color='red'>{t('cancel')}</ActionButton>
             </div>
         </GeneralModal>
     );

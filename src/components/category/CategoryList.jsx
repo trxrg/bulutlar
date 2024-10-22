@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import Select, { components } from 'react-select';
 import { DBContext } from '../../store/db-context';
+import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
 import GeneralModal from "../common/GeneralModal";
 import AddCategory from "./AddCategory";
@@ -46,6 +47,7 @@ const customStyles = {
 const CategoryList = ({ initialValue, onCategoryChange }) => {
 
     const { allCategories } = useContext(DBContext);
+    const { translate: t } = useContext(AppContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const categoryOptions = allCategories.map(category => ({
@@ -78,10 +80,10 @@ const CategoryList = ({ initialValue, onCategoryChange }) => {
                     className="react-select flex-1"
                     classNamePrefix="select"
                     styles={customStyles}
-                    placeholder="Select Category"
+                    placeholder={t('select category')}
                     noOptionsMessage={() => 'No such category'}
                 />
-                <ActionButton color="blue" onClick={handleNewClicked}>New</ActionButton>
+                <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>
             <GeneralModal title={'Add New Category'} isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
                 <AddCategory onClose={() => setIsModalOpen(false)}></AddCategory>

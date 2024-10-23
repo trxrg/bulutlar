@@ -154,8 +154,8 @@ async function updateArticleDate(id, newDate) {
         if (!article)
             throw ('no article found with id: ' + id);
         
-        article.update({ date: newDate });
-        article.update({ number: calculateNumber(newDate) });
+        await article.update({ date: newDate });
+        await article.update({ number: calculateNumber(newDate) });
     } catch (error) {
         console.error('Error in updateArticleTitle', error);
     }

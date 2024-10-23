@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 
 import ArticleShort from './ArticleShort.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
@@ -29,37 +29,7 @@ const SearchResultsBody = () => {
         const normalizeText = (text) => {
             const turkishMap = {'ç': 'c', 'ğ': 'g', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'ş': 's', 'ü': 'u',};
             return text.toLowerCase().split('').map(char => turkishMap[char] || char).join('');
-        };
-
-        const highlightKeywords = (text, keywords) => {
-            const normalizedText = normalizeText(text);
-            let highlightedText = text;
-            const matches = [];
-        
-            keywords.forEach(keyword => {
-                const normalizedKeyword = normalizeText(keyword);
-                const regex = new RegExp(`(${normalizedKeyword})`, 'gi');
-                let match;
-                while ((match = regex.exec(normalizedText)) !== null) {
-                    matches.push({ start: match.index, end: regex.lastIndex });
-                }
-            });
-        
-            // Sort matches by start position
-            matches.sort((a, b) => a.start - b.start);
-        
-            // Highlight the original text based on matches
-            let offset = 0;
-            matches.forEach(({ start, end }) => {
-                const originalStart = start + offset;
-                const originalEnd = end + offset;
-                highlightedText = highlightedText.slice(0, originalStart) + '<mark>' + highlightedText.slice(originalStart, originalEnd) + '</mark>' + highlightedText.slice(originalEnd);
-                offset += '<mark>'.length + '</mark>'.length;
-            });
-        
-            return highlightedText;
-        };
-        
+        };       
 
         if (filtering.ownerNames && filtering.ownerNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => filtering.ownerNames.includes(getOwnerById(art.ownerId).name));
@@ -71,28 +41,8 @@ const SearchResultsBody = () => {
             localFilteredArticles = localFilteredArticles.filter(art => filtering.categoryNames.includes(getCategoryById(art.categoryId).name));
 
         if (filtering.keywords && filtering.keywords.length) {
-            localFilteredArticles = localFilteredArticles.map(art => {
-                const highlightedTitle = highlightKeywords(art.title, filtering.keywords);
-                const highlightedText = highlightKeywords(art.text, filtering.keywords);
-                const highlightedExplanation = highlightKeywords(art.explanation, filtering.keywords);
-                const highlightedComments = art.comments.map(comment => ({
-                    ...comment,
-                    text: highlightKeywords(comment.text, filtering.keywords)
-                }));
-
-                return {
-                    ...art,
-                    title: highlightedTitle,
-                    text: highlightedText,
-                    explanation: highlightedExplanation,
-                    comments: highlightedComments
-                };
-            });
-
             localFilteredArticles = localFilteredArticles.filter(art => filtering.keywords.some(keyword => {
                 const normalizedKeyword = normalizeText(keyword);
-                console.log('normalizedKeyword:');
-                console.log(normalizedKeyword);
                 return normalizeText(art.title).includes(normalizedKeyword) || 
                        normalizeText(art.text).includes(normalizedKeyword) ||
                        normalizeText(art.explanation).includes(normalizedKeyword) ||
@@ -110,6 +60,7 @@ const SearchResultsBody = () => {
                     handleClick={handleAddTab} 
                     key={art.id} 
                     article={art} 
+                    keywords={(filtering.keywords && filtering.keywords.length) ? filtering.keywords : null}
                     dangerouslySetInnerHTML={{ __html: art.title }}
                 />
             ))}

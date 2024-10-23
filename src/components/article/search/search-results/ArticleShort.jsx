@@ -2,12 +2,14 @@ import parse from 'html-react-parser';
 import TagButton from '../../../tag/TagButton';
 import React, { useContext, useState } from 'react';
 import { DBContext } from '../../../../store/db-context';
+import { AppContext } from '../../../../store/app-context';
 import ArticleInfo from '../../ArticleInfo';
 
 export default function ArticleShort({ article, keywords, handleClick }) {
 
     const [isSelected, setIsSelected] = useState(false);
     const { getCategoryById, getTagById, getOwnerById } = useContext(DBContext);
+    const { translate: t } = useContext(AppContext);
 
     const numberOfTags = 3;
     const numberOfCharsForText = 400;
@@ -48,22 +50,54 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         return highlightedText;
     };
 
+    const highlightKeywordsGetParts = (text, keywords, contextLength = 50) => {
+        const regex = new RegExp(`(${keywords.join('|')})`, 'gi');
+        const parts = text.split(regex);
+        const highlightedParts = [];
+
+        parts.forEach((part, index) => {
+            if (keywords.some(keyword => part.toLowerCase().includes(keyword.toLowerCase()))) {
+                const start = Math.max(0, index - 1);
+                const end = Math.min(parts.length, index + 2);
+                let contextBefore = parts.slice(start, index).join('');
+                let contextAfter = parts.slice(index + 1, end).join('');
+
+                // Ensure contextBefore ends at a word boundary
+                if (contextBefore.length > contextLength) {
+                    const lastSpaceBefore = contextBefore.lastIndexOf(' ', contextBefore.length - contextLength);
+                    contextBefore = contextBefore.slice(lastSpaceBefore + 1);
+                }
+
+                // Ensure contextAfter ends at a word boundary
+                if (contextAfter.length > contextLength) {
+                    const firstSpaceAfter = contextAfter.indexOf(' ', contextLength);
+                    contextAfter = contextAfter.slice(0, firstSpaceAfter);
+                }
+
+                highlightedParts.push(`${contextBefore}<mark>${part}</mark>${contextAfter}`);
+            }
+        });
+
+        return highlightedParts;
+    };
+
     const handleCheckboxChange = () => {
         setIsSelected(!isSelected);
     };
 
-    // const getHighlightedArticle = () => {
+    let highlightedTitle;
+    let highlightedText;
+    let highlightedTextParts = [];
+    let highlightedExplanation;
+    let highlightedCommentParts = [];
 
-
-    // if (keywords) {        
-    //         const highlightedTitle = highlightKeywords(article.title, keywords);
-    //         const highlightedText = highlightKeywords(article.text, keywords);
-    //         const highlightedExplanation = highlightKeywords(article.explanation, keywords);
-    //         const highlightedComments = article.comments.map(comment => ({
-    //             ...comment,
-    //             text: highlightKeywords(comment.text, keywords)
-    //         }));
-    // }
+    if (keywords) {
+        highlightedTitle = highlightKeywords(article.title, keywords);
+        highlightedText = highlightKeywords(article.text, keywords);
+        highlightedTextParts = highlightKeywordsGetParts(article.text, keywords);
+        highlightedExplanation = highlightKeywords(article.explanation, keywords);
+        highlightedCommentParts = highlightKeywordsGetParts(article.comments[0] ? article.comments[0].text : '', keywords);
+    }
 
     return (
         <div className="rounded-md bg-gray-100 hover:bg-white border-4
@@ -79,11 +113,22 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                 />
             </div>
             <div className='flex flex-1 flex-col overflow-hidden' onClick={(e) => handleClick(e, article.id)} >
-                <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{article.title}</h2>
+                <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{keywords ? parse(highlightedTitle) : article.title}</h2>
                 <ArticleInfo article={article} isEditable={false} />
+                {keywords &&
+                    <article className='my-2'>
+                        {parse(highlightedExplanation)}
+                    </article>
+                }
                 <article className='my-2'>
-                    {parse(article.text.substring(0, numberOfCharsForText) + '...')}
+                    {keywords ? highlightedTextParts.map(part => parse('<p>' + part + '</p><p>...</p>')) : parse(article.text.substring(0, numberOfCharsForText))}
                 </article>
+                {keywords &&
+                    <article className='my-2'>
+                        {highlightedCommentParts.length > 0 && <h3 className='font-bold'>{t('comment') + ':'}</h3>}
+                        {highlightedCommentParts.map(part => parse('<p>' + part + '</p><p>...</p>'))}
+                    </article>
+                }
                 <div>
                     {article.tags.slice(0, numberOfTags).map(tag => {
                         const tagEntity = getTagById(tag.id);

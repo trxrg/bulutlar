@@ -15,10 +15,10 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     const numberOfCharsForText = 400;
 
     const category = getCategoryById(article.categoryId);
-    const owner = getOwnerById(article.ownerId);
 
     const normalizeText = (text) => {
-        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const turkishMap = {'ç': 'c', 'ğ': 'g', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'ş': 's', 'ü': 'u',};
+        return text.toLowerCase().split('').map(char => turkishMap[char] || char).join('');
     };
 
     const highlightKeywords = (text, keywords) => {
@@ -49,35 +49,53 @@ export default function ArticleShort({ article, keywords, handleClick }) {
 
         return highlightedText;
     };
-
-    const highlightKeywordsGetParts = (text, keywords, contextLength = 50) => {
-        const regex = new RegExp(`(${keywords.join('|')})`, 'gi');
-        const parts = text.split(regex);
+    
+    const getToBeHighlightedParts = (text, keywords, contextLength = 50) => {
+        const normalizedKeywords = keywords.map(keyword => normalizeText(keyword));
+        const normalizedText = normalizeText(text);
+        const regex = new RegExp(`(${normalizedKeywords.join('|')})`, 'gi');
+        const matches = [];
+        let match;
+    
+        // Find all matches in the normalized text
+        while ((match = regex.exec(normalizedText)) !== null) {
+            matches.push({ start: match.index, end: regex.lastIndex });
+        }
+    
         const highlightedParts = [];
-
-        parts.forEach((part, index) => {
-            if (keywords.some(keyword => part.toLowerCase().includes(keyword.toLowerCase()))) {
-                const start = Math.max(0, index - 1);
-                const end = Math.min(parts.length, index + 2);
-                let contextBefore = parts.slice(start, index).join('');
-                let contextAfter = parts.slice(index + 1, end).join('');
-
-                // Ensure contextBefore ends at a word boundary
-                if (contextBefore.length > contextLength) {
-                    const lastSpaceBefore = contextBefore.lastIndexOf(' ', contextBefore.length - contextLength);
+        let lastIndex = 0;
+    
+        matches.forEach(({ start, end }) => {
+            const originalStart = start;
+            const originalEnd = end;
+    
+            // Extract context before the match
+            let contextBefore = text.slice(Math.max(0, originalStart - contextLength), originalStart);
+            // Ensure contextBefore ends at a word boundary
+            if (contextBefore.length > 0 && contextBefore[0] !== ' ') {
+                const lastSpaceBefore = contextBefore.indexOf(' ');
+                if (lastSpaceBefore !== -1) {
                     contextBefore = contextBefore.slice(lastSpaceBefore + 1);
                 }
-
-                // Ensure contextAfter ends at a word boundary
-                if (contextAfter.length > contextLength) {
-                    const firstSpaceAfter = contextAfter.indexOf(' ', contextLength);
+            }
+    
+            // Extract context after the match
+            let contextAfter = text.slice(originalEnd, Math.min(text.length, originalEnd + contextLength));
+            // Ensure contextAfter ends at a word boundary
+            if (contextAfter.length > 0 && contextAfter[contextAfter.length - 1] !== ' ') {
+                const firstSpaceAfter = contextAfter.lastIndexOf(' ');
+                if (firstSpaceAfter !== -1) {
                     contextAfter = contextAfter.slice(0, firstSpaceAfter);
                 }
-
-                highlightedParts.push(`${contextBefore}<mark>${part}</mark>${contextAfter}`);
             }
+    
+            highlightedParts.push(`${contextBefore}${text.slice(originalStart, originalEnd)}${contextAfter}`);
+            lastIndex = originalEnd;
+
         });
 
+        
+        console.log('highlightedParts:', highlightedParts);
         return highlightedParts;
     };
 
@@ -94,9 +112,9 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     if (keywords) {
         highlightedTitle = highlightKeywords(article.title, keywords);
         highlightedText = highlightKeywords(article.text, keywords);
-        highlightedTextParts = highlightKeywordsGetParts(article.text, keywords);
+        highlightedTextParts = getToBeHighlightedParts(article.text, keywords).map(part => highlightKeywords(part, keywords));
         highlightedExplanation = highlightKeywords(article.explanation, keywords);
-        highlightedCommentParts = highlightKeywordsGetParts(article.comments[0] ? article.comments[0].text : '', keywords);
+        highlightedCommentParts = getToBeHighlightedParts(article.comments[0] ? article.comments[0].text : '', keywords);
     }
 
     return (

@@ -93,9 +93,6 @@ export default function ArticleShort({ article, keywords, handleClick }) {
             lastIndex = originalEnd;
 
         });
-
-        
-        console.log('highlightedParts:', highlightedParts);
         return highlightedParts;
     };
 

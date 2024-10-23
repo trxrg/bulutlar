@@ -118,17 +118,6 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         highlightedCommentParts = getToBeHighlightedParts(article.comments[0] ? article.comments[0].text : '', keywords);
     }
 
-    const tryParse = (content) => {
-        try {
-            if (content.contains('<a<>'))
-                return '';
-            return parse(content);
-        } catch (e) {
-            console.error('could not parse content: ' + content);
-            return '';
-        }
-    }
-
     return (
         <div className="rounded-md bg-gray-100 hover:bg-white border-4
         active:bg-gray-300 active:shadow-none pl-2 pr-10 py-6 shadow-xl cursor-pointer flex flex-row w-full overflow-hidden"
@@ -143,20 +132,20 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                 />
             </div>
             <div className='flex flex-1 flex-col overflow-hidden' onClick={(e) => handleClick(e, article.id)} >
-                <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{keywords ? tryParse(highlightedTitle) : article.title}</h2>
+                <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{keywords ? parse(highlightedTitle) : article.title}</h2>
                 <ArticleInfo article={article} isEditable={false} />
                 {keywords &&
                     <article className='my-2'>
-                        {tryParse(highlightedExplanation)}
+                        {parse(highlightedExplanation)}
                     </article>
                 }
                 <article className='my-2'>
-                    {keywords ? highlightedTextParts.map(part => tryParse('<p>' + part + '</p><p>...</p>')) : tryParse(article.text.substring(0, numberOfCharsForText))}
+                    {keywords ? highlightedTextParts.map(part => parse('<p>' + part + '</p><p>...</p>')) : parse(article.text.substring(0, numberOfCharsForText))}
                 </article>
                 {keywords &&
                     <article className='my-2'>
                         {highlightedCommentParts.length > 0 && <h3 className='font-bold'>{t('comment') + ':'}</h3>}
-                        {highlightedCommentParts.map(part => tryParse('<p>' + part + '</p><p>...</p>'))}
+                        {highlightedCommentParts.map(part => parse('<p>' + part + '</p><p>...</p>'))}
                     </article>
                 }
                 <div>

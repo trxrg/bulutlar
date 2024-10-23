@@ -8,7 +8,7 @@ import ArticleInfo from '../../ArticleInfo';
 export default function ArticleShort({ article, keywords, handleClick }) {
 
     const [isSelected, setIsSelected] = useState(false);
-    const { getCategoryById, getTagById, getOwnerById } = useContext(DBContext);
+    const { getCategoryById, getTagById } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);
 
     const numberOfTags = 3;

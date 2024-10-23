@@ -27,6 +27,8 @@ const SearchResultsBody = () => {
         // };
 
         const normalizeText = (text) => {
+            if (!text)
+                return '';
             const turkishMap = {'ç': 'c', 'ğ': 'g', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'ş': 's', 'ü': 'u',};
             return text.toLowerCase().split('').map(char => turkishMap[char] || char).join('');
         };       

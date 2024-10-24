@@ -32,20 +32,48 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
 
     const handleConfirmClick = (e) => {
         e.stopPropagation();
-        setIsEditing(false);
-        handleSave(inputValue);
+        confirm();
     };
+
+    const confirm = async () => {
+        await handleSave(inputValue);
+        setIsEditing(false);
+    }
 
     const handleCancelClick = (e) => {
         e.stopPropagation();
+        cancel();
+    };
+
+    const cancel = () => {
         setIsEditing(false);
         setInputValue(inputType === 'date' ? convertDateFormat(initialText) : initialText);
-    };
+    }
 
     function convertDateFormat(dateString) {
         const [day, month, year] = dateString.split('.');
         return `${year}-${month}-${day}`;
     }
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            confirm();
+        } else if (e.key === 'Escape') {
+            cancel();
+        }
+    };
+
+    useEffect(() => {
+        if (isEditing) {
+            inputRef.current.addEventListener('keydown', handleKeyDown);
+        } else {
+            inputRef.current?.removeEventListener('keydown', handleKeyDown);
+        }
+
+        return () => {
+            inputRef.current?.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isEditing, handleKeyDown]);
 
     return (
         <div {...props}>

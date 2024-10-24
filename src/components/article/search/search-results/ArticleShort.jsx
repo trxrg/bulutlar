@@ -17,11 +17,15 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     const category = getCategoryById(article.categoryId);
 
     const normalizeText = (text) => {
+        if (!text)
+            return '';
         const turkishMap = {'ç': 'c', 'ğ': 'g', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'ş': 's', 'ü': 'u',};
         return text.toLowerCase().split('').map(char => turkishMap[char] || char).join('');
     };
 
     const highlightKeywords = (text, keywords) => {
+        if (!text || text.length === 0)
+            return '';
         const normalizedText = normalizeText(text);
         let highlightedText = text;
         const matches = [];

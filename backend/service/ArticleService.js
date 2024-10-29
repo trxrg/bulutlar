@@ -67,8 +67,8 @@ async function createArticleProgrammatically(article) {
         article.date = new Date();
         article.number = calculateNumber(article.date);
         article.code = Math.random().toString(36).substring(2);
-        article.category = {name: 'Art'};
-        article.comments = [{text: '<p><br></p>'}];
+        // article.category = {name: 'Art'};
+        // article.comments = [{text: '<p><br></p>'}];
 
         const entity = await sequelize.models.article.create(article);
 

@@ -2,7 +2,7 @@ const { ipcMain } = require('electron')
 const fs = require('fs');
 const mammoth = require('mammoth');
 const cheerio = require('cheerio');
-const articleService = require('./service/ArticleService')
+const articleService = require('../service/ArticleService')
 
 
 ipcMain.handle('DB/loadArticles', (event) => loadArticles());

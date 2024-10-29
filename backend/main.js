@@ -6,7 +6,8 @@ const isDev = app.isPackaged ? false : require('electron-is-dev');
 const { initDB } = require('./sequelize');
 const { initServices } = require('./service');
 
-require('./docReader')
+require('./scripts/docReader')
+require('./scripts/jsonReader')
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({

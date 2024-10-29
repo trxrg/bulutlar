@@ -3,21 +3,29 @@ import { HomeIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 
 import { AppContext } from '../../store/app-context';
 import FormatButton from '../common/FormatButton';
+import ActionButton from '../common/ActionButton';
 
-// import { DBContext } from '../../store/db-context';
-// import { dbApi } from '../../backend-adapter/BackendAdapter';
+import { DBContext } from '../../store/db-context';
+import { dbApi } from '../../backend-adapter/BackendAdapter';
 
 
 const AppHeader = () => {
 
     const { getActiveScreenTitle, setActiveScreen, changeLanguage } = useContext(AppContext);
 
-    // const { fetchAllData } = useContext(DBContext);
+    const { fetchAllData } = useContext(DBContext);
 
     // const handleLoadArticles = async () => {
     //     await dbApi.loadArticles();
     //     await fetchAllData();
     // }
+    
+    const handleLoadArticlesFromTxt = async () => {
+
+        console.log('handleLoadArticlesFromTxt called');	
+        await dbApi.loadArticlesFromTxt();
+        await fetchAllData();
+    }
 
     // const handleRefresh = async () => {
     //     await fetchAllData();
@@ -30,6 +38,7 @@ const AppHeader = () => {
                 <div className='flex gap-2'>
                     <FormatButton onClick={() => changeLanguage()}><GlobeAltIcon className='w-5 h-5' /></FormatButton>
                     <FormatButton onClick={() => setActiveScreen('home')}><HomeIcon className='w-5 h-5' /></FormatButton>
+                    <ActionButton color='red' onClick={handleLoadArticlesFromTxt}>Load Articles From Txt</ActionButton>
                     {/* <ActionButton color='blue' onClick={handleLoadArticles}>Load Articles</ActionButton> */}
                     {/* <ActionButton color='blue' onClick={handleRefresh}>Refresh</ActionButton> */}
                 </div>

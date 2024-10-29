@@ -1,5 +1,6 @@
 import './App.css';
 import AppScreen from './components/app/AppScreen';
+import ErrorBoundary from './ErrorBoundary';
 import AppContextProvider from './store/app-context';
 import DBContextProvider from './store/db-context';
 import { useEffect } from 'react';
@@ -26,11 +27,13 @@ function App() {
 
   return (
     <div className='bg-stone-300'>
-      <DBContextProvider>
-        <AppContextProvider>
-          <AppScreen />
-        </AppContextProvider>
-      </DBContextProvider>
+      <ErrorBoundary>
+        <DBContextProvider>
+          <AppContextProvider>
+            <AppScreen />
+          </AppContextProvider>
+        </DBContextProvider>
+      </ErrorBoundary>
     </div>
   );
 }

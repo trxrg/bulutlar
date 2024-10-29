@@ -1,6 +1,6 @@
 # Bulutlar: A CrossPlatform Notebook Application for Desktops
 
-Bulutlar enables users to write, edit and read articles. It offers 
+Bulutlar enables users to write, read and edit articles. It offers 
 - complex search and filtering,
 - rich text editing,
 - image insertion,

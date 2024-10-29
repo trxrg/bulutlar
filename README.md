@@ -4,8 +4,8 @@ Bulutlar enables users to write, read and edit articles. It offers
 - complex search and filtering,
 - rich text editing,
 - image insertion,
+- adding persons, categories, comments, notes and tags,
 - relating articles to a person and to other articles,
-- adding categories, comments, notes and tags,
 - multi-language support,
 - multiple articles to simultaneously be opened on tabs,
 - and more.

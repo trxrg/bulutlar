@@ -41,7 +41,7 @@ to get executable for MacOs
 ``` bash
 npm run package-mac
 ```
-to get executables for Linux
+to get executable for Linux
 ``` bash
 npm run package-linux
 ```

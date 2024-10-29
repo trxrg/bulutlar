@@ -37,13 +37,11 @@ npm run package-win
 ``` bash
 npm run package-win32
 ```
-
-for MacOs
+to get executable for MacOs
 ``` bash
 npm run package-mac
 ```
-
-for Linux
+to get executables for Linux
 ``` bash
 npm run package-linux
 ```

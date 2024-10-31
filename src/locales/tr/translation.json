@@ -47,6 +47,9 @@
     "change": "Değiştir",
     "new": "Yeni",
 
+    "something went wrong": "Bir hata oluştu",
+    "reload page": "Sayfayı Yeniden Yükle",
+
     "monday": "Pazartesi",
     "tuesday": "Salı",
     "wednesday": "Çarşamba",

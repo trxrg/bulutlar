@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { withTranslation } from 'react-i18next';
 
 class ErrorBoundary extends Component {
+    
     constructor(props) {
         super(props);
         this.state = { hasError: false };
@@ -17,13 +19,14 @@ class ErrorBoundary extends Component {
     }
 
     render() {
+        const { t } = this.props;
         if (this.state.hasError) {
             // You can render any custom fallback UI
             return (
                 <div className="text-center mt-10">
-                    <h1>Something went wrong.</h1>
+                    <h1>{t("something went wrong")}</h1>
                     <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">
-                        Reload Page
+                        {t("reload page")}
                     </button>
                 </div>
             );
@@ -33,4 +36,4 @@ class ErrorBoundary extends Component {
     }
 }
 
-export default ErrorBoundary;
+export default withTranslation()(ErrorBoundary);

@@ -71,14 +71,6 @@
   }
 
 
-  .button {
-    background-color: #174c6b;
-  }
-
-  .button:hover {
-    background-color: #7c0101; /* Darker gray on hover */
-  }
-
   .context-menu {
     position: absolute;
     z-index: 100;
@@ -97,6 +89,36 @@
   
   .editor-container {
     position: relative;
+  }
+
+  .primary-button {
+    height: 2.5rem; /* 10 * 0.25rem */
+    padding-left: 0.5rem; /* 2 * 0.25rem */
+    padding-right: 0.5rem; /* 2 * 0.25rem */
+    border-radius: 0.375rem; /* medium border radius */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* small shadow */
+    user-select: none;
+    background-color: #3b82f6; /* bg-blue-500 */
+    color: #f3f4f6; /* text-gray-100 */
+  }
+  
+  .primary-button:hover {
+    background-color: #2563eb; /* hover:bg-blue-600 */
+  }
+
+  .secondary-button {
+    height: 2.5rem; /* 10 * 0.25rem */
+    padding-left: 0.5rem; /* 2 * 0.25rem */
+    padding-right: 0.5rem; /* 2 * 0.25rem */
+    border-radius: 0.375rem; /* medium border radius */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* small shadow */
+    user-select: none;
+    border: 1px solid #3b82f6; 
+    color: #f3f4f6; /* text-gray-100 */
+  }
+
+  .primary-button:hover {
+    background-color: #2563eb; /* hover:bg-blue-600 */
   }
 
   /* COLORS 

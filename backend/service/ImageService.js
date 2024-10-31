@@ -51,7 +51,7 @@ async function getImageDataById(imageId) {
 
 async function getImageDataByPath(image) {
     try {
-        const fileData = await fs.readFile(image.path, 'base64');
+        const fileData = await fs.readFile(getImageAbsPath(image.path), 'base64');
 
         return `data:${image.type};base64,${fileData}`;
     } catch (err) {

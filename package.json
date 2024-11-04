@@ -49,6 +49,8 @@
   },
   "dependencies": {
     "@draft-js-plugins/editor": "^4.1.4",
+    "@draft-js-plugins/inline-toolbar": "^4.2.1",
+    "@draft-js-plugins/linkify": "^4.2.2",
     "@electron/remote": "^2.1.2",
     "@heroicons/react": "^2.1.4",
     "@mui/icons-material": "^5.15.4",
@@ -62,9 +64,6 @@
     "draft-js": "^0.11.7",
     "draft-js-export-html": "^1.4.1",
     "draft-js-import-html": "^1.4.1",
-    "draft-js-inline-toolbar-plugin": "^3.0.1",
-    "draft-js-linkify-plugin": "^2.0.2",
-    "draft-js-plugins-editor": "^3.0.0",
     "draftjs-to-html": "^0.9.1",
     "fs": "^0.0.1-security",
     "html-react-parser": "^5.0.11",
@@ -88,6 +87,7 @@
     "sequelize-cli": "^6.6.2",
     "sqlite3": "^5.1.7",
     "tailwind": "^4.0.0",
+    "toastr": "^2.1.4",
     "umzug": "^3.8.2",
     "web-vitals": "^2.1.4"
   }

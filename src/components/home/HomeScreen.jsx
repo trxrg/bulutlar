@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../../store/app-context';
 import { imageApi, } from '../../backend-adapter/BackendAdapter.js';
 import ActionButton from '../common/ActionButton';
+import toastr from 'toastr';
 import '../../styles.css';
 
 const HomeScreen = () => {
@@ -24,7 +25,11 @@ const HomeScreen = () => {
         }
     }
 
-    useEffect(() => {fetchImageData()}, []);
+    useEffect(() => { fetchImageData() }, []);
+
+    const handleClick = () => {
+        toastr.info('This is an info message', 'Info');
+    };
 
     return (
         <div className='flex flex-col items-center w-full h-full'>
@@ -33,6 +38,7 @@ const HomeScreen = () => {
             <div className='flex gap-2'>
                 <button className='primary-button'>test</button>
                 <button className='secondary-button'>test</button>
+                <ActionButton onClick={handleClick}>TEST TOASTR</ActionButton>
                 <ActionButton onClick={() => setActiveScreen('tabs')}>Articles</ActionButton>
                 <ActionButton onClick={() => setActiveScreen('addArticle')}>Add</ActionButton>
                 <ActionButton onClick={() => setActiveScreen('categories')}>Categories</ActionButton>

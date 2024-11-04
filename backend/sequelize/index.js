@@ -29,6 +29,7 @@ const modelDefiners = [
 	require('./model/group.model'),
 	require('./model/image.model'),
 	require('./model/annotation.model'),
+	require('./model/lookup.model'),
 ];
 
 function initDB() {

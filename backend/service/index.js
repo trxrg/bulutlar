@@ -6,6 +6,7 @@ const services = [
     require('./CommentService'),
     require('./ImageService'),
     require('./AnnotationService'),
+    require('./LookupService'),
 ];
 
 function initServices() {

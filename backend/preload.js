@@ -59,6 +59,10 @@ contextBridge.exposeInMainWorld('api', {
     loadArticles: () => ipcRenderer.invoke('DB/loadArticles'),
     loadArticlesFromTxt: () => ipcRenderer.invoke('DB/loadArticlesFromTxt'),
   },
+  lookup: {
+    create: (lookup) => ipcRenderer.invoke('lookup/create', lookup),
+    getByLabel: (label) => ipcRenderer.invoke('lookup/getByLabel', label),
+  },
   getOwnerWithName:          (ownerName)   => ipcRenderer.invoke('getOwnerWithName', ownerName),
   getOwnerWithNameLike:      (nameLike)    => ipcRenderer.invoke('getOwnerWithNameLike', nameLike),
   ping:                      ()            => ipcRenderer.invoke('ping'),

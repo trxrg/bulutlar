@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../../store/app-context';
-import { imageApi, } from '../../backend-adapter/BackendAdapter.js';
+import { imageApi, lookupApi } from '../../backend-adapter/BackendAdapter.js';
 import ActionButton from '../common/ActionButton';
 import toastr from 'toastr';
 import '../../styles.css';
@@ -9,6 +9,7 @@ const HomeScreen = () => {
 
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageData, setImageData] = useState(null);
+    const [dbVersion, setDbVersion] = useState(null);
     const { setActiveScreen } = useContext(AppContext);
 
     const fetchImageData = async () => {
@@ -25,7 +26,17 @@ const HomeScreen = () => {
         }
     }
 
-    useEffect(() => { fetchImageData() }, []);
+    const fetchDbVersion = async () => {
+        try {
+            const version = await lookupApi.getByLabel('db-version');
+            console.log('version', version.dataValues.value);
+            setDbVersion(version);
+        } catch (err) {
+            console.error('error in fetchDbVersion', err);
+        }
+    }
+
+    useEffect(() => { fetchImageData(); fetchDbVersion() }, []);
 
     const handleClick = () => {
         toastr.info('This is an info message', 'Info');
@@ -43,6 +54,7 @@ const HomeScreen = () => {
                 <ActionButton onClick={() => setActiveScreen('addArticle')}>Add</ActionButton>
                 <ActionButton onClick={() => setActiveScreen('categories')}>Categories</ActionButton>
                 <ActionButton onClick={() => setActiveScreen('owners')}>Owners</ActionButton>
+                <h2>db version: {dbVersion && dbVersion.dataValues.value.value}</h2>
             </div>
         </div>
     );

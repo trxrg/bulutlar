@@ -55,3 +55,8 @@ export const dbApi = {
     loadArticles: async () => window.api.db.loadArticles(),
     loadArticlesFromTxt: async () => window.api.db.loadArticlesFromTxt(),
 }
+
+export const lookupApi = {
+    create: async (lookup) => window.api.lookup.create(lookup),
+    getByLabel: async (label) => window.api.lookup.getByLabel(label),
+}

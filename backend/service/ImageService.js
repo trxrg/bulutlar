@@ -9,7 +9,7 @@ function initService() {
     ipcMain.handle('image/deleteById', (event, id) => deleteImageById(id));
 }
 
-async function createImage(image) {
+async function createImage(image, transaction = null) {
     try {
         const imagesFolderPath = getImagesFolderAbsPath();
         await fs.mkdir(imagesFolderPath, { recursive: true });
@@ -25,7 +25,7 @@ async function createImage(image) {
             path: relPath,
             size: image.size,
             description: image.name
-        });
+        }, { transaction });
 
         return result;
 

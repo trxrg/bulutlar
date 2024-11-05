@@ -35,8 +35,8 @@ async function updateOwnerName(id, newName) {
     }
 }
 
-async function getOwnerWithName(ownerName) {
-    return await sequelize.models.owner.findOne({ where: { name: ownerName } });
+async function getOwnerWithName(ownerName, transaction = null) {
+    return await sequelize.models.owner.findOne({ where: { name: ownerName }, transaction });
 }
 
 async function getOwnerDataWithName(ownerName) {
@@ -44,11 +44,11 @@ async function getOwnerDataWithName(ownerName) {
     return result.dataValues;
 }
 
-async function getOwnerWithNameAddIfNotPresent(ownerName) {
+async function getOwnerWithNameAddIfNotPresent(ownerName, transaction = null) {
 
-    let result = await getOwnerWithName(ownerName);
+    let result = await getOwnerWithName(ownerName, transaction);
     if (!result)
-        result = await sequelize.models.owner.create({ name: ownerName });
+        result = await sequelize.models.owner.create({ name: ownerName }, { transaction });
 
     return result;
 }

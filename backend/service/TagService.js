@@ -28,16 +28,16 @@ async function updateTagName(tagName, newName) {
     return result.dataValues;
 }
 
-async function getTagWithNameAddIfNotPresent(tagName) {
-    let result = await getTagWithName(tagName); 
+async function getTagWithNameAddIfNotPresent(tagName, transaction = null) {
+    let result = await getTagWithName(tagName, transaction); 
     if (!result)
-        result = await sequelize.models.tag.create({ name: tagName });
+        result = await sequelize.models.tag.create({ name: tagName }, { transaction });
 
     return result;
 }
 
-async function getTagWithName(tagName) {
-    return await sequelize.models.tag.findOne({ where: { name: tagName } });
+async function getTagWithName(tagName, transaction = null) {
+    return await sequelize.models.tag.findOne({ where: { name: tagName }, transaction });
 }
 
 async function getTagDataWithName(tagName) {

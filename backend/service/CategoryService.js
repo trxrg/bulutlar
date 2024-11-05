@@ -82,15 +82,15 @@ async function deleteCategoryById(id) {
     }
 }
 
-async function getCategoryWithName(categoryName) {
-    return await sequelize.models.category.findOne({ where: { name: categoryName } });
+async function getCategoryWithName(categoryName, transaction) {
+    return await sequelize.models.category.findOne({ where: { name: categoryName }, transaction });
 }
 
-async function getCategoryWithNameAddIfNotPresent(categoryName) {
+async function getCategoryWithNameAddIfNotPresent(categoryName, transaction = null) {
 
-    let result = await getCategoryWithName(categoryName);
+    let result = await getCategoryWithName(categoryName, transaction);
     if (!result)
-        result = await sequelize.models.category.create({ name: categoryName });
+        result = await sequelize.models.category.create({ name: categoryName }, { transaction });
 
     return result;
 }

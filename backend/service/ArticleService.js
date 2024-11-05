@@ -26,7 +26,12 @@ async function createArticle(article) { // Now transactional
 
     console.log('adding article with title: ' + article.title);
 
-    const transaction = await sequelize.transaction();
+    // const transaction = await sequelize.transaction();
+
+    const transaction = await sequelize.transaction({
+        // isolationLevel: sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
+        timeout: 5000 // Increase timeout to 5 seconds
+    });
 
     try {
         article.number = calculateNumber(article.date);
@@ -36,18 +41,18 @@ async function createArticle(article) { // Now transactional
         console.log('article added, id: ' + entity.id);
 
         if (article.owner && article.owner.name) {
-            const owner = await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name, { transaction });
+            const owner = await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name, transaction);
             await entity.setOwner(owner, { transaction });
         }
 
         if (article.category) {
-            const category = await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name, { transaction });
+            const category = await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name, transaction);
             await entity.setCategory(category, { transaction });
         }
 
         if (article.tags) {
             for (const tag of article.tags) {
-                const tagEntity = await tagService.getTagWithNameAddIfNotPresent(tag.name, { transaction });
+                const tagEntity = await tagService.getTagWithNameAddIfNotPresent(tag.name, transaction);
                 await entity.addTag(tagEntity, { transaction });
             }
         }
@@ -61,7 +66,7 @@ async function createArticle(article) { // Now transactional
 
         if (article.images) {
             for (const image of article.images) {
-                const imageEntity = await imageService.createImage(image, { transaction });
+                const imageEntity = await imageService.createImage(image, transaction);
                 await entity.addImage(imageEntity, { transaction });
             }
         }

@@ -20,6 +20,7 @@
     "add new category": "Add New Category",
     "category name": "Category Name",
     "select category": "Select Category",
+    "no such category": "No such category",
 
     "comment": "Comment",
     "comments": "Comments",
@@ -31,6 +32,7 @@
     "change owner": "Change Owner",
     "select owner": "Select Owner",
     "add owner": "Add Person",
+    "no such owner": "No such owner",
     
     "tag": "Tag",
     "tags": "Tags",

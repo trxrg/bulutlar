@@ -80,7 +80,7 @@ const OwnerList = ({ initialValue, onOwnerChange }) => {
                     classNamePrefix="select"
                     styles={customStyles}
                     placeholder={t('select owner')}
-                    noOptionsMessage={() => 'No such owner'}
+                    noOptionsMessage={() => t('no such owner')}
                 />
                 <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>

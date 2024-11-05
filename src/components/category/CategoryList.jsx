@@ -84,7 +84,7 @@ const CategoryList = ({ initialValue, onCategoryChange }) => {
                     classNamePrefix="select"
                     styles={customStyles}
                     placeholder={t('select category')}
-                    noOptionsMessage={() => 'No such category'}
+                    noOptionsMessage={() => t('no such category')}
                 />
                 <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>

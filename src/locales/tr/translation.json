@@ -20,6 +20,7 @@
     "add new category": "Yeni Kategori Ekle",
     "category name": "Kategori Adı",
     "select category": "Kategori Seç",
+    "no such category": "Böyle bir kategori yok",
 
     "comment": "Yorum",
     "comments": "Yorumlar",
@@ -31,6 +32,7 @@
     "change owner": "Kişiyi Değiştir",
     "select owner": "Kişi Seç",
     "add owner": "Kişi Ekle",
+    "no such owner": "Böyle bir kişi yok",
         
     "tag": "Etiket",
     "tags": "Etiketler",

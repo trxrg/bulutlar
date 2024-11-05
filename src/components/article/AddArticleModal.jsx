@@ -103,7 +103,7 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                         <CategoryList onCategoryChange={setDispCategoryName}></CategoryList>
                     </div>
                     <div>
-                        <div className="border h-full border-gray-700"></div>
+                        <div className="border h-full border-gray-700 mx-2"></div>
                     </div>
                     <div>
                         <label className="block text-gray-700 font-bold mb-2">{t('date') + '*'}</label>

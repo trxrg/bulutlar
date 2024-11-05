@@ -26,12 +26,7 @@ async function createArticle(article) { // Now transactional
 
     console.log('adding article with title: ' + article.title);
 
-    // const transaction = await sequelize.transaction();
-
-    const transaction = await sequelize.transaction({
-        // isolationLevel: sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED,
-        timeout: 5000 // Increase timeout to 5 seconds
-    });
+    const transaction = await sequelize.transaction();
 
     try {
         article.number = calculateNumber(article.date);

@@ -22,38 +22,54 @@ function initService() {
     ipcMain.handle('article/deleteById', (event, id) => deleteArticleById(id));
 }
 
-async function createArticle(article) { // TODO must be transactional
+async function createArticle(article) { // Now transactional
 
     console.log('adding article with title: ' + article.title);
 
-    try {
+    const transaction = await sequelize.transaction();
 
+    try {
         article.number = calculateNumber(article.date);
         article.code = Math.random().toString(36).substring(2);
-        const entity = await sequelize.models.article.create(article);
+        const entity = await sequelize.models.article.create(article, { transaction });
 
         console.log('article added, id: ' + entity.id);
 
-        if (article.owner)
-            await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
+        if (article.owner && article.owner.name) {
+            const owner = await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name, { transaction });
+            await entity.setOwner(owner, { transaction });
+        }
 
-        if (article.category)
-            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name));
+        if (article.category) {
+            const category = await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name, { transaction });
+            await entity.setCategory(category, { transaction });
+        }
 
-        if (article.tags)
-            for (const tag of article.tags)
-                await entity.addTag(await tagService.getTagWithNameAddIfNotPresent(tag.name));
+        if (article.tags) {
+            for (const tag of article.tags) {
+                const tagEntity = await tagService.getTagWithNameAddIfNotPresent(tag.name, { transaction });
+                await entity.addTag(tagEntity, { transaction });
+            }
+        }
 
-        if (article.comments)
-            for (const comment of article.comments)
-                await entity.addComment(await commentService.addComment(comment.text));
+        if (article.comments) {
+            for (const comment of article.comments) {
+                const commentEntity = await commentService.addComment(comment.text, { transaction });
+                await entity.addComment(commentEntity, { transaction });
+            }
+        }
 
-        if (article.images)
-            for (const image of article.images)
-                await entity.addImage(await imageService.createImage(image));
+        if (article.images) {
+            for (const image of article.images) {
+                const imageEntity = await imageService.createImage(image, { transaction });
+                await entity.addImage(imageEntity, { transaction });
+            }
+        }
 
+        await transaction.commit();
         return await getArticleById(entity.dataValues.id);
     } catch (e) {
+        await transaction.rollback();
         console.error('Error adding article:', e);
         return { error: e };
     }

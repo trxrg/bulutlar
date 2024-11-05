@@ -73,6 +73,7 @@
     "path-browserify": "^1.0.1",
     "postcss-cli": "^11.0.0",
     "react": "^18.2.0",
+    "react-datepicker": "^7.5.0",
     "react-dom": "^18.2.0",
     "react-draft-wysiwyg": "^1.15.0",
     "react-draggable": "^4.4.6",

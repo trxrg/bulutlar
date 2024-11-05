@@ -1,4 +1,6 @@
-{   
+{
+    "locale": "tr",
+
     "home": "Anasayfa",
     "name": "Ad",
     "color": "Renk",
@@ -10,6 +12,7 @@
     "delete article": "Yazıyı Sil",
     "go to articles": "Yazılara Git",
     "article delete confirmation question": "Bu yazıyı silmek istediğinizden emin misiniz?",
+    "add article": "Yeni Yazı Ekle",
     
     "category": "Kategori",
     "categories": "Kategoriler",
@@ -27,13 +30,19 @@
     "add new owner": "Yeni Kişi Ekle",
     "change owner": "Kişiyi Değiştir",
     "select owner": "Kişi Seç",
+    "relate to a person": "Kişi ile ilişkilendir",
         
     "tag": "Etiket",
     "tags": "Etiketler",
+    "type tags": "Etiketleri yazın",
+    "suggested tags": "Önerilen etiketler",
 
     "filters": "Filtreler",
 
     "keyword": "Anahtar kelime",
+
+    "title": "Başlık",
+    "date": "Tarih",
 
     "search": "Ara",
     "add": "Ekle",

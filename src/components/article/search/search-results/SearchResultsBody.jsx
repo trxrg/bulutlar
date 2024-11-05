@@ -34,13 +34,13 @@ const SearchResultsBody = () => {
         };       
 
         if (filtering.ownerNames && filtering.ownerNames.length)
-            localFilteredArticles = localFilteredArticles.filter(art => filtering.ownerNames.includes(getOwnerById(art.ownerId).name));
+            localFilteredArticles = localFilteredArticles.filter(art => art.ownerId && filtering.ownerNames.includes(getOwnerById(art.ownerId).name));
 
         if (filtering.tagNames && filtering.tagNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => filtering.tagNames.some(filterTagName => art.tags.map(artTag => getTagById(artTag.id).name).includes(filterTagName)));
 
         if (filtering.categoryNames && filtering.categoryNames.length)
-            localFilteredArticles = localFilteredArticles.filter(art => filtering.categoryNames.includes(getCategoryById(art.categoryId).name));
+            localFilteredArticles = localFilteredArticles.filter(art => art.categoryId && filtering.categoryNames.includes(getCategoryById(art.categoryId).name));
 
         if (filtering.keywords && filtering.keywords.length) {
             localFilteredArticles = localFilteredArticles.filter(art => filtering.keywords.some(keyword => {

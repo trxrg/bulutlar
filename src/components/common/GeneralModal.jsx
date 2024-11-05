@@ -14,7 +14,7 @@ const GeneralModal = ({ isOpen, onRequestClose, title, children }) => {
                     <h2 className='text-lg text-gray-600 select-none'>{title}</h2>
                     <button
                         onClick={onRequestClose}
-                        className="text-gray p-1 rounded-full hover:bg-red-700 focus:outline-none transition-all duration-300 flex items-center justify-center"
+                        className="text-gray p-1 rounded-full hover:bg-gray-400 focus:outline-none transition-all duration-300 flex items-center justify-center"
                     >
                         <XMarkIcon className="h-6 w-6" />
                     </button>

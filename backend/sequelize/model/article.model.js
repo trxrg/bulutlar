@@ -17,8 +17,8 @@ module.exports = (sequelize, DataTypes) => {
                 },
             }
         },
-        date: { allowNull: false, type: DataTypes.DATE },
-        number: { allowNull: false, type: DataTypes.INTEGER },
+        date: { type: DataTypes.DATE },
+        number: { type: DataTypes.INTEGER },
         order: { type: DataTypes.INTEGER },
         explanation: { type: DataTypes.TEXT },
         explanationJson: { type: DataTypes.JSON },

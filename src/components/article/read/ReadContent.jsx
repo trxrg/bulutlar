@@ -19,9 +19,9 @@ const ReadContent = () => {
     const [imageModalIsOpen, setImageModalIsOpen] = useState(false);
 
     const imageInputRef = useRef(null);
-    const mainTextEditorRef = useRef();
-    const explanationEditorRef = useRef();
-    const commentEditorRef = useRef();
+    const mainTextEditorRef = useRef(null);
+    const explanationEditorRef = useRef(null);
+    const commentEditorRef = useRef(null);
 
     const fetchImageDatas = async () => {
         console.log('fetchImageDatas called');
@@ -50,9 +50,9 @@ const ReadContent = () => {
     }
 
     const updateArticleContent = async (explanation, mainText, comment) => {
-        await articleApi.updateExplanation(article.id, explanation);
-        await articleApi.updateMainText(article.id, mainText);
-        await commentApi.updateText(article.comments[0].id, comment);
+        explanation && await articleApi.updateExplanation(article.id, explanation);
+        mainText && await articleApi.updateMainText(article.id, mainText);
+        comment && await commentApi.updateText(article.comments[0].id, comment);
         await syncArticleFromBE();
     }
 
@@ -61,13 +61,17 @@ const ReadContent = () => {
     const toggleStyle = (style) => activeEditorRef && activeEditorRef.current.toggleInlineStyle(style);
 
     const saveContent = async () => {
-        await updateArticleContent(explanationEditorRef.current.getContent(), mainTextEditorRef.current.getContent(), commentEditorRef.current.getContent());
+        const explanation = explanationEditorRef.current ? explanationEditorRef.current.getContent() : null;
+        const mainText = mainTextEditorRef.current ? mainTextEditorRef.current.getContent() : null;
+        const comment = commentEditorRef.current ? commentEditorRef.current.getContent() : null;
+
+        await updateArticleContent(explanation, mainText, comment);
     }
 
     const resetContent = () => {
-        explanationEditorRef.current.resetContent();
-        mainTextEditorRef.current.resetContent();
-        commentEditorRef.current.resetContent();
+        explanationEditorRef && explanationEditorRef.current && explanationEditorRef.current.resetContent();
+        mainTextEditorRef && mainTextEditorRef.current && mainTextEditorRef.current.resetContent();
+        commentEditorRef && commentEditorRef.current && commentEditorRef.current.resetContent();
     }
 
     React.useImperativeHandle(readBodyRef, () => ({
@@ -129,7 +133,7 @@ const ReadContent = () => {
                     </div>
                 )}
             </div>
-            {(!isHtmlStringEmpty(article.comments[0].text) || editable) &&
+            {article.comments[0] && (!isHtmlStringEmpty(article.comments[0].text) || editable) &&
                 <div>
                     <div>
                         <h3 onClick={() => setActiveEditorRef()} className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">{t('comment')}</h3>

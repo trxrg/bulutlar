@@ -140,7 +140,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                     </article>
                 }
                 <article className='my-2'>
-                    {keywords ? highlightedTextParts.map(part => parse('<p>' + part + '</p><p>...</p>')) : parse(article.text.substring(0, numberOfCharsForText))}
+                    {keywords ? highlightedTextParts.map(part => parse('<p>' + part + '</p><p>...</p>')) : (article.text && parse(article.text.substring(0, numberOfCharsForText)))}
                 </article>
                 {keywords &&
                     <article className='my-2'>

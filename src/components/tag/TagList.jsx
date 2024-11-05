@@ -2,10 +2,13 @@ import React, { useState, useContext } from 'react';
 import TagButton from '../../components/tag/TagButton.jsx';
 
 import { DBContext } from '../../store/db-context.jsx';
+import { AppContext } from '../../store/app-context.jsx';
+import ActionButton from '../common/ActionButton.jsx';
 
 const TagList = React.forwardRef(({ selectedTags, onTagsChange }, ref) => {
 
     const { allTags } = useContext(DBContext);
+    const { translate: t } = useContext(AppContext);
 
     const suggestedTagNumber = 5;
     const [tags, setTags] = useState(selectedTags);
@@ -41,26 +44,28 @@ const TagList = React.forwardRef(({ selectedTags, onTagsChange }, ref) => {
 
     return (
         <div>
-            <label className="block text-gray-700 text-xl font-bold mb-2" htmlFor="mainText">Tags</label>
-            <div className='flex'>
+            <div className='flex gap-2'>
                 <input
                     type="text"
                     value={inputValue}
                     onChange={handleInputChange}
-                    placeholder="Type tags..."
+                    placeholder={t('type tags') + '...'}
                     className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
-                <button type="button" onClick={() => handleAddTag(inputValue)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mx-2 rounded focus:outline-none focus:shadow-outline">Add</button>
+                <ActionButton onClick={() => handleAddTag(inputValue)} color='blue'>{t('add')}</ActionButton>
             </div>
             {inputValue.length > 0 &&
                 <div>
+                    <span>{t('suggested tags')}: </span>
                     {suggestedTags
                         .filter(tag => tag.name.toLowerCase().includes(inputValue.toLowerCase()))
                         .filter(tag => !tags.map(t => t.name).includes(tag.name))
                         .slice(0, suggestedTagNumber)
                         .map(tag => (
-                            <span key={tag.id} onClick={() => handleAddTag(tag.name)}>
-                                <button className='mx-2'>{tag.name}</button>
+                            <span key={tag.id} >
+                                <button onClick={() => handleAddTag(tag.name)}
+                                    className='px-2 m-1 border'>{tag.name}
+                                </button>
                             </span>
                         ))}
                 </div>}

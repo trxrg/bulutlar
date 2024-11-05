@@ -70,7 +70,7 @@ const CategoryList = ({ initialValue, onCategoryChange }) => {
     }
 
     return (
-        <div className='my-2'>
+        <div>
             <div className="flex gap-2 w-full">
                 <Select
                     value={selectedCategory}

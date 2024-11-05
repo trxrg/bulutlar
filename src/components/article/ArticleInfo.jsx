@@ -43,16 +43,16 @@ const ArticleInfo = ({ article, isEditable = true }) => {
 
     return (
         <div className="text-lg text-gray-700 py-2" >
-            <span className='cursor-pointer select-none' onDoubleClick={isEditable ? () => setOwnerModalIsOpen(true) : undefined}>{owner.name + " | "}</span>
-            <span className='cursor-pointer select-none' onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category.name + " | "}</span>
+            <span className='cursor-pointer select-none' onDoubleClick={isEditable ? () => setOwnerModalIsOpen(true) : undefined}>{owner && owner.name + " | "}</span>
+            <span className='cursor-pointer select-none' onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category && category.name + " | "}</span>
             <span className='inline-flex'>{isEditable ?
                 <RichInput className='flex' initialText={new Date(article.date).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate}></RichInput>
                 :
                 new Date(article.date).toLocaleDateString('tr')}</span>
             <span>{" | " + getDayOfWeek() + ' | '}</span>
             <span>({article.number})</span>
-            <OwnerModal isOpen={ownerModalIsOpen} onRequestClose={() => setOwnerModalIsOpen(false)} initialOwnerName={owner.name} onConfirm={handleUpdateOwner}></OwnerModal>
-            <CategoryModal isOpen={categoryModalIsOpen} onRequestClose={() => setCategoryModalIsOpen(false)} initialCategoryName={category.name} onConfirm={handleUpdateCategory}></CategoryModal>
+            <OwnerModal isOpen={ownerModalIsOpen} onRequestClose={() => setOwnerModalIsOpen(false)} initialOwnerName={owner && owner.name} onConfirm={handleUpdateOwner}></OwnerModal>
+            <CategoryModal isOpen={categoryModalIsOpen} onRequestClose={() => setCategoryModalIsOpen(false)} initialCategoryName={category && category.name} onConfirm={handleUpdateCategory}></CategoryModal>
         </div >
     );
 };

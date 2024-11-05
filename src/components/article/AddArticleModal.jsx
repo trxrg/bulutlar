@@ -10,10 +10,12 @@ import OwnerList from '../owner/OwnerList';
 import TagList from '../tag/TagList';
 import DateInput from '../common/DateInput';
 import toastr from 'toastr';
+import { has, set } from 'draft-js/lib/DefaultDraftBlockRenderMap.js';
 
 const AddArticleModal = ({ isOpen, onRequestClose }) => {
     const { translate: t, afterSubmitArticle2 } = useContext(AppContext);
-    
+
+    const [hasOwner, setHasOwner] = useState(false);
     const [dispTitle, setDispTitle] = useState('');
     const [dispDate, setDispDate] = useState('');
     const [dispOwnerName, setDispOwnerName] = useState('')
@@ -31,12 +33,13 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
         setDispTags([]);
         setDispTitle('');
         setMsg('');
+        setHasOwner(false);
         setDispDate(format(new Date(), 'yyyy-MM-dd'))
     }, [isOpen]);
 
     useEffect(() => {
         setMsg('')
-    }, [dispCategoryName, dispDate, dispOwnerName, dispTags, dispTitle]);
+    }, [dispCategoryName, dispDate, dispOwnerName, dispTags, dispTitle, hasOwner]);
 
     const handleSubmit = async () => {
 
@@ -71,7 +74,7 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                 console.log(result);
                 toastr.success(t('article') + t('added'));
                 afterSubmitArticle2(result.id);
-            }           
+            }
         } catch (err) {
             console.error(err.message);
             toastr.error(err.message || t('error'));
@@ -104,15 +107,27 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                     <div>
                         <div className="border h-full border-gray-700"></div>
                     </div>
-                    <div className='flex flex-col flex-1'>
-                        <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">{t('owner')}</label>
-                        <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
+                    <div>
+                        <label className="block text-gray-700 font-bold mb-2">{t('date') + '*'}</label>
+                        <DateInput dispDate={dispDate} onDateChange={setDispDate}></DateInput>
                     </div>
                 </div>
                 <div>
-                    <label className="block text-gray-700 font-bold mb-2">{t('date') + '*'}</label>
-                    <DateInput dispDate={dispDate} onDateChange={setDispDate}></DateInput>
+                <div className='flex items-center'>
+                    <input
+                        type="checkbox"
+                        checked={hasOwner}
+                        onChange={(e) => setHasOwner(e.target.checked)}
+                        className="mr-2 leading-tight"
+                    />
+                    <label className="text-gray-700 font-bold">{t('add owner')}</label>
                 </div>
+                </div>
+                {hasOwner &&
+                    <div className='flex flex-col flex-1'>
+                        <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
+                    </div>
+                }
                 <div>
                     <label className="block text-gray-700 font-bold mb-2">{t('tag')}</label>
                     <TagList selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>

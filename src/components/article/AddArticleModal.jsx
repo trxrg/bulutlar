@@ -15,7 +15,6 @@ import { has, set } from 'draft-js/lib/DefaultDraftBlockRenderMap.js';
 const AddArticleModal = ({ isOpen, onRequestClose }) => {
     const { translate: t, afterSubmitArticle2 } = useContext(AppContext);
 
-    const [hasOwner, setHasOwner] = useState(false);
     const [dispTitle, setDispTitle] = useState('');
     const [dispDate, setDispDate] = useState('');
     const [dispOwnerName, setDispOwnerName] = useState('')
@@ -33,13 +32,12 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
         setDispTags([]);
         setDispTitle('');
         setMsg('');
-        setHasOwner(false);
         setDispDate(format(new Date(), 'yyyy-MM-dd'))
     }, [isOpen]);
 
     useEffect(() => {
         setMsg('')
-    }, [dispCategoryName, dispDate, dispOwnerName, dispTags, dispTitle, hasOwner]);
+    }, [dispCategoryName, dispDate, dispOwnerName, dispTags, dispTitle]);
 
     const handleSubmit = async () => {
 
@@ -112,22 +110,10 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                         <DateInput dispDate={dispDate} onDateChange={setDispDate}></DateInput>
                     </div>
                 </div>
-                <div>
-                <div className='flex items-center'>
-                    <input
-                        type="checkbox"
-                        checked={hasOwner}
-                        onChange={(e) => setHasOwner(e.target.checked)}
-                        className="mr-2 leading-tight"
-                    />
-                    <label className="text-gray-700 font-bold">{t('add owner')}</label>
+                <div className='flex flex-col flex-1'>
+                    <label className="block text-gray-700 font-bold mb-2">{t('owner')}</label>
+                    <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
                 </div>
-                </div>
-                {hasOwner &&
-                    <div className='flex flex-col flex-1'>
-                        <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
-                    </div>
-                }
                 <div>
                     <label className="block text-gray-700 font-bold mb-2">{t('tag')}</label>
                     <TagList selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>

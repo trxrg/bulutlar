@@ -48,16 +48,19 @@ const OwnerList = ({ initialValue, onOwnerChange }) => {
     const { translate: t } = useContext(AppContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const ownerOptions = allOwners.map(owner => ({
-        value: owner.name,
-        label: owner.name
-    }));
+    const ownerOptions = [
+        { value: null, label: t('select owner') },
+        ...allOwners.map(owner => ({
+            value: owner.name,
+            label: owner.name
+        }))
+    ];
 
     const [selectedOwner, setSelectedOwner] = useState(ownerOptions.find(option => option.label === initialValue));
 
     const handleChange = (selectedOption) => {
         setSelectedOwner(selectedOption);
-        onOwnerChange(selectedOption.label);
+        onOwnerChange(selectedOption.value);
     };
 
     const handleNewClicked = (event) => {

@@ -50,18 +50,21 @@ const CategoryList = ({ initialValue, onCategoryChange }) => {
     const { translate: t } = useContext(AppContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const categoryOptions = allCategories.map(category => ({
-        value: category.name,
-        label: category.name,
-        color: category.color,
-        articleCount: category.articleCount
-    }));
+    const categoryOptions = [
+        { value: null, label: t('select category') },
+        ...allCategories.map(category => ({
+            value: category.name,
+            label: category.name,
+            color: category.color,
+            articleCount: category.articleCount
+        }))
+    ];
 
     const [selectedCategory, setSelectedCategory] = useState(categoryOptions.find(option => option.label === initialValue));
 
     const handleChange = (selectedOption) => {
         setSelectedCategory(selectedOption);
-        onCategoryChange(selectedOption.label);
+        onCategoryChange(selectedOption.value);
     };
 
     const handleNewClicked = (event) => {

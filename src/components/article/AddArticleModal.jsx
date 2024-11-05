@@ -9,26 +9,52 @@ import CategoryList from '../category/CategoryList';
 import OwnerList from '../owner/OwnerList';
 import TagList from '../tag/TagList';
 import DateInput from '../common/DateInput';
+import toastr from 'toastr';
 
 const AddArticleModal = ({ isOpen, onRequestClose }) => {
-    const { translate: t } = useContext(AppContext);
-
+    const { translate: t, afterSubmitArticle2 } = useContext(AppContext);
+    
     const [dispTitle, setDispTitle] = useState('');
     const [dispDate, setDispDate] = useState('');
     const [dispOwnerName, setDispOwnerName] = useState('')
     const [dispCategoryName, setDispCategoryName] = useState('');
     const [dispTags, setDispTags] = useState([]);
-    const [hasOwner, setHasOwner] = useState(false);
+    const [msg, setMsg] = useState('');
 
     const handleTagsChange = (tags) => {
         setDispTags(tags);
     }
 
     useEffect(() => {
+        setDispCategoryName('');
+        setDispOwnerName('');
+        setDispTags([]);
+        setDispTitle('');
+        setMsg('');
         setDispDate(format(new Date(), 'yyyy-MM-dd'))
     }, [isOpen]);
 
-    const handleSubmit = async () => {        
+    useEffect(() => {
+        setMsg('')
+    }, [dispCategoryName, dispDate, dispOwnerName, dispTags, dispTitle]);
+
+    const handleSubmit = async () => {
+
+        if (!dispTitle || dispTitle.trim() === '') {
+            setMsg(t('title') + t('cannot be empty'));
+            return;
+        }
+
+        if (!dispCategoryName || dispCategoryName.trim() === '') {
+            setMsg(t('category') + t('cannot be empty'));
+            return;
+        }
+
+        if (!dispDate || dispDate.trim() === '') {
+            setMsg(t('date') + t('cannot be empty'));
+            return;
+        }
+
         try {
             const result = await articleApi.create({
                 title: dispTitle,
@@ -39,14 +65,18 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
             });
             if (result.error) {
                 console.error(result.error);
+                toastr.error(result.error.message || t('error'));
             } else {
                 console.log('article added:');
                 console.log(result);
-            }
-
-            // afterSubmitArticle(result.id);
+                toastr.success(t('article') + t('added'));
+                afterSubmitArticle2(result.id);
+            }           
         } catch (err) {
             console.error(err.message);
+            toastr.error(err.message || t('error'));
+        } finally {
+            onRequestClose();
         }
     };
 
@@ -54,45 +84,38 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
         <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={t('add article')}>
 
             <div className='flex flex-col gap-2'>
+                {msg && <span className="text-red-400">{msg}</span>}
                 <div>
-                    <label className="block text-gray-700 font-bold mb-2" htmlFor="title">{t('title')}</label>
+                    <label className="block text-gray-700 font-bold mb-2" htmlFor="title">{t('title') + '*'}</label>
                     <input
                         id="title"
                         type="text"
                         value={dispTitle}
-                        onChange={(e) => setDispTitle(e.target.value)}
+                        onChange={(e) => setDispTitle(e.target.value.trimStart())}
                         required
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />
                 </div>
+                <div className='flex gap-2 min-w-full'>
+                    <div className='flex flex-col flex-1'>
+                        <label className="block text-gray-700 font-bold mb-2">{t('category') + '*'}</label>
+                        <CategoryList onCategoryChange={setDispCategoryName}></CategoryList>
+                    </div>
+                    <div>
+                        <div className="border h-full border-gray-700"></div>
+                    </div>
+                    <div className='flex flex-col flex-1'>
+                        <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">{t('owner')}</label>
+                        <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
+                    </div>
+                </div>
                 <div>
-                    <label className="block text-gray-700 font-bold mb-2">{t('category')}</label>
-                    <CategoryList onCategoryChange={setDispCategoryName}></CategoryList>
+                    <label className="block text-gray-700 font-bold mb-2">{t('date') + '*'}</label>
+                    <DateInput dispDate={dispDate} onDateChange={setDispDate}></DateInput>
                 </div>
                 <div>
                     <label className="block text-gray-700 font-bold mb-2">{t('tag')}</label>
                     <TagList selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
-                </div>
-                <div>
-                    <label className="block text-gray-700 font-bold mb-2">{t('date')}</label>
-                    <DateInput dispDate={dispDate} onDateChange={setDispDate}></DateInput>
-                </div>
-                <div>
-                    <label className="block text-gray-700 font-bold mb-2">
-                        <input
-                            type="checkbox"
-                            checked={hasOwner}
-                            onChange={(e) => setHasOwner(e.target.checked)}
-                            className="mr-2 leading-tight"
-                        />
-                        {t('relate to a person')}
-                    </label>
-
-                    {hasOwner &&
-                        <div>
-                            <label className="block text-gray-700 font-bold mb-2" htmlFor="explanation">{t('owner')}</label>
-                            <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
-                        </div>}
                 </div>
                 <div className='flex justify-end gap-2 mt-4'>
                     <ActionButton color={'blue'} onClick={handleSubmit}>{t('add')}</ActionButton>

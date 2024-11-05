@@ -33,6 +33,23 @@ export default function AppContextProvider({ children }) {
             setActiveTabId(newTabId);
     };
 
+    const handleAddTab2 = (articleId) => {
+        // console.log('handleAddTab2');
+        // console.log(allArticles);
+        // if (!allArticles.map(article => article.id).includes(articleId))
+        //     return;
+
+        if (tabs.map(tab => tab.id).includes(articleId)) {
+            setActiveTabId(articleId);
+            return;
+        }
+
+        const newTabId = articleId;
+        const newTabs = [...tabs, { id: newTabId }];
+        setTabs(newTabs);
+        setActiveTabId(newTabId);
+    };
+
 
     const handleCloseTab = (tabId) => {
         let updatedTabs = [...tabs];
@@ -64,6 +81,11 @@ export default function AppContextProvider({ children }) {
         await fetchAllData();
         handleAddTab(id);
         setActiveScreen('tabs');
+    }
+
+    const afterSubmitArticle2 = async (id) => {
+        await fetchAllData();
+        handleAddTab2(id);
     }
 
     const afterDeleteArticle = async (id) => {
@@ -99,7 +121,7 @@ export default function AppContextProvider({ children }) {
     const ctxValue = {
         linkClicked: handleLinkClicked,
         activeTabId,
-        setActiveTabId: setActiveTabId,
+        setActiveTabId,
         addTab: handleAddTab,
         closeTab: handleCloseTab,
         tabs,
@@ -110,6 +132,7 @@ export default function AppContextProvider({ children }) {
         handleCancel,
         afterDeleteArticle,
         afterSubmitArticle,
+        afterSubmitArticle2,
         fullScreen,
         setFullScreen,
         getActiveScreenTitle,

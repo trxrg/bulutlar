@@ -55,9 +55,12 @@
     "no": "Hayır",
     "change": "Değiştir",
     "new": "Yeni",
+    "error": "Hata",
 
     "something went wrong": "Bir hata oluştu",
     "reload page": "Sayfayı Yeniden Yükle",
+    "cannot be empty": " boş olamaz",
+    "added": " eklendi",
 
     "monday": "Pazartesi",
     "tuesday": "Salı",

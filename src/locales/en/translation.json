@@ -1,6 +1,6 @@
 {    
     "locale": "en-US",
-    
+
     "home": "Home",
     "name": "Name",
     "color": "Color",
@@ -55,9 +55,12 @@
     "no": "No",
     "change": "Change",
     "new": "New",
+    "error": "Error",
 
     "something went wrong": "Something went wrong",	
     "reload page": "Reload Page",
+    "cannot be empty": " cannot be empty",
+    "added": " added",
 
     "monday": "Monday",
     "tuesday": "Tuesday",

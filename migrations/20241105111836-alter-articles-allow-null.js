@@ -19,10 +19,28 @@ module.exports = {
           is: /^(?=.*[a-zA-Z0-9]).+$/
         }
       },
+      ownerId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'owners', // Name of the related table
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+      categoryId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'categories', // Name of the related table
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
       date: { type: Sequelize.DATE },
       number: { type: Sequelize.INTEGER },
       order: { type: Sequelize.INTEGER },
-      explanation: { type: Sequelize.TEXT }, 
+      explanation: { type: Sequelize.TEXT },
       explanationJson: { type: Sequelize.JSON },
       text: { type: Sequelize.TEXT },
       textJson: { type: Sequelize.JSON },
@@ -40,7 +58,7 @@ module.exports = {
 
     // Copy data from the old table to the new table
     await queryInterface.sequelize.query(
-      'INSERT INTO articles_new (id, title, date, number, "order", explanation, explanationJson, text, textJson, code, "isEditable", "createdAt", "updatedAt") SELECT id, title, date, number, "order", explanation, explanationJson, text, textJson, code, "isEditable", "createdAt", "updatedAt" FROM articles;'
+      'INSERT INTO articles_new (id, title, ownerId, categoryId, date, number, "order", explanation, explanationJson, text, textJson, code, "isEditable", "createdAt", "updatedAt") SELECT id, title, ownerId, categoryId, date, number, "order", explanation, explanationJson, text, textJson, code, "isEditable", "createdAt", "updatedAt" FROM articles;'
     );
 
     // Drop the old table
@@ -68,6 +86,24 @@ module.exports = {
           is: /^(?=.*[a-zA-Z0-9]).+$/
         }
       },
+      ownerId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'owners', // Name of the related table
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+      categoryId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'categories', // Name of the related table
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
       date: { type: Sequelize.DATE },
       number: { type: Sequelize.INTEGER },
       order: { type: Sequelize.INTEGER },
@@ -89,7 +125,7 @@ module.exports = {
 
     // Copy data from the current table to the old table schema
     await queryInterface.sequelize.query(
-      'INSERT INTO articles_old (id, title, date, number, "order", explanation, explanationJson, text, textJson, code, "isEditable", "createdAt", "updatedAt") SELECT id, title, date, number, "order", explanation, explanationJson, text, textJson, code, "isEditable", "createdAt", "updatedAt" FROM articles;'
+      'INSERT INTO articles_old (id, title, ownerId, categoryId, date, number, "order", explanation, explanationJson, text, textJson, code, "isEditable", "createdAt", "updatedAt") SELECT id, title, ownerId, categoryId, date, number, "order", explanation, explanationJson, text, textJson, code, "isEditable", "createdAt", "updatedAt" FROM articles;'
     );
 
     // Drop the current table

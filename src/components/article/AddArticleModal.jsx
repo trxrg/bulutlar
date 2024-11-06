@@ -84,7 +84,7 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
     return (
         <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={t('add article')}>
 
-            <div className='flex flex-col gap-2'>
+            <div className='flex flex-col gap-2 h-full overflow-y-auto'>
                 {msg && <span className="text-red-400">{msg}</span>}
                 <div>
                     <label className="block text-gray-700 font-bold mb-2" htmlFor="title">{t('title') + '*'}</label>

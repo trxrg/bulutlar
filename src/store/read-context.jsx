@@ -8,14 +8,14 @@ export default function ReadContextProvider({ children, article }) {
 
     const { getOwnerById, getCategoryById, fetchArticleById } = useContext(DBContext);
     const { fullScreen } = useContext(AppContext);
-    const [fontSize, setFontSize] = useState('text-xl');
+    const [fontSize, setFontSize] = useState('text-3xl');
     const [editable, setEditable] = useState(false);
     const [rightPanelCollapsed, setRightPanelCollapsed] = useState(true);
     const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
 
     const readBodyRef = useRef();
 
-    const fontSizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl'];
+    const fontSizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl', 'text-7xl'];
    
     const syncArticleFromBE = async () => {
         await fetchArticleById(article.id);

@@ -10,7 +10,7 @@ import ImageInput from "../../image/ImageInput.jsx";
 const ReadContent = () => {
 
     const { article, readBodyRef, fontSize, editable, syncArticleFromBE } = useContext(ReadContext);
-    const { translate:t } = useContext(AppContext);
+    const { translate: t } = useContext(AppContext);
 
     const [imageDatasLoaded, setImageDatasLoaded] = useState(false);
     const [imageDatas, setImageDatas] = useState([]);
@@ -115,43 +115,45 @@ const ReadContent = () => {
     }
 
     return (
-        <div className={`leading-normal p-2 ${fontSize}`}>
-            {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='rounded-lg shadow-lg p-4'>
-                <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
-            </div>}
-            <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
-                <RichEditor name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
-            </div>
-            <div className="flex flex-col justify-center items-center w-full">
-                {imageDatasLoaded && imageDatas.map(image =>
-                    <div key={image.id} className="my-4 w-full max-w-4xl" onClick={() => openImageModal(image)}>
-                        <img
-                            src={image.data}
-                            alt={image.description ? image.description : "image"}
-                            className="w-full h-auto rounded cursor-pointer"
-                        />
-                    </div>
-                )}
-            </div>
-            {article.comments[0] && (!isHtmlStringEmpty(article.comments[0].text) || editable) &&
-                <div>
-                    <div>
-                        <h3 onClick={() => setActiveEditorRef()} className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">{t('comment')}</h3>
-                    </div>
-                    <div onClick={() => setActiveEditorRef(commentEditorRef)} >
-                        <RichEditor name={'comment'} htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
-                    </div>
+        <div className="flex flex-col items-center bg-white">
+            <div className={`leading-loose p-2 max-w-7xl ${fontSize}`}>
+                {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border-b border-gray-700 p-4'>
+                    <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
                 </div>}
+                <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
+                    <RichEditor name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
+                </div>
+                <div className="flex flex-col justify-center items-center w-full">
+                    {imageDatasLoaded && imageDatas.map(image =>
+                        <div key={image.id} className="my-4 w-full max-w-full" onClick={() => openImageModal(image)}>
+                            <img
+                                src={image.data}
+                                alt={image.description ? image.description : "image"}
+                                className="w-full h-auto rounded cursor-pointer"
+                            />
+                        </div>
+                    )}
+                </div>
+                {article.comments[0] && (!isHtmlStringEmpty(article.comments[0].text) || editable) &&
+                    <div>
+                        <div>
+                            <h3 onClick={() => setActiveEditorRef()} className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">{t('comment')}</h3>
+                        </div>
+                        <div onClick={() => setActiveEditorRef(commentEditorRef)} >
+                            <RichEditor name={'comment'} htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
+                        </div>
+                    </div>}
 
-            {imageDatasLoaded &&
-                <ImageModal
-                    isOpen={imageModalIsOpen}
-                    onClose={closeImageModal}
-                    image={selectedImage}
-                />}
+                {imageDatasLoaded &&
+                    <ImageModal
+                        isOpen={imageModalIsOpen}
+                        onClose={closeImageModal}
+                        image={selectedImage}
+                    />}
 
-            <ImageInput onSelectImages={handleImageSelect} ref={imageInputRef}></ImageInput>
-            <div className='p-5'></div>
+                <ImageInput onSelectImages={handleImageSelect} ref={imageInputRef}></ImageInput>
+                <div className='p-5'></div>
+            </div>
         </div>
     );
 };

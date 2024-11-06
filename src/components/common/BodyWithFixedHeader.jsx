@@ -4,7 +4,7 @@ const BodyWithFixedHeader = ({ children, ...props }) => {
     const [header, body] = React.Children.toArray(children);
 
     return (
-        <div className='flex flex-col h-full' {...props}>
+        <div className='flex flex-col h-full ' {...props}>
             <div className="flex-shrink-0">
                 {header}
             </div>

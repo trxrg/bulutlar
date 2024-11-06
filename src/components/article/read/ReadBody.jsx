@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import SplitPane from 'react-split-pane';
 import ReadSidePanel from './ReadSidePanel';
+import ReadLeftPanel from './ReadLeftPanel';
 import { ReadContext } from '../../../store/read-context';
 import BodyWithFixedHeader from '../../common/BodyWithFixedHeader';
 import ReadControls from './ReadControls';
@@ -39,11 +40,8 @@ const ReadBody = () => {
           size={leftPanelCollapsed ? '0%' : containerWidth * 0.2}
           resizerStyle={leftPanelCollapsed ? { display: 'none' } : { background: '#0C3B2E', cursor: 'col-resize', width: '12px' }}
         >
-          <div className={`h-full transition-transform duration-300 ${leftPanelCollapsed ? 'transform -translate-x-full w-0' : 'w-full'}`}>
-            {/* <BodyWithFixedHeader >
-              <ReadControls />
-              <ReadContent />
-            </BodyWithFixedHeader> */}
+          <div className={`h-full transition-transform duration-300 ${leftPanelCollapsed ? 'transform -translate-x-full w-0 opacity-0' : 'w-full'}`}>
+            <ReadLeftPanel />
           </div>
           <div className='h-full'>
             <BodyWithFixedHeader >
@@ -52,7 +50,7 @@ const ReadBody = () => {
             </BodyWithFixedHeader>
           </div>
         </SplitPane>
-        <div className={`h-full transition-transform duration-300 ${rightPanelCollapsed ? 'transform translate-x-full w-0' : 'w-full'}`}>
+        <div className={`h-full transition-transform duration-300 ${rightPanelCollapsed ? 'transform translate-x-full w-0 opacity-0' : 'w-full'}`}>
           {/* <ReadSidePanel /> */}
         </div>
       </SplitPane>

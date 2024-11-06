@@ -10,6 +10,7 @@ export const articleApi = {
     updateCategory:     async (id, newCategoryName) => window.api.article.updateCategory(id, newCategoryName),
     updateDate:         async (id, newDate)         => window.api.article.updateDate(id, newDate),
     addImage:           async (id, image)           => window.api.article.addImage(id, image),
+    addAnnotation:      async (id, annotation)      => window.api.article.addAnnotation(id, annotation),
     getAll:             async ()                    => window.api.article.getAll(),
     getById:            async (id)                  => window.api.article.getById(id),
     deleteById:         async (id)                  => window.api.article.deleteById(id),
@@ -54,9 +55,15 @@ export const tagApi = {
 export const dbApi = {
     loadArticles: async () => window.api.db.loadArticles(),
     loadArticlesFromTxt: async () => window.api.db.loadArticlesFromTxt(),
-}
+};
 
 export const lookupApi = {
     create: async (lookup) => window.api.lookup.create(lookup),
     getByLabel: async (label) => window.api.lookup.getByLabel(label),
-}
+};
+
+export const annotationApi = {
+    updateNote:         async (id, newNote)         => window.api.annotation.updateNote(id, newNote),
+    getById:            async (id)                  => window.api.annotation.getById(id),
+    deleteById:         async (id)                  => window.api.annotation.deleteById(id),
+};

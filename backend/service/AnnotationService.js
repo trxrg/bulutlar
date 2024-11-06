@@ -2,7 +2,8 @@ const { ipcMain } = require('electron');
 const { sequelize } = require("../sequelize");
 
 function initService() {
-    ipcMain.handle('annotation/deleteAnnotation', (event, annotationId) => deleteAnnotation(annotationId));
+    ipcMain.handle('annotation/getById', (event, annotationId) => getAnnotationById(annotationId));
+    ipcMain.handle('annotation/deleteById', (event, annotationId) => deleteAnnotationById(annotationId));
     ipcMain.handle('annotation/updateNote', (event, annotationId, newNote) => updateNote(annotationId, newNote));
 }
 
@@ -34,7 +35,21 @@ async function updateNote(annotationId, newNote) {
     }
 }
 
-async function deleteAnnotation(annotationId) {
+async function getAnnotationById(annotationId) {
+    try {
+        const annotation = await sequelize.models.annotation.findByPk(annotationId);
+
+        if (!annotation)
+            throw ('no annotation found with id: ' + annotationId);
+
+        return annotation;
+
+    } catch (err) {
+        console.error('Error in getAnnotationById', err);
+    }
+}
+
+async function deleteAnnotationById(annotationId) {
 
     try {
         const annotation = await sequelize.models.annotation.findByPk(annotationId);

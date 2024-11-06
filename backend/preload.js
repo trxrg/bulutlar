@@ -52,7 +52,8 @@ contextBridge.exposeInMainWorld('api', {
   },
   annotation: {
     deleteById:       (annotationId)          => ipcRenderer.invoke('annotation/deleteById', annotationId),
-    getById:          (annotationId)           => ipcRenderer.invoke('annotation/getById', annotationId),
+    getAll:           ()                      => ipcRenderer.invoke('annotation/getAll'),
+    getById:          (annotationId)          => ipcRenderer.invoke('annotation/getById', annotationId),
     updateNote:       (annotationId, newNote) => ipcRenderer.invoke('annotation/updateNote', annotationId, newNote),
   },
   db: {

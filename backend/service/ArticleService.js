@@ -6,6 +6,7 @@ const ownerService = require('./OwnerService');
 const categoryService = require('./CategoryService');
 const commentService = require('./CommentService');
 const imageService = require('./ImageService');
+const annotationService = require('./AnnotationService');
 
 function initService() {
     ipcMain.handle('article/create', (event, article) => createArticle(article));
@@ -71,7 +72,7 @@ async function createArticle(article) { // Now transactional
     } catch (e) {
         await transaction.rollback();
         console.error('Error adding article:', e);
-        return { error: e };
+        throw e;
     }
 }
 
@@ -116,6 +117,7 @@ async function deleteArticleById(id) {
         await article.destroy();
     } catch (error) {
         console.error('Error deleting article:', error);
+        throw error;
     }
 }
 
@@ -131,6 +133,7 @@ async function updateArticleMainText(id, newMainText) {
 
     } catch (error) {
         console.error('Error in updateArticleMainText', error);
+        throw error;
     }
 }
 
@@ -146,6 +149,7 @@ async function updateArticleExplanation(id, newExplanation) {
 
     } catch (error) {
         console.error('Error in updateArticleMainText', error);
+        throw error;
     }
 }
 
@@ -160,6 +164,7 @@ async function updateArticleTitle(id, newTitle) {
 
     } catch (error) {
         console.error('Error in updateArticleTitle', error);
+        throw error;
     }
 }
 
@@ -174,6 +179,7 @@ async function updateArticleDate(id, newDate) {
         await article.update({ number: calculateNumber(newDate) });
     } catch (error) {
         console.error('Error in updateArticleTitle', error);
+        throw error;
     }
 }
 
@@ -185,6 +191,7 @@ async function updateArticleOwner(id, newOwnerName) {
 
     } catch (error) {
         console.error('Error in updateArticleOwner', error);
+        throw error;
     }
 }
 
@@ -196,6 +203,7 @@ async function updateArticleCategory(id, newCategoryName) {
 
     } catch (error) {
         console.error('Error in updateArticleCategory', error);
+        throw error;
     }
 }
 
@@ -212,6 +220,7 @@ async function addImageToArticle(id, image) {
 
     } catch (error) {
         console.error('Error in addImage', error);
+        throw error;
     }
 }
 
@@ -228,6 +237,7 @@ async function addAnnotationToArticle(id, annotation) {
 
     } catch (error) {
         console.error('Error in addAnnotationToArticle', error);
+        throw error;
     }
 }
 

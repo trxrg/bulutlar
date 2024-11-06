@@ -39,6 +39,14 @@
     "type tags": "Etiketleri yazın",
     "suggested tags": "Önerilen etiketler",
 
+    "note": "Not",
+    "notes": "Notlar",
+    "write your note here": "Notunuzu buraya yazın",
+    "error adding note": "Not eklerken hata oluştu",
+    "error updating note": "Not güncellerken hata oluştu",
+    "error deleting note": "Not silerken hata oluştu",
+    "no notes": "Not eklemek için artı simgesine tıklayın",
+
     "filters": "Filtreler",
 
     "keyword": "Anahtar kelime",
@@ -58,11 +66,17 @@
     "change": "Değiştir",
     "new": "Yeni",
     "error": "Hata",
+    "update": "Güncelle",
+
+    "creation": "Oluşturulma",
+    "last update": "Son Güncelleme",
 
     "something went wrong": "Bir hata oluştu",
     "reload page": "Sayfayı Yeniden Yükle",
     "cannot be empty": " boş olamaz",
     "added": " eklendi",
+    "updated": " güncellendi",
+    "deleted": " silindi",
 
     "monday": "Pazartesi",
     "tuesday": "Salı",

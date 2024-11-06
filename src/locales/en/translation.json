@@ -39,6 +39,14 @@
     "type tags": "Type tags",
     "suggested tags": "Suggested tags",
 
+    "note": "Note",
+    "notes": "Notes",
+    "write your note here": "Write your note here",
+    "error adding note": "Error adding note",
+    "error updating note": "Error updating note",
+    "error deleting note": "Error deleting note",
+    "no notes": "Click to plus icon to add a note",
+
     "filters": "Filters",
 
     "keyword": "Keyword",
@@ -58,11 +66,17 @@
     "change": "Change",
     "new": "New",
     "error": "Error",
+    "update": "Update",
+
+    "creation": "Created",
+    "last update": "Last Update",
 
     "something went wrong": "Something went wrong",	
     "reload page": "Reload Page",
     "cannot be empty": " cannot be empty",
     "added": " added",
+    "updated": " updated",
+    "deleted": " deleted",
 
     "monday": "Monday",
     "tuesday": "Tuesday",

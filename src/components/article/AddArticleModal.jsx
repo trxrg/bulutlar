@@ -10,7 +10,6 @@ import OwnerList from '../owner/OwnerList';
 import TagList from '../tag/TagList';
 import DateInput from '../common/DateInput';
 import toastr from 'toastr';
-import { has, set } from 'draft-js/lib/DefaultDraftBlockRenderMap.js';
 
 const AddArticleModal = ({ isOpen, onRequestClose }) => {
     const { translate: t, afterSubmitArticle2 } = useContext(AppContext);

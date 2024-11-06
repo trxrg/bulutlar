@@ -2,9 +2,15 @@ const { ipcMain } = require('electron');
 const { sequelize } = require("../sequelize");
 
 function initService() {
+    ipcMain.handle('annotation/getAll', getAllAnnotations);
     ipcMain.handle('annotation/getById', (event, annotationId) => getAnnotationById(annotationId));
     ipcMain.handle('annotation/deleteById', (event, annotationId) => deleteAnnotationById(annotationId));
     ipcMain.handle('annotation/updateNote', (event, annotationId, newNote) => updateNote(annotationId, newNote));
+}
+
+async function getAllAnnotations() {
+    let entities = await sequelize.models.annotation.findAll();
+    return entities.map(entity => entity.dataValues);
 }
 
 async function createAnnotation(annotation) {
@@ -42,7 +48,7 @@ async function getAnnotationById(annotationId) {
         if (!annotation)
             throw ('no annotation found with id: ' + annotationId);
 
-        return annotation;
+        return annotation.dataValues;
 
     } catch (err) {
         console.error('Error in getAnnotationById', err);

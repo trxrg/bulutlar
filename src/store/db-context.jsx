@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { ownerApi, categoryApi, articleApi, tagApi } from '../backend-adapter/BackendAdapter';
+import { ownerApi, categoryApi, articleApi, tagApi, annotationApi } from '../backend-adapter/BackendAdapter';
 
 export const DBContext = createContext();
 
@@ -8,6 +8,7 @@ export default function DBContextProvider({ children }) {
     const [allOwners, setAllOwners] = useState([]);
     const [allTags, setAllTags] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
+    const [allAnnotations, setAllAnnotations] = useState([]);
 
     const fetchArticleById = useCallback(async (id) => {
         try {
@@ -65,6 +66,20 @@ export default function DBContextProvider({ children }) {
         }
     }, [allTags]);
 
+    const fetchAnnotationById = useCallback(async (id) => {
+        try {
+            const updatedAnnotation = await annotationApi.getById(id);
+
+            console.log('updated annotation')
+            console.log(updatedAnnotation)
+
+            const updatedAnnotations = allAnnotations.map(annotation => annotation.id === id ? updatedAnnotation : annotation);
+            setAllAnnotations(updatedAnnotations);
+        } catch (err) {
+            console.error(err);
+        }
+    }, [allAnnotations]);
+
     const fetchAllArticles = useCallback(async () => {
         try {
             const response = await articleApi.getAll();
@@ -103,6 +118,15 @@ export default function DBContextProvider({ children }) {
         }
     }, []);
 
+    const fetchAllAnnotations = useCallback(async () => {
+        try {
+            const response = await annotationApi.getAll();
+            setAllAnnotations(response);
+        } catch (err) {
+            console.error(err);
+        }
+    }, []);
+
     const fetchAllData = useCallback(async () => {
         console.log('syncing with DB');
         try {
@@ -110,6 +134,7 @@ export default function DBContextProvider({ children }) {
             await fetchAllCategories();
             await fetchAllTags();
             await fetchAllArticles();
+            await fetchAllAnnotations();
         } catch (err) {
             console.error(err);
         }
@@ -131,6 +156,10 @@ export default function DBContextProvider({ children }) {
         return allArticles.find(article => article.id === id);
     }, [allArticles]);
 
+    const getAnnotationById = useCallback((id) => {
+        return allAnnotations.find(annotation => annotation.id === id);
+    }, [allAnnotations]);
+
     useEffect(() => {
         fetchAllData();
     }, []);
@@ -145,15 +174,18 @@ export default function DBContextProvider({ children }) {
         fetchAllOwners,
         fetchAllCategories,
         fetchAllTags,
+        fetchAllAnnotations,
         fetchArticleById,
         fetchOwnerById,
         fetchCategoryById,
         fetchTagById,
+        fetchAnnotationById,
         getArticleById,
         getOwnerById,
         getCategoryById,
         getTagById,
-    }), [allArticles, allOwners, allTags, allCategories]);
+        getAnnotationById,
+    }), [allArticles, allOwners, allTags, allCategories, allAnnotations]);
 
     return <DBContext.Provider value={ctxValue}>
         {children}

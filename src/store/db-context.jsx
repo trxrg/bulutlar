@@ -10,6 +10,7 @@ export default function DBContextProvider({ children }) {
     const [allCategories, setAllCategories] = useState([]);
     const [allAnnotations, setAllAnnotations] = useState([]);
     const [streak, setStreak] = useState(0);
+    const [dbVersion, setDbVersion] = useState(null);
 
     const fetchArticleById = useCallback(async (id) => {
         try {
@@ -81,14 +82,19 @@ export default function DBContextProvider({ children }) {
         }
     }, [allAnnotations]);
 
-    const fetchStreak = async () => {
+    const fetchFromLookup = async (label) => {
         try {
-            const response = await lookupApi.getByLabel('streak');
-            setStreak(response.value);
+            const response = await lookupApi.getByLabel(label);
+            return response.value;
         } catch (err) {
             console.error(err);
         }
     };
+
+    const setLookupValues = async () => {
+        fetchFromLookup('streak').then(value => setStreak(value));
+        fetchFromLookup('db-version').then(value => setDbVersion(value));
+    }
 
     const fetchAllArticles = useCallback(async () => {
         try {
@@ -145,7 +151,7 @@ export default function DBContextProvider({ children }) {
             await fetchAllTags();
             await fetchAllArticles();
             await fetchAllAnnotations();
-            await fetchStreak();
+            await setLookupValues();
             lookupApi.setLastActiveDateToToday();
         } catch (err) {
             console.error(err);
@@ -198,6 +204,7 @@ export default function DBContextProvider({ children }) {
         getTagById,
         getAnnotationById,
         streak,
+        dbVersion,
     }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak]);
 
     return <DBContext.Provider value={ctxValue}>

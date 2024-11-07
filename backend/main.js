@@ -5,6 +5,7 @@ const isDev = app.isPackaged ? false : require('electron-is-dev');
 
 const { initDB } = require('./sequelize');
 const { initServices } = require('./service');
+const lookupService = require('./service/LookupService');
 
 require('./scripts/docReader')
 require('./scripts/jsonReader')
@@ -35,7 +36,7 @@ const createWindow = () => {
 
   mainWindow.setMenuBarVisibility(false);
 
-  
+
   require('@electron/remote/main').enable(mainWindow.webContents);
 
   mainWindow.loadURL(
@@ -49,9 +50,29 @@ const createWindow = () => {
   }
 }
 
+const handleStreak = async () => {
+  const today = lookupService.removeTimeFromDate(new Date());
+  const lastActiveDateLookup = await lookupService.getOrCreateLookup('lastActiveDate', today);
+  const streakStartDateLookup = await lookupService.getOrCreateLookup('streakStartDate', today);
+
+  const lastActiveDate = lookupService.removeTimeFromDate(new Date(lastActiveDateLookup.value));
+  const streakStartDate = lookupService.removeTimeFromDate(new Date(streakStartDateLookup.value));
+
+  const differenceToLastActiveDateInDays = Math.floor((today - lastActiveDate) / (1000 * 3600 * 24));
+  const differenceToStreakStartDateInDays = Math.floor((today - streakStartDate) / (1000 * 3600 * 24));
+
+  if (differenceToLastActiveDateInDays > 1) {
+    lookupService.updateValue('streak', 1);
+    lookupService.updateValue('streakStartDate', today);
+  } else {
+    lookupService.updateValue('streak', differenceToStreakStartDateInDays + 1);
+  }
+};
+
 app.whenReady().then(() => {
   initDB();
   initServices();
+  handleStreak();
   createWindow();
 
   app.on('activate', () => {

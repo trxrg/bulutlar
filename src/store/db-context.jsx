@@ -146,6 +146,7 @@ export default function DBContextProvider({ children }) {
             await fetchAllArticles();
             await fetchAllAnnotations();
             await fetchStreak();
+            lookupApi.setLastActiveDateToToday();
         } catch (err) {
             console.error(err);
         }

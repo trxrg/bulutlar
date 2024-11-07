@@ -64,6 +64,7 @@ contextBridge.exposeInMainWorld('api', {
     create: (lookup) => ipcRenderer.invoke('lookup/create', lookup),
     getByLabel: (label) => ipcRenderer.invoke('lookup/getByLabel', label),
     updateValue: (label, newValue) => ipcRenderer.invoke('lookup/updateValue', label, newValue),
+    setLastActiveDateToToday: () => ipcRenderer.invoke('lookup/setLastActiveDateToToday'),
   },
   getOwnerWithName:          (ownerName)   => ipcRenderer.invoke('getOwnerWithName', ownerName),
   getOwnerWithNameLike:      (nameLike)    => ipcRenderer.invoke('getOwnerWithNameLike', nameLike),

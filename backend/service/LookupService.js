@@ -1,10 +1,12 @@
 const { ipcMain } = require('electron')
 const { sequelize } = require("../sequelize");
+const { update } = require('draft-js/lib/DefaultDraftBlockRenderMap');
 
 function initService() {
     ipcMain.handle('lookup/create', (event, lookup) => createLookup(lookup));
     ipcMain.handle('lookup/getByLabel', (event, label) => getLookupByLabel(label));
     ipcMain.handle('lookup/updateValue', (event, label, value) => updateValue(label, value));
+    ipcMain.handle('lookup/setLastActiveDateToToday', (event) => setLastActiveDateToToday());
 }
 
 async function createLookup(lookup) {
@@ -57,6 +59,34 @@ async function updateValue(label, value) {
     }
 }
 
+const getOrCreateLookup = async (label, defaultValue) => {
+    try {
+        return await getLookupByLabel(label);
+    } catch (err) {
+        await createLookup({ label, value: defaultValue });
+        return await getLookupByLabel(label);
+    }
+};
+
+const removeTimeFromDate = (date) => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+async function setLastActiveDateToToday() {
+    try {
+        const today = removeTimeFromDate(new Date());
+        await updateValue('lastActiveDate', today);
+    } catch (err) {
+        console.error('Error in setLastActiveDateToToday', err);
+        throw err;
+    }
+}
+
 module.exports = {
-    initService
+    initService,
+    getLookupByLabel,
+    createLookup,
+    updateValue,
+    getOrCreateLookup,
+    removeTimeFromDate,
 };

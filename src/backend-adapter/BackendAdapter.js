@@ -61,6 +61,7 @@ export const lookupApi = {
     create: async (lookup) => window.api.lookup.create(lookup),
     getByLabel: async (label) => window.api.lookup.getByLabel(label),
     updateValue: async (label, newValue) => window.api.lookup.updateValue(label, newValue),
+    setLastActiveDateToToday: async () => window.api.lookup.setLastActiveDateToToday(),
 };
 
 export const annotationApi = {

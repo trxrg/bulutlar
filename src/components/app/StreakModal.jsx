@@ -37,10 +37,10 @@ const StreakModal = ({ isOpen, onRequestClose }) => {
     return (
         <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose}>
             <div className='flex flex-col h-full items-center overflow-y-auto'>
-                <div className='flex items-center gap-2 mx-2 mb-10'>
+                <div className='flex items-center gap-2 mx-2'>
                     <span className='text-5xl text-green-600 font-bold'>⚡{streak}</span>
                 </div>
-                <div className='text-xl'>
+                <div className='text-xl my-10'>
                     <p>{t(msg)}</p>
                 </div>
             </div>

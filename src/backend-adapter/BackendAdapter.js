@@ -1,5 +1,3 @@
-import { get } from "draft-js/lib/DefaultDraftBlockRenderMap";
-
 export const ping = async () => window.api.ping();
 export const checkDbConnection = async () => window.api.checkDbConnection();
 
@@ -62,6 +60,7 @@ export const dbApi = {
 export const lookupApi = {
     create: async (lookup) => window.api.lookup.create(lookup),
     getByLabel: async (label) => window.api.lookup.getByLabel(label),
+    updateValue: async (label, newValue) => window.api.lookup.updateValue(label, newValue),
 };
 
 export const annotationApi = {

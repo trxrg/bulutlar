@@ -1,6 +1,5 @@
 const { ipcMain } = require('electron')
 const { sequelize } = require("../sequelize");
-const { update } = require('draft-js/lib/DefaultDraftBlockRenderMap');
 
 function initService() {
     ipcMain.handle('lookup/create', (event, lookup) => createLookup(lookup));

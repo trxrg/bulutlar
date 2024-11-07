@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { ownerApi, categoryApi, articleApi, tagApi, annotationApi } from '../backend-adapter/BackendAdapter';
+import { ownerApi, categoryApi, articleApi, tagApi, annotationApi, lookupApi } from '../backend-adapter/BackendAdapter';
 
 export const DBContext = createContext();
 
@@ -9,6 +9,7 @@ export default function DBContextProvider({ children }) {
     const [allTags, setAllTags] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
     const [allAnnotations, setAllAnnotations] = useState([]);
+    const [streak, setStreak] = useState(0);
 
     const fetchArticleById = useCallback(async (id) => {
         try {
@@ -80,6 +81,15 @@ export default function DBContextProvider({ children }) {
         }
     }, [allAnnotations]);
 
+    const fetchStreak = async () => {
+        try {
+            const response = await lookupApi.getByLabel('streak');
+            setStreak(response.value);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const fetchAllArticles = useCallback(async () => {
         try {
             const response = await articleApi.getAll();
@@ -135,6 +145,7 @@ export default function DBContextProvider({ children }) {
             await fetchAllTags();
             await fetchAllArticles();
             await fetchAllAnnotations();
+            await fetchStreak();
         } catch (err) {
             console.error(err);
         }
@@ -185,7 +196,8 @@ export default function DBContextProvider({ children }) {
         getCategoryById,
         getTagById,
         getAnnotationById,
-    }), [allArticles, allOwners, allTags, allCategories, allAnnotations]);
+        streak,
+    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak]);
 
     return <DBContext.Provider value={ctxValue}>
         {children}

@@ -7,13 +7,14 @@ import ActionButton from '../common/ActionButton';
 
 import { DBContext } from '../../store/db-context';
 import { dbApi } from '../../backend-adapter/BackendAdapter';
+import StreakModal from './StreakModal';
 
 
 const AppHeader = () => {
 
-    const { getActiveScreenTitle, setActiveScreen, changeLanguage } = useContext(AppContext);
+    const { getActiveScreenTitle, setActiveScreen, changeLanguage, setStreakModalOpen } = useContext(AppContext);
 
-    const { fetchAllData } = useContext(DBContext);
+    const { fetchAllData, streak } = useContext(DBContext);
 
     // const handleLoadArticles = async () => {
     //     await dbApi.loadArticles();
@@ -36,13 +37,16 @@ const AppHeader = () => {
             <h1 className='text-3xl text-gray-600'>{getActiveScreenTitle()}</h1>
             <div className="flex justify-end items-center">
                 <div className='flex gap-2'>
+                    <div className='flex items-center gap-2 mx-2 cursor-pointer' onClick={() => setStreakModalOpen(true)}>
+                        <span className='text-xl text-green-600 font-bold'>⚡{streak}</span>
+                    </div>
                     <FormatButton onClick={() => changeLanguage()}><GlobeAltIcon className='w-5 h-5' /></FormatButton>
                     <FormatButton onClick={() => setActiveScreen('home')}><HomeIcon className='w-5 h-5' /></FormatButton>
-                    <ActionButton color='red' onClick={handleLoadArticlesFromTxt}>Load Articles From Txt</ActionButton>
+                    {/* <ActionButton color='red' onClick={handleLoadArticlesFromTxt}>Load Articles From Txt</ActionButton> */}
                     {/* <ActionButton color='blue' onClick={handleLoadArticles}>Load Articles</ActionButton> */}
                     {/* <ActionButton color='blue' onClick={handleRefresh}>Refresh</ActionButton> */}
                 </div>
-            </div>
+            </div>            
         </div>
     );
 };

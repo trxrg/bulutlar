@@ -53,6 +53,7 @@
 
     "title": "Başlık",
     "date": "Tarih",
+    "streak": "Seri",
 
     "search": "Ara",
     "add": "Ekle",
@@ -77,6 +78,14 @@
     "added": " eklendi",
     "updated": " güncellendi",
     "deleted": " silindi",
+
+    "streak message 0": "Bir hata oluştu",
+    "streak message 1": "İlk gün heyecanı...",
+    "streak message 2": "İki gündür burdasın, böyle devam!",
+    "streak message 3": "Çok iyi gidiyorsun, sakın bozma!",
+    "streak message 5": "Çok iyi gidiyorsun, sakın bozma!",
+    "streak message 10": "Çok iyi gidiyorsun, sakın bozma!",
+    "streak message 15": "Usta sen ne yaptın!",
 
     "monday": "Pazartesi",
     "tuesday": "Salı",

@@ -53,6 +53,7 @@
 
     "title": "Title",
     "date": "Date",
+    "streak": "Streak",
 
     "search": "Search",
     "add": "Add",
@@ -77,6 +78,14 @@
     "added": " added",
     "updated": " updated",
     "deleted": " deleted",
+
+    "streak message 0": "Something went wrong",
+    "streak message 1": "First day excitement...",
+    "streak message 2": "You've been here for two days, keep it up!",
+    "streak message 3": "You're doing great, don't stop!",
+    "streak message 5": "You're doing great, don't stop!",
+    "streak message 10": "You're doing great, don't stop!",
+    "streak message 15": "Dude, what have you done!",
 
     "monday": "Monday",
     "tuesday": "Tuesday",

@@ -9,6 +9,7 @@ export default function AppContextProvider({ children }) {
     const [activeScreen, setActiveScreen] = useState('home');
     const [fullScreen, setFullScreen] = useState(false);
     const [activeTabId, setActiveTabId] = useState('search');
+    const [streakModalOpen, setStreakModalOpen] = useState(false);
     const [tabs, setTabs] = useState([
         { id: 'search', title: 'Search' }
     ]);
@@ -138,6 +139,8 @@ export default function AppContextProvider({ children }) {
         getActiveScreenTitle,
         changeLanguage,
         translate: t,
+        streakModalOpen,
+        setStreakModalOpen,
     };
 
     return <AppContext.Provider value={ctxValue}>

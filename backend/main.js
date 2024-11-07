@@ -51,6 +51,7 @@ const createWindow = () => {
 }
 
 const handleStreak = async () => {
+  await lookupService.getOrCreateLookup('streak', 1);
   const today = lookupService.removeTimeFromDate(new Date());
   const lastActiveDateLookup = await lookupService.getOrCreateLookup('lastActiveDate', today);
   const streakStartDateLookup = await lookupService.getOrCreateLookup('streakStartDate', today);

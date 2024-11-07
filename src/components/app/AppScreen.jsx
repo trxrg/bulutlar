@@ -14,7 +14,7 @@ const AppScreen = () => {
     useEffect(() => {
         if (streak == 1 || streak == 2 || streak == 3 || streak % 5 == 1)
             setTimeout(() => setStreakModalOpen(true), 1500);
-    }, []);
+    }, [streak]);
 
     return (
         <div className='h-screen flex flex-col mx-auto bg-stone-200 w-screen'>

@@ -1,13 +1,20 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import AppHeader from './AppHeader';
 import AppBody from './AppBody';
 import { AppContext } from '../../store/app-context';
+import { DBContext  } from '../../store/db-context';
 import CustomTitleBar from './custom-title-bar/CustomTitleBar';
 import StreakModal from './StreakModal';
 
 const AppScreen = () => {
 
     const { fullScreen, activeScreen, streakModalOpen, setStreakModalOpen } = useContext(AppContext);
+    const { streak } = useContext(DBContext);
+
+    useEffect(() => {
+        if (streak == 1 || streak == 2 || streak == 3 || streak % 5 == 1)
+            setTimeout(() => setStreakModalOpen(true), 1500);
+    }, []);
 
     return (
         <div className='h-screen flex flex-col mx-auto bg-stone-200 w-screen'>

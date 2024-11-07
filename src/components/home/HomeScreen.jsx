@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../../store/app-context';
+import { DBContext } from '../../store/db-context.jsx';
 import { imageApi, lookupApi } from '../../backend-adapter/BackendAdapter.js';
 import ActionButton from '../common/ActionButton';
 import toastr from 'toastr';
@@ -10,7 +11,8 @@ const HomeScreen = () => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageData, setImageData] = useState(null);
     const [dbVersion, setDbVersion] = useState(null);
-    const { setActiveScreen } = useContext(AppContext);
+    const { setActiveScreen, setStreakModalOpen } = useContext(AppContext);
+    const { streak } = useContext(DBContext);
 
     const fetchImageData = async () => {
         const image = {
@@ -55,6 +57,9 @@ const HomeScreen = () => {
                 <ActionButton onClick={() => setActiveScreen('categories')}>Categories</ActionButton>
                 <ActionButton onClick={() => setActiveScreen('owners')}>Owners</ActionButton>
                 <h2>db version: {dbVersion && dbVersion.dataValues.value.value}</h2>
+            </div>
+            <div className='p-6 cursor-pointer' onClick={() => setStreakModalOpen(true)}>
+                <span className='text-5xl text-green-600 font-bold'>⚡{streak}</span>
             </div>
         </div>
     );

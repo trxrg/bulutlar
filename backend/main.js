@@ -69,10 +69,19 @@ const handleStreak = async () => {
   }
 };
 
+const handleDBVersion = async () => {
+  const dbVersion = await lookupService.getOrCreateLookup('dbVersion', '1.0.0');
+  if (dbVersion)
+    console.log('dbVersion: ', dbVersion.value);
+  else
+    console.log('dbVersion not found');
+}
+
 app.whenReady().then(() => {
   initDB();
   initServices();
   handleStreak();
+  handleDBVersion();
   createWindow();
 
   app.on('activate', () => {

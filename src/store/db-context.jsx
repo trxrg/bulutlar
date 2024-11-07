@@ -93,7 +93,7 @@ export default function DBContextProvider({ children }) {
 
     const setLookupValues = async () => {
         fetchFromLookup('streak').then(value => setStreak(value));
-        fetchFromLookup('db-version').then(value => setDbVersion(value));
+        fetchFromLookup('dbVersion').then(value => setDbVersion(value));
     }
 
     const fetchAllArticles = useCallback(async () => {

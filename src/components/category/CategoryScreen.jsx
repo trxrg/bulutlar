@@ -42,6 +42,7 @@ const CategoryScreen = () => {
                 <table className="min-w-full bg-white">
                     <thead>
                         <tr>
+                            <th className="py-2 px-4 border-b"></th>
                             <th className="py-2 px-4 border-b">{t('name')}</th>
                             <th className="py-2 px-4 border-b">{t('article count')}</th>
                             <th className="py-2 px-4 border-b">{t('color')}</th>
@@ -49,21 +50,24 @@ const CategoryScreen = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {allCategories.map(category => (
+                        {allCategories.map((category, index) => (
                             <tr key={category.id}>
-                                <td className='border-b'>
+                                <td className='border-b text-center'>
+                                    <h2>{index+1}</h2>
+                                </td>
+                                <td className='border-b text-center'>
                                     <RichInput initialText={category.name} handleSave={(newName) => handleNameChange(category.id, newName)}></RichInput>
                                 </td>
-                                <td className="py-2 px-4 border-b">{category.articleCount}</td>
-                                <td className="py-2 px-4 border-b">
+                                <td className="py-2 px-4 border-b text-center">{category.articleCount}</td>
+                                <td className="py-2 px-4 border-b text-center">
                                     <input
                                         type="color"
                                         value={category.color}
                                         onChange={(e) => handleColorChange(category.id, e.target.value)}
-                                        className='cursor-pointer'
+                                        className='cursor-pointer w-8 h-8'
                                     />
                                 </td>
-                                <td className="py-2 px-4 border-b flex">
+                                <td className="py-2 px-4 border-b text-center">
                                     <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2">{t('go to articles')}</button>
                                     {category.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteCategory(category.id)}>{t('delete')}</ActionButton>}
                                 </td>

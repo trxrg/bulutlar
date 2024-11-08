@@ -32,19 +32,23 @@ const OwnerScreen = () => {
                 <table className="min-w-full bg-white">
                     <thead>
                         <tr>
+                            <th className="py-2 px-4 border-b"></th>
                             <th className="py-2 px-4 border-b">{t('name')}</th>
                             <th className="py-2 px-4 border-b">{t('article count')}</th>
                             <th className="py-2 px-4 border-b"></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {allOwners.map(owner => (
+                        {allOwners.map((owner, index) => (
                             <tr key={owner.id}>
-                                <td className='border-b'>
+                                <td className='border-b text-center'>
+                                    <h2>{index+1}</h2>
+                                </td>
+                                <td className='border-b text-center'>
                                     <RichInput initialText={owner.name} handleSave={(newName) => handleNameChange(owner.id, newName)}></RichInput>
                                 </td>
-                                <td className="py-2 px-4 border-b">{owner.articleCount}</td>
-                                <td className="py-2 px-4 border-b flex">
+                                <td className="py-2 px-4 border-b text-center">{owner.articleCount}</td>
+                                <td className="py-2 px-4 border-b text-center">
                                     <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2">{t('go to articles')}</button>
                                     {owner.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteOwner(owner.id)}>{t('delete')}</ActionButton>}
                                 </td>

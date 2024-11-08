@@ -41,7 +41,7 @@ const ReadLeftPanel = () => {
                     <p>{t('no notes')}</p>
                 </div>}
             </BodyWithFixedHeader>
-            <AnnotationModal isOpen={isAnnotationModalOpen} onRequestClose={() => setAnnotationModalOpen(false)} annotation={annotationForModal}/>
+            <AnnotationModal isOpen={isAnnotationModalOpen} onRequestClose={() => setAnnotationModalOpen(false)} annotation={annotationForModal} articleId={article.id}/>
         </div>
     );
 };

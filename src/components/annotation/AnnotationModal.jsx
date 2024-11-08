@@ -7,23 +7,23 @@ import { ReadContext } from '../../store/read-context.jsx';
 import { DBContext } from '../../store/db-context.jsx';
 import { articleApi, annotationApi } from '../../backend-adapter/BackendAdapter.js';
 
-const AnnotationModal = ({ isOpen, onRequestClose, annotation }) => {
+const AnnotationModal = ({ isOpen, onRequestClose, annotation, articleId }) => {
 
     const { translate: t } = useContext(AppContext);
-    const { article } = useContext(ReadContext);
-    const { fetchArticleById, fetchAnnotationById, fetchAllAnnotations } = useContext(DBContext);
+    
+    const { fetchArticleById, fetchAnnotationById, fetchAllAnnotations, getArticleById } = useContext(DBContext);
 
     const [note, setNote] = useState(annotation?.note || '');
     const [msg, setMsg] = useState('');
-
+    
     const handleAdd = () => {
         if (note.trim() === '') {
             setMsg(t('note') + t('cannot be empty'));
             return;
         }
-        articleApi.addAnnotation(article.id, { note }).then(() => {
+        articleApi.addAnnotation(articleId, { note }).then(() => {
             toastr.success(t('note') + t('added'));
-            fetchArticleById(article.id);
+            fetchArticleById(articleId);
             fetchAllAnnotations();
         }).catch((e) => {
             toastr.error(e.message, t('error adding note'));
@@ -48,7 +48,7 @@ const AnnotationModal = ({ isOpen, onRequestClose, annotation }) => {
     const handleDelete = () => {
         annotationApi.deleteById(annotation.id).then(() => {
             toastr.success(t('note') + t('deleted'));
-            fetchArticleById(article.id);
+            fetchArticleById(articleId);
             fetchAllAnnotations();
         }).catch(() => {
             toastr.error(t('error deleting note'));

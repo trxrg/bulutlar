@@ -1,14 +1,21 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
-import RichInput from '../common/RichInput';
+import AnnotationModal from './AnnotationModal';
 
 const AnnotationScreen = () => {
+    const [annotationModalOpen, setAnnotationModalOpen] = useState(false);
+    const [annotationForModal, setAnnotationForModal] = useState(null);
     const { allAnnotations, getArticleById } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);
 
     const handleOpenArticle = (article) => {
         console.log('not implemented');
+    }
+
+    const handleNoteClicked = (annotation) => {
+        setAnnotationModalOpen(true);
+        setAnnotationForModal(annotation);
     }
 
     return (
@@ -28,8 +35,9 @@ const AnnotationScreen = () => {
 
                             return (<tr key={annotation.id}>
                                 <td className='border-b'>
-                                    {/* <textarea>{annotation.note}</textarea> */}
-                                    <RichInput initialText={annotation.note} handleSave={(newName) => {}}></RichInput>
+                                    <div className='border hover:underline cursor-pointer' onClick={() => handleNoteClicked(annotation)} style={{ whiteSpace: 'pre-line' }}>
+                                        {annotation.note}
+                                    </div>
                                 </td>
                                 <td className='border-b'>
                                     <h2>{annotation.quote}</h2>
@@ -42,10 +50,12 @@ const AnnotationScreen = () => {
                                     )}
                                 </td>
                             </tr>
-                        )})}
+                            )
+                        })}
                     </tbody>
                 </table>
             </div>
+            <AnnotationModal isOpen={annotationModalOpen} onRequestClose={() => setAnnotationModalOpen(false)} annotation={annotationForModal} articleId={annotationForModal?.articleId} />
         </div>
     );
 };

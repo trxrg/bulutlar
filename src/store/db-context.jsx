@@ -187,6 +187,7 @@ export default function DBContextProvider({ children }) {
         allOwners,
         allTags,
         allCategories,
+        allAnnotations,
         fetchAllData,
         fetchAllArticles,
         fetchAllOwners,

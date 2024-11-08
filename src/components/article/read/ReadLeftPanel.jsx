@@ -2,11 +2,11 @@ import React, { useState, useContext } from 'react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import BodyWithFixedHeader from '../../common/BodyWithFixedHeader';
 import FormatButton from '../../common/FormatButton';
-import AnnotationModal from './AnnotationModal';
+import AnnotationModal from '../../annotation/AnnotationModal';
 import { AppContext } from '../../../store/app-context';
 import { DBContext } from '../../../store/db-context';
 import { ReadContext } from '../../../store/read-context';
-import AnnotationCard from './AnnotationCard';
+import AnnotationCard from '../../annotation/AnnotationCard';
 
 const ReadLeftPanel = () => {
 

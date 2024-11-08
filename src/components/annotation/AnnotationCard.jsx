@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { AppContext } from '../../../store/app-context';
+import { AppContext } from '../../store/app-context';
 
 const AnnotationCard = ({ annotation, onClick }) => {
 

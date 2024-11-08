@@ -1,11 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
-import GeneralModal from '../../common/GeneralModal';
-import ActionButton from '../../common/ActionButton';
+import GeneralModal from '../common/GeneralModal.jsx';
+import ActionButton from '../common/ActionButton.jsx';
 import toastr from 'toastr';
-import { AppContext } from '../../../store/app-context';
-import { ReadContext } from '../../../store/read-context';
-import { DBContext } from '../../../store/db-context.jsx';
-import { articleApi, annotationApi } from '../../../backend-adapter/BackendAdapter.js';
+import { AppContext } from '../../store/app-context.jsx';
+import { ReadContext } from '../../store/read-context.jsx';
+import { DBContext } from '../../store/db-context.jsx';
+import { articleApi, annotationApi } from '../../backend-adapter/BackendAdapter.js';
 
 const AnnotationModal = ({ isOpen, onRequestClose, annotation }) => {
 

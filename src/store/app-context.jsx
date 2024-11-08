@@ -107,6 +107,8 @@ export default function AppContextProvider({ children }) {
             result = 'categories';
         } else if (activeScreen === 'owners') {
             result = 'owners';
+        } else if (activeScreen === 'annotations') {
+            result = 'annotations';
         }
 
         return t(result); 

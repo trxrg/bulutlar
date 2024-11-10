@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         date: { type: DataTypes.DATE },
         number: { type: DataTypes.INTEGER },
         order: { type: DataTypes.INTEGER },
+        ordering: { type: DataTypes.INTEGER },
         explanation: { type: DataTypes.TEXT },
         explanationJson: { type: DataTypes.JSON },
         text: { type: DataTypes.TEXT },
@@ -30,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
         indexes: [
             {
                 unique: true,
-                fields: ['order'],
+                fields: ['ordering'],
             },
         ],
     });

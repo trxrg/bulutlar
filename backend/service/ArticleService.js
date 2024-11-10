@@ -281,7 +281,8 @@ async function getAllArticles() {
                 as: 'relatedArticles',
                 attributes: ['id', 'title']
             },
-        ]
+        ],
+        order: [['ordering', 'ASC']]
     });
 
     return entities.map(entity => articleEntity2Json(entity));

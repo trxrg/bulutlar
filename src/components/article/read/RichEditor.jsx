@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Editor, EditorState, RichUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw } from 'draft-js';
+import { Editor, EditorState, RichUtils, AtomicBlockUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import AddLinkModal from '../../common/AddLinkModal';
+import { imageApi } from '../../../backend-adapter/BackendAdapter';
 import '../../../styles.css'
 
 const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleContentChange, editable }, ref) => {
@@ -43,6 +44,16 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
             );
         }, callback);
     }
+
+    const ImageComponent = async (image) => {
+
+        const data = await imageApi.getDataById(image.id);
+        return (
+            <div>
+                <img src={data} alt="image" />
+            </div>
+        );
+    };
 
     const decorator = new CompositeDecorator([
         {
@@ -142,11 +153,20 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         setEditorState(EditorState.forceSelection(newEditorState, editorState.getSelection()));
     }
 
-    const getContent = () => ({html: stateToHTML(editorState.getCurrentContent()), json: convertToRaw(editorState.getCurrentContent())});
+    const addImage = (image) => {
+        const contentState = editorState.getCurrentContent();
+        const contentStateWithEntity = contentState.createEntity('IMAGE', 'IMMUTABLE', image);
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+        const newEditorState = AtomicBlockUtils.insertAtomicBlock(editorState, entityKey, ' ');
+        setEditorState(newEditorState);
+    };
+
+    const getContent = () => ({ html: stateToHTML(editorState.getCurrentContent()), json: convertToRaw(editorState.getCurrentContent()) });
     const resetContent = () => (setEditorState(rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent)));
 
     React.useImperativeHandle(ref, () => ({
         addLink,
+        addImage,
         getContent,
         resetContent,
         toggleInlineStyle,
@@ -160,6 +180,16 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const handleEditorClick = () => {
         setShowContextMenu(false);
     }
+
+    const blockRendererFn = (contentBlock) => {
+        if (contentBlock.getType() === 'atomic') {
+            return {
+                component: ImageComponent,
+                editable: false,
+            };
+        }
+        return null;
+    };
 
     return (
         <div className="mx-auto flex justify-center w-full">
@@ -180,6 +210,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                     customDecorators={[decorator]}
                     customStyleMap={styleMap}
                     handleDrop={editable ? undefined : () => 'handled'}
+                    blockRendererFn={blockRendererFn}
                 />
             </div>
 

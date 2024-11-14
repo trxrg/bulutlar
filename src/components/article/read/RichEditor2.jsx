@@ -16,52 +16,80 @@ const addImage = (editorState, url) => {
 };
 
 // Custom component to render the image entity
-const ImageComponent = (props) => {
-    const { block, contentState } = props;
-    const entity = contentState.getEntity(block.getEntityAt(0));
-    const { src } = entity.getData();
-    const [dimensions, setDimensions] = useState({ width: 200, height: 'auto' });
+// const ImageComponent = (props) => {
+//     const { block, contentState } = props;
+//     const entity = contentState.getEntity(block.getEntityAt(0));
+//     const { src } = entity.getData();
+//     const [dimensions, setDimensions] = useState({ width: 200, height: 'auto' });
 
-    const onResize = (event, { size }) => {
-        console.log(size);
-        if (size.width > 800) {
-            console.log('width > 800');
-            return;
-        }
-        setDimensions({
-            width: Math.min(size.width, 800),
-            height: 'auto',
-        });
-    };
+//     const onResize = (event, { size }) => {
+//         console.log(size);
+//         if (size.width > 800) {
+//             console.log('width > 800');
+//             return;
+//         }
+//         setDimensions({
+//             width: Math.min(size.width, 800),
+//             height: 'auto',
+//         });
+//     };
+
+//     return (
+//         <Draggable>
+//             <div style={{ display: 'inline-block', margin: '0 10px 10px 0', position: 'relative' }}>
+//                 <ResizableBox
+//                 max-width={800}
+//                     width={dimensions.width}
+//                     height={dimensions.height}
+//                     onResize={onResize}
+//                     resizeHandles={['se', 'sw', 'ne', 'nw', 'n', 's', 'e', 'w']}
+//                     style={{ width: dimensions.width }}
+//                 >
+//                     <img src={src} alt="Editor Image" style={{ width: '100%', height: 'auto' }} />
+//                 </ResizableBox>
+//             </div>
+//         </Draggable>
+//     );
+// };
+
+const ImageComponent = ({ contentState, block, blockProps }) => {
+    const entity = contentState.getEntity(block.getEntityAt(0));
+    const { src, position } = entity.getData();
 
     return (
-        // <Draggable>
-            <div style={{ display: 'inline-block', margin: '0 10px 10px 0', position: 'relative' }}>
-                <ResizableBox
-                max-width={800}
-                    width={dimensions.width}
-                    height={dimensions.height}
-                    onResize={onResize}
-                    resizeHandles={['se', 'sw', 'ne', 'nw', 'n', 's', 'e', 'w']}
-                    style={{ width: dimensions.width }}
-                >
-                    <img src={src} alt="Editor Image" style={{ width: '100%', height: 'auto' }} />
-                </ResizableBox>
+        <Draggable
+            onStop={(e, data) => blockProps.onPositionChange(block.getKey(), data)}
+            defaultPosition={{ x: position.x || 0, y: position.y || 0 }}
+        >
+            <div
+                style={{
+                    position: 'absolute',
+                    width: '150px',
+                    height: 'auto',
+                    float: 'left', // for initial alignment
+                    zIndex: 10,
+                }}
+            >
+                <img src={src} alt="editor" style={{ width: '100%', height: 'auto' }} />
             </div>
-        // </Draggable>
+        </Draggable>
     );
 };
 
-// Custom block renderer function
-const blockRendererFn = (block) => {
-    if (block.getType() === 'atomic') {
-        return {
-            component: ImageComponent,
-            editable: false,
-        };
-    }
-    return null;
-};
+
+
+
+// const blockRendererFn = (block) => {
+//     if (block.getType() === 'atomic') {
+//         return {
+//             component: ImageComponent,
+//             editable: false,
+//         };
+//     }
+//     return null;
+// };
+
+
 
 // Main RichEditor component
 const RichEditor2 = () => {
@@ -70,6 +98,28 @@ const RichEditor2 = () => {
 
     const handleEditorChange = (newEditorState) => {
         setEditorState(newEditorState);
+    };
+
+    const onPositionChange = (blockKey, { x, y }) => {
+        const contentState = editorState.getCurrentContent();
+        const block = contentState.getBlockForKey(blockKey);
+        const entityKey = block.getEntityAt(0);
+
+        contentState.mergeEntityData(entityKey, { position: { x, y } });
+
+        setEditorState(EditorState.push(editorState, contentState, 'apply-entity'));
+    };
+
+    const blockRendererFn = (contentBlock) => {
+        const type = contentBlock.getType();
+        if (type === 'atomic') {
+            return {
+                component: ImageComponent,
+                editable: false,
+                props: { onPositionChange },
+            };
+        }
+        return null;
     };
 
     const handleFileChange = (event) => {
@@ -86,7 +136,7 @@ const RichEditor2 = () => {
     };
 
     return (
-        <div className="mx-auto flex justify-center w-full max-w-4xl">
+        <div className="mx-auto flex flex-col justify-center w-full max-w-4xl">
             <input
                 type="file"
                 accept="image/*"

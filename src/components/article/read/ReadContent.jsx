@@ -6,6 +6,8 @@ import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
 import ImageModal from "../../image/ImageModal.jsx";
 import ImageInput from "../../image/ImageInput.jsx";
+import RichEditor2 from "./RichEditor2.jsx";
+import MyEditor from "./MyEditor.jsx";
 
 const ReadContent = () => {
 
@@ -89,6 +91,13 @@ const ReadContent = () => {
         syncArticleFromBE();
     };
 
+    const handleImageSelect2 = async (images) => {
+        console.log(images)
+        images.forEach((image) => activeEditorRef && activeEditorRef.current.addImage(image));        
+        syncArticleFromBE();
+    }
+
+
     const addImage = () => {
         imageInputRef.current.addImage();
     };
@@ -122,6 +131,8 @@ const ReadContent = () => {
                 </div>}
                 <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
                     <RichEditor name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
+                    {/* <RichEditor2 name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor2> */}
+                    {/* <MyEditor /> */}
                 </div>
                 <div className="flex flex-col justify-center items-center w-full">
                     {imageDatasLoaded && imageDatas.map(image =>
@@ -151,7 +162,7 @@ const ReadContent = () => {
                         image={selectedImage}
                     />}
 
-                <ImageInput onSelectImages={handleImageSelect} ref={imageInputRef}></ImageInput>
+                <ImageInput onSelectImages={handleImageSelect2} ref={imageInputRef}></ImageInput>
                 <div className='p-5'></div>
             </div>
         </div>

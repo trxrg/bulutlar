@@ -214,9 +214,11 @@ async function addImageToArticle(id, image) {
         if (!article)
             throw ('no article found with id: ' + id);
 
-        await article.addImage(await imageService.createImage(image));
+        const imageEntity = await imageService.createImage(image);
 
-        return await getArticleById(id);
+        await article.addImage(imageEntity);
+
+        return imageEntity.dataValues;
 
     } catch (error) {
         console.error('Error in addImage', error);

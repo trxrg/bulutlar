@@ -1,7 +1,7 @@
 import React, { useRef, useState, useContext, useEffect } from "react";
 
 import { articleApi, commentApi, imageApi, } from '../../../backend-adapter/BackendAdapter.js';
-import RichEditor from "./RichEditor.jsx";
+import RichEditor from "./editor/RichEditor.jsx";
 import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
 import ImageModal from "../../image/ImageModal.jsx";
@@ -92,8 +92,12 @@ const ReadContent = () => {
     };
 
     const handleImageSelect2 = async (images) => {
-        console.log(images)
-        images.forEach((image) => activeEditorRef && activeEditorRef.current.addImage(image));        
+        
+        images.forEach(async (image) => {
+            const imageEntity = await articleApi.addImage(article.id, image);
+            console.log('imageEntity', imageEntity);
+            activeEditorRef && activeEditorRef.current.addImage(imageEntity)
+        });
         syncArticleFromBE();
     }
 

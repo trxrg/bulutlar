@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
-import { Editor, EditorState, RichUtils, AtomicBlockUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw } from 'draft-js';
+import React, { useState, useEffect } from 'react';
+import { Editor, EditorState, RichUtils, AtomicBlockUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw, getDefaultKeyBinding, KeyBindingUtil } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
-import AddLinkModal from '../../common/AddLinkModal';
-import { imageApi } from '../../../backend-adapter/BackendAdapter';
-import '../../../styles.css'
+import AddLinkModal from '../../../common/AddLinkModal';
+
+import Image from './Image';
+import '../../../../styles.css'
 
 const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleContentChange, editable }, ref) => {
 
     const [rightClickedBlockKey, setRightClickedBlockKey] = useState();
     const [rightClickedEntityKey, setRightClickedEntityKey] = useState();
+    const [imageDatas, setImageDatas] = useState([]);
+
 
     const styleMap = {
         'HIGHLIGHT': {
@@ -45,21 +48,11 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         }, callback);
     }
 
-    const ImageComponent = async (image) => {
-
-        const data = await imageApi.getDataById(image.id);
-        return (
-            <div>
-                <img src={data} alt="image" />
-            </div>
-        );
-    };
-
     const decorator = new CompositeDecorator([
         {
             strategy: findLinkEntities,
             component: Link,
-        }
+        },
     ]);
 
     const createEditorStateFromHTML = (html) => {
@@ -154,11 +147,12 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     }
 
     const addImage = (image) => {
+        debugger;
         const contentState = editorState.getCurrentContent();
         const contentStateWithEntity = contentState.createEntity('IMAGE', 'IMMUTABLE', image);
         const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-        const newEditorState = AtomicBlockUtils.insertAtomicBlock(editorState, entityKey, ' ');
-        setEditorState(newEditorState);
+        const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
+        setEditorState(AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' '));
     };
 
     const getContent = () => ({ html: stateToHTML(editorState.getCurrentContent()), json: convertToRaw(editorState.getCurrentContent()) });
@@ -183,12 +177,93 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     const blockRendererFn = (contentBlock) => {
         if (contentBlock.getType() === 'atomic') {
-            return {
-                component: ImageComponent,
-                editable: false,
-            };
+            const contentState = editorState.getCurrentContent();
+            const entityKey = contentBlock.getEntityAt(0);
+            if (entityKey) {
+                const entity = contentState.getEntity(entityKey);
+                const entityType = entity.getType();
+
+                if (entityType === 'IMAGE') {
+                    return {
+                        component: Image,
+                        editable: false,
+                        props: {
+                            block: contentBlock,
+                            contentState,
+                        }
+                    };
+                } else if (entityType === 'VIDEO') {
+                    // for future developments
+                    // return {
+                    //     component: VideoComponent,
+                    //     editable: false,
+                    // };
+                }
+            }
         }
         return null;
+    };
+
+    const handleKeyCommand = (command) => {
+        console.log('command', command);
+        if (command === 'delete-block') {
+            return 'handled';
+        }
+        const newState = RichUtils.handleKeyCommand(editorState, command);
+        if (newState) {
+            handleEditorChange(newState);
+            return 'handled';
+        }
+        return 'not-handled';
+    };
+
+    const keyBindingFn = (e) => {
+        const selection = editorState.getSelection();
+        const contentState = editorState.getCurrentContent();
+        const startKey = selection.getStartKey();
+        const endKey = selection.getEndKey();
+        const startBlock = contentState.getBlockForKey(startKey);
+        const endBlock = contentState.getBlockForKey(endKey);
+    
+        if (!selection.isCollapsed()) {
+            let block = startBlock;
+            let containsAtomicBlock = false;
+    
+            while (true) {
+                if (block.getType() === 'atomic') {
+                    containsAtomicBlock = true;
+                    break;
+                }
+                if (block.getKey() === endBlock.getKey()) {
+                    break;
+                }
+                block = contentState.getBlockAfter(block.getKey());
+            }
+    
+            console.log('contains atomic block:', containsAtomicBlock);
+    
+            if (containsAtomicBlock) {
+                return 'delete-block';
+            }
+        } else if (e.keyCode === 8 || e.keyCode === 46) { // Backspace or Delete
+            const blockBefore = contentState.getBlockBefore(startKey);
+            const blockAfter = contentState.getBlockAfter(startKey);
+    
+            const offset = selection.getStartOffset();
+            const isAtStartOfBlock = offset === 0;
+            const isAtEndOfBlock = offset === startBlock.getLength();
+    
+            console.log('blockBefore', blockBefore ? blockBefore.getType() : 'none');
+            console.log('blockAfter', blockAfter ? blockAfter.getType() : 'none');
+            console.log('isAtStartOfBlock', isAtStartOfBlock);
+            console.log('isAtEndOfBlock', isAtEndOfBlock);
+    
+            if ((e.keyCode === 8 && isAtStartOfBlock && blockBefore && blockBefore.getType() === 'atomic') ||
+                (e.keyCode === 46 && isAtEndOfBlock && blockAfter && blockAfter.getType() === 'atomic')) {
+                return 'delete-block';
+            }
+        }
+        return getDefaultKeyBinding(e);
     };
 
     return (
@@ -202,7 +277,8 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                 <Editor
                     editorState={editorState}
                     onChange={handleEditorChange}
-                    handleKeyCommand={editable ? undefined : () => 'handled'} // backspace enter etc.
+                    handleKeyCommand={editable ? handleKeyCommand : () => 'handled'} // backspace enter etc.
+                    keyBindingFn={editable ? keyBindingFn : () => 'handled'}
                     handleBeforeInput={editable ? undefined : () => 'handled'}
                     handleReturn={editable ? undefined : () => 'handled'}
                     handlePastedText={editable ? undefined : () => 'handled'}

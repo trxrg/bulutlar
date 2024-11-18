@@ -147,7 +147,6 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     }
 
     const addImage = (image) => {
-        debugger;
         const contentState = editorState.getCurrentContent();
         const contentStateWithEntity = contentState.createEntity('IMAGE', 'IMMUTABLE', image);
         const entityKey = contentStateWithEntity.getLastCreatedEntityKey();

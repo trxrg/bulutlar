@@ -82,8 +82,12 @@
     "deleted": " deleted",
     "loading": "Loading",
 
+    "image": "Image",
     "errorAddingImage": "Error adding image",
+    "errorDeletingImage": "Error deleting image",
     "deleteImage": "Delete Image",
+    "sureDeletingImage": "Are you sure you want to delete this image?",
+
 
     "streak message 0": "Something went wrong",
     "streak message 1": "First day excitement...",

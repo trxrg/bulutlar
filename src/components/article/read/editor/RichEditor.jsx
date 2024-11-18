@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Editor, EditorState, RichUtils, AtomicBlockUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw, getDefaultKeyBinding, KeyBindingUtil } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
@@ -12,7 +12,6 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const [rightClickedBlockKey, setRightClickedBlockKey] = useState();
     const [rightClickedEntityKey, setRightClickedEntityKey] = useState();
     const [imageDatas, setImageDatas] = useState([]);
-
 
     const styleMap = {
         'HIGHLIGHT': {
@@ -189,6 +188,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                         props: {
                             block: contentBlock,
                             contentState,
+                            onDelete: () => deleteAtomicBlock(contentBlock.getKey()),
                         }
                     };
                 } else if (entityType === 'VIDEO') {
@@ -204,9 +204,6 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     };
 
     const handleKeyCommand = (command) => {
-        if (command === 'delete-block') {
-            return 'handled';
-        }
         const newState = RichUtils.handleKeyCommand(editorState, command);
         if (newState) {
             handleEditorChange(newState);
@@ -222,11 +219,12 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         const endKey = selection.getEndKey();
         const startBlock = contentState.getBlockForKey(startKey);
         const endBlock = contentState.getBlockForKey(endKey);
-    
+
+        let containsAtomicBlock = false;
+
         if (!selection.isCollapsed()) {
             let block = startBlock;
-            let containsAtomicBlock = false;
-    
+
             while (true) {
                 if (block.getType() === 'atomic') {
                     containsAtomicBlock = true;
@@ -237,36 +235,80 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                 }
                 block = contentState.getBlockAfter(block.getKey());
             }
-    
-            console.log('contains atomic block:', containsAtomicBlock);
-    
-            if (containsAtomicBlock) {
-                return 'delete-block';
-            }
+
         } else if (e.keyCode === 8 || e.keyCode === 46) { // Backspace or Delete
             const blockBefore = contentState.getBlockBefore(startKey);
             const blockAfter = contentState.getBlockAfter(startKey);
-    
+
             const offset = selection.getStartOffset();
             const isAtStartOfBlock = offset === 0;
             const isAtEndOfBlock = offset === startBlock.getLength();
-    
-            console.log('blockBefore', blockBefore ? blockBefore.getType() : 'none');
-            console.log('blockAfter', blockAfter ? blockAfter.getType() : 'none');
-            console.log('isAtStartOfBlock', isAtStartOfBlock);
-            console.log('isAtEndOfBlock', isAtEndOfBlock);
-    
+
             if ((e.keyCode === 8 && isAtStartOfBlock && blockBefore && blockBefore.getType() === 'atomic') ||
                 (e.keyCode === 46 && isAtEndOfBlock && blockAfter && blockAfter.getType() === 'atomic')) {
-                return 'delete-block';
+                containsAtomicBlock = true;
             }
         }
+
+        if (containsAtomicBlock) {
+            console.log('contains atomic block');
+            return 'handled';
+        }
+
+        // if (KeyBindingUtil.hasCommandModifier(e) && (e.keyCode === 90 || e.keyCode === 89)) {
+
+        //     console.log('undo/redo');
+        //     console.log('editable: ', editable);
+        //     if (!editable)
+        //         return 'handled';
+        // }
+
         return getDefaultKeyBinding(e);
+    };
+
+    const deleteAtomicBlock = (blockKey) => {
+        const contentState = editorState.getCurrentContent();
+        const blockMap = contentState.getBlockMap();
+        const block = contentState.getBlockForKey(blockKey);
+
+        // Save the current selection state
+        const currentSelection = editorState.getSelection();
+
+        // Create a selection state that includes the entire block
+        const selectionState = SelectionState.createEmpty(blockKey).merge({
+            anchorOffset: 0,
+            focusOffset: block.getLength(),
+            focusKey: blockKey,
+            anchorKey: blockKey,
+        });
+
+        // Remove the block
+        const newBlockMap = blockMap.delete(blockKey);
+        const newContentState = contentState.merge({
+            blockMap: newBlockMap,
+            selectionAfter: selectionState,
+        });
+
+        // Push the new content state to the editor state
+        const newEditorState = EditorState.push(
+            editorState,
+            newContentState,
+            'remove-range'
+        );
+
+        // Restore the saved selection state
+        const finalEditorState = EditorState.forceSelection(
+            newEditorState,
+            currentSelection
+        );
+
+        // Update the editor state
+        setEditorState(finalEditorState);
     };
 
     return (
         <div className="mx-auto flex justify-center w-full">
-            <div onClick={handleEditorClick} className={(editable ? 'border-2 border-stone-300 bg-white ' : 'caret-transparent ') + 'relative w-full'}>
+            <div onClick={handleEditorClick} className={(editable ? 'border-2 border-stone-300 bg-white ' : 'caret-transparent ') + 'relative min-w-full'}>
                 {showContextMenu && (
                     <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                         <button onClick={handleRemoveLink} className='hover:bg-red-300'>Remove Link</button>

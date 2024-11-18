@@ -5,12 +5,18 @@ import { AppContext } from '../../../../store/app-context';
 import ContextMenu from '../../../common/ContextMenu';
 import ActionButton from '../../../common/ActionButton';
 import ConfirmModal from '../../../common/ConfirmModal';
+import toastr from 'toastr';
 
-const Image = ({ block, contentState }) => {
+const Image = (props) => {
+    const block = props.block;
+    const contentState = props.contentState;
+    const onDelete = props.blockProps.onDelete;
+
     const [imageData, setImageData] = useState(null);
     const [imageModalIsOpen, setImageModalIsOpen] = useState(false);
-    const [showContextMenu, setShowContextMenu] = useState(false);
+    const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
+    const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] = useState(false);
     const { translate: t } = useContext(AppContext);
 
     const imageEntity = contentState.getEntity(block.getEntityAt(0)).getData();
@@ -38,13 +44,20 @@ const Image = ({ block, contentState }) => {
         const posx = e.clientX - grandParentRect.left;
         const posy = e.clientY - grandParentRect.bottom;
 
-        setShowContextMenu(true);
+        setContextMenuIsOpen(true);
         setContextMenuPosition({ x: posx, y: posy });
     }
 
-    const handleDeleteImage = () => {
-        console.log('delete image');
-        setShowContextMenu(false);
+    const handleDeleteImage = async () => {
+        setDeleteConfirmModalIsOpen(false);
+        try {
+            onDelete();
+            // await imageApi.deleteById(imageEntity.id);
+            toastr.success(t('image') + t('deleted'));
+        } catch (error) {
+            console.error('Error deleting image:', error);
+            toastr.error(t('error deleting image'));
+        }        
     }
 
     return (
@@ -57,11 +70,12 @@ const Image = ({ block, contentState }) => {
                 onClose={() => setImageModalIsOpen(false)}
                 image={imageEntity}
             />
-            <ContextMenu isOpen={showContextMenu} onClose={() => setShowContextMenu(false)} position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
+            <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                 <div className='flex flex-col'>
-                    <ActionButton onClick={handleDeleteImage} color='red'>{t('deleteImage')}</ActionButton>
+                    <ActionButton onClick={() => setDeleteConfirmModalIsOpen(true)} color='red'>{t('deleteImage')}</ActionButton>
                 </div>
             </ContextMenu>
+            <ConfirmModal message={t('sureDeletingImage')} isOpen={deleteConfirmModalIsOpen} onClose={() => setDeleteConfirmModalIsOpen(false)} onConfirm={handleDeleteImage} />
         </div>
     );
 };

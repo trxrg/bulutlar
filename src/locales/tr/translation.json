@@ -82,8 +82,11 @@
     "deleted": " silindi",
     "loading": "Yükleniyor",
 
+    "image": "Resim",
     "errorAddingImage": "Resim eklerken hata oluştu",
+    "errorDeletingImage": "Resmi silerken hata oluştu",
     "deleteImage": "Resmi Sil",
+    "sureDeletingImage": "Bu resmi silmek istediğinizden emin misiniz?",
 
     "streak message 0": "Bir hata oluştu",
     "streak message 1": "İlk gün heyecanı...",

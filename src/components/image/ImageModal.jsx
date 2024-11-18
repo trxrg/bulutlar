@@ -1,19 +1,13 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { MagnifyingGlassPlusIcon, MagnifyingGlassMinusIcon, XMarkIcon } from '@heroicons/react/24/solid';
 
 import RoundButton from '../common/RoundButton.jsx';
-import ActionButton from '../common/ActionButton.jsx';
-
-import { imageApi } from '../../backend-adapter/BackendAdapter.js';
-import { ReadContext } from "../../store/read-context.jsx";
-
 
 Modal.setAppElement('#root');
 
 const ImageModal = ({ isOpen, onClose, image }) => {
 
-    const { syncArticleFromBE } = useContext(ReadContext);
     const [scale, setScale] = useState(1);
 
     useEffect(() => {
@@ -24,12 +18,6 @@ const ImageModal = ({ isOpen, onClose, image }) => {
 
     const zoomIn = () => setScale(prevScale => Math.min(prevScale * 1.2, 10));
     const zoomOut = () => setScale(prevScale => Math.max(prevScale / 1.2, 1));
-
-    const handleDeleteImage = async () => {
-        onClose();
-        await imageApi.deleteById(image.id);
-        syncArticleFromBE();
-    }
 
     return (
         <Modal
@@ -67,9 +55,6 @@ const ImageModal = ({ isOpen, onClose, image }) => {
                         <RoundButton onClick={onClose} color='red'>
                             <XMarkIcon className="h-6 w-6" />
                         </RoundButton>
-                    </div>
-                    <div>
-                        <ActionButton onClick={handleDeleteImage} color='red'>Delete Image</ActionButton>
                     </div>
                 </div>
             </div>

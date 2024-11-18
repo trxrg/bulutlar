@@ -6,6 +6,7 @@ import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
 import ImageModal from "../../image/ImageModal.jsx";
 import ImageInput from "../../image/ImageInput.jsx";
+import toastr from "toastr";
 import RichEditor2 from "./RichEditor2.jsx";
 import MyEditor from "./MyEditor.jsx";
 
@@ -92,12 +93,18 @@ const ReadContent = () => {
     };
 
     const handleImageSelect2 = async (images) => {
-        
-        images.forEach(async (image) => {
-            const imageEntity = await articleApi.addImage(article.id, image);
-            console.log('imageEntity', imageEntity);
-            activeEditorRef && activeEditorRef.current.addImage(imageEntity)
-        });
+
+        try {
+            images.forEach(async (image) => {
+                if (activeEditorRef) {
+                    const imageEntity = await articleApi.addImage(article.id, image);
+                    activeEditorRef.current.addImage(imageEntity);               
+                }
+            });
+        } catch (error) {
+            console.error('Error adding image:', error);
+            toastr.error(t('errorAddingImage'));
+        }        
         syncArticleFromBE();
     }
 

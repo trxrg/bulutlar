@@ -80,6 +80,9 @@
     "added": " added",
     "updated": " updated",
     "deleted": " deleted",
+    "loading": "Loading",
+
+    "errorAddingImage": "Error adding image",
 
     "streak message 0": "Something went wrong",
     "streak message 1": "First day excitement...",

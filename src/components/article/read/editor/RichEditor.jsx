@@ -204,7 +204,6 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     };
 
     const handleKeyCommand = (command) => {
-        console.log('command', command);
         if (command === 'delete-block') {
             return 'handled';
         }

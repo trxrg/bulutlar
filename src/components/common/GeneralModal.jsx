@@ -6,7 +6,7 @@ const GeneralModal = ({ isOpen, onRequestClose, title, children }) => {
         <Modal
             isOpen={isOpen}
             onRequestClose={onRequestClose}
-            className="fixed inset-0 flex items-center justify-center p-4"
+            className="fixed inset-0 flex items-center justify-center p-4 z-100"
             overlayClassName="fixed inset-0 bg-black bg-opacity-75"
         >
             <div className="relative flex flex-col bg-white p-5 rounded-sm shadow-lg min-w-[50%] max-w-[80%] max-h-[60%]">

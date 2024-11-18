@@ -83,6 +83,7 @@
     "loading": "Yükleniyor",
 
     "errorAddingImage": "Resim eklerken hata oluştu",
+    "deleteImage": "Resmi Sil",
 
     "streak message 0": "Bir hata oluştu",
     "streak message 1": "İlk gün heyecanı...",

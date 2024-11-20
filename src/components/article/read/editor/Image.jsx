@@ -65,8 +65,8 @@ const Image = (props) => {
 
     return (
         <>
-            <div className='select-none cursor-pointer inline-block' onClick={() => setImageModalIsOpen(true)} onContextMenu={handleRightClick}>
-                {imageData ? <img src={imageData} alt="image" className='rounded' /> : t('loading') + '...'}
+            <div className='select-none cursor-pointer inline-block w-full' onClick={() => setImageModalIsOpen(true)} onContextMenu={handleRightClick}>
+                {imageData ? <img src={imageData} alt="image" className='rounded w-full' /> : t('loading') + '...'}
             </div>
             <ImageModal
                 isOpen={imageModalIsOpen}

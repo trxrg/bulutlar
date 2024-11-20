@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { imageApi } from '../../../../backend-adapter/BackendAdapter';
 import ImageModal from '../../../image/ImageModal';
 import { AppContext } from '../../../../store/app-context';
+import { ReadContext } from '../../../../store/read-context';
 import ContextMenu from '../../../common/ContextMenu';
 import ActionButton from '../../../common/ActionButton';
 import ConfirmModal from '../../../common/ConfirmModal';
@@ -17,7 +18,9 @@ const Image = (props) => {
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
     const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] = useState(false);
+    
     const { translate: t } = useContext(AppContext);
+    const { editable } = useContext(ReadContext);
 
     const imageEntity = contentState.getEntity(block.getEntityAt(0)).getData();
 
@@ -36,6 +39,8 @@ const Image = (props) => {
 
     const handleRightClick = (e) => {
         e.preventDefault();
+
+        if (!editable) return;
 
         const grandParentRect = e.currentTarget.parentElement.getBoundingClientRect();
 

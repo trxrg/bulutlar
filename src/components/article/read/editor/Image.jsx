@@ -42,10 +42,10 @@ const Image = (props) => {
 
         if (!editable) return;
 
-        const grandParentRect = e.currentTarget.parentElement.getBoundingClientRect();
+        const grandParentRect = e.currentTarget.getBoundingClientRect();
 
         const posx = e.clientX - grandParentRect.left;
-        const posy = e.clientY - grandParentRect.bottom;
+        const posy = e.clientY - grandParentRect.top;
 
         setContextMenuIsOpen(true);
         setContextMenuPosition({ x: posx, y: posy });
@@ -64,8 +64,8 @@ const Image = (props) => {
     }
 
     return (
-        <div className='inline-block'>
-            <div className='select-none cursor-pointer' onClick={() => setImageModalIsOpen(true)} onContextMenu={handleRightClick}>
+        <>
+            <div className='select-none cursor-pointer inline-block' onClick={() => setImageModalIsOpen(true)} onContextMenu={handleRightClick}>
                 {imageData ? <img src={imageData} alt="image" className='rounded' /> : t('loading') + '...'}
             </div>
             <ImageModal
@@ -79,7 +79,7 @@ const Image = (props) => {
                 </div>
             </ContextMenu>
             <ConfirmModal message={t('sureDeletingImage')} isOpen={deleteConfirmModalIsOpen} onClose={() => setDeleteConfirmModalIsOpen(false)} onConfirm={handleDeleteImage} />
-        </div>
+        </>
     );
 };
 

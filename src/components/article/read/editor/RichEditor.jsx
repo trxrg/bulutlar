@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { Editor, EditorState, RichUtils, AtomicBlockUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw, getDefaultKeyBinding, KeyBindingUtil } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import AddLinkModal from '../../../common/AddLinkModal';
 import { imageApi } from '../../../../backend-adapter/BackendAdapter';
+import { AppContext } from '../../../../store/app-context';
+import ContextMenu from '../../../common/ContextMenu';
+import ActionButton from '../../../common/ActionButton';
+
 
 import Image from './Image';
 import '../../../../styles.css'
@@ -12,7 +16,13 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     const [rightClickedBlockKey, setRightClickedBlockKey] = useState();
     const [rightClickedEntityKey, setRightClickedEntityKey] = useState();
-    const [imageDatas, setImageDatas] = useState([]);
+
+    const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
+    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
+
+    const editorRef = useRef(null);
+
+    const { translate: t } = useContext(AppContext);
 
     const styleMap = {
         'HIGHLIGHT': {
@@ -85,7 +95,6 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const [editorState, setEditorState] = useState(rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent));
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
     const [showContextMenu, setShowContextMenu] = useState(false);
-    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
 
     const handleRightClick = (e, blockKey, entityKey) => {
         e.preventDefault(); // Prevent default context menu        
@@ -98,7 +107,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         setRightClickedBlockKey(blockKey);
         setRightClickedEntityKey(entityKey);
         setShowContextMenu(true);
-        setContextMenuPosition({ x: posx, y: posy });
+        setContextMenuPosition({ left: posx, top: posy });
     };
 
     const handleRemoveLink = (e) => {
@@ -138,6 +147,27 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
             setEditorState(newEditorState);
             setShowContextMenu(false); // Hide context menu after removing link
+        }
+    };
+
+    const handleSelect = (e) => {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0 && !selection.isCollapsed) {
+            const range = selection.getRangeAt(0).getBoundingClientRect();
+            // const editorBounds = editorRef.current.getParentElement().getBoundingClientRect();
+            const editorBounds = e.currentTarget.getBoundingClientRect();
+            console.log('range: ', range.top, range.left);
+            console.log('editorBounds: ', editorBounds.top, editorBounds.left);
+            const top = range.top - editorBounds.top - 40;
+            const left = range.left - editorBounds.left;
+            console.log('top: ', top, 'left: ', left);
+            setContextMenuPosition({
+                top: top,
+                left: left
+            });
+            setContextMenuIsOpen(true);
+        } else {
+            setContextMenuIsOpen(false);
         }
     };
 
@@ -260,7 +290,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
             let block = startBlock;
 
             while (true) {
-                if (!block) 
+                if (!block)
                     break;
 
                 if (block.getType() === 'atomic') {
@@ -344,8 +374,8 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     };
 
     return (
-        <div className="mx-auto flex justify-center w-full">
-            <div onClick={handleEditorClick} className={(editable ? 'border-2 border-stone-300 bg-white ' : 'caret-transparent ') + 'relative min-w-full z-0'}>
+        <div className='relative z-0'>
+            <div onClick={handleEditorClick} className={(editable ? 'border-2 border-stone-300 bg-white ' : 'caret-transparent ') + ' min-w-full z-0 flex'} onMouseUp={handleSelect}>
                 {showContextMenu && (
                     <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                         <button onClick={handleRemoveLink} className='hover:bg-red-300'>Remove Link</button>
@@ -364,15 +394,25 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                     customStyleMap={styleMap}
                     handleDrop={editable ? undefined : () => 'handled'}
                     blockRendererFn={blockRendererFn}
+                    ref={editorRef}
+                // className='z-0'
                 />
             </div>
+            <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>
+                <div className='flex flex-col'>
+                    <ActionButton color='red'>example</ActionButton>
+                </div>
+            </ContextMenu>
 
-            <AddLinkModal
+            {/* <AddLinkModal
                 isOpen={isLinkModalOpen}
                 onClose={() => setLinkModalOpen(false)}
                 onAddLink={addLink}
-            />
+            /> */}
+
+
         </div>
+
     );
 });
 

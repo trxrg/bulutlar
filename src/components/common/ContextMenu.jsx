@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 
 const ContextMenu = ({ isOpen, onClose, position, children }) => {
 
+    console.log('position:', position);
+
     const contextMenuRef = useRef(null);
 
     useEffect(() => {
@@ -26,12 +28,11 @@ const ContextMenu = ({ isOpen, onClose, position, children }) => {
     return (
         <>
             {isOpen &&
-                <div className='relative'>
-                    <div className="absolute z-100 bg-white border border-gray-300 shadow-md p-1"
-                        style={{ top: position.top, left: position.left }}
-                        ref={contextMenuRef}>
-                        {children}
-                    </div>
+                <div className="absolute bg-white border border-gray-300 shadow-md p-1"
+                    style={{ top: `${position.top}px`, left: `${position.left}px`, zIndex: 1000 }}
+                    // style={{ top: 0, left: 0 }}
+                    ref={contextMenuRef}>
+                    {children}
                 </div>
             }
         </>

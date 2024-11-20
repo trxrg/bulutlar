@@ -203,15 +203,6 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         return null;
     };
 
-    const handleKeyCommand = (command) => {
-        const newState = RichUtils.handleKeyCommand(editorState, command);
-        if (newState) {
-            handleEditorChange(newState);
-            return 'handled';
-        }
-        return 'not-handled';
-    };
-
     const keyBindingFn = (e) => {
         const selection = editorState.getSelection();
         const contentState = editorState.getCurrentContent();
@@ -226,6 +217,9 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
             let block = startBlock;
 
             while (true) {
+                if (!block) 
+                    break;
+
                 if (block.getType() === 'atomic') {
                     containsAtomicBlock = true;
                     break;
@@ -317,7 +311,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                 <Editor
                     editorState={editorState}
                     onChange={handleEditorChange}
-                    handleKeyCommand={editable ? handleKeyCommand : () => 'handled'} // backspace enter etc.
+                    handleKeyCommand={editable ? undefined : () => 'handled'} // backspace enter etc.
                     keyBindingFn={editable ? keyBindingFn : () => 'handled'}
                     handleBeforeInput={editable ? undefined : () => 'handled'}
                     handleReturn={editable ? undefined : () => 'handled'}

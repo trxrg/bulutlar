@@ -13,7 +13,7 @@ export default function ReadContextProvider({ children, article }) {
     const [rightPanelCollapsed, setRightPanelCollapsed] = useState(true);
     const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
 
-    const readBodyRef = useRef();
+    const readContentRef = useRef();
 
     const fontSizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl', 'text-7xl'];
    
@@ -22,13 +22,13 @@ export default function ReadContextProvider({ children, article }) {
     }
 
     const saveContent = () => {
-        if (readBodyRef && readBodyRef.current)
-            readBodyRef.current.saveContent();
+        if (readContentRef && readContentRef.current)
+            readContentRef.current.saveContent();
     }
 
     const resetContent = () => {
-        if (readBodyRef && readBodyRef.current)
-            readBodyRef.current.resetContent();
+        if (readContentRef && readContentRef.current)
+            readContentRef.current.resetContent();
     }
 
     const increaseFontSize = () => {
@@ -46,13 +46,13 @@ export default function ReadContextProvider({ children, article }) {
     }
 
     const toggleStyle = (style) => {
-        if (readBodyRef && readBodyRef.current)
-            readBodyRef.current.toggleStyle(style);
+        if (readContentRef && readContentRef.current)
+            readContentRef.current.toggleStyle(style);
     }
 
     const addImage = () => {
-        if (readBodyRef && readBodyRef.current)
-            readBodyRef.current.addImage();
+        if (readContentRef && readContentRef.current)
+            readContentRef.current.addImage();
     }
 
     const getOwnerName = () => {
@@ -80,7 +80,7 @@ export default function ReadContextProvider({ children, article }) {
 
     const ctxValue = {
         article,
-        readBodyRef,    
+        readContentRef,    
         toggleStyle,
         addImage,
         saveContent,

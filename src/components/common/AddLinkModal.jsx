@@ -4,11 +4,11 @@ import { ReadContext } from '../../store/read-context.jsx';
 
 const AddLinkModal = ({ isOpen, onClose }) => {
 
-    const { readBodyRef } = useContext(ReadContext);
+    const { readContentRef } = useContext(ReadContext);
 
     const [linkUrl, setLinkUrl] = useState('');
 
-    const onAddLink = readBodyRef && readBodyRef.current && readBodyRef.current.addLink;
+    const onAddLink = readContentRef && readContentRef.current && readContentRef.current.addLink;
 
     const handleAddLink = () => {
         onAddLink(linkUrl);

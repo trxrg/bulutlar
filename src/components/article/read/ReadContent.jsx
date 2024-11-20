@@ -12,7 +12,7 @@ import MyEditor from "./MyEditor.jsx";
 
 const ReadContent = () => {
 
-    const { article, readBodyRef, fontSize, editable, syncArticleFromBE } = useContext(ReadContext);
+    const { article, readContentRef, fontSize, editable, syncArticleFromBE } = useContext(ReadContext);
     const { translate: t } = useContext(AppContext);
 
     const [imageDatasLoaded, setImageDatasLoaded] = useState(false);
@@ -77,7 +77,7 @@ const ReadContent = () => {
         commentEditorRef && commentEditorRef.current && commentEditorRef.current.resetContent();
     }
 
-    React.useImperativeHandle(readBodyRef, () => ({
+    React.useImperativeHandle(readContentRef, () => ({
         addLink,
         saveContent,
         resetContent,

@@ -24,9 +24,7 @@ const Image = (props) => {
     const fetchImageData = async () => {
         console.warn('WARNING! fetching image data...');
         try {
-            const data = await imageApi.getDataById(imageEntity.id);
-            setImageData(data);
-            imageEntity.data = data;
+            setImageData(await imageApi.getDataById(imageEntity.id));
         } catch (error) {
             console.error('Error fetching image data:', error);
         }
@@ -68,7 +66,7 @@ const Image = (props) => {
             <ImageModal
                 isOpen={imageModalIsOpen}
                 onClose={() => setImageModalIsOpen(false)}
-                image={imageEntity}
+                imageData={imageData}
             />
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                 <div className='flex flex-col'>

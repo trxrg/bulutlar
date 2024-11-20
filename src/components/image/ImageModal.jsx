@@ -6,7 +6,7 @@ import RoundButton from '../common/RoundButton.jsx';
 
 Modal.setAppElement('#root');
 
-const ImageModal = ({ isOpen, onClose, image }) => {
+const ImageModal = ({ isOpen, onClose, imageData }) => {
 
     const [scale, setScale] = useState(1);
 
@@ -29,9 +29,9 @@ const ImageModal = ({ isOpen, onClose, image }) => {
         >
             <div className="relative rounded-lg shadow-lg">
                 <div className="max-w-[80vw] max-h-[80vh] overflow-auto">
-                    {image && <img
-                        src={image.data}
-                        alt={image.name}
+                    {imageData && <img
+                        src={imageData}
+                        alt={'image'}
                         style={{
                             transform: `scale(${scale})`,
                             transformOrigin: 'left top',

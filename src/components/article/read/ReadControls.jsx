@@ -46,7 +46,7 @@ const ReadControls = () => {
             <div className='flex flex-wrap gap-1'>
                 <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                 {editable ?
-                    <div className='flex flex-wrap'>
+                    <div className='flex flex-wrap gap-1'>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}
                             color={'blue'}>

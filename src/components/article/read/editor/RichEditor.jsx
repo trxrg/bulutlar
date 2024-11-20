@@ -3,6 +3,7 @@ import { Editor, EditorState, RichUtils, AtomicBlockUtils, CompositeDecorator, M
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import AddLinkModal from '../../../common/AddLinkModal';
+import { imageApi } from '../../../../backend-adapter/BackendAdapter';
 
 import Image from './Image';
 import '../../../../styles.css'
@@ -46,6 +47,25 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
             );
         }, callback);
     }
+
+    const getImages = (editorState) => {
+        const contentState = editorState.getCurrentContent();
+        const blockMap = contentState.getBlockMap();
+        const images = [];
+
+        blockMap.forEach(block => {
+            block.findEntityRanges(character => {
+                const entityKey = character.getEntity();
+                if (entityKey !== null) {
+                    const entity = contentState.getEntity(entityKey);
+                    if (entity.getType() === 'IMAGE') {
+                        images.push(entity.getData());
+                    }
+                }
+            });
+        });
+        return images;
+    };
 
     const decorator = new CompositeDecorator([
         {
@@ -153,8 +173,31 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         setEditorState(AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' '));
     };
 
-    const getContent = () => ({ html: stateToHTML(editorState.getCurrentContent()), json: convertToRaw(editorState.getCurrentContent()) });
-    const resetContent = () => (setEditorState(rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent)));
+    const getContent = () => {
+        const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent);
+        const currentImageIds = getImages(editorState).map(image => image.id);
+        const originalImageIds = getImages(originalEditorState).map(image => image.id);
+
+        // find images that are present in the originaleditorstate but not in the current editorState
+        // delete them from the db and the fs as they will be removed from the editor content
+        const imagesToDelete = originalImageIds.filter(id => !currentImageIds.includes(id));
+        imagesToDelete.forEach(imageId => imageApi.deleteById(imageId));
+
+        return { html: stateToHTML(editorState.getCurrentContent()), json: convertToRaw(editorState.getCurrentContent()) };
+    }
+
+    const resetContent = () => {
+        const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent);
+        const currentImageIds = getImages(editorState).map(image => image.id);
+        const originalImageIds = getImages(originalEditorState).map(image => image.id);
+
+        // find images that are present in the current editorstate but not in the originalEditorState
+        // delete them from the db and the fs as they will be removed from the editor content
+        const imagesToDelete = currentImageIds.filter(id => !originalImageIds.includes(id));
+        imagesToDelete.forEach(imageId => imageApi.deleteById(imageId));
+
+        setEditorState(originalEditorState);
+    }
 
     React.useImperativeHandle(ref, () => ({
         addLink,

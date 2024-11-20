@@ -32,7 +32,7 @@ const modelDefiners = [
 	require('./model/lookup.model'),
 ];
 
-function initDB() {
+async function initDB() {
 	console.log('initializing db');
 
 	for (const modelDefiner of modelDefiners) {
@@ -42,7 +42,7 @@ function initDB() {
 	// We execute any extra setup after the models are defined, such as adding associations.
 	setRelations(sequelize);
 
-	sequelize.sync();
+	await sequelize.sync();
 }
 
 // We export the sequelize connection instance to be used around our app.

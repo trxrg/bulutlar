@@ -78,8 +78,8 @@ const handleDBVersion = async () => {
     console.log('dbVersion not found');
 }
 
-app.whenReady().then(() => {
-  initDB();
+app.whenReady().then(async () => {
+  await initDB();
   initServices();
   handleStreak();
   handleDBVersion();

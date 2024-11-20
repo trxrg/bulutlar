@@ -32,7 +32,6 @@ async function getLookupByLabel(label) {
 
         return lookup.dataValues;
     } catch (err) {
-        console.error('Error in getLookupByLabel', err);
         throw err;
     }
 }
@@ -62,6 +61,7 @@ const getOrCreateLookup = async (label, defaultValue) => {
     try {
         return await getLookupByLabel(label);
     } catch (err) {
+        console.warn('Lookup not found, creating new one with default value', label, defaultValue);
         await createLookup({ label, value: defaultValue });
         return await getLookupByLabel(label);
     }

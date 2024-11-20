@@ -10,7 +10,7 @@ export default function DBContextProvider({ children }) {
     const [allCategories, setAllCategories] = useState([]);
     const [allAnnotations, setAllAnnotations] = useState([]);
     const [streak, setStreak] = useState(0);
-    const [dbVersion, setDbVersion] = useState(null);
+    const [dbVersion, setDbVersion] = useState('');
 
     const fetchArticleById = useCallback(async (id) => {
         try {
@@ -92,8 +92,14 @@ export default function DBContextProvider({ children }) {
     };
 
     const setLookupValues = async () => {
-        fetchFromLookup('streak').then(value => setStreak(value));
-        fetchFromLookup('dbVersion').then(value => setDbVersion(value));
+        try {
+            const str = await fetchFromLookup('streak');
+            setStreak(str);
+            const dbV = await fetchFromLookup('dbVersion');
+            setDbVersion(dbV);
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     const fetchAllArticles = useCallback(async () => {
@@ -206,7 +212,7 @@ export default function DBContextProvider({ children }) {
         getAnnotationById,
         streak,
         dbVersion,
-    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak]);
+    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak, dbVersion]);
 
     return <DBContext.Provider value={ctxValue}>
         {children}

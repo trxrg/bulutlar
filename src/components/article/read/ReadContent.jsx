@@ -15,16 +15,16 @@ const ReadContent = () => {
     const { article, readContentRef, fontSize, editable, syncArticleFromBE } = useContext(ReadContext);
     const { translate: t } = useContext(AppContext);
 
-    const [imageDatasLoaded, setImageDatasLoaded] = useState(false);
-    const [imageDatas, setImageDatas] = useState([]);
-    const [activeEditorRef, setActiveEditorRef] = useState();
-    const [selectedImage, setSelectedImage] = useState();
-    const [imageModalIsOpen, setImageModalIsOpen] = useState(false);
-
     const imageInputRef = useRef(null);
     const mainTextEditorRef = useRef(null);
     const explanationEditorRef = useRef(null);
     const commentEditorRef = useRef(null);
+
+    const [imageDatasLoaded, setImageDatasLoaded] = useState(false);
+    const [imageDatas, setImageDatas] = useState([]);
+    const [activeEditorRef, setActiveEditorRef] = useState(mainTextEditorRef);
+    const [selectedImage, setSelectedImage] = useState();
+    const [imageModalIsOpen, setImageModalIsOpen] = useState(false);
 
     const fetchImageDatas = async () => {
         console.log('fetchImageDatas called');
@@ -98,13 +98,13 @@ const ReadContent = () => {
             images.forEach(async (image) => {
                 if (activeEditorRef) {
                     const imageEntity = await articleApi.addImage(article.id, image);
-                    activeEditorRef.current.addImage(imageEntity);               
+                    activeEditorRef.current.addImage(imageEntity);
                 }
             });
         } catch (error) {
             console.error('Error adding image:', error);
             toastr.error(t('errorAddingImage'));
-        }        
+        }
         syncArticleFromBE();
     }
 

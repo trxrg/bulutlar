@@ -11,6 +11,7 @@ import ActionButton from '../../../common/ActionButton';
 
 import Image from './Image';
 import '../../../../styles.css'
+import InlineToolbar from './InlineToolbar';
 
 const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleContentChange, editable }, ref) => {
 
@@ -408,9 +409,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                 />
             </div>
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>
-                <div className='flex flex-col'>
-                    <ActionButton color='red'>example</ActionButton>
-                </div>
+                <InlineToolbar />
             </ContextMenu>
 
             {/* <AddLinkModal

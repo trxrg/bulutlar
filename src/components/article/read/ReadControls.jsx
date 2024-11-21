@@ -10,17 +10,12 @@ import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 
 const ReadControls = () => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleStyle, toggleBlockType, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
     
     const { afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
-
-    const handleToggleStyle = (event, style) => {
-        event.preventDefault();
-        toggleStyle(style);
-    }
 
     const handleToggleBlockType = (event, blockType) => {
         event.preventDefault();
@@ -40,12 +35,8 @@ const ReadControls = () => {
                     </FormatButton>}
                 <FormatButton onClick={decreaseFontSize}>A-</FormatButton>
                 <FormatButton onClick={increaseFontSize}>A+</FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'BOLD')}><strong>B</strong></FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'ITALIC')}><i>I</i></FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'UNDERLINE')}><u>U</u></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-600'>H</span></FormatButton>
                 {/* <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-4 h-4" /></FormatButton> */}
                 {/* <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton> */}
             </div>

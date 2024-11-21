@@ -157,7 +157,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
             const range = selection.getRangeAt(0).getBoundingClientRect();
             // const editorBounds = editorRef.current.getParentElement().getBoundingClientRect();
             const editorBounds = e.currentTarget.getBoundingClientRect();
-            const top = range.top - editorBounds.top - 40;
+            const top = Math.max(range.top - editorBounds.top - 60, 0);
             const left = range.left - editorBounds.left;
             setContextMenuPosition({
                 top: top,

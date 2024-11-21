@@ -4,11 +4,12 @@ import { SearchContext } from '../../../../store/search-context.jsx';
 import FormatButton from '../../../common/FormatButton.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
 import AddArticleModal from '../../AddArticleModal.jsx';
+import ActionButton from '../../../common/ActionButton.jsx';
 
 const SearchResultsHeader = () => {
 
     const [isAddArticleModalOpen, setAddArticleModalOpen] = useState(false);
-    const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed, isArticlesSelectable, toggleArticlesSelectable } = useContext(SearchContext);
+    const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed, areArticlesSelectable, toggleArticlesSelectable, selectAllOrNone } = useContext(SearchContext);
     const { fullScreen, setFullScreen, translate: t } = useContext(AppContext);
 
     return (
@@ -27,6 +28,12 @@ const SearchResultsHeader = () => {
             </div>
             {/* center */}
             <div>
+                {areArticlesSelectable &&
+                    <div className='flex flex-wrap gap-1'>
+                        <ActionButton onClick={()=>selectAllOrNone(true)} color='blue'>{t('selectAll')}</ActionButton>
+                        <ActionButton onClick={()=>selectAllOrNone(false)} color='blue'>{t('selectNone')}</ActionButton>
+                    </div>
+                }
                 <h3 className='text-xl text-gray-700 py-2 flex justify-center'>{filteredArticles.length + ' ' + t('articlesTR')}</h3>
             </div>
             {/* right */}

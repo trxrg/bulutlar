@@ -18,9 +18,16 @@ export default function SearchContextProvider({ children }) {
     const [keywords, setKeywords] = useState([]);
 
     const [areArticlesSelectable, setArticlesSelectable] = useState(false);
+    const [allOrNoneSelected, setAllOrNoneSelected] = useState(false);
+    const [selectAllOrNoneClicks, setSelectAllOrNoneClicks] = useState(0);
 
     const toggleArticlesSelectable = () => {
         setArticlesSelectable(currentState => !currentState);
+    };
+
+    const selectAllOrNone = (selectAll) => {
+        setSelectAllOrNoneClicks(currentClicks => currentClicks + 1);
+        setAllOrNoneSelected(selectAll);
     };
 
     useEffect(() => {
@@ -56,6 +63,9 @@ export default function SearchContextProvider({ children }) {
         areArticlesSelectable,
         setArticlesSelectable,
         toggleArticlesSelectable,
+        selectAllOrNone,
+        selectAllOrNoneClicks,
+        allOrNoneSelected,
     };
 
     return (

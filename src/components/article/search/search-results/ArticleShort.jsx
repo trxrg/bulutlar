@@ -1,6 +1,6 @@
 import parse from 'html-react-parser';
 import TagButton from '../../../tag/TagButton';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { DBContext } from '../../../../store/db-context';
 import { AppContext } from '../../../../store/app-context';
 import { SearchContext } from '../../../../store/search-context';
@@ -11,12 +11,16 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     const [isSelected, setIsSelected] = useState(false);
     const { getCategoryById, getTagById } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);
-    const { areArticlesSelectable } = useContext(SearchContext);
+    const { areArticlesSelectable, allOrNoneSelected, selectAllOrNoneClicks } = useContext(SearchContext);
 
     const numberOfTags = 3;
     const numberOfCharsForText = 400;
 
     const category = getCategoryById(article.categoryId);
+
+    useEffect(() => {
+        setIsSelected(allOrNoneSelected);
+    }, [selectAllOrNoneClicks]);
 
     const normalizeText = (text) => {
         if (!text)

@@ -50,6 +50,11 @@ export default function ReadContextProvider({ children, article }) {
             readContentRef.current.toggleStyle(style);
     }
 
+    const toggleBlockType = (blockType) => {
+        if (readContentRef && readContentRef.current)
+            readContentRef.current.toggleBlockType(blockType);
+    }
+
     const addImage = () => {
         if (readContentRef && readContentRef.current)
             readContentRef.current.addImage();
@@ -82,6 +87,7 @@ export default function ReadContextProvider({ children, article }) {
         article,
         readContentRef,    
         toggleStyle,
+        toggleBlockType,
         addImage,
         saveContent,
         resetContent,        

@@ -62,6 +62,7 @@ const ReadContent = () => {
     const addLink = (url) => activeEditorRef && activeEditorRef.current.addLink(url);
 
     const toggleStyle = (style) => activeEditorRef && activeEditorRef.current.toggleInlineStyle(style);
+    const toggleBlockType = (blockType) => activeEditorRef && activeEditorRef.current.toggleBlockType(blockType);
 
     const saveContent = async () => {
         const explanation = explanationEditorRef.current ? explanationEditorRef.current.getContent() : null;
@@ -82,6 +83,7 @@ const ReadContent = () => {
         saveContent,
         resetContent,
         toggleStyle,
+        toggleBlockType,
         addImage,
     }));
 

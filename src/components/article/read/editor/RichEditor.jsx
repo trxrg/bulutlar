@@ -171,6 +171,10 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         }
     };
 
+    const toggleBlockType = (blockType) => {
+        setEditorState(RichUtils.toggleBlockType(editorState, blockType));
+    };
+
     const toggleInlineStyle = (style) => {
         setEditorState((prevState) => {
             const newEditorState = EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
@@ -235,6 +239,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         getContent,
         resetContent,
         toggleInlineStyle,
+        toggleBlockType,
     }));
 
     const handleEditorChange = (newEditorState) => {

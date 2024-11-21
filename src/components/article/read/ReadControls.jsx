@@ -10,7 +10,7 @@ import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 
 const ReadControls = () => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleStyle, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleStyle, toggleBlockType, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
     
     const { afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
 
@@ -20,6 +20,11 @@ const ReadControls = () => {
     const handleToggleStyle = (event, style) => {
         event.preventDefault();
         toggleStyle(style);
+    }
+
+    const handleToggleBlockType = (event, blockType) => {
+        event.preventDefault();
+        toggleBlockType(blockType);
     }
 
     return (
@@ -38,6 +43,8 @@ const ReadControls = () => {
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'BOLD')}><strong>B</strong></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'ITALIC')}><i>I</i></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'UNDERLINE')}><u>U</u></FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}>U</FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}>O</FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-600'>H</span></FormatButton>
                 {/* <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-4 h-4" /></FormatButton> */}
                 {/* <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton> */}

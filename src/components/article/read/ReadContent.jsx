@@ -138,14 +138,12 @@ const ReadContent = () => {
 
     return (
         <div className="flex flex-col items-center bg-white">
-            <div className={`leading-loose p-2 max-w-7xl ${fontSize}`}>
+            <div className={`leading-loose p-2 max-w-7xl w-full ${fontSize}`}>
                 {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border-b border-gray-700 p-4'>
                     <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
                 </div>}
                 <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
                     <RichEditor name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
-                    {/* <RichEditor2 name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor2> */}
-                    {/* <MyEditor /> */}
                 </div>
                 {article.comments[0] && (!isHtmlStringEmpty(article.comments[0].text) || editable) &&
                     <div>

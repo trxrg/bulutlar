@@ -242,12 +242,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     const handleEditorChange = (newEditorState) => {
         setEditorState(newEditorState);
-        // setShowContextMenu(false);
     };
-
-    const handleEditorClick = () => {
-        setShowContextMenu(false);
-    }
 
     const blockRendererFn = (contentBlock) => {
         if (contentBlock.getType() === 'atomic') {
@@ -385,8 +380,8 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     };
 
     return (
-        <div className='relative z-0'>
-            <div onClick={handleEditorClick} className={(editable ? 'border-2 border-stone-300 bg-white ' : 'caret-transparent ') + ' min-w-full z-0 flex'} onMouseUp={handleSelect}>
+        <div className='relative'>
+            <div className={editable ? 'border-2 border-stone-300 bg-white ' : 'caret-transparent'} onMouseUp={handleSelect}>
                 {showContextMenu && (
                     <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                         <button onClick={handleRemoveLink} className='hover:bg-red-300'>Remove Link</button>
@@ -400,12 +395,12 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                     handleBeforeInput={editable ? undefined : () => 'handled'}
                     handleReturn={editable ? undefined : () => 'handled'}
                     handlePastedText={editable ? undefined : () => 'handled'}
-                    readOnly={false}
+                    // readOnly={false}
                     customDecorators={[decorator]}
                     customStyleMap={styleMap}
                     handleDrop={editable ? undefined : () => 'handled'}
                     blockRendererFn={blockRendererFn}
-                    ref={editorRef}
+                    // ref={editorRef}
                 />
             </div>
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>

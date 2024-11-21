@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import AddLinkModal from '../../common/AddLinkModal.jsx';
-import { LinkIcon, PencilIcon, PhotoIcon, PencilSquareIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon } from '@heroicons/react/24/outline';
+import { LinkIcon, PencilIcon, PhotoIcon, PencilSquareIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import FormatButton from '../../common/FormatButton.jsx';
@@ -43,8 +43,8 @@ const ReadControls = () => {
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'BOLD')}><strong>B</strong></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'ITALIC')}><i>I</i></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'UNDERLINE')}><u>U</u></FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}>U</FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}>O</FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-600'>H</span></FormatButton>
                 {/* <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-4 h-4" /></FormatButton> */}
                 {/* <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton> */}

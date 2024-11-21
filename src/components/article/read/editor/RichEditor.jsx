@@ -400,7 +400,6 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                     handleDrop={editable ? undefined : () => 'handled'}
                     blockRendererFn={blockRendererFn}
                     ref={editorRef}
-                // className='z-0'
                 />
             </div>
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>

@@ -17,6 +17,12 @@ export default function SearchContextProvider({ children }) {
     const [selectedCategoryNames, setSelectedCategoryNames] = useState([]);
     const [keywords, setKeywords] = useState([]);
 
+    const [areArticlesSelectable, setArticlesSelectable] = useState(false);
+
+    const toggleArticlesSelectable = () => {
+        setArticlesSelectable(currentState => !currentState);
+    };
+
     useEffect(() => {
         if (fullScreen) {
             setSidePanelCollapsed(true);
@@ -47,6 +53,9 @@ export default function SearchContextProvider({ children }) {
         setSelectedCategoryNames,
         keywords,
         setKeywords,
+        areArticlesSelectable,
+        setArticlesSelectable,
+        toggleArticlesSelectable,
     };
 
     return (

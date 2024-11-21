@@ -3,6 +3,7 @@ import TagButton from '../../../tag/TagButton';
 import React, { useContext, useState } from 'react';
 import { DBContext } from '../../../../store/db-context';
 import { AppContext } from '../../../../store/app-context';
+import { SearchContext } from '../../../../store/search-context';
 import ArticleInfo from '../../ArticleInfo';
 
 export default function ArticleShort({ article, keywords, handleClick }) {
@@ -10,6 +11,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     const [isSelected, setIsSelected] = useState(false);
     const { getCategoryById, getTagById } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);
+    const { areArticlesSelectable } = useContext(SearchContext);
 
     const numberOfTags = 3;
     const numberOfCharsForText = 400;
@@ -120,18 +122,18 @@ export default function ArticleShort({ article, keywords, handleClick }) {
 
     return (
         <div className="rounded-md bg-gray-100 hover:bg-white border-4
-        active:bg-gray-300 active:shadow-none pl-2 pr-10 py-6 shadow-xl cursor-pointer flex flex-row w-full overflow-hidden"
+        active:bg-gray-300 active:shadow-none shadow-xl cursor-pointer flex flex-row w-full overflow-hidden"
             style={{ borderColor: category && category.color }}
         >
-            <div className='min-h-full flex items-center px-3 cursor-normal' onClick={handleCheckboxChange}>
+            {areArticlesSelectable && <div className='min-h-full flex items-center pl-5 cursor-normal' onClick={handleCheckboxChange}>
                 <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={handleCheckboxChange}
                     className="form-checkbox h-6 w-6 text-blue-600 mr-2"
                 />
-            </div>
-            <div className='flex flex-1 flex-col overflow-hidden' onClick={(e) => handleClick(e, article.id)} >
+            </div>}
+            <div className='flex flex-1 flex-col overflow-hidden px-10 py-6' onClick={(e) => handleClick(e, article.id)} >
                 <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{keywords ? parse(highlightedTitle) : article.title}</h2>
                 <ArticleInfo article={article} isEditable={false} />
                 {keywords &&

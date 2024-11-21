@@ -64,7 +64,7 @@ const Image = (props) => {
     }
 
     return (
-        <>
+        <div className='relative'>
             <div className='select-none cursor-pointer inline-block w-full' onClick={() => setImageModalIsOpen(true)} onContextMenu={handleRightClick}>
                 {imageData ? <img src={imageData} alt="image" className='rounded w-full' /> : t('loading') + '...'}
             </div>
@@ -79,7 +79,7 @@ const Image = (props) => {
                 </div>
             </ContextMenu>
             <ConfirmModal message={t('sureDeletingImage')} isOpen={deleteConfirmModalIsOpen} onClose={() => setDeleteConfirmModalIsOpen(false)} onConfirm={handleDeleteImage} />
-        </>
+        </div>
     );
 };
 

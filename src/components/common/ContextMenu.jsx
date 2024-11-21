@@ -2,8 +2,6 @@ import React, { useEffect, useRef } from 'react';
 
 const ContextMenu = ({ isOpen, onClose, position, children }) => {
 
-    console.log('position:', position);
-
     const contextMenuRef = useRef(null);
 
     useEffect(() => {

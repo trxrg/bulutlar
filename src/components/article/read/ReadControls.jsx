@@ -11,7 +11,7 @@ import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 const ReadControls = () => {
 
     const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
-    
+
     const { afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
@@ -24,6 +24,7 @@ const ReadControls = () => {
 
     return (
         <div className='flex flex-wrap justify-between p-2 shadow-lg'>
+            {/* left */}
             <div className='flex flex-wrap gap-1'>
                 {leftPanelCollapsed ?
                     <FormatButton onClick={() => setLeftPanelCollapsed(false)}>
@@ -35,14 +36,13 @@ const ReadControls = () => {
                     </FormatButton>}
                 <FormatButton onClick={decreaseFontSize}>A-</FormatButton>
                 <FormatButton onClick={increaseFontSize}>A+</FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
-                {/* <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-4 h-4" /></FormatButton> */}
-                {/* <FormatButton><PencilSquareIcon className="w-4 h-4" /></FormatButton> */}
             </div>
+            {/* center */}
             <div className='flex flex-wrap gap-1'>
-                {editable ?
+                {editable &&
                     <div className='flex flex-wrap gap-1'>
+                        <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
+                        <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
                         <FormatButton onClick={addImage}><PhotoIcon className="w-4 h-4" /></FormatButton>
                         <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                         <ActionButton
@@ -52,14 +52,18 @@ const ReadControls = () => {
                         </ActionButton>
                         <ActionButton
                             onClick={() => { resetContent(); setEditable(false); }}
-                            color={'red'}>
+                            color={'blue'}>
                             {t('cancel')}
                         </ActionButton>
-                    </div>
-                    :
+                    </div>}
+            </div>
+            {/* right */}
+            <div className='flex flex-wrap gap-1'>
+                {!editable &&
                     <FormatButton
                         onClick={() => setEditable(true)}
-                    ><PencilIcon className="w-4 h-4" /></FormatButton>}
+                    ><PencilIcon className="w-4 h-4" /></FormatButton>
+                }
                 {fullScreen ?
                     <FormatButton onClick={() => setFullScreen(false)}>
                         <ArrowsPointingInIcon className="w-4 h-4" />
@@ -86,7 +90,8 @@ const ReadControls = () => {
                 onConfirm={async () => {
                     await articleApi.deleteById(article.id);
                     setDeleteConfirmModalOpen(false);
-                    afterDeleteArticle(article.id);}}
+                    afterDeleteArticle(article.id);
+                }}
                 isOpen={isDeleteConfirmModalOpen}
             />
         </div>

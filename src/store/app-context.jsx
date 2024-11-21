@@ -89,10 +89,13 @@ export default function AppContextProvider({ children }) {
         handleAddTab2(id);
     }
 
-    const afterDeleteArticle = async (id) => {
-        await fetchAllData();
+    const beforeDeleteArticle = async (id) => {
         handleCloseTab(id);
         setActiveScreen('tabs');
+    }
+
+    const afterDeleteArticle = async (id) => {
+        await fetchAllData();
     }
 
     const getActiveScreenTitle = () => {
@@ -133,6 +136,7 @@ export default function AppContextProvider({ children }) {
         handleAddArticle,
         handleAddTab,
         handleCancel,
+        beforeDeleteArticle,
         afterDeleteArticle,
         afterSubmitArticle,
         afterSubmitArticle2,

@@ -12,7 +12,7 @@ const ReadControls = () => {
 
     const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
 
-    const { afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
+    const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
 
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
@@ -88,6 +88,7 @@ const ReadControls = () => {
             <ConfirmModal message={t('article delete confirmation question')}
                 onClose={() => setDeleteConfirmModalOpen(false)}
                 onConfirm={async () => {
+                    beforeDeleteArticle(article.id);
                     await articleApi.deleteById(article.id);
                     setDeleteConfirmModalOpen(false);
                     afterDeleteArticle(article.id);

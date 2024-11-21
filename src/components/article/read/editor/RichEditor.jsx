@@ -327,6 +327,14 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
             return 'handled';
         }
 
+        if (e.keyCode === 9 /* TAB */) {
+            const newEditorState = RichUtils.onTab(e, editorState, 4);
+            if (newEditorState !== editorState) {
+                setEditorState(newEditorState);
+            }
+            return;
+        }
+        
         // if (KeyBindingUtil.hasCommandModifier(e) && (e.keyCode === 90 || e.keyCode === 89)) {
 
         //     console.log('undo/redo');

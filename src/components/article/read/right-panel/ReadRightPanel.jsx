@@ -24,11 +24,16 @@ const ReadRightPanel = () => {
                     <h2 className='ml-2 text-xl font-semibold text-gray-800'>{t('related articles')}</h2>
                     <FormatButton onClick={handleAddRelatedArticle}><PlusIcon className="w-4 h-4" /></FormatButton>
                 </div>
-                <div className='flex justify-center p-2 h-full'>
-                    <p>{t('no related articles')}</p>
-                </div>
+                {article.relatedArticles.length > 0 ?
+                    <div className='flex flex-col gap-2 p-2'>
+                        {article.relatedArticles.map((relatedArticle) => <div>{relatedArticle.title}</div>)}
+                    </div>
+                    :
+                    <div className='flex justify-center p-2 h-full'>
+                        <p>{t('no related articles')}</p>
+                    </div>}
             </BodyWithFixedHeader>
-            <PickArticleModal isOpen={isPickArticleModalOpen} onRequestClose={()=>setIsPickArticleModalOpen(false)} articleId={article.id}/>
+            <PickArticleModal isOpen={isPickArticleModalOpen} onRequestClose={() => setIsPickArticleModalOpen(false)} articleId={article.id} />
         </div>
     );
 };

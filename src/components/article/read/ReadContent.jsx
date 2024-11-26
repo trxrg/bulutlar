@@ -7,8 +7,6 @@ import { AppContext } from "../../../store/app-context.jsx";
 import ImageModal from "../../image/ImageModal.jsx";
 import ImageInput from "../../image/ImageInput.jsx";
 import toastr from "toastr";
-import RichEditor2 from "./RichEditor2.jsx";
-import MyEditor from "./MyEditor.jsx";
 
 const ReadContent = () => {
 

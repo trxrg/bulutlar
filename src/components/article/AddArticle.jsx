@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { format } from 'date-fns';
 
 import TagList from '../tag/TagList.jsx';
-import RichText from '../article/read/RichText.jsx';
+import RichText from './read/editor/RichText.jsx';
 import CategoryList from '../category/CategoryList.jsx';
 import OwnerList from '../owner/OwnerList.jsx';
 import ImageUpload from '../image/ImageUpdload.jsx';

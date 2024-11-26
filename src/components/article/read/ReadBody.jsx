@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import SplitPane from 'react-split-pane';
-import ReadSidePanel from './ReadSidePanel';
 import ReadLeftPanel from './ReadLeftPanel';
 import { ReadContext } from '../../../store/read-context';
 import BodyWithFixedHeader from '../../common/BodyWithFixedHeader';
 import ReadControls from './ReadControls';
 import ReadContent from './ReadContent';
+import ReadRightPanel from './right-panel/ReadRightPanel';
 
 const ReadBody = () => {
 
@@ -51,7 +51,7 @@ const ReadBody = () => {
           </div>
         </SplitPane>
         <div className={`h-full transition-transform duration-300 ${rightPanelCollapsed ? 'transform translate-x-full w-0 opacity-0' : 'w-full'}`}>
-          {/* <ReadSidePanel /> */}
+          <ReadRightPanel />
         </div>
       </SplitPane>
     </div>

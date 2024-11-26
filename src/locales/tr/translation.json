@@ -14,6 +14,10 @@
     "article delete confirmation question": "Bu yazıyı silmek istediğinizden emin misiniz?",
     "add article": "Yeni Yazı Ekle",
     "no articles": "Yazı eklemek için artı simgesine tıklayın",
+    "select article": "Yazı Seç",
+    "no such article": "Böyle bir yazı yok",
+
+    "add related article": "Bağlantılı Yazı Ekle",
     "related articles": "Bağlantılı Yazılar",
     "no related articles": "Bağlantılı yazı eklemek için artı simgesine tıklayın",
     
@@ -75,6 +79,7 @@
     "new": "Yeni",
     "error": "Hata",
     "update": "Güncelle",
+    "view": "Görüntüle",
 
     "creation": "Oluşturulma",
     "last update": "Son Güncelleme",

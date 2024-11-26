@@ -14,6 +14,10 @@
     "article delete confirmation question": "Are you sure you want to delete this article?",
     "add article": "Add New Article",
     "no articles": "Click to plus icon to add an article",
+    "select article": "Select Article",
+    "no such article": "No such article",
+
+    "add related article": "Add Related Article",
     "related articles": "Related Articles",
     "no related articles": "Click to plus icon to add related articles",
 
@@ -75,6 +79,7 @@
     "new": "New",
     "error": "Error",
     "update": "Update",
+    "view": "View",
 
     "creation": "Created",
     "last update": "Last Update",

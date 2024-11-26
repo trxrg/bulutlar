@@ -21,6 +21,8 @@ function initService() {
     ipcMain.handle('article/getAll', getAllArticles);
     ipcMain.handle('article/getById', (event, id) => getArticleById(id));
     ipcMain.handle('article/deleteById', (event, id) => deleteArticleById(id));
+    ipcMain.handle('article/addRelatedArticle', (event, id, relatedArticleId) => addRelatedArticle(id, relatedArticleId));
+    ipcMain.handle('article/removeRelatedArticle', (event, id, relatedArticleId) => removeRelatedArticle(id, relatedArticleId));
 }
 
 async function createArticle(article) { // Now transactional
@@ -174,7 +176,7 @@ async function updateArticleDate(id, newDate) {
 
         if (!article)
             throw ('no article found with id: ' + id);
-        
+
         await article.update({ date: newDate });
         await article.update({ number: calculateNumber(newDate) });
     } catch (error) {
@@ -239,6 +241,42 @@ async function addAnnotationToArticle(id, annotation) {
 
     } catch (error) {
         console.error('Error in addAnnotationToArticle', error);
+        throw error;
+    }
+}
+
+async function addRelatedArticle(id, relatedArticleId) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+        const relatedArticle = await sequelize.models.article.findByPk(relatedArticleId);
+
+        if (!article || !relatedArticle)
+            throw ('no article found with id: ' + id + ' or ' + relatedArticleId);
+
+        await article.addRelatedArticle(relatedArticle);
+
+        return await getArticleById(id);
+
+    } catch (error) {
+        console.error('Error in addRelatedArticle', error);
+        throw error;
+    }
+}
+
+async function removeRelatedArticle(id, relatedArticleId) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+        const relatedArticle = await sequelize.models.article.findByPk(relatedArticleId);
+
+        if (!article || !relatedArticle)
+            throw ('no article found with id: ' + id + ' or ' + relatedArticleId);
+
+        await article.removeRelatedArticle(relatedArticle);
+
+        return await getArticleById(id);
+
+    } catch (error) {
+        console.error('Error in removeRelatedArticle', error);
         throw error;
     }
 }

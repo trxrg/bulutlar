@@ -1,3 +1,4 @@
+const { remove } = require('draft-js/lib/DefaultDraftBlockRenderMap')
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('versions', {
@@ -21,6 +22,8 @@ contextBridge.exposeInMainWorld('api', {
     getAll:            ()                   => ipcRenderer.invoke('article/getAll'),
     getById:           (id)                 => ipcRenderer.invoke('article/getById', id),
     deleteById:        (id)                 => ipcRenderer.invoke('article/deleteById', id),
+    addRelatedArticle: (id, relatedArticleId) => ipcRenderer.invoke('article/addRelatedArticle', id, relatedArticleId),
+    removeRelatedArticle: (id, relatedArticleId) => ipcRenderer.invoke('article/removeRelatedArticle', id, relatedArticleId),
   },
   owner: {
     create:      (owner)        => ipcRenderer.invoke('owner/create', owner),

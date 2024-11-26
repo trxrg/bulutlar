@@ -5,14 +5,16 @@ import FormatButton from '../../../common/FormatButton';
 import { AppContext } from '../../../../store/app-context';
 import { DBContext } from '../../../../store/db-context';
 import { ReadContext } from '../../../../store/read-context';
+import PickArticleModal from '../../PickArticleModal';
 
 const ReadRightPanel = () => {
 
+    const [isPickArticleModalOpen, setIsPickArticleModalOpen] = useState(false);
     const { translate: t } = useContext(AppContext);
     const { article } = useContext(ReadContext);
 
     const handleAddRelatedArticle = () => {
-        console.log('add related article clicked');
+        setIsPickArticleModalOpen(true);
     }
 
     return (
@@ -26,6 +28,7 @@ const ReadRightPanel = () => {
                     <p>{t('no related articles')}</p>
                 </div>
             </BodyWithFixedHeader>
+            <PickArticleModal isOpen={isPickArticleModalOpen} onRequestClose={()=>setIsPickArticleModalOpen(false)} articleId={article.id}/>
         </div>
     );
 };

@@ -67,7 +67,7 @@ const AnnotationModal = ({ isOpen, onRequestClose, annotation, articleId }) => {
 
     return (
         <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={t('note')}>
-            <div className='flex flex-col gap-2 h-full overflow-y-auto'>
+            <div className='flex flex-col gap-2 overflow-y-auto'>
                 {msg && <span className="text-red-400">{msg}</span>}
                 <textarea
                     placeholder={t('write your note here')}

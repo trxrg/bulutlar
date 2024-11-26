@@ -1,3 +1,5 @@
+import { add } from "date-fns";
+
 export const ping = async () => window.api.ping();
 export const checkDbConnection = async () => window.api.checkDbConnection();
 
@@ -14,6 +16,8 @@ export const articleApi = {
     getAll:             async ()                    => window.api.article.getAll(),
     getById:            async (id)                  => window.api.article.getById(id),
     deleteById:         async (id)                  => window.api.article.deleteById(id),
+    addRelatedArticle:  async (id, relatedArticleId) => window.api.article.addRelatedArticle(id, relatedArticleId),
+    removeRelatedArticle: async (id, relatedArticleId) => window.api.article.removeRelatedArticle(id, relatedArticleId),
 };
 
 export const ownerApi = {

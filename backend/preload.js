@@ -1,4 +1,3 @@
-const { remove } = require('draft-js/lib/DefaultDraftBlockRenderMap')
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('versions', {

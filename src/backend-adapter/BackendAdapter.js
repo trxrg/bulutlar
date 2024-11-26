@@ -1,5 +1,3 @@
-import { add } from "date-fns";
-
 export const ping = async () => window.api.ping();
 export const checkDbConnection = async () => window.api.checkDbConnection();
 

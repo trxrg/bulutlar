@@ -380,8 +380,8 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     };
 
     return (
-        <div className='relative'>
-            <div className={editable ? 'border-2 border-stone-300 bg-white ' : 'caret-transparent'} onMouseUp={handleSelect}>
+        <div className='relative flex justify-center' onMouseUp={handleSelect}>
+            <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' bg-white max-w-7xl w-full'} >
                 {showContextMenu && (
                     <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                         <button onClick={handleRemoveLink} className='hover:bg-red-300'>Remove Link</button>

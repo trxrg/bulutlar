@@ -136,7 +136,7 @@ const ReadContent = () => {
 
     return (
         <div className="flex flex-col items-center bg-white">
-            <div className={`leading-loose p-2 max-w-7xl w-full ${fontSize}`}>
+            <div className={`leading-loose w-full ${fontSize}`}>
                 {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border-b border-gray-700 p-4'>
                     <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
                 </div>}

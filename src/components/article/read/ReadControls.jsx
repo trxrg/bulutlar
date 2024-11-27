@@ -23,7 +23,7 @@ const ReadControls = () => {
     }
 
     return (
-        <div className='flex flex-wrap justify-between p-2 shadow-lg'>
+        <div className='flex flex-wrap justify-between p-2 border-b-4 shadow-lg bg-white'>
             {/* left */}
             <div className='flex flex-wrap gap-1'>
                 {leftPanelCollapsed ?
@@ -39,7 +39,7 @@ const ReadControls = () => {
             </div>
             {/* center */}
             <div className='flex flex-wrap gap-1'>
-                {editable &&
+                {editable ?
                     <div className='flex flex-wrap gap-1'>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
@@ -55,7 +55,12 @@ const ReadControls = () => {
                             color={'blue'}>
                             {t('cancel')}
                         </ActionButton>
-                    </div>}
+                    </div>
+                    :
+                    (fullScreen &&
+                        <div className='flex flex-row gap-2 items-center text-2xl'>
+                            <h2>{article.title}</h2>
+                        </div>)}
             </div>
             {/* right */}
             <div className='flex flex-wrap gap-1'>

@@ -28,11 +28,11 @@ const ReadControls = () => {
             <div className='flex flex-wrap gap-1'>
                 {leftPanelCollapsed ?
                     <FormatButton onClick={() => setLeftPanelCollapsed(false)}>
-                        <ChevronRightIcon className="w-4 h-4" />
+                        <ChevronRightIcon className="w-5 h-5" />
                     </FormatButton>
                     :
                     <FormatButton onClick={() => setLeftPanelCollapsed(true)}>
-                        <ChevronLeftIcon className="w-4 h-4" />
+                        <ChevronLeftIcon className="w-5 h-5" />
                     </FormatButton>}
                 <FormatButton onClick={decreaseFontSize}>A-</FormatButton>
                 <FormatButton onClick={increaseFontSize}>A+</FormatButton>
@@ -43,7 +43,7 @@ const ReadControls = () => {
                     <div className='flex flex-wrap gap-1'>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
-                        <FormatButton onClick={addImage}><PhotoIcon className="w-4 h-4" /></FormatButton>
+                        <FormatButton onClick={addImage}><PhotoIcon className="w-5 h-5" /></FormatButton>
                         <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}
@@ -67,23 +67,23 @@ const ReadControls = () => {
                 {!editable &&
                     <FormatButton
                         onClick={() => setEditable(true)}
-                    ><PencilIcon className="w-4 h-4" /></FormatButton>
+                    ><PencilIcon className="w-5 h-5" /></FormatButton>
                 }
                 {fullScreen ?
                     <FormatButton onClick={() => setFullScreen(false)}>
-                        <ArrowsPointingInIcon className="w-4 h-4" />
+                        <ArrowsPointingInIcon className="w-5 h-5" />
                     </FormatButton>
                     :
                     <FormatButton onClick={() => setFullScreen(true)}>
-                        <ArrowsPointingOutIcon className="w-4 h-4" />
+                        <ArrowsPointingOutIcon className="w-5 h-5" />
                     </FormatButton>}
                 {rightPanelCollapsed ?
                     <FormatButton onClick={() => setRightPanelCollapsed(false)}>
-                        <ChevronLeftIcon className="w-4 h-4" />
+                        <ChevronLeftIcon className="w-5 h-5" />
                     </FormatButton>
                     :
                     <FormatButton onClick={() => setRightPanelCollapsed(true)}>
-                        <ChevronRightIcon className="w-4 h-4" />
+                        <ChevronRightIcon className="w-5 h-5" />
                     </FormatButton>}
             </div>
             <AddLinkModal

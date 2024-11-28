@@ -43,8 +43,8 @@ const ArticleInfo = ({ article, isEditable = true }) => {
 
     return (
         <div className="text-lg text-gray-700 py-2" >
-            <span className='cursor-pointer select-none' onDoubleClick={isEditable ? () => setOwnerModalIsOpen(true) : undefined}>{owner && owner.name + " | "}</span>
-            <span className='cursor-pointer select-none' onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category && category.name + " | "}</span>
+            <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setOwnerModalIsOpen(true) : undefined}>{owner && owner.name + " | "}</span>
+            <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category && category.name + " | "}</span>
             <span className='inline-flex'>{isEditable ?
                 <RichInput className='flex' initialText={new Date(article.date).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate}></RichInput>
                 :

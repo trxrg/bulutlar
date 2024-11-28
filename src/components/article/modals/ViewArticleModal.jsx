@@ -6,8 +6,9 @@ import { DBContext } from '../../../store/db-context.jsx';
 import { ReadContext } from '../../../store/read-context.jsx';
 import ActionButton from '../../common/ActionButton';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
+import ArticleInfo from '../ArticleInfo.jsx';
 
-const PickArticleModal = ({ isOpen, onRequestClose, relatedArticleId, removeButtonVisible=false }) => {
+const PickArticleModal = ({ isOpen, onRequestClose, relatedArticleId, removeButtonVisible = false }) => {
     const { translate: t, handleAddTab } = useContext(AppContext);
     const { fetchArticleById, getArticleById } = useContext(DBContext);
     const { article } = useContext(ReadContext);
@@ -26,8 +27,11 @@ const PickArticleModal = ({ isOpen, onRequestClose, relatedArticleId, removeButt
 
     return (
         <>
-            {relatedArticle && <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={relatedArticle.title}>
+            {relatedArticle && <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose}>
 
+
+                <h2 className='text-xl'>{relatedArticle.title}</h2>
+                <ArticleInfo article={article} isEditable={false}></ArticleInfo>
                 <div>
                     <article dangerouslySetInnerHTML={{ __html: relatedArticle.text }} />
                 </div>

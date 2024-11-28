@@ -6,20 +6,25 @@ import { AppContext } from '../../../../store/app-context';
 import { DBContext } from '../../../../store/db-context';
 import { ReadContext } from '../../../../store/read-context';
 import PickArticleModal from '../../modals/PickArticleModal';
+import ViewArticleModal from '../../modals/ViewArticleModal';
 import RelatedArticleCard from './RelatedArticleCard';
+import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap';
 
 const ReadRightPanel = () => {
 
     const [isPickArticleModalOpen, setIsPickArticleModalOpen] = useState(false);
+    const [isViewArticleModalOpen, setIsViewArticleModalOpen] = useState(false);
+    const [relatedArticleId, setRelatedArticleId] = useState(null);
     const { translate: t } = useContext(AppContext);
     const { article } = useContext(ReadContext);
-
+    
     const handleAddRelatedArticle = () => {
         setIsPickArticleModalOpen(true);
     }
 
     const openViewArticleModal = (articleId) => {
-        console.log('View article with id: ' + articleId);
+        setRelatedArticleId(articleId);
+        setIsViewArticleModalOpen(true);
     }
 
     return (
@@ -39,6 +44,7 @@ const ReadRightPanel = () => {
                     </div>}
             </BodyWithFixedHeader>
             <PickArticleModal isOpen={isPickArticleModalOpen} onRequestClose={() => setIsPickArticleModalOpen(false)} articleId={article.id} />
+            <ViewArticleModal isOpen={isViewArticleModalOpen} onRequestClose={() => setIsViewArticleModalOpen(false)} relatedArticleId={relatedArticleId} ></ViewArticleModal>
         </div>
     );
 };

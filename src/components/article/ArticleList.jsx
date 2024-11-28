@@ -3,59 +3,58 @@ import Select, { components } from 'react-select';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
-import { get } from 'draft-js/lib/DefaultDraftBlockRenderMap';
-import { t } from 'i18next';
 
-const CustomOption = (props) => {
+const ArticleList = ({ onArticleChange, excludedArticleIds, onViewClicked }) => {
 
-    const handleViewClicked = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('View clicked');
-    }
+    const CustomOption = (props) => {
 
-    return (
-        <components.Option {...props}>
-            <div className="flex justify-between items-center w-full p-2">
-                <div className="flex justify-between">
-                    <span>{(props.data.ownerName ? props.data.ownerName + ' | ' : '') + props.data.title + ' | ' + props.data.dateStr}</span>
+        const handleViewClicked = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('View clicked');
+            onViewClicked(props.data.id);
+        }
+
+        return (
+            <components.Option {...props}>
+                <div className="flex justify-between items-center w-full p-2">
+                    <div className="flex justify-between">
+                        <span>{(props.data.ownerName ? props.data.ownerName + ' | ' : '') + props.data.title + ' | ' + props.data.dateStr}</span>
+                    </div>
+                    <ActionButton color='blue' onClick={handleViewClicked}>{t('view')}</ActionButton>
                 </div>
-                <ActionButton color='blue' onClick={handleViewClicked}>{t('view')}</ActionButton>
-            </div>
-        </components.Option>
-    );
-};
+            </components.Option>
+        );
+    };
 
-const customStyles = {
-    control: (base) => ({
-        ...base,
-        backgroundColor: '#fff',
-        border: '1px solid #ccc',
-        boxShadow: 'none',
-        '&:hover': {
-            border: '1px solid #007bff',
-        },
-    }),
-    option: (base, state) => {
-        const border = state.isFocused ? '2px solid' : 'none';
-        const backgroundColor = '#fff';
-        const color = '#333';
-
-        return {
+    const customStyles = {
+        control: (base) => ({
             ...base,
-            backgroundColor,
-            color,
-            border,
-            cursor: 'pointer'
-        };
-    },
-    singleValue: (base, state) => ({
-        ...base,
-        // color: state.data.color || '#333',
-    }),
-};
+            backgroundColor: '#fff',
+            border: '1px solid #ccc',
+            boxShadow: 'none',
+            '&:hover': {
+                border: '1px solid #007bff',
+            },
+        }),
+        option: (base, state) => {
+            const border = state.isFocused ? '2px solid' : 'none';
+            const backgroundColor = '#fff';
+            const color = '#333';
 
-const ArticleList = ({ onArticleChange, excludedArticleIds }) => {
+            return {
+                ...base,
+                backgroundColor,
+                color,
+                border,
+                cursor: 'pointer'
+            };
+        },
+        singleValue: (base, state) => ({
+            ...base,
+            // color: state.data.color || '#333',
+        }),
+    };
 
     const { allArticles, getOwnerById } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);

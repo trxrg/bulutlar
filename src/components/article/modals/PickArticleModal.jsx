@@ -7,7 +7,7 @@ import ActionButton from '../../common/ActionButton';
 import ArticleList from '../ArticleList.jsx';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 
-const PickArticleModal = ({ isOpen, onRequestClose, articleId }) => {
+const PickArticleModal = ({ isOpen, onRequestClose, articleId, onViewClicked }) => {
     const [selectedArticleId, setSelectedArticleId] = useState(null);
     const { translate: t } = useContext(AppContext);
     const { fetchArticleById, getRelatedArticlesByArticleId } = useContext(DBContext);
@@ -18,15 +18,18 @@ const PickArticleModal = ({ isOpen, onRequestClose, articleId }) => {
         onRequestClose();
     }
 
+    const handleViewClicked = (articleId) => {
+        onViewClicked(articleId);
+    }
+
     const relatedArticles = getRelatedArticlesByArticleId(articleId);
 
     return (
         <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={t('add related article')}>
 
-            <ArticleList onArticleChange={setSelectedArticleId} excludedArticleIds={[articleId, ...relatedArticles.map(art => art.id)]}/>
+            <ArticleList onArticleChange={setSelectedArticleId} excludedArticleIds={[articleId, ...relatedArticles.map(art => art.id)]} onViewClicked={handleViewClicked}/>
             <div className='flex justify-end gap-2 mt-4'>
                 <ActionButton color={'blue'} onClick={handleAdd}>{t('add')}</ActionButton>
-                <ActionButton color={'red'} onClick={onRequestClose}>{t('cancel')}</ActionButton>
             </div>
 
         </GeneralModal >

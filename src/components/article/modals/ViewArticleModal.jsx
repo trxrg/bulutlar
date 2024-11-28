@@ -7,7 +7,7 @@ import { ReadContext } from '../../../store/read-context.jsx';
 import ActionButton from '../../common/ActionButton';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 
-const PickArticleModal = ({ isOpen, onRequestClose, relatedArticleId }) => {
+const PickArticleModal = ({ isOpen, onRequestClose, relatedArticleId, removeButtonVisible=false }) => {
     const { translate: t, handleAddTab } = useContext(AppContext);
     const { fetchArticleById, getArticleById } = useContext(DBContext);
     const { article } = useContext(ReadContext);
@@ -37,7 +37,7 @@ const PickArticleModal = ({ isOpen, onRequestClose, relatedArticleId }) => {
                         <article dangerouslySetInnerHTML={{ __html: relatedArticle.comments[0].text }} />
                     </div>}
                 <div className='flex justify-end gap-2 mt-4'>
-                    <ActionButton color={'red'} onClick={handleRemove}>{t('remove')}</ActionButton>
+                    {removeButtonVisible && <ActionButton color={'red'} onClick={handleRemove}>{t('remove')}</ActionButton>}
                     <ActionButton color={'blue'} onClick={handleOpenInNewTab}>{t('open in new tab')}</ActionButton>
                 </div>
 

@@ -39,7 +39,7 @@ const ReadRightPanel = () => {
     }
 
     return (
-        <div className='h-full'>
+        <div className='h-full bg-white'>
             <BodyWithFixedHeader >
                 <div className='flex flex-wrap justify-between p-2 shadow-lg'>
                     <h2 className='ml-2 text-xl font-semibold text-gray-800'>{t('related articles')}</h2>

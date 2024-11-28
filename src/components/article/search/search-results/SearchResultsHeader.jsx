@@ -3,7 +3,7 @@ import { PlusIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, Arr
 import { SearchContext } from '../../../../store/search-context.jsx';
 import FormatButton from '../../../common/FormatButton.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
-import AddArticleModal from '../../AddArticleModal.jsx';
+import AddArticleModal from '../../modals/AddArticleModal.jsx';
 import ActionButton from '../../../common/ActionButton.jsx';
 
 const SearchResultsHeader = () => {

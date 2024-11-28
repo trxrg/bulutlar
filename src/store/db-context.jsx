@@ -168,6 +168,13 @@ export default function DBContextProvider({ children }) {
         return allCategories.find(category => category.id === id);
     }, [allCategories]);
 
+    const getCategoryByArticleId = useCallback((articleId) => {
+        const article = allArticles.find(article => article.id === articleId);
+        if (!article)
+            return null;
+        return getCategoryById(article.categoryId);
+    }, [allArticles, allCategories]);
+
     const getOwnerById = useCallback((id) => {
         return allOwners.find(owner => owner.id === id);
     }, [allOwners]);
@@ -179,6 +186,13 @@ export default function DBContextProvider({ children }) {
     const getArticleById = useCallback((id) => {
         return allArticles.find(article => article.id === id);
     }, [allArticles]);
+
+    const getRelatedArticlesByArticleId = useCallback((articleId) => {
+        const article = getArticleById(articleId);
+        if (!article)
+            return [];
+        return article.relatedArticles;
+    }, [allArticles, getArticleById]);
 
     const getAnnotationById = useCallback((id) => {
         return allAnnotations.find(annotation => annotation.id === id);
@@ -206,8 +220,10 @@ export default function DBContextProvider({ children }) {
         fetchTagById,
         fetchAnnotationById,
         getArticleById,
+        getRelatedArticlesByArticleId,
         getOwnerById,
         getCategoryById,
+        getCategoryByArticleId,
         getTagById,
         getAnnotationById,
         streak,

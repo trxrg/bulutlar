@@ -1,14 +1,14 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { format } from 'date-fns';
 
-import GeneralModal from '../common/GeneralModal';
-import { AppContext } from '../../store/app-context';
-import { articleApi } from '../../backend-adapter/BackendAdapter.js';
-import ActionButton from '../common/ActionButton';
-import CategoryList from '../category/CategoryList';
-import OwnerList from '../owner/OwnerList';
-import TagList from '../tag/TagList';
-import DateInput from '../common/DateInput';
+import GeneralModal from '../../common/GeneralModal.jsx';
+import { AppContext } from '../../../store/app-context.jsx';
+import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
+import ActionButton from '../../common/ActionButton.jsx';
+import CategoryList from '../../category/CategoryList.jsx';
+import OwnerList from '../../owner/OwnerList.jsx';
+import TagList from '../../tag/TagList.jsx';
+import DateInput from '../../common/DateInput.jsx';
 import toastr from 'toastr';
 
 const AddArticleModal = ({ isOpen, onRequestClose }) => {

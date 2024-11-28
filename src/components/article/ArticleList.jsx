@@ -55,13 +55,13 @@ const customStyles = {
     }),
 };
 
-const ArticleList = ({ onArticleChange, excludedArticleId }) => {
+const ArticleList = ({ onArticleChange, excludedArticleIds }) => {
 
     const { allArticles, getOwnerById } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);
 
     const articleOptions = [
-        ...allArticles.filter(article => article.id != excludedArticleId).map(article => {
+        ...allArticles.filter(article => !excludedArticleIds || !excludedArticleIds.includes(article.id)).map(article => {
 
             const title = article.title;
             const ownerName = article.ownerId && getOwnerById(article.ownerId).name;

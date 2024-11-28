@@ -5,7 +5,8 @@ import FormatButton from '../../../common/FormatButton';
 import { AppContext } from '../../../../store/app-context';
 import { DBContext } from '../../../../store/db-context';
 import { ReadContext } from '../../../../store/read-context';
-import PickArticleModal from '../../PickArticleModal';
+import PickArticleModal from '../../modals/PickArticleModal';
+import RelatedArticleCard from './RelatedArticleCard';
 
 const ReadRightPanel = () => {
 
@@ -17,6 +18,10 @@ const ReadRightPanel = () => {
         setIsPickArticleModalOpen(true);
     }
 
+    const openViewArticleModal = (articleId) => {
+        console.log('View article with id: ' + articleId);
+    }
+
     return (
         <div className='h-full'>
             <BodyWithFixedHeader >
@@ -26,7 +31,7 @@ const ReadRightPanel = () => {
                 </div>
                 {article.relatedArticles.length > 0 ?
                     <div className='flex flex-col gap-2 p-2'>
-                        {article.relatedArticles.map((relatedArticle) => <div>{relatedArticle.title}</div>)}
+                        {article.relatedArticles.map((relatedArticle) => <RelatedArticleCard key={relatedArticle.id} article={relatedArticle} onClick={openViewArticleModal} />)}
                     </div>
                     :
                     <div className='flex justify-center p-2 h-full'>

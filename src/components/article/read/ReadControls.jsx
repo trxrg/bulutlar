@@ -44,6 +44,7 @@ const ReadControls = () => {
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
                         <FormatButton onClick={addImage}><PhotoIcon className="w-5 h-5" /></FormatButton>
+                        <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-6 h-6" /></FormatButton>
                         <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}

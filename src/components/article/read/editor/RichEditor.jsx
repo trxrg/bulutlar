@@ -7,6 +7,7 @@ import { imageApi } from '../../../../backend-adapter/BackendAdapter';
 import { AppContext } from '../../../../store/app-context';
 import ContextMenu from '../../../common/ContextMenu';
 import ActionButton from '../../../common/ActionButton';
+import Link from './Link';
 
 
 import Image from './Image';
@@ -31,23 +32,23 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         },
     };
 
-    const Link = ({ contentState, blockKey, entityKey, children }) => {
+    // const Link = ({ contentState, blockKey, entityKey, children }) => {
 
-        const { url } = contentState.getEntity(entityKey).getData();
-        const onClick = () => {
-            console.log('link clicked url: ' + url);
-        };
+    //     const { url } = contentState.getEntity(entityKey).getData();
+    //     const onClick = () => {
+    //         console.log('link clicked url: ' + url);
+    //     };
 
-        const onContextMenu = (e) => {
-            handleRightClick(e, blockKey, entityKey);
-        };
+    //     const onContextMenu = (e) => {
+    //         handleRightClick(e, blockKey, entityKey);
+    //     };
 
-        return (
-            <span className="link" onClick={onClick} onContextMenu={onContextMenu}>
-                {children}
-            </span>
-        );
-    };
+    //     return (
+    //         <span className="link" onClick={onClick} onContextMenu={onContextMenu}>
+    //             {children}
+    //         </span>
+    //     );
+    // };
 
     function findLinkEntities(contentBlock, callback, contentState) {
         contentBlock.findEntityRanges((character) => {
@@ -97,19 +98,19 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const [isLinkModalOpen, setLinkModalOpen] = useState(false);
     const [showContextMenu, setShowContextMenu] = useState(false);
 
-    const handleRightClick = (e, blockKey, entityKey) => {
-        e.preventDefault(); // Prevent default context menu        
+    // const handleRightClick = (e, blockKey, entityKey) => {
+    //     e.preventDefault(); // Prevent default context menu        
 
-        const grandParentRect = e.currentTarget.parentElement.getBoundingClientRect();
+    //     const grandParentRect = e.currentTarget.parentElement.getBoundingClientRect();
 
-        const posx = e.clientX - grandParentRect.left;
-        const posy = e.clientY - grandParentRect.top;
+    //     const posx = e.clientX - grandParentRect.left;
+    //     const posy = e.clientY - grandParentRect.top;
 
-        setRightClickedBlockKey(blockKey);
-        setRightClickedEntityKey(entityKey);
-        setShowContextMenu(true);
-        setContextMenuPosition({ left: posx, top: posy });
-    };
+    //     setRightClickedBlockKey(blockKey);
+    //     setRightClickedEntityKey(entityKey);
+    //     setShowContextMenu(true);
+    //     setContextMenuPosition({ left: posx, top: posy });
+    // };
 
     const handleRemoveLink = (e) => {
         e.preventDefault();
@@ -382,11 +383,11 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     return (
         <div className='relative flex justify-center' onMouseUp={handleSelect}>
             <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' bg-white max-w-7xl w-full'} >
-                {showContextMenu && (
+                {/* {showContextMenu && (
                     <div className="context-menu" style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                         <button onClick={handleRemoveLink} className='hover:bg-red-300'>Remove Link</button>
                     </div>
-                )}
+                )} */}
                 <Editor
                     editorState={editorState}
                     onChange={handleEditorChange}

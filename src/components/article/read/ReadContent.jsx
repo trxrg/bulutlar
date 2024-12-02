@@ -6,11 +6,12 @@ import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
 import ImageModal from "../../image/ImageModal.jsx";
 import ImageInput from "../../image/ImageInput.jsx";
+import AddLinkModal from "../modals/AddLinkModal.jsx";
 import toastr from "toastr";
 
 const ReadContent = () => {
 
-    const { article, readContentRef, fontSize, editable, syncArticleFromBE } = useContext(ReadContext);
+    const { article, readContentRef, fontSize, editable, syncArticleFromBE, isAddLinkModalOpen, setAddLinkModalOpen } = useContext(ReadContext);
     const { translate: t } = useContext(AppContext);
 
     const imageInputRef = useRef(null);
@@ -134,6 +135,13 @@ const ReadContent = () => {
         return !tempDiv.textContent.trim();
     }
 
+    const handleAddLink = async (url) => {
+        addLink(url);
+        await saveContent();
+        
+        setAddLinkModalOpen(false);
+    }
+
     return (
         <div className="flex flex-col items-center bg-white">
             <div className={`leading-loose w-full ${fontSize}`}>
@@ -163,6 +171,7 @@ const ReadContent = () => {
                 <ImageInput onSelectImages={handleImageSelect2} ref={imageInputRef}></ImageInput>
                 <div className='p-5'></div>
             </div>
+            <AddLinkModal isOpen={isAddLinkModalOpen} onRequestClose={() => setAddLinkModalOpen(false)} handleAdd={handleAddLink} title={'add link'}/>            
         </div>
     );
 };

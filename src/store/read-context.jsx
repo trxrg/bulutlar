@@ -12,6 +12,8 @@ export default function ReadContextProvider({ children, article }) {
     const [editable, setEditable] = useState(false);
     const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
     const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
+    const [isAddLinkModalOpen, setAddLinkModalOpen] = useState(false);
+    const articleId = article.id;
 
     const readContentRef = useRef();
 
@@ -76,6 +78,11 @@ export default function ReadContextProvider({ children, article }) {
         return '';
     }
 
+    const addLink = (url) => {
+        if (readContentRef && readContentRef.current)
+            readContentRef.current.addLink(url);
+    }
+
     useEffect(() => {
         if (fullScreen) {
             setLeftPanelCollapsed(true);
@@ -85,6 +92,7 @@ export default function ReadContextProvider({ children, article }) {
 
     const ctxValue = {
         article,
+        articleId,
         readContentRef,    
         toggleStyle,
         toggleBlockType,
@@ -101,8 +109,11 @@ export default function ReadContextProvider({ children, article }) {
         setRightPanelCollapsed,
         leftPanelCollapsed,
         setLeftPanelCollapsed,
+        isAddLinkModalOpen,
+        setAddLinkModalOpen,
         getCategoryName,
         getOwnerName,
+        addLink,
     };
 
     return <ReadContext.Provider value={ctxValue}>

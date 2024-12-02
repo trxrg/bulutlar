@@ -32,8 +32,6 @@ const Link = (props) => {
     const handleRightClick = (e) => {
         e.preventDefault();
 
-        if (!editable) return;
-
         const grandParentRect = e.currentTarget.getBoundingClientRect();
 
         const posx = e.clientX - grandParentRect.left;

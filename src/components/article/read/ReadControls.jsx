@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
-import AddLinkModal from '../../common/AddLinkModal.jsx';
-import { LinkIcon, PencilIcon, PhotoIcon, PencilSquareIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, PhotoIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import FormatButton from '../../common/FormatButton.jsx';
@@ -43,8 +42,7 @@ const ReadControls = () => {
                     <div className='flex flex-wrap gap-1'>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
-                        <FormatButton onClick={addImage}><PhotoIcon className="w-5 h-5" /></FormatButton>
-                        <FormatButton onClick={() => setLinkModalOpen(true)}><LinkIcon className="w-6 h-6" /></FormatButton>
+                        <FormatButton onClick={addImage}><PhotoIcon className="w-5 h-5" /></FormatButton>                        
                         <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}
@@ -87,10 +85,6 @@ const ReadControls = () => {
                         <ChevronRightIcon className="w-5 h-5" />
                     </FormatButton>}
             </div>
-            <AddLinkModal
-                isOpen={isLinkModalOpen}
-                onClose={() => setLinkModalOpen(false)}
-            />
             <ConfirmModal message={t('article delete confirmation question')}
                 onClose={() => setDeleteConfirmModalOpen(false)}
                 onConfirm={async () => {

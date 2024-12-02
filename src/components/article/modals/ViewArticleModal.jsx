@@ -8,46 +8,42 @@ import ActionButton from '../../common/ActionButton';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import ArticleInfo from '../ArticleInfo.jsx';
 
-const PickArticleModal = ({ isOpen, onRequestClose, relatedArticleId, removeButtonVisible = false }) => {
-    const { translate: t, handleAddTab } = useContext(AppContext);
+const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, handleViewInNewTab, removeButtonVisible = false }) => {
+    const { translate: t } = useContext(AppContext);
     const { fetchArticleById, getArticleById } = useContext(DBContext);
     const { article } = useContext(ReadContext);
-    const relatedArticle = getArticleById(relatedArticleId);
-
-    const handleOpenInNewTab = async (e) => {
-        handleAddTab(e, relatedArticleId);
-        onRequestClose();
-    }
+    const viewedArticle = getArticleById(viewedArticleId);
 
     const handleRemove = async () => {
-        await articleApi.removeRelatedArticle(article.id, relatedArticleId);
+        await articleApi.removeRelatedArticle(article.id, viewedArticleId);
         fetchArticleById(article.id);
         onRequestClose();
     }
 
     return (
         <>
-            {relatedArticle && <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose}>
-
-
-                <h2 className='text-xl'>{relatedArticle.title}</h2>
-                <ArticleInfo article={article} isEditable={false}></ArticleInfo>
-                <div>
-                    <article dangerouslySetInnerHTML={{ __html: relatedArticle.text }} />
+            {viewedArticle && <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose}>
+                <div className='flex-shrink-0'>
+                    <h2 className='text-xl'>{viewedArticle.title}</h2>
+                    <ArticleInfo article={article} isEditable={false}></ArticleInfo>
                 </div>
-                {relatedArticle.comments && relatedArticle.comments[0] &&
-                    < div >
-                        <h3>{t('comment')}</h3>
-                        <article dangerouslySetInnerHTML={{ __html: relatedArticle.comments[0].text }} />
-                    </div>}
-                <div className='flex justify-end gap-2 mt-4'>
-                    {removeButtonVisible && <ActionButton color={'red'} onClick={handleRemove}>{t('remove')}</ActionButton>}
-                    <ActionButton color={'blue'} onClick={handleOpenInNewTab}>{t('open in new tab')}</ActionButton>
+                <div className='flex-1 overflow-y-auto'>
+                    <article dangerouslySetInnerHTML={{ __html: viewedArticle.text }} />
+                    {viewedArticle.comments && viewedArticle.comments[0] &&
+                        <>
+                            <h3>{t('comment')}</h3>
+                            <article dangerouslySetInnerHTML={{ __html: viewedArticle.comments[0].text }} />
+                        </>}
                 </div>
-
+                <div className='flex-shrink-0'>
+                    <div className='flex justify-end gap-2 mt-4'>
+                        {removeButtonVisible && <ActionButton color={'red'} onClick={handleRemove}>{t('remove')}</ActionButton>}
+                        <ActionButton color={'blue'} onClick={handleViewInNewTab}>{t('open in new tab')}</ActionButton>
+                    </div>
+                </div>
             </GeneralModal >}
         </>
     );
 };
 
-export default PickArticleModal;
+export default ViewArticleModal;

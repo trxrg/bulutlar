@@ -55,7 +55,7 @@ const ReadRightPanel = () => {
                     </div>}
             </BodyWithFixedHeader>
             <PickArticleModal isOpen={isPickArticleModalOpen} onRequestClose={() => setIsPickArticleModalOpen(false)} articleId={article.id} onViewClicked={handleViewClicked} />
-            <ViewArticleModal isOpen={isViewArticleModalOpen} onRequestClose={() => setIsViewArticleModalOpen(false)} relatedArticleId={relatedArticleId} removeButtonVisible={removeButtonVisible} ></ViewArticleModal>
+            <ViewArticleModal isOpen={isViewArticleModalOpen} onRequestClose={() => setIsViewArticleModalOpen(false)} viewedArticleId={relatedArticleId} removeButtonVisible={removeButtonVisible} ></ViewArticleModal>
         </div>
     );
 };

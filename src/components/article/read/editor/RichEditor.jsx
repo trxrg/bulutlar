@@ -4,10 +4,11 @@ import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import { imageApi } from '../../../../backend-adapter/BackendAdapter';
 import ContextMenu from '../../../common/ContextMenu';
+import InlineToolbar from './InlineToolbar';
 import Link from './Link';
 import Image from './Image';
 import '../../../../styles.css'
-import InlineToolbar from './InlineToolbar';
+import 'draft-js/dist/Draft.css'; // necessary for list item styling etc.
 
 const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentChange, editable }, ref) => {
 
@@ -38,7 +39,7 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
             editorState.getSelection(),
             entityKey
         );
-        
+
         setEditorState(newEditorState);
         persist(newEditorState);
     };
@@ -52,36 +53,36 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
             );
         }, callback);
     }
-    
+
     const handleRemoveLink = (blockKey, entityRange) => {
         const contentState = editorStateRef.current.getCurrentContent();
-        
+
         if (entityRange) {
             // Create selection state for the entity range
             const selection = SelectionState.createEmpty(blockKey).merge({
                 anchorOffset: entityRange.start,
                 focusOffset: entityRange.end,
             });
-            
+
             // Remove the link entity from the content state
             const newContentState = Modifier.applyEntity(contentState, selection, null);
-            
+
             // Update editor state with the new content state
             const newEditorState = EditorState.push(
                 editorStateRef.current,
                 newContentState,
                 'apply-entity'
             );
-    
+
             setEditorState(newEditorState);
-            persist(newEditorState);   
+            persist(newEditorState);
         }
     };
-    
+
     const withCustomProps = (Component, customProps) => (props) => (
         <Component {...props} {...customProps} />
     );
-    
+
     const decorator = new CompositeDecorator([
         {
             strategy: findLinkEntities,
@@ -91,18 +92,18 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
 
     const createEditorStateFromHTML = (html) => {
         if (!html) return EditorState.createEmpty();
-        
+
         const contentState = stateFromHTML(html);
-        
+
         return EditorState.createWithContent(contentState, decorator);
     };
-    
+
     const [editorState, setEditorState] = useState(rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent));
     const editorStateRef = useRef(editorState);
 
     const handleMouseUp = (e) => {
         const selection = window.getSelection();
-        if (selection.rangeCount > 0 && !selection.isCollapsed) {            
+        if (selection.rangeCount > 0 && !selection.isCollapsed) {
             const range = selection.getRangeAt(0).getBoundingClientRect();
             const editorBounds = e.currentTarget.getBoundingClientRect();
             const top = Math.max(range.top - editorBounds.top - 60, 0);
@@ -116,39 +117,36 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
             setContextMenuIsOpen(false);
         }
     };
-    
-    const toggleBlockType = (blockType) => {
-        const newEditorState = RichUtils.toggleBlockType(editorState, blockType);
-        setEditorState(newEditorState);
-    };
-    
+
+    const toggleBlockType = (blockType) => setEditorState(RichUtils.toggleBlockType(editorState, blockType));
+
     const toggleInlineStyle = (style) => {
         setEditorState((prevState) => {
             const newEditorState = EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
             persist(newEditorState);
             return newEditorState;
         }
-    );
-};    
+        );
+    };
 
-const addImage = (image) => {
-    const contentState = editorState.getCurrentContent();
-    const contentStateWithEntity = contentState.createEntity('IMAGE', 'IMMUTABLE', image);
-    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
-    setEditorState(AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' '));
-};
+    const addImage = (image) => {
+        const contentState = editorState.getCurrentContent();
+        const contentStateWithEntity = contentState.createEntity('IMAGE', 'IMMUTABLE', image);
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+        const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
+        setEditorState(AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' '));
+    };
 
-const getImages = (editorState) => {
-    const contentState = editorState.getCurrentContent();
-    const blockMap = contentState.getBlockMap();
-    const images = [];
-    
-    blockMap.forEach(block => {
-        block.findEntityRanges(character => {
-            const entityKey = character.getEntity();
-            if (entityKey !== null) {
-                const entity = contentState.getEntity(entityKey);
+    const getImages = (editorState) => {
+        const contentState = editorState.getCurrentContent();
+        const blockMap = contentState.getBlockMap();
+        const images = [];
+
+        blockMap.forEach(block => {
+            block.findEntityRanges(character => {
+                const entityKey = character.getEntity();
+                if (entityKey !== null) {
+                    const entity = contentState.getEntity(entityKey);
                     if (entity.getType() === 'IMAGE') {
                         images.push(entity.getData());
                     }
@@ -157,12 +155,12 @@ const getImages = (editorState) => {
         });
         return images;
     };
-    
+
     const deleteAtomicBlock = (blockKey) => {
         const contentState = editorStateRef.current.getCurrentContent();
         const blockMap = contentState.getBlockMap();
         const block = contentState.getBlockForKey(blockKey);
-        
+
         // Save the current selection state
         const currentSelection = editorStateRef.current.getSelection();
 
@@ -180,34 +178,34 @@ const getImages = (editorState) => {
             blockMap: newBlockMap,
             selectionAfter: selectionState,
         });
-        
+
         // Push the new content state to the editor state
         const newEditorState = EditorState.push(
             editorStateRef.current,
             newContentState,
             'remove-range'
         );
-        
+
         // Restore the saved selection state
         const finalEditorState = EditorState.forceSelection(
             newEditorState,
             currentSelection
         );
-        
+
         // Update the editor state
         setEditorState(finalEditorState);
     };
-    
+
     const getContent = () => {
         const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent);
         const currentImageIds = getImages(editorState).map(image => image.id);
         const originalImageIds = getImages(originalEditorState).map(image => image.id);
-        
+
         // find images that are present in the originaleditorstate but not in the current editorState
         // delete them from the db and the fs as they will be removed from the editor content
         const imagesToDelete = originalImageIds.filter(id => !currentImageIds.includes(id));
         imagesToDelete.forEach(imageId => imageApi.deleteById(imageId));
-        
+
         return { html: stateToHTML(editorState.getCurrentContent()), json: convertToRaw(editorState.getCurrentContent()) };
     }
 
@@ -215,15 +213,15 @@ const getImages = (editorState) => {
         const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent);
         const currentImageIds = getImages(editorState).map(image => image.id);
         const originalImageIds = getImages(originalEditorState).map(image => image.id);
-        
+
         // find images that are present in the current editorstate but not in the originalEditorState
         // delete them from the db and the fs as they will be removed from the editor content
         const imagesToDelete = currentImageIds.filter(id => !originalImageIds.includes(id));
         imagesToDelete.forEach(imageId => imageApi.deleteById(imageId));
-        
+
         setEditorState(originalEditorState);
     }
-    
+
     React.useImperativeHandle(ref, () => ({
         addLink,
         addImage,
@@ -232,12 +230,12 @@ const getImages = (editorState) => {
         toggleInlineStyle,
         toggleBlockType,
     }));
-    
+
     const handleEditorChange = (newEditorState) => {
         editorStateRef.current = newEditorState;
         setEditorState(newEditorState);
     };
-    
+
     const blockRendererFn = (contentBlock) => {
         if (contentBlock.getType() === 'atomic') {
             const contentState = editorState.getCurrentContent();
@@ -245,7 +243,7 @@ const getImages = (editorState) => {
             if (entityKey) {
                 const entity = contentState.getEntity(entityKey);
                 const entityType = entity.getType();
-                
+
                 if (entityType === 'IMAGE') {
                     return {
                         component: Image,
@@ -267,24 +265,24 @@ const getImages = (editorState) => {
         }
         return null;
     };
-    
+
     const keyBindingFn = (e) => {
-        const selection = editorState.getSelection();
-        const contentState = editorState.getCurrentContent();
+        const selection = editorStateRef.current.getSelection();
+        const contentState = editorStateRef.current.getCurrentContent();
         const startKey = selection.getStartKey();
         const endKey = selection.getEndKey();
         const startBlock = contentState.getBlockForKey(startKey);
         const endBlock = contentState.getBlockForKey(endKey);
-        
+
         let containsAtomicBlock = false;
-        
+
         if (!selection.isCollapsed()) {
             let block = startBlock;
-            
+
             while (true) {
                 if (!block)
                     break;
-                
+
                 if (block.getType() === 'atomic') {
                     containsAtomicBlock = true;
                     break;
@@ -294,17 +292,17 @@ const getImages = (editorState) => {
                 }
                 block = contentState.getBlockAfter(block.getKey());
             }
-            
+
         } else if (e.keyCode === 8 || e.keyCode === 46) { // Backspace or Delete
             const blockBefore = contentState.getBlockBefore(startKey);
             const blockAfter = contentState.getBlockAfter(startKey);
-            
+
             const offset = selection.getStartOffset();
             const isAtStartOfBlock = offset === 0;
             const isAtEndOfBlock = offset === startBlock.getLength();
-            
+
             if ((e.keyCode === 8 && isAtStartOfBlock && blockBefore && blockBefore.getType() === 'atomic') ||
-            (e.keyCode === 46 && isAtEndOfBlock && blockAfter && blockAfter.getType() === 'atomic')) {
+                (e.keyCode === 46 && isAtEndOfBlock && blockAfter && blockAfter.getType() === 'atomic')) {
                 containsAtomicBlock = true;
             }
         }
@@ -314,24 +312,13 @@ const getImages = (editorState) => {
             return 'handled';
         }
 
-        if (e.keyCode === 9 /* TAB */) {
-            const newEditorState = RichUtils.onTab(e, editorState, 4);
-            if (newEditorState !== editorState) {
-                setEditorState(newEditorState);
-            }
-            return;
-        }
-
-        // if (KeyBindingUtil.hasCommandModifier(e) && (e.keyCode === 90 || e.keyCode === 89)) {
-
-        //     console.log('undo/redo');
-        //     console.log('editable: ', editable);
-        //     if (!editable)
-        //         return 'handled';
-        // }
-
         return getDefaultKeyBinding(e);
-    };   
+    };
+
+    const handleTab = (e) => {
+        const maxDepth = 4; // Maximum depth of nested lists
+        setEditorState(RichUtils.onTab(e, editorState, maxDepth));
+    };
 
     return (
         <div className='relative flex justify-center' onMouseUp={handleMouseUp}>
@@ -349,6 +336,7 @@ const getImages = (editorState) => {
                     customStyleMap={styleMap}
                     handleDrop={editable ? undefined : () => 'handled'}
                     blockRendererFn={blockRendererFn}
+                    onTab={handleTab}
                 />
             </div>
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>

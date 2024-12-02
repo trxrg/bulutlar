@@ -11,7 +11,7 @@ import ArticleInfo from '../ArticleInfo.jsx';
 const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, handleViewInNewTab, removeButtonVisible = false }) => {
     const { translate: t } = useContext(AppContext);
     const { fetchArticleById, getArticleById } = useContext(DBContext);
-    const { article } = useContext(ReadContext);
+    const { article, fontSize } = useContext(ReadContext);
     const viewedArticle = getArticleById(viewedArticleId);
 
     const handleRemove = async () => {
@@ -25,9 +25,9 @@ const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, handleViewI
             {viewedArticle && <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose}>
                 <div className='flex-shrink-0'>
                     <h2 className='text-xl'>{viewedArticle.title}</h2>
-                    <ArticleInfo article={article} isEditable={false}></ArticleInfo>
+                    <ArticleInfo article={viewedArticle} isEditable={false}></ArticleInfo>
                 </div>
-                <div className='flex-1 overflow-y-auto'>
+                <div className={'flex-1 overflow-y-auto leading-loose ' + fontSize}>
                     <article dangerouslySetInnerHTML={{ __html: viewedArticle.text }} />
                     {viewedArticle.comments && viewedArticle.comments[0] &&
                         <>

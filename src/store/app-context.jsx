@@ -21,7 +21,7 @@ export default function AppContextProvider({ children }) {
     const handleAddTab = (e, articleId) => {
         if (!allArticles.map(article => article.id).includes(articleId))
             return;
-
+        
         if (tabs.map(tab => tab.id).includes(articleId)) {
             if (!e.ctrlKey && !e.metaKey)
                 setActiveTabId(articleId);

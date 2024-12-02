@@ -19,14 +19,22 @@ const Link = (props) => {
 
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
-
-    const { url } = contentState.getEntity(entityKey).getData();
+    
 
     const handleClick = (e) => {
         e.preventDefault();
 
+        const { url } = contentState.getEntity(entityKey).getData();
 
-        console.log('heyy, link clicked url: ' + url);
+        console.log('Link clicked:', url);
+
+        try {
+            if (url.startsWith('article:'))
+                handleAddTab(e, parseInt(url.substring(8)));    
+        } catch (error) {
+            console.error('Error handling link click:', error);
+        }        
+        // handle other types of links here
     };
 
     const handleRightClick = (e) => {

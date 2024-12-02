@@ -25,6 +25,9 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
     };
 
     const addLink = (url) => {
+        if (editorState.getSelection().isCollapsed())
+            return;
+
         const contentState = editorState.getCurrentContent();
         const contentStateWithEntity = contentState.createEntity('MYLINK', 'MUTABLE', { url });
         const entityKey = contentStateWithEntity.getLastCreatedEntityKey();

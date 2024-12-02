@@ -136,9 +136,7 @@ const ReadContent = () => {
     }
 
     const handleAddLink = async (url) => {
-        addLink(url);
-        await saveContent();
-        
+        addLink(url);        
         setAddLinkModalOpen(false);
     }
 

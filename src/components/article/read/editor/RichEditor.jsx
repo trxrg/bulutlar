@@ -20,6 +20,10 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
         },
     };
 
+    const persist = (newEditorState) => {
+        handleContentChange(stateToHTML(newEditorState.getCurrentContent()), convertToRaw(newEditorState.getCurrentContent()));
+    };
+
     const addLink = (url) => {
         const contentState = editorState.getCurrentContent();
         const contentStateWithEntity = contentState.createEntity('MYLINK', 'MUTABLE', { url });
@@ -32,7 +36,9 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
             entityKey
         );
 
-        setEditorState(EditorState.forceSelection(newEditorState, editorState.getSelection()));
+        persist(newEditorState);
+
+        setEditorState(newEditorState);
     };
 
     function findLinkEntities(contentBlock, callback, contentState) {
@@ -64,6 +70,8 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
                 newContentState,
                 'apply-entity'
             );
+
+            persist(newEditorState);
             
             setEditorState(newEditorState);
         }
@@ -114,7 +122,7 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
     const toggleInlineStyle = (style) => {
         setEditorState((prevState) => {
             const newEditorState = EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
-            handleContentChange(stateToHTML(newEditorState.getCurrentContent()), convertToRaw(newEditorState.getCurrentContent()));
+            persist(newEditorState);
             return newEditorState;
         }
         );

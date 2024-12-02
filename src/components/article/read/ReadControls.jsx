@@ -6,6 +6,7 @@ import FormatButton from '../../common/FormatButton.jsx';
 import ActionButton from '../../common/ActionButton.jsx';
 import ConfirmModal from '../../common/ConfirmModal.jsx';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
+import ArticleInfo from '../ArticleInfo.jsx';
 
 const ReadControls = () => {
 
@@ -56,8 +57,8 @@ const ReadControls = () => {
                     </div>
                     :
                     (fullScreen &&
-                        <div className='flex flex-row gap-2 items-center text-2xl'>
-                            <h2>{article.title}</h2>
+                        <div className='flex flex-row items-center text-xl'>
+                            <h2>{`${article.title} (${new Date(article.date).toLocaleDateString('tr')})`}</h2>
                         </div>)}
             </div>
             {/* right */}

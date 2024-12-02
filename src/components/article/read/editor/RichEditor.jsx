@@ -267,6 +267,15 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
     };
 
     const keyBindingFn = (e) => {
+
+        if (!editable) return 'handled';
+
+        if (e.keyCode === 9 /* Tab */) {
+            const maxDepth = 4; // Maximum depth of nested lists
+            setEditorState(RichUtils.onTab(e, editorState, maxDepth));
+            return 'handled';
+        }
+
         const selection = editorStateRef.current.getSelection();
         const contentState = editorStateRef.current.getCurrentContent();
         const startKey = selection.getStartKey();
@@ -315,11 +324,6 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
         return getDefaultKeyBinding(e);
     };
 
-    const handleTab = (e) => {
-        const maxDepth = 4; // Maximum depth of nested lists
-        setEditorState(RichUtils.onTab(e, editorState, maxDepth));
-    };
-
     return (
         <div className='relative flex justify-center' onMouseUp={handleMouseUp}>
             <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' bg-white max-w-7xl w-full'} >
@@ -336,7 +340,6 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
                     customStyleMap={styleMap}
                     handleDrop={editable ? undefined : () => 'handled'}
                     blockRendererFn={blockRendererFn}
-                    onTab={handleTab}
                 />
             </div>
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>

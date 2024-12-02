@@ -123,7 +123,7 @@ const ReadContent = () => {
                 {article.comments[0] && (!isHtmlStringEmpty(article.comments[0].text) || editable) &&
                     <div>
                         <div>
-                            <h3 onClick={() => setActiveEditorRef()} className="text-xl font-semibold my-4 pt-2 border-t border-gray-500">{t('comment')}</h3>
+                            <h3 onClick={() => setActiveEditorRef()} className={"text-center font-semibold my-4 pt-2 border-t border-gray-500 " + fontSize}>{t('comment')}</h3>
                         </div>
                         <div onClick={() => setActiveEditorRef(commentEditorRef)} >
                             <RichEditor name={'comment'} htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>

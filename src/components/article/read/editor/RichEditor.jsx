@@ -326,7 +326,7 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
 
     return (
         <div className='relative flex justify-center' onMouseUp={handleMouseUp}>
-            <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' bg-white max-w-7xl w-full'} >
+            <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' bg-white max-w-6xl w-full'} >
                 <Editor
                     editorState={editorState}
                     onChange={handleEditorChange}

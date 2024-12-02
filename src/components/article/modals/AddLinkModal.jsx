@@ -34,12 +34,10 @@ const AddLinkModal = ({ isOpen, onRequestClose, handleAdd, title }) => {
     return (
         <>
             <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={title}>
-
                 <ArticleList onArticleChange={setSelectedArticleId} excludedArticleIds={[articleId]} onViewClicked={handleViewClicked} />
                 <div className='flex justify-end gap-2 mt-4'>
                     <ActionButton color={'blue'} onClick={handleAddClicked}>{t('add')}</ActionButton>
                 </div>
-
             </GeneralModal >
             <ViewArticleModal isOpen={isViewArticleModalOpen} onRequestClose={() => setIsViewArticleModalOpen(false)} viewedArticleId={viewedArticleId} handleViewInNewTab={handleViewInNewTab} removeButtonVisible={false} ></ViewArticleModal>
         </>

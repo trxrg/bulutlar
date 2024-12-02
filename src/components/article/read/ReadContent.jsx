@@ -87,8 +87,18 @@ const ReadContent = () => {
         toggleBlockType,
         handleInsertImageClicked,
     }));
-    
+
+    const addRelatedArticleWhenLinkAdded = async (url) => {
+        const id = parseInt(url.substring(8));
+        const relatedArticle = await articleApi.getById(id);
+        if (relatedArticle) {
+            await articleApi.addRelatedArticle(article.id, relatedArticle.id);
+            await syncArticleFromBE();
+        }
+    }
+
     const handleAddLink = async (url) => {
+        addRelatedArticleWhenLinkAdded(url); // only relevant for article links
         addLink(url);
         setAddLinkModalOpen(false);
     }

@@ -253,7 +253,8 @@ async function addRelatedArticle(id, relatedArticleId) {
         if (!article || !relatedArticle)
             throw ('no article found with id: ' + id + ' or ' + relatedArticleId);
 
-        await article.addRelatedArticle(relatedArticle);
+        if (!(await article.hasRelatedArticle(relatedArticle)))
+            await article.addRelatedArticle(relatedArticle);
 
         return await getArticleById(id);
 

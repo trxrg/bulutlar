@@ -118,7 +118,8 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
     };
     
     const toggleBlockType = (blockType) => {
-        setEditorState(RichUtils.toggleBlockType(editorState, blockType));
+        const newEditorState = RichUtils.toggleBlockType(editorState, blockType);
+        setEditorState(newEditorState);
     };
     
     const toggleInlineStyle = (style) => {

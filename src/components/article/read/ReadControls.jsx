@@ -9,11 +9,10 @@ import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 
 const ReadControls = () => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, addImage, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
 
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
 
-    const [isLinkModalOpen, setLinkModalOpen] = useState(false);
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
 
     const handleToggleBlockType = (event, blockType) => {
@@ -42,7 +41,7 @@ const ReadControls = () => {
                     <div className='flex flex-wrap gap-1'>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
-                        <FormatButton onClick={addImage}><PhotoIcon className="w-5 h-5" /></FormatButton>                        
+                        <FormatButton onClick={handleInsertImageClicked}><PhotoIcon className="w-5 h-5" /></FormatButton>                        
                         <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}

@@ -57,9 +57,9 @@ export default function ReadContextProvider({ children, article }) {
             readContentRef.current.toggleBlockType(blockType);
     }
 
-    const addImage = () => {
+    const handleInsertImageClicked = () => {
         if (readContentRef && readContentRef.current)
-            readContentRef.current.addImage();
+            readContentRef.current.handleInsertImageClicked();
     }
 
     const getOwnerName = () => {
@@ -96,7 +96,7 @@ export default function ReadContextProvider({ children, article }) {
         readContentRef,    
         toggleStyle,
         toggleBlockType,
-        addImage,
+        handleInsertImageClicked,
         saveContent,
         resetContent,        
         syncArticleFromBE,

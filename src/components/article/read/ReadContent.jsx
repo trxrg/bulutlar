@@ -1,40 +1,23 @@
-import React, { useRef, useState, useContext, useEffect } from "react";
+import React, { useRef, useState, useContext } from "react";
 
-import { articleApi, commentApi, imageApi, } from '../../../backend-adapter/BackendAdapter.js';
+import { articleApi, commentApi } from '../../../backend-adapter/BackendAdapter.js';
 import RichEditor from "./editor/RichEditor.jsx";
 import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
-import ImageModal from "../../image/ImageModal.jsx";
 import ImageInput from "../../image/ImageInput.jsx";
 import AddLinkModal from "../modals/AddLinkModal.jsx";
 import toastr from "toastr";
 
 const ReadContent = () => {
 
-    const { article, readContentRef, fontSize, editable, syncArticleFromBE, isAddLinkModalOpen, setAddLinkModalOpen } = useContext(ReadContext);
-    const { translate: t } = useContext(AppContext);
-
     const imageInputRef = useRef(null);
     const mainTextEditorRef = useRef(null);
     const explanationEditorRef = useRef(null);
     const commentEditorRef = useRef(null);
 
-    const [imageDatasLoaded, setImageDatasLoaded] = useState(false);
-    const [imageDatas, setImageDatas] = useState([]);
     const [activeEditorRef, setActiveEditorRef] = useState(mainTextEditorRef);
-    const [selectedImage, setSelectedImage] = useState();
-    const [imageModalIsOpen, setImageModalIsOpen] = useState(false);
-
-    const fetchImageDatas = async () => {
-        console.log('fetchImageDatas called');
-        try {
-            const datas = await Promise.all(article.images.map(async image => ({ ...image, data: await imageApi.getDataById(image.id) })));
-            setImageDatas(datas);
-            setImageDatasLoaded(true);
-        } catch (err) {
-            console.error('error in fetchImageDatas', err);
-        }
-    }
+    const { article, readContentRef, fontSize, editable, syncArticleFromBE, isAddLinkModalOpen, setAddLinkModalOpen } = useContext(ReadContext);
+    const { translate: t } = useContext(AppContext);
 
     const updateMainText = async (html, json) => {
         await articleApi.updateMainText(article.id, { html, json });
@@ -58,11 +41,6 @@ const ReadContent = () => {
         await syncArticleFromBE();
     }
 
-    const addLink = (url) => activeEditorRef && activeEditorRef.current.addLink(url);
-
-    const toggleStyle = (style) => activeEditorRef && activeEditorRef.current.toggleInlineStyle(style);
-    const toggleBlockType = (blockType) => activeEditorRef && activeEditorRef.current.toggleBlockType(blockType);
-
     const saveContent = async () => {
         const explanation = explanationEditorRef.current ? explanationEditorRef.current.getContent() : null;
         const mainText = mainTextEditorRef.current ? mainTextEditorRef.current.getContent() : null;
@@ -77,24 +55,16 @@ const ReadContent = () => {
         commentEditorRef && commentEditorRef.current && commentEditorRef.current.resetContent();
     }
 
-    React.useImperativeHandle(readContentRef, () => ({
-        addLink,
-        saveContent,
-        resetContent,
-        toggleStyle,
-        toggleBlockType,
-        addImage,
-    }));
-
-    const handleImageSelect = async (images) => {
-        const promises = [];
-        images.forEach((image) => promises.push(articleApi.addImage(article.id, image)));
-        await Promise.all(promises);
-        syncArticleFromBE();
+    const addLink = (url) => activeEditorRef && activeEditorRef.current.addLink(url);
+    const toggleStyle = (style) => activeEditorRef && activeEditorRef.current.toggleInlineStyle(style);
+    const toggleBlockType = (blockType) => activeEditorRef && activeEditorRef.current.toggleBlockType(blockType);
+    
+    
+    const handleInsertImageClicked = () => {
+        imageInputRef.current.click();
     };
-
-    const handleImageSelect2 = async (images) => {
-
+    
+    const addImagesToArticleAndDB = async (images) => {
         try {
             images.forEach(async (image) => {
                 if (activeEditorRef) {
@@ -103,28 +73,24 @@ const ReadContent = () => {
                 }
             });
         } catch (error) {
-            console.error('Error adding image:', error);
+            console.error('Error inserting image:', error);
             toastr.error(t('errorAddingImage'));
         }
         syncArticleFromBE();
     }
-
-
-    const addImage = () => {
-        imageInputRef.current.addImage();
-    };
-
-    useEffect(() => {
-        fetchImageDatas();
-    }, [article]);
-
-    const openImageModal = (image) => {
-        setSelectedImage(image);
-        setImageModalIsOpen(true);
-    };
-
-    const closeImageModal = () => {
-        setImageModalIsOpen(false);
+    
+    React.useImperativeHandle(readContentRef, () => ({
+        addLink,
+        saveContent,
+        resetContent,
+        toggleStyle,
+        toggleBlockType,
+        handleInsertImageClicked,
+    }));
+    
+    const handleAddLink = async (url) => {
+        addLink(url);
+        setAddLinkModalOpen(false);
     }
 
     const isHtmlStringEmpty = (htmlString) => {
@@ -133,11 +99,6 @@ const ReadContent = () => {
 
         // Check if the text content is empty
         return !tempDiv.textContent.trim();
-    }
-
-    const handleAddLink = async (url) => {
-        addLink(url);        
-        setAddLinkModalOpen(false);
     }
 
     return (
@@ -159,17 +120,10 @@ const ReadContent = () => {
                         </div>
                     </div>}
 
-                {imageDatasLoaded &&
-                    <ImageModal
-                        isOpen={imageModalIsOpen}
-                        onClose={closeImageModal}
-                        image={selectedImage}
-                    />}
-
-                <ImageInput onSelectImages={handleImageSelect2} ref={imageInputRef}></ImageInput>
+                <ImageInput onSelectImages={addImagesToArticleAndDB} ref={imageInputRef}></ImageInput>
                 <div className='p-5'></div>
             </div>
-            <AddLinkModal isOpen={isAddLinkModalOpen} onRequestClose={() => setAddLinkModalOpen(false)} handleAdd={handleAddLink} title={'add link'}/>            
+            <AddLinkModal isOpen={isAddLinkModalOpen} onRequestClose={() => setAddLinkModalOpen(false)} handleAdd={handleAddLink} title={'add link'} />
         </div>
     );
 };

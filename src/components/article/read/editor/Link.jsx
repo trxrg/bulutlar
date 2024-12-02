@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../../../../store/app-context';
-import { ReadContext } from '../../../../store/read-context';
 import ContextMenu from '../../../common/ContextMenu';
 import ActionButton from '../../../common/ActionButton';
 
@@ -15,7 +14,6 @@ const Link = (props) => {
     const end = props.end;
 
     const { translate: t, handleAddTab } = useContext(AppContext);
-    const { editable } = useContext(ReadContext);
 
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });

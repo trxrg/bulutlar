@@ -4,7 +4,7 @@ const ImageInput = React.forwardRef(({ onSelectImages }, ref) => {
 
     const fileInputRef = useRef();
 
-    const addImage = () => fileInputRef.current.click();
+    const click = () => fileInputRef.current.click();
 
     const handleImagesChange = (event) => {
 
@@ -22,7 +22,7 @@ const ImageInput = React.forwardRef(({ onSelectImages }, ref) => {
     }
 
     React.useImperativeHandle(ref, () => ({
-        addImage
+        click
     }));
 
     return (

@@ -16,18 +16,31 @@ const styleMap = {
     },
 };
 
+const withCustomProps = (Component, customProps) => (props) => (
+    <Component {...props} {...customProps} />
+);
+
 const createEditorStateFromHTMLAndDecorator = (html, decorator) => {
     if (!html) return EditorState.createEmpty();
-
-    const contentState = stateFromHTML(html);
-
-    return EditorState.createWithContent(contentState, decorator);
+    return EditorState.createWithContent(stateFromHTML(html), decorator);
 };
 
 const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentChange, editable }, ref) => {
 
+    const decorator = new CompositeDecorator([
+        {
+            strategy: findLinkEntities,
+            component: withCustomProps(Link, { onDelete: handleRemoveLink }),
+        },
+    ]);
+
+    const [editorState, setEditorState] = useState(rawContent
+        ? EditorState.createWithContent(convertFromRaw(rawContent), decorator)
+        : createEditorStateFromHTMLAndDecorator(htmlContent, decorator));
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
-    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });    
+    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
+
+    const editorStateRef = useRef(editorState);
 
     const persist = (newEditorState) => {
         handleContentChange(stateToHTML(newEditorState.getCurrentContent()), convertToRaw(newEditorState.getCurrentContent()));
@@ -63,7 +76,7 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
         }, callback);
     }
 
-    const handleRemoveLink = (blockKey, entityRange) => {
+    function handleRemoveLink(blockKey, entityRange) {
         const contentState = editorStateRef.current.getCurrentContent();
 
         if (entityRange) {
@@ -87,17 +100,6 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
             persist(newEditorState);
         }
     };
-
-    const withCustomProps = (Component, customProps) => (props) => (
-        <Component {...props} {...customProps} />
-    );
-
-    const decorator = new CompositeDecorator([
-        {
-            strategy: findLinkEntities,
-            component: withCustomProps(Link, { onDelete: handleRemoveLink }),
-        },
-    ]);
 
     // ================================ END OF LINKS ================================
 
@@ -172,12 +174,6 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
 
     // ================================ END OF IMAGES ================================
 
-
-    const [editorState, setEditorState] = useState(rawContent 
-        ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) 
-        : createEditorStateFromHTMLAndDecorator(htmlContent, decorator));
-    const editorStateRef = useRef(editorState);
-
     const handleMouseUp = (e) => {
         const selection = window.getSelection();
         if (selection.rangeCount > 0 && !selection.isCollapsed) {
@@ -200,12 +196,12 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
     const toggleInlineStyle = (style) => {
         setEditorState((prevState) => {
             const newEditorState = EditorState
-            .forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
+                .forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
             persist(newEditorState);
             return newEditorState;
         }
         );
-    };    
+    };
 
     const getContent = () => {
         const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTMLAndDecorator(htmlContent, decorator);

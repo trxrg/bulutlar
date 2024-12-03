@@ -10,21 +10,30 @@ import Image from './Image';
 import '../../../../styles.css'
 import 'draft-js/dist/Draft.css'; // necessary for list item styling etc.
 
+const styleMap = {
+    'HIGHLIGHT': {
+        backgroundColor: 'rgba(240, 240, 120, 1.0)'
+    },
+};
+
+const createEditorStateFromHTMLAndDecorator = (html, decorator) => {
+    if (!html) return EditorState.createEmpty();
+
+    const contentState = stateFromHTML(html);
+
+    return EditorState.createWithContent(contentState, decorator);
+};
+
 const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentChange, editable }, ref) => {
 
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
-    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
-
-    const styleMap = {
-        'HIGHLIGHT': {
-            backgroundColor: 'rgba(240, 240, 120, 1.0)'
-        },
-    };
+    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });    
 
     const persist = (newEditorState) => {
         handleContentChange(stateToHTML(newEditorState.getCurrentContent()), convertToRaw(newEditorState.getCurrentContent()));
     };
 
+    // ================================ LINKS ================================
     const addLink = (url) => {
         if (editorState.getSelection().isCollapsed())
             return;
@@ -90,44 +99,9 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
         },
     ]);
 
-    const createEditorStateFromHTML = (html) => {
-        if (!html) return EditorState.createEmpty();
+    // ================================ END OF LINKS ================================
 
-        const contentState = stateFromHTML(html);
-
-        return EditorState.createWithContent(contentState, decorator);
-    };
-
-    const [editorState, setEditorState] = useState(rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent));
-    const editorStateRef = useRef(editorState);
-
-    const handleMouseUp = (e) => {
-        const selection = window.getSelection();
-        if (selection.rangeCount > 0 && !selection.isCollapsed) {
-            const range = selection.getRangeAt(0).getBoundingClientRect();
-            const editorBounds = e.currentTarget.getBoundingClientRect();
-            const top = Math.max(range.top - editorBounds.top - 60, 0);
-            const left = range.left - editorBounds.left;
-            setContextMenuPosition({
-                top: top,
-                left: left
-            });
-            setContextMenuIsOpen(true);
-        } else {
-            setContextMenuIsOpen(false);
-        }
-    };
-
-    const toggleBlockType = (blockType) => setEditorState(RichUtils.toggleBlockType(editorState, blockType));
-
-    const toggleInlineStyle = (style) => {
-        setEditorState((prevState) => {
-            const newEditorState = EditorState.forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
-            persist(newEditorState);
-            return newEditorState;
-        }
-        );
-    };
+    // ================================ IMAGES ================================
 
     const addImage = (image) => {
         const contentState = editorState.getCurrentContent();
@@ -196,8 +170,45 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
         setEditorState(finalEditorState);
     };
 
+    // ================================ END OF IMAGES ================================
+
+
+    const [editorState, setEditorState] = useState(rawContent 
+        ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) 
+        : createEditorStateFromHTMLAndDecorator(htmlContent, decorator));
+    const editorStateRef = useRef(editorState);
+
+    const handleMouseUp = (e) => {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0 && !selection.isCollapsed) {
+            const range = selection.getRangeAt(0).getBoundingClientRect();
+            const editorBounds = e.currentTarget.getBoundingClientRect();
+            const top = Math.max(range.top - editorBounds.top - 60, 0);
+            const left = range.left - editorBounds.left;
+            setContextMenuPosition({
+                top: top,
+                left: left
+            });
+            setContextMenuIsOpen(true);
+        } else {
+            setContextMenuIsOpen(false);
+        }
+    };
+
+    const toggleBlockType = (blockType) => setEditorState(RichUtils.toggleBlockType(editorState, blockType));
+
+    const toggleInlineStyle = (style) => {
+        setEditorState((prevState) => {
+            const newEditorState = EditorState
+            .forceSelection(RichUtils.toggleInlineStyle(prevState, style), prevState.getSelection());
+            persist(newEditorState);
+            return newEditorState;
+        }
+        );
+    };    
+
     const getContent = () => {
-        const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent);
+        const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTMLAndDecorator(htmlContent, decorator);
         const currentImageIds = getImages(editorState).map(image => image.id);
         const originalImageIds = getImages(originalEditorState).map(image => image.id);
 
@@ -210,7 +221,7 @@ const RichEditor = React.forwardRef(({ htmlContent, rawContent, handleContentCha
     }
 
     const resetContent = () => {
-        const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTML(htmlContent);
+        const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTMLAndDecorator(htmlContent, decorator);
         const currentImageIds = getImages(editorState).map(image => image.id);
         const originalImageIds = getImages(originalEditorState).map(image => image.id);
 

@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { AppContext } from '../../../../store/app-context';
 import ContextMenu from '../../../common/ContextMenu';
 import ActionButton from '../../../common/ActionButton';
+import { isArticleUrl, urlToArticleId } from '../../util';
 
 const Link = (props) => {
 
@@ -27,8 +28,8 @@ const Link = (props) => {
         console.log('Link clicked:', url);
 
         try {
-            if (url.startsWith('article:'))
-                handleAddTab(e, parseInt(url.substring(8)));    
+            if (isArticleUrl(url))
+                handleAddTab(e, urlToArticleId(url));    
         } catch (error) {
             console.error('Error handling link click:', error);
         }        

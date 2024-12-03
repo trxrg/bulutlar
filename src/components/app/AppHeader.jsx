@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { HomeIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, GlobeAltIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 import { AppContext } from '../../store/app-context';
 import FormatButton from '../common/FormatButton';
@@ -28,9 +28,9 @@ const AppHeader = () => {
         await fetchAllData();
     }
 
-    // const handleRefresh = async () => {
-    //     await fetchAllData();
-    // }
+    const handleRefresh = async () => {
+        await fetchAllData();
+    }
 
     return (
         <div className={'flex justify-between items-center py-2 px-2 border-b-4 border-red-300 w-full h-full'}>
@@ -40,6 +40,7 @@ const AppHeader = () => {
                     <div className='flex items-center gap-2 mx-2 cursor-pointer' onClick={() => setStreakModalOpen(true)}>
                         <span className='text-xl text-green-600 font-bold'>⚡{streak}</span>
                     </div>
+                    <FormatButton onClick={handleRefresh}><ArrowPathIcon className='w-5 h-5' /></FormatButton>
                     <FormatButton onClick={() => changeLanguage()}><GlobeAltIcon className='w-5 h-5' /></FormatButton>
                     <FormatButton onClick={() => setActiveScreen('home')}><HomeIcon className='w-5 h-5' /></FormatButton>
                     {/* <ActionButton color='red' onClick={handleLoadArticlesFromTxt}>Load Articles From Txt</ActionButton> */}

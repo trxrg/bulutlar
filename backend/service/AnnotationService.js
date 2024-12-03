@@ -70,7 +70,18 @@ async function deleteAnnotationById(annotationId) {
     }
 }
 
+async function deleteAnnotationsByArticleId(articleId) {
+    try {
+        await sequelize.models.annotation.destroy({
+            where: { articleId: articleId }
+        });
+    } catch (err) {
+        console.error('Error in deleteAnnotationsByArticleId', err);
+    }
+}
+
 module.exports = {
     initService,
     createAnnotation,
+    deleteAnnotationsByArticleId,
 };

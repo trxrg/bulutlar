@@ -76,6 +76,18 @@ async function deleteImageById(imageId) {
     }
 }
 
+async function deleteImagesByArticleId(articleId) {
+    try {
+        const images = await sequelize.models.image.findAll({ where: { articleId } });
+
+        for (const image of images)
+            await deleteImageById(image.id);
+
+    } catch (err) {
+        console.error('Error in deleteImagesByArticleId', err);
+    }
+}
+
 function getImageAbsPath(imagePath) {
     return path.join(getImagesFolderAbsPath(), imagePath);
 }
@@ -87,4 +99,5 @@ function getImagesFolderAbsPath() {
 module.exports = {
     initService,
     createImage,
+    deleteImagesByArticleId,
 };

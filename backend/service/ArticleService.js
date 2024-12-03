@@ -117,6 +117,10 @@ async function deleteArticleById(id) {
         if (!article)
             throw ('no article found with id: ' + id);
 
+        await commentService.deleteCommentsByArticleId(id);
+        await imageService.deleteImagesByArticleId(id);
+        await annotationService.deleteAnnotationsByArticleId(id);
+        
         await article.destroy();
     } catch (error) {
         console.error('Error deleting article:', error);
@@ -162,7 +166,7 @@ async function updateFirstCommentText(id, newComment) {
 
         if (!article)
             throw ('no article found with id: ' + id);
-        
+
         let comment = (await article.getComments({ limit: 1 }))[0];
         if (!comment) {
             comment = await commentService.createComment(newComment);

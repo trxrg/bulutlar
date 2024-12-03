@@ -63,7 +63,20 @@ async function deleteCommentById(commentId) {
     return getAllComments();
 }
 
+async function deleteCommentsByArticleId(articleId) {
+    try {
+        await sequelize.models.comment.destroy({
+            where: {
+                articleId: articleId
+            }
+        });
+    } catch (error) {
+        console.error('Error in commentService deleteCommentsByArticleId()', error);
+    }
+}
+
 module.exports = {
     createComment,
+    deleteCommentsByArticleId,
     initService
 };

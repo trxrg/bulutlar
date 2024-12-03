@@ -12,10 +12,14 @@ const DateInput = ({ dispDate, onDateChange }) => {
 
     const { translate: t } = useContext(AppContext);
 
+    const handleChanged = (date) => {
+        onDateChange(new Date(date).toLocaleDateString());
+    }
+
     return (
         <DatePicker
             selected={dispDate}
-            onChange={(date) => onDateChange(date)}
+            onChange={(date) => handleChanged(date)}
             required
             className='border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring focus:border-blue-500'
             locale={t('locale')}

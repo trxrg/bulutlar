@@ -25,12 +25,6 @@ const AddLinkModal = ({ isOpen, onRequestClose, handleAdd, title }) => {
         setIsViewArticleModalOpen(true);
     }
 
-    const handleViewInNewTab = (e) => {
-        handleAddTab(e, viewedArticleId);
-        setIsViewArticleModalOpen(false);
-        onRequestClose();
-    }
-
     return (
         <>
             <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={title}>
@@ -39,7 +33,7 @@ const AddLinkModal = ({ isOpen, onRequestClose, handleAdd, title }) => {
                     <ActionButton color={'blue'} onClick={handleAddClicked}>{t('add')}</ActionButton>
                 </div>
             </GeneralModal >
-            <ViewArticleModal isOpen={isViewArticleModalOpen} onRequestClose={() => setIsViewArticleModalOpen(false)} viewedArticleId={viewedArticleId} handleViewInNewTab={handleViewInNewTab} removeButtonVisible={false} ></ViewArticleModal>
+            <ViewArticleModal isOpen={isViewArticleModalOpen} onRequestClose={() => setIsViewArticleModalOpen(false)} viewedArticleId={viewedArticleId} afterViewInNewTab={()=>onRequestClose()} removeButtonVisible={false} ></ViewArticleModal>
         </>
     );
 };

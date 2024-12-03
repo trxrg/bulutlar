@@ -5,18 +5,17 @@ import { AppContext } from '../../../store/app-context';
 import { DBContext } from '../../../store/db-context.jsx';
 import { ReadContext } from '../../../store/read-context.jsx';
 import ActionButton from '../../common/ActionButton';
-import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import ArticleInfo from '../ArticleInfo.jsx';
 
-const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, handleViewInNewTab, removeButtonVisible = false }) => {
-    const { translate: t } = useContext(AppContext);
-    const { fetchArticleById, getArticleById } = useContext(DBContext);
-    const { article, fontSize } = useContext(ReadContext);
+const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, afterViewInNewTab }) => {
+    const { translate: t, handleAddTab } = useContext(AppContext);
+    const { getArticleById } = useContext(DBContext);
+    const { fontSize } = useContext(ReadContext);
     const viewedArticle = getArticleById(viewedArticleId);
 
-    const handleRemove = async () => {
-        await articleApi.removeRelatedArticle(article.id, viewedArticleId);
-        fetchArticleById(article.id);
+    const handleViewInNewTab = (e) => {
+        handleAddTab(e, viewedArticleId);
+        afterViewInNewTab && afterViewInNewTab();
         onRequestClose();
     }
 
@@ -37,7 +36,6 @@ const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, handleViewI
                 </div>
                 <div className='flex-shrink-0'>
                     <div className='flex justify-end gap-2 mt-4'>
-                        {removeButtonVisible && <ActionButton color={'red'} onClick={handleRemove}>{t('remove')}</ActionButton>}
                         <ActionButton color={'blue'} onClick={handleViewInNewTab}>{t('open in new tab')}</ActionButton>
                     </div>
                 </div>

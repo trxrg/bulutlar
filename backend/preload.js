@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('api', {
     create:            (article)            => ipcRenderer.invoke('article/create', article),
     updateMainText:    (id, newMainText)    => ipcRenderer.invoke('article/updateMainText', id, newMainText),
     updateExplanation: (id, newExplanation) => ipcRenderer.invoke('article/updateExplanation', id, newExplanation),
+    updateComment:     (id, newComment)     => ipcRenderer.invoke('article/updateComment', id, newComment),
     updateTitle:       (id, newtitle)       => ipcRenderer.invoke('article/updateTitle', id, newtitle),
     updateOwner:       (id, newOwnerName)   => ipcRenderer.invoke('article/updateOwner', id, newOwnerName),
     updateCategory:    (id, newCategoryName)=> ipcRenderer.invoke('article/updateCategory', id, newCategoryName),

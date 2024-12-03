@@ -12,6 +12,7 @@ function initService() {
     ipcMain.handle('article/create', (event, article) => createArticle(article));
     ipcMain.handle('article/updateMainText', (event, id, newMainText) => updateArticleMainText(id, newMainText));
     ipcMain.handle('article/updateExplanation', (event, id, newExplanation) => updateArticleExplanation(id, newExplanation));
+    ipcMain.handle('article/updateComment', (event, id, newComment) => updateFirstCommentText(id, newComment));
     ipcMain.handle('article/updateOwner', (event, id, newOwnerName) => updateArticleOwner(id, newOwnerName));
     ipcMain.handle('article/updateCategory', (event, id, newCategoryName) => updateArticleCategory(id, newCategoryName));
     ipcMain.handle('article/updateTitle', (event, id, newTitle) => updateArticleTitle(id, newTitle));
@@ -57,7 +58,7 @@ async function createArticle(article) { // Now transactional
 
         if (article.comments) {
             for (const comment of article.comments) {
-                const commentEntity = await commentService.addComment(comment.text, { transaction });
+                const commentEntity = await commentService.createComment(comment, { transaction });
                 await entity.addComment(commentEntity, { transaction });
             }
         }
@@ -101,7 +102,7 @@ async function createArticleProgrammatically(article) {
 
         if (article.comments)
             for (const comment of article.comments)
-                await entity.addComment(await commentService.addComment(comment.text));
+                await entity.addComment(await commentService.createComment(comment));
 
     } catch (e) {
         console.error('Error adding article:', e);
@@ -151,6 +152,27 @@ async function updateArticleExplanation(id, newExplanation) {
 
     } catch (error) {
         console.error('Error in updateArticleMainText', error);
+        throw error;
+    }
+}
+
+async function updateFirstCommentText(id, newComment) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+
+        if (!article)
+            throw ('no article found with id: ' + id);
+        
+        let comment = (await article.getComments({ limit: 1 }))[0];
+        if (!comment) {
+            comment = await commentService.createComment(newComment);
+            await article.addComment(comment);
+            return;
+        }
+        await comment.update({ text: newComment.html, textJson: newComment.json });
+
+    } catch (error) {
+        console.error('Error in updateFirstCommentText', error);
         throw error;
     }
 }

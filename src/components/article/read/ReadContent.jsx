@@ -37,7 +37,7 @@ const ReadContent = () => {
     const updateArticleContent = async (explanation, mainText, comment) => {
         explanation && await articleApi.updateExplanation(article.id, explanation);
         mainText && await articleApi.updateMainText(article.id, mainText);
-        comment && await commentApi.updateText(article.comments[0].id, comment);
+        comment && await articleApi.updateComment(article.id, comment);
         await syncArticleFromBE();
     }
 
@@ -120,13 +120,13 @@ const ReadContent = () => {
                 <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
                     <RichEditor name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
                 </div>
-                {article.comments[0] && (!isHtmlStringEmpty(article.comments[0].text) || editable) &&
+                {(article.comments[0] && !isHtmlStringEmpty(article.comments[0].text) || editable) &&
                     <div>
                         <div>
                             <h3 onClick={() => setActiveEditorRef()} className={"text-center font-semibold my-4 pt-2 border-t border-gray-500 " + fontSize}>{t('comment')}</h3>
                         </div>
                         <div onClick={() => setActiveEditorRef(commentEditorRef)} >
-                            <RichEditor name={'comment'} htmlContent={article.comments[0].text} rawContent={article.comments[0].textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
+                            <RichEditor name={'comment'} htmlContent={article.comments[0]?.text} rawContent={article.comments[0]?.textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
                         </div>
                     </div>}
 

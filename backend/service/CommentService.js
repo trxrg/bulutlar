@@ -5,8 +5,8 @@ const { sequelize } = require("../sequelize");
 function initService() {
     ipcMain.handle('comment/updateText', (event, id, newText) => updateText(id, newText));
     ipcMain.handle('comment/getById', (event, id) => getById(id));
-
-    ipcMain.handle('addComment', (event, commentText) => addComment(commentText));
+    ipcMain.handle('comment/create', (event, comment) => createComment(comment));
+    
     ipcMain.handle('getCommentById', (event, commentId) => getById(commentId));
     ipcMain.handle('getCommentsWithTextLike', (event, textLike) => getCommentsWithTextLike(textLike));
     ipcMain.handle('getAllComments', getAllComments);
@@ -28,10 +28,8 @@ async function updateText(commentId, newText) {
     }
 }
 
-
-
-async function addComment(commentText) {
-    const result = await sequelize.models.comment.create({ text: commentText });
+async function createComment(newComment) {
+    const result = await sequelize.models.comment.create({ text: newComment.html, textJson: newComment.json });
     return result;   
 }
 
@@ -66,6 +64,6 @@ async function deleteCommentById(commentId) {
 }
 
 module.exports = {
-    addComment,
+    createComment,
     initService
 };

@@ -14,6 +14,14 @@ const styleMap = {
     'HIGHLIGHT': {
         backgroundColor: 'rgba(240, 240, 120, 1.0)'
     },
+    'SUPERSCRIPT': {
+        verticalAlign: 'super',
+        fontSize: 'medium',
+    },
+    'SUBSCRIPT': {
+        verticalAlign: 'sub',
+        fontSize: 'medium',
+    },
 };
 
 const withCustomProps = (Component, customProps) => (props) => (
@@ -332,7 +340,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     };
 
     return (
-        <div className='relative flex justify-center' onMouseUp={handleMouseUp}>
+        <div className='relative flex justify-center cursor-text' onMouseUp={handleMouseUp}>
             <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' bg-white max-w-6xl w-full'} >
                 {editorState.getCurrentContent().hasText() || !editable ? null : (
                     <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">

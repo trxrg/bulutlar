@@ -29,8 +29,16 @@ const SearchResultsBody = () => {
         const normalizeText = (text) => {
             if (!text)
                 return '';
-            const turkishMap = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'İ': 'I', 'ö': 'o', 'ş': 's', 'ü': 'u', };
-            return text.toLowerCase().split('').map(char => turkishMap[char] || char).join('');
+            const turkishMap = { 
+                'ç': 'c', 'Ç': 'C', 
+                'ğ': 'g', 'Ğ': 'G', 
+                'ı': 'i', 'İ': 'I', 
+                'ö': 'o', 'Ö': 'O', 
+                'ş': 's', 'Ş': 'S', 
+                'ü': 'u', 'Ü': 'U' 
+            };
+            const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
+            return result;
         };
 
         if (filtering.ownerNames && filtering.ownerNames.length)

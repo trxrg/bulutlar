@@ -17,6 +17,8 @@ export const articleApi = {
     deleteById:         async (id)                  => window.api.article.deleteById(id),
     addRelatedArticle:  async (id, relatedArticleId) => window.api.article.addRelatedArticle(id, relatedArticleId),
     removeRelatedArticle: async (id, relatedArticleId) => window.api.article.removeRelatedArticle(id, relatedArticleId),
+    addTag:             async (id, tagName)           => window.api.article.addTag(id, tagName),
+    removeTag:          async (id, tagName)           => window.api.article.removeTag(id, tagName)
 };
 
 export const ownerApi = {

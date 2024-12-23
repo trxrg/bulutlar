@@ -24,6 +24,8 @@ contextBridge.exposeInMainWorld('api', {
     deleteById:        (id)                 => ipcRenderer.invoke('article/deleteById', id),
     addRelatedArticle: (id, relatedArticleId) => ipcRenderer.invoke('article/addRelatedArticle', id, relatedArticleId),
     removeRelatedArticle: (id, relatedArticleId) => ipcRenderer.invoke('article/removeRelatedArticle', id, relatedArticleId),
+    addTag:           (id, tagName)           => ipcRenderer.invoke('article/addTag', id, tagName),
+    removeTag:        (id, tagName)           => ipcRenderer.invoke('article/removeTag', id, tagName)
   },
   owner: {
     create:      (owner)        => ipcRenderer.invoke('owner/create', owner),

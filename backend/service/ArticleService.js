@@ -24,6 +24,8 @@ function initService() {
     ipcMain.handle('article/deleteById', (event, id) => deleteArticleById(id));
     ipcMain.handle('article/addRelatedArticle', (event, id, relatedArticleId) => addRelatedArticle(id, relatedArticleId));
     ipcMain.handle('article/removeRelatedArticle', (event, id, relatedArticleId) => removeRelatedArticle(id, relatedArticleId));
+    ipcMain.handle('article/addTag', (event, id, tagName) => addTagToArticle(id, tagName));
+    ipcMain.handle('article/removeTag', (event, id, tagName) => removeTagFromArticle(id, tagName));
 }
 
 async function createArticle(article) { // Now transactional
@@ -304,6 +306,47 @@ async function removeRelatedArticle(id, relatedArticleId) {
 
     } catch (error) {
         console.error('Error in removeRelatedArticle', error);
+        throw error;
+    }
+}
+
+async function addTagToArticle(id, tagName) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+
+        if (!article)
+            throw ('no article found with id: ' + id);
+            
+        const tag = await tagService.getTagWithNameAddIfNotPresent(tagName);
+        
+        if (! await article.hasTag(tagName))            
+            await article.addTag(tag);
+
+        return await getArticleById(id);
+
+    } catch (error) {
+        console.error('Error in addTagToArticle', error);
+        throw error;
+    }
+}
+
+async function removeTagFromArticle(id, tagName) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+
+        if (!article)
+            throw ('no article found with id: ' + id);
+
+        const tag = await tagService.getTagWithName(tagName);
+        if (!tag)
+            throw ('no tag found with name: ' + tagName);
+
+        await article.removeTag(tag);
+
+        return await getArticleById(id);
+
+    } catch (error) {
+        console.error('Error in removeTagFromArticle', error);
         throw error;
     }
 }

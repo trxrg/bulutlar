@@ -392,7 +392,7 @@ async function getAllArticles() {
                 attributes: ['id', 'title']
             },
         ],
-        order: [['ordering', 'ASC']]
+        order: [['date', 'ASC']]
     });
 
     return entities.map(entity => articleEntity2Json(entity));

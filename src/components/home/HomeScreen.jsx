@@ -9,12 +9,12 @@ const HomeScreen = () => {
 
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageData, setImageData] = useState(null);
-    const { setActiveScreen, setStreakModalOpen } = useContext(AppContext);
+    const { setActiveScreen, setStreakModalOpen, translate: t } = useContext(AppContext);
     const { streak, dbVersion } = useContext(DBContext);
 
     const fetchImageData = async () => {
         const image = {
-            path: 'treasure-chest.jpg',
+            path: 'treasure-chest.jpeg',
             type: 'image/jpeg'
         };
         try {
@@ -29,21 +29,30 @@ const HomeScreen = () => {
     useEffect(() => { fetchImageData(); }, []);
 
     return (
-        <div className='flex flex-col items-center w-full h-full'>
-            <h1 className='text-5xl text-[#0C3B2E] p-4 select-none'>HAZINE</h1>
-            {imageLoaded && <img src={imageData} alt='Bulutlar' className='w-1/2 h-auto p-4' />}
-            <div className='flex gap-2'>
-                <ActionButton onClick={() => setActiveScreen('tabs')}>Articles</ActionButton>
-                <ActionButton onClick={() => setActiveScreen('addArticle')}>Add</ActionButton>
-                <ActionButton onClick={() => setActiveScreen('categories')}>Categories</ActionButton>
-                <ActionButton onClick={() => setActiveScreen('owners')}>Owners</ActionButton>
-                <ActionButton onClick={() => setActiveScreen('annotations')}>Annotations</ActionButton>
-            </div>
-            <div className='p-6 cursor-pointer' onClick={() => setStreakModalOpen(true)}>
-                <span className='text-5xl text-green-600 font-bold'>⚡{streak}</span>
-            </div>
-            <div>
-                <h2>db version: {dbVersion}</h2>
+        <div className='relative w-full h-full'>
+            {imageLoaded && (
+                <img
+                    src={imageData}
+                    alt='Bulutlar'
+                    className='absolute top-0 left-0 w-full h-full object-cover opacity-10'
+                />
+            )}
+            <div className='relative flex flex-col items-center w-full h-full gap-5'>
+                <h1 className='text-5xl text-[#0C3B2E] p-4 select-none mt-5'>HAZINE</h1>
+                <div className='flex flex-col items-center gap-5'>
+                    <ActionButton size={'large'} onClick={() => setActiveScreen('tabs')}>{t('start reading')}</ActionButton>
+                </div>
+                <div className='flex gap-2'>
+                    <ActionButton onClick={() => setActiveScreen('categories')}>{t('categories')}</ActionButton>
+                    <ActionButton onClick={() => setActiveScreen('owners')}>{t('owners')}</ActionButton>
+                    <ActionButton onClick={() => setActiveScreen('annotations')}>{t('annotations')}</ActionButton>
+                </div>
+                <div className='cursor-pointer' onClick={() => setStreakModalOpen(true)}>
+                    <span className='text-5xl text-green-600 font-bold'>⚡{streak}</span>
+                </div>
+                <div>
+                    <h2>db version: {dbVersion}</h2>
+                </div>
             </div>
         </div>
     );

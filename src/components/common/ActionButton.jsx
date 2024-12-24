@@ -1,4 +1,4 @@
-const ActionButton = ({ onClick, color='', children }) => {
+const ActionButton = ({ onClick, color='', size='', children }) => {
     let colorStyle = "bg-gray-200 hover:bg-gray-300 text-gray-700";
 
     if (color === 'green')
@@ -10,9 +10,16 @@ const ActionButton = ({ onClick, color='', children }) => {
     else
         colorStyle = "bg-[#0C3B2E] hover:bg-[#1D4C3F] text-white";
 
+    let sizeStyle = "text-lg px-2 py-1";
+
+    if (size === 'small')
+        sizeStyle = "text-sm px-2 py-1";
+    else if (size === 'large')
+        sizeStyle = "text-3xl px-5 py-3";
+
     return (
         <button
-            className= {colorStyle + " px-2 py-1 rounded-md shadow-sm select-none text-lg"}
+            className= {colorStyle + " rounded-md shadow-sm select-none " + sizeStyle}
             onClick={onClick}
         >
             {children}

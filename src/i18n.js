@@ -16,8 +16,8 @@ i18n
         translation: trTranslation,
       },
     },
-    lng: 'en', // default language
-    fallbackLng: 'en',
+    lng: 'tr', // default language
+    fallbackLng: 'tr',
     interpolation: {
       escapeValue: false, // react already safes from xss
     },

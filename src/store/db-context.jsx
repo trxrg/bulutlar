@@ -11,6 +11,7 @@ export default function DBContextProvider({ children }) {
     const [allAnnotations, setAllAnnotations] = useState([]);
     const [streak, setStreak] = useState(0);
     const [dbVersion, setDbVersion] = useState('');
+    const [articleOrder, setArticleOrder] = useState({field: 'date', direction: 'asc'});
 
     const fetchArticleById = useCallback(async (id) => {
         try {
@@ -104,14 +105,14 @@ export default function DBContextProvider({ children }) {
 
     const fetchAllArticles = useCallback(async () => {
         try {
-            const response = await articleApi.getAll();
-            console.log('allArticles')
-            console.log(response)
+            const response = await articleApi.getAll(articleOrder);
+            // console.log('allArticles')
+            // console.log(response)
             setAllArticles(response);
         } catch (err) {
             console.error(err);
         }
-    }, []);
+    }, [articleOrder]);
 
     const fetchAllTags = useCallback(async () => {
         try {
@@ -202,12 +203,17 @@ export default function DBContextProvider({ children }) {
         fetchAllData();
     }, []);
 
+    useEffect(() => {
+        fetchAllArticles();
+    }, [articleOrder]);
+
     const ctxValue = useMemo(() => ({
         allArticles,
         allOwners,
         allTags,
         allCategories,
         allAnnotations,
+        setArticleOrder,
         fetchAllData,
         fetchAllArticles,
         fetchAllOwners,
@@ -228,7 +234,7 @@ export default function DBContextProvider({ children }) {
         getAnnotationById,
         streak,
         dbVersion,
-    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak, dbVersion]);
+    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak, dbVersion, articleOrder]);
 
     return <DBContext.Provider value={ctxValue}>
         {children}

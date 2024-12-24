@@ -19,7 +19,7 @@ function initService() {
     ipcMain.handle('article/updateDate', (event, id, newDate) => updateArticleDate(id, newDate));
     ipcMain.handle('article/addImage', (event, id, image) => addImageToArticle(id, image));
     ipcMain.handle('article/addAnnotation', (event, id, annotation) => addAnnotationToArticle(id, annotation));
-    ipcMain.handle('article/getAll', getAllArticles);
+    ipcMain.handle('article/getAll', (event, order) => getAllArticles(order));
     ipcMain.handle('article/getById', (event, id) => getArticleById(id));
     ipcMain.handle('article/deleteById', (event, id) => deleteArticleById(id));
     ipcMain.handle('article/addRelatedArticle', (event, id, relatedArticleId) => addRelatedArticle(id, relatedArticleId));
@@ -378,7 +378,7 @@ async function getArticleById(id) {
     return articleEntity2Json(entity);
 }
 
-async function getAllArticles() {
+async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
     let entities = await sequelize.models.article.findAll({
         include: [
             { model: sequelize.models.comment },
@@ -392,11 +392,31 @@ async function getAllArticles() {
                 attributes: ['id', 'title']
             },
         ],
-        order: [['date', 'ASC']]
+        order: [[order.field, order.direction]]
     });
 
     return entities.map(entity => articleEntity2Json(entity));
 }
+
+// async function getAllArticles() {
+//     let entities = await sequelize.models.article.findAll({
+//         include: [
+//             { model: sequelize.models.comment },
+//             { model: sequelize.models.tag },
+//             { model: sequelize.models.image },
+//             { model: sequelize.models.annotation },
+//             { model: sequelize.models.group },
+//             {
+//                 model: sequelize.models.article,
+//                 as: 'relatedArticles',
+//                 attributes: ['id', 'title']
+//             },
+//         ],
+//         order: [['date', 'ASC']]
+//     });
+
+//     return entities.map(entity => articleEntity2Json(entity));
+// }
 
 function articleEntity2Json(entity) {
     if (entity.dataValues.tags)

@@ -1,8 +1,9 @@
 import React, { useState, useContext } from 'react';
-import { PlusIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, ChevronDownIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import { SearchContext } from '../../../../store/search-context.jsx';
 import FormatButton from '../../../common/FormatButton.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
+import { DBContext } from '../../../../store/db-context.jsx';
 import AddArticleModal from '../../modals/AddArticleModal.jsx';
 import ActionButton from '../../../common/ActionButton.jsx';
 
@@ -11,6 +12,15 @@ const SearchResultsHeader = () => {
     const [isAddArticleModalOpen, setAddArticleModalOpen] = useState(false);
     const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed, areArticlesSelectable, toggleArticlesSelectable, selectAllOrNone } = useContext(SearchContext);
     const { fullScreen, setFullScreen, translate: t } = useContext(AppContext);
+    const { setArticleOrder } = useContext(DBContext);
+
+    const handleOrderByDateAsc = () => {
+        setArticleOrder({ field: 'date', direction: 'asc' });
+    }
+
+    const handleOrderByDateDesc = () => {
+        setArticleOrder({ field: 'date', direction: 'desc' });
+    }
 
     return (
         <div className='flex flex-wrap justify-between px-2 py-1 shadow-lg bg-stone-50'>
@@ -25,6 +35,8 @@ const SearchResultsHeader = () => {
                         <ChevronLeftIcon className="w-4 h-4" />
                     </FormatButton>}
                 <FormatButton onClick={() => toggleArticlesSelectable()}><PencilSquareIcon className='w-4 h-4'/></FormatButton>
+                <FormatButton onClick={handleOrderByDateAsc}><ChevronUpIcon className='w-4 h-4'/></FormatButton>
+                <FormatButton onClick={handleOrderByDateDesc}><ChevronDownIcon className='w-4 h-4'/></FormatButton>
             </div>
             {/* center */}
             <div>

@@ -99,6 +99,11 @@ app.on('window-all-closed', () => {
   }
 })
 
+function getIsDev() {
+  return isDev;
+} 
+
 module.exports = {
-  mainWindow
+  mainWindow,
+  getIsDev
 }

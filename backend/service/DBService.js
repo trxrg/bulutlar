@@ -1,13 +1,20 @@
-const { ipcMain, dialog } = require('electron')
+const { app, ipcMain, dialog } = require('electron')
 const fs = require('fs-extra');
 const path = require('path');
 const { mainWindow } = require('../main');
+const isDev = app.isPackaged ? false : require('electron-is-dev');
 
 function initService() {
     ipcMain.handle('DB/handleExport', () => handleExport());
 }
 
-const dbDir = path.join(__dirname, '/../../data');
+let dbDir;
+
+if (isDev)
+    dbDir = path.join(__dirname, '/../../data');    
+else 
+    dbDir = path.join('./data');
+
 
 async function handleExport() {
     const result = await dialog.showOpenDialog(mainWindow, {

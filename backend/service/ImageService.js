@@ -1,4 +1,4 @@
-const { ipcMain } = require('electron');
+const { app, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
 const { sequelize } = require("../sequelize");
@@ -93,7 +93,11 @@ function getImageAbsPath(imagePath) {
 }
 
 function getImagesFolderAbsPath() {
-    return path.join(__dirname, '/../../data/images');
+    const isDev = app.isPackaged ? false : require('electron-is-dev');
+    if (isDev)
+        return path.join(__dirname, '/../../data');    
+    else 
+        return path.join('./data');
 }
 
 module.exports = {

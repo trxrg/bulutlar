@@ -46,6 +46,7 @@ const HomeScreen = () => {
                     <ActionButton onClick={() => setActiveScreen('categories')}>{t('categories')}</ActionButton>
                     <ActionButton onClick={() => setActiveScreen('owners')}>{t('owners')}</ActionButton>
                     <ActionButton onClick={() => setActiveScreen('annotations')}>{t('annotations')}</ActionButton>
+                    <ActionButton onClick={() => setActiveScreen('settings')}>{t('settings')}</ActionButton>
                 </div>
                 <div className='cursor-pointer' onClick={() => setStreakModalOpen(true)}>
                     <span className='text-5xl text-green-600 font-bold'>⚡{streak}</span>

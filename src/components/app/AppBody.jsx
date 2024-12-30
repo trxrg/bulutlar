@@ -7,6 +7,7 @@ import OwnerScreen from '../owner/OwnerScreen';
 import HomeScreen from '../home/HomeScreen';
 import { AppContext } from '../../store/app-context';
 import AnnotationScreen from '../annotation/AnnotationScreen';
+import SettingsScreen from '../settings/SettingsScreen';
 
 
 const AppBody = () => {
@@ -32,6 +33,9 @@ const AppBody = () => {
                 : undefined}
             {activeScreen === 'annotations' ?
                 <AnnotationScreen />
+                : undefined}
+            {activeScreen === 'settings' ?
+                <SettingsScreen />
                 : undefined}
         </div>
     );

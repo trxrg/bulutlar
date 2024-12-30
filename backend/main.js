@@ -6,12 +6,13 @@ const isDev = app.isPackaged ? false : require('electron-is-dev');
 const { initDB } = require('./sequelize');
 const { initServices } = require('./service');
 const lookupService = require('./service/LookupService');
+let mainWindow;
 
 require('./scripts/docReader')
 require('./scripts/jsonReader')
 
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     title: 'Bulutlar',
@@ -97,3 +98,7 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+module.exports = {
+  mainWindow
+}

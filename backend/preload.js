@@ -64,6 +64,7 @@ contextBridge.exposeInMainWorld('api', {
   db: {
     loadArticles: () => ipcRenderer.invoke('DB/loadArticles'),
     loadArticlesFromTxt: () => ipcRenderer.invoke('DB/loadArticlesFromTxt'),
+    handleExport: () => ipcRenderer.invoke('DB/handleExport'),
   },
   lookup: {
     create: (lookup) => ipcRenderer.invoke('lookup/create', lookup),

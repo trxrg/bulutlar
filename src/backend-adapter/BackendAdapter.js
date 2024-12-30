@@ -60,6 +60,7 @@ export const tagApi = {
 export const dbApi = {
     loadArticles: async () => window.api.db.loadArticles(),
     loadArticlesFromTxt: async () => window.api.db.loadArticlesFromTxt(),
+    handleExport: async () => window.api.db.handleExport(),
 };
 
 export const lookupApi = {

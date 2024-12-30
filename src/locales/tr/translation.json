@@ -105,7 +105,9 @@
     "settings": "Ayarlar",
     "database": "Veritabanı",
     "appearance": "Görünüm",
-    "export db": "Veritabanını Dışa Aktar",
+    "export": "Dışa Aktar",
+    "db exported to": "Veritabanı şu dizine aktarıldı",
+    "db export error": "Veritabanı dışa aktarılırken hata oluştu",
 
     "streak message 0": "Bir hata oluştu",
     "streak message 1": "İlk gün heyecanı...",

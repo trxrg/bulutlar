@@ -103,6 +103,9 @@
     "sureDeletingImage": "Bu resmi silmek istediğinizden emin misiniz?",
 
     "settings": "Ayarlar",
+    "database": "Veritabanı",
+    "appearance": "Görünüm",
+    "export db": "Veritabanını Dışa Aktar",
 
     "streak message 0": "Bir hata oluştu",
     "streak message 1": "İlk gün heyecanı...",

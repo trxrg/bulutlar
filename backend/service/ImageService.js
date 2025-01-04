@@ -95,9 +95,9 @@ function getImageAbsPath(imagePath) {
 function getImagesFolderAbsPath() {
     const isDev = app.isPackaged ? false : require('electron-is-dev');
     if (isDev)
-        return path.join(__dirname, '/../../data');    
+        return path.join(__dirname, '/../../data/images');    
     else 
-        return path.join('./data');
+        return path.join('./data/images');
 }
 
 module.exports = {

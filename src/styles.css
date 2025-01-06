@@ -39,7 +39,7 @@
     text-decoration: none; /* Remove underline */
     font-weight: 500; /* Medium font weight */
     position: relative; /*Positioning for pseudo-elements*/
-    display: inline-block; /*Make links inline-block for padding */
+    /* display: inline-block; Make links inline-block for padding */
     padding-bottom: 1px; /* Add a bottom padding for a subtle underline effect */
     transition: color 0.3s ease; /* Smooth color transition */
     cursor: pointer

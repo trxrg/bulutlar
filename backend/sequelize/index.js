@@ -1,18 +1,24 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const { setRelations } = require('./relations');
+const { ensureFolderExists } = require('../fsOps');
+const path = require('path');
+const config = require('../config.js');
+const { log, error, warn } = require('../logger');
 
-// In a real app, you should keep the database connection URL as an environment variable.
-// But for this example, we will just use a local SQLite database.
-// const sequelize = new Sequelize(process.env.DB_CONNECTION_URL);
+const dbPath = config.dbPath;
+ensureFolderExists(path.dirname(dbPath));
+
+log('Resolved dbPath:', dbPath);
+
 const sequelize = new Sequelize({
 	dialect: 'sqlite',
-	storage: './data/main.db',
+	storage: dbPath,
 	logQueryParameters: true,
 	benchmark: true,
 	logging: (msg) => {
 		if (msg.startsWith('Executing (default)') && msg.includes('ERROR')) {
 			// Log only messages containing 'ERROR' (adjust condition as per your Sequelize version)
-			console.error(msg);
+			error(msg);
 		}
 	},
 	define: {
@@ -33,7 +39,7 @@ const modelDefiners = [
 ];
 
 async function initDB() {
-	console.log('initializing db');
+	log('initializing db');
 
 	for (const modelDefiner of modelDefiners) {
 		modelDefiner(sequelize, DataTypes);

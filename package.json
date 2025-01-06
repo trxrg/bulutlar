@@ -13,7 +13,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "package-mac": "rm -rf release-builds && npm run build-react && electron-packager . bulutlar --overwrite --platform=darwin --arch=x64,arm64 --icon=./public/cloud.ico --prune=true --out=release-builds",
-    "package-mac-new": "rm -rf release-builds && npm run build-react && npx @electron/packager . bulutlar --overwrite --platform=darwin --arch=x64,arm64 --icon=./public/cloud.ico --prune=true --out=release-builds",
+    "package-mac-new": "rm -rf release-builds && npm run build-react && npx @electron/packager . bulutlar --overwrite --platform=darwin --arch=arm64 --icon=./public/cloud.ico --prune=true --asar --out=release-builds",
     "package-win32": "npm run build-react  && electron-packager . AppName --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --asar --out=release-builds",
     "package-win": "npm run build-react  && electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --out=release-builds",
     "package-linux": "npm run build-react  && electron-packager . AppName --overwrite --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --asar --out=release-builds",

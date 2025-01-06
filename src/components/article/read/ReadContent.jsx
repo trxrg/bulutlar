@@ -66,12 +66,12 @@ const ReadContent = () => {
     
     const addImagesToArticleAndDB = async (images) => {
         try {
-            images.forEach(async (image) => {
+            for (const image of images) {
                 if (activeEditorRef) {
                     const imageEntity = await articleApi.addImage(article.id, image);
                     activeEditorRef.current.addImage(imageEntity);
                 }
-            });
+            }
         } catch (error) {
             console.error('Error inserting image:', error);
             toastr.error(t('errorAddingImage'));

@@ -1,30 +1,26 @@
-const { app, ipcMain, dialog } = require('electron')
 const fs = require('fs-extra');
 const path = require('path');
+const { ipcMain, dialog } = require('electron')
+
+const config = require('../config');
 const { mainWindow } = require('../main');
-const isDev = app.isPackaged ? false : require('electron-is-dev');
+const { log, error, warn } = require('../logger');
 
 function initService() {
     ipcMain.handle('DB/handleExport', () => handleExport());
 }
 
-let dbDir;
-
-if (isDev)
-    dbDir = path.join(__dirname, '/../../data');    
-else 
-    dbDir = path.join('./data');
-
+const dbDir = path.dirname(config.dbPath);
 
 async function handleExport() {
     const result = await dialog.showOpenDialog(mainWindow, {
         properties: ['openDirectory'], // Open directory selection dialog
     });
 
-    console.log('Exporting database to ', result.filePaths[0]);
-    
+    log('Exporting database to ', result.filePaths[0]);
+
     if (result.canceled) {
-        console.log('Export cancelled');
+        log('Export cancelled');
         return;
     }
 
@@ -32,10 +28,10 @@ async function handleExport() {
     const dir = path.join(result.filePaths[0], `data-${dateTime}`);
     try {
         await fs.copy(dbDir, dir);
-        console.log(`Database copied from ${dbDir} to ${dir}`);
+        log(`Database copied from ${dbDir} to ${dir}`);
         return dir;
     } catch (err) {
-        console.error('Error in DBService handleExport ', err);
+        error('Error in DBService handleExport ', err);
         throw err;
     }
 }

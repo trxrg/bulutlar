@@ -1,8 +1,8 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('node:path')
-require('@electron/remote/main').initialize();
+const { app, BrowserWindow } = require('electron')
 const isDev = app.isPackaged ? false : require('electron-is-dev');
 
+require('@electron/remote/main').initialize();
 const { initDB } = require('./sequelize');
 const { initServices } = require('./service');
 const lookupService = require('./service/LookupService');
@@ -10,6 +10,8 @@ let mainWindow;
 
 require('./scripts/docReader')
 require('./scripts/jsonReader')
+
+const { log, error, warn } = require('./logger');
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -21,7 +23,7 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js'),
       enableRemoteModule: true, // Enable remote module
       contextIsolation: true,
-      sandbox: true,
+      sandbox: false,
       webSecurity: true,
       contentSecurityPolicy: {
         directives: {
@@ -74,9 +76,9 @@ const handleStreak = async () => {
 const handleDBVersion = async () => {
   const dbVersion = await lookupService.getOrCreateLookup('dbVersion', '1.0.0');
   if (dbVersion)
-    console.log('dbVersion: ', dbVersion.value);
+    log('dbVersion: ', dbVersion.value);
   else
-    console.log('dbVersion not found');
+    log('dbVersion not found');
 }
 
 app.whenReady().then(async () => {
@@ -99,11 +101,7 @@ app.on('window-all-closed', () => {
   }
 })
 
-function getIsDev() {
-  return isDev;
-} 
 
 module.exports = {
   mainWindow,
-  getIsDev
 }

@@ -1,7 +1,15 @@
-const { app, ipcMain } = require('electron');
+const { ipcMain } = require('electron');
+const { sequelize } = require("../sequelize");
+const { ensureFolderExists } = require('../fsOps');
 const path = require('path');
 const fs = require('fs').promises;
-const { sequelize } = require("../sequelize");
+const config = require('../config.js');
+const { log, error, warn } = require('../logger');
+
+const imagesFolderPath = config.imagesFolderPath;
+ensureFolderExists(imagesFolderPath);
+
+log('Resolved imagesFolderPath:', imagesFolderPath);
 
 function initService() {
     ipcMain.handle('image/getDataById', (event, id) => getImageDataById(id));
@@ -11,12 +19,11 @@ function initService() {
 
 async function createImage(image, transaction = null) {
     try {
-        const imagesFolderPath = getImagesFolderAbsPath();
-        await fs.mkdir(imagesFolderPath, { recursive: true });
-        
         const relPath = path.join(image.name + '_' + Date.now());
         const absPath = path.join(imagesFolderPath, relPath);
 
+        log('Copying file from:', image.path);
+        log('Copying file to:', absPath);
         await fs.copyFile(image.path, absPath);
 
         const result = await sequelize.models.image.create({
@@ -30,7 +37,7 @@ async function createImage(image, transaction = null) {
         return result;
 
     } catch (err) {
-        console.error('Error in createImage ', err);
+        error('Error in createImage ', err);
     }
 }
 
@@ -45,8 +52,8 @@ async function getImageDataById(imageId) {
 
         return `data:${image.type};base64,${fileData}`;
     } catch (err) {
-        console.error('Error in getImageData', err);
-    }    
+        error('Error in getImageData', err);
+    }
 }
 
 async function getImageDataByPath(image) {
@@ -55,8 +62,8 @@ async function getImageDataByPath(image) {
 
         return `data:${image.type};base64,${fileData}`;
     } catch (err) {
-        console.error('Error in getImageDataByPath', err);
-    }    
+        error('Error in getImageDataByPath', err);
+    }
 }
 
 async function deleteImageById(imageId) {
@@ -72,7 +79,7 @@ async function deleteImageById(imageId) {
         await image.destroy();
 
     } catch (err) {
-        console.error('Error in deleteImage', err);
+        error('Error in deleteImage', err);
     }
 }
 
@@ -84,20 +91,12 @@ async function deleteImagesByArticleId(articleId) {
             await deleteImageById(image.id);
 
     } catch (err) {
-        console.error('Error in deleteImagesByArticleId', err);
+        error('Error in deleteImagesByArticleId', err);
     }
 }
 
 function getImageAbsPath(imagePath) {
-    return path.join(getImagesFolderAbsPath(), imagePath);
-}
-
-function getImagesFolderAbsPath() {
-    const isDev = app.isPackaged ? false : require('electron-is-dev');
-    if (isDev)
-        return path.join(__dirname, '/../../data/images');    
-    else 
-        return path.join('./data/images');
+    return path.join(imagesFolderPath, imagePath);
 }
 
 module.exports = {

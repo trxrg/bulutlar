@@ -13,9 +13,14 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "package-mac": "rm -rf release-builds && npm run build-react && electron-packager . bulutlar --overwrite --platform=darwin --arch=x64,arm64 --icon=./public/cloud.ico --prune=true --out=release-builds",
-    "package-mac-new": "rm -rf release-builds && npm run build-react && npx @electron/packager . bulutlar --overwrite --platform=darwin --arch=arm64 --icon=./public/cloud.ico --prune=true --asar --out=release-builds",
+    "package-mac-asar": "rm -rf release-builds && npm run build-react && electron-packager . bulutlar --overwrite --platform=darwin --arch=x64,arm64 --icon=./public/cloud.ico --prune=true --asar --out=release-builds",
+    "package-mac-new": "rm -rf release-builds && npm run build-react && npx @electron/packager . bulutlar --overwrite --platform=darwin --arch=arm64 --icon=./public/cloud.ico --prune=true --out=release-builds",
+    "package-mac-new-asar": "rm -rf release-builds && npm run build-react && npx @electron/packager . bulutlar --overwrite --platform=darwin --arch=arm64 --icon=./public/cloud.ico --prune=true --asar --out=release-builds",
     "package-win32": "npm run build-react  && electron-packager . AppName --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --asar --out=release-builds",
     "package-win": "npm run build-react  && electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --out=release-builds",
+    "package-win-asar": "npm run build-react  && electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --asar --out=release-builds",
+    "package-win-new": "npm run build-react && npx @electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --out=release-builds",
+    "package-win-new-asar": "npm run build-react && npx @electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --asar --out=release-builds",
     "package-linux": "npm run build-react  && electron-packager . AppName --overwrite --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --asar --out=release-builds",
     "migrate": "npx sequelize-cli db:migrate"
   },
@@ -42,7 +47,6 @@
   "devDependencies": {
     "@electron/packager": "github:electron/packager",
     "concurrently": "^8.2.2",
-    "create-dmg": "^7.0.0",
     "depcheck": "^1.4.7",
     "electron": "^33.2.1",
     "electron-builder": "^25.1.8",
@@ -80,5 +84,8 @@
     "sqlite3": "^5.1.7",
     "toastr": "^2.1.4",
     "umzug": "^3.8.2"
+  },
+  "optionalDependencies": {
+    "create-dmg": "^7.0.0"
   }
 }

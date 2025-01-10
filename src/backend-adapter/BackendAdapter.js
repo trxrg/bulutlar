@@ -62,6 +62,7 @@ export const dbApi = {
     loadArticles: async () => window.api.db.loadArticles(),
     loadArticlesFromTxt: async () => window.api.db.loadArticlesFromTxt(),
     handleExport: async () => window.api.db.handleExport(),
+    handleImport: async () => window.api.db.handleImport(),
 };
 
 export const lookupApi = {

@@ -10,7 +10,7 @@ import toastr from 'toastr';
 const SettingsScreen = () => {
     const { translate: t } = useContext(AppContext);
 
-    const handleExportDb = async (event) => {
+    const handleExportDb = async () => {
         console.log('Exporting database...');
         try {
             const result = await dbApi.handleExport();
@@ -21,6 +21,20 @@ const SettingsScreen = () => {
         } catch (err) {
             console.error('Error exporting database', err);
             toastr.error(t('db export error'));
+        }
+    };
+
+    const handleImportDb = async () => {
+        console.log('Importing database...');
+        try {
+            const result = await dbApi.handleImport();
+            if (result) {
+                console.log('Database imported successfully from ', result);
+                toastr.success(t('db imported from') + ' ' + result);
+            }
+        } catch (err) {
+            console.error('Error importing database', err);
+            toastr.error(t('db import error'));
         }
     };
 
@@ -35,7 +49,7 @@ const SettingsScreen = () => {
                         <Button variant="contained" color="primary" onClick={handleExportDb} startIcon={<FileUploadIcon />}>
                             {t('export')}
                         </Button>
-                        <Button variant="contained" color="primary" startIcon={<FileDownloadIcon />}>
+                        <Button variant="contained" color="primary" onClick={handleImportDb} startIcon={<FileDownloadIcon />}>
                             {t('import')}
                         </Button>
                     </div>

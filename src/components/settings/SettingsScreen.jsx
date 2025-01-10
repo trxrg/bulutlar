@@ -1,17 +1,14 @@
-import React, { useContext, useRef } from 'react';
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
+import React, { useContext } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Button from '@mui/material/Button';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { Button, Typography, AccordionDetails, AccordionSummary, Accordion } from '@mui/material';
 import { AppContext } from '../../store/app-context';
 import { dbApi } from '../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
 
 const SettingsScreen = () => {
     const { translate: t } = useContext(AppContext);
-    const fileInputRef = useRef(null);
 
     const handleExportDb = async (event) => {
         console.log('Exporting database...');
@@ -34,9 +31,12 @@ const SettingsScreen = () => {
                     <Typography>{t('database')}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <div className='flex-col'>
-                        <Button variant="contained" color="primary" onClick={handleExportDb}>
+                    <div className='flex flex-col gap-3 w-fit'>
+                        <Button variant="contained" color="primary" onClick={handleExportDb} startIcon={<FileUploadIcon />}>
                             {t('export')}
+                        </Button>
+                        <Button variant="contained" color="primary" startIcon={<FileDownloadIcon />}>
+                            {t('import')}
                         </Button>
                     </div>
                 </AccordionDetails>

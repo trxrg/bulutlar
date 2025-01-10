@@ -108,6 +108,7 @@
     "export": "Export",
     "db exported to": "Database exported to",
     "db export error": "Database export error",
+    "import": "Import",
 
     "streak message 0": "Something went wrong",
     "streak message 1": "First day excitement...",

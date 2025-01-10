@@ -63,6 +63,9 @@ export const dbApi = {
     loadArticlesFromTxt: async () => window.api.db.loadArticlesFromTxt(),
     handleExport: async () => window.api.db.handleExport(),
     handleImport: async () => window.api.db.handleImport(),
+    handleBackup: async () => window.api.db.handleBackup(),
+    changeBackupDir: async () => window.api.db.changeBackupDir(),
+    getBackupDir: () => window.api.db.getBackupDir(),
 };
 
 export const lookupApi = {

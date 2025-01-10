@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -9,6 +9,22 @@ import toastr from 'toastr';
 
 const SettingsScreen = () => {
     const { translate: t } = useContext(AppContext);
+    const [backupDir, setBackupDir] = useState('');
+
+    useEffect(() => {
+        const fetchBackupDir = async () => {
+            try {                
+                setBackupDir(await dbApi.getBackupDir());
+                console.log('Fetched backup directory:', backupDir);
+            } catch (err) {
+                console.error('Error fetching backup directory', err);
+            }
+        };
+
+        fetchBackupDir();
+    }, []);
+
+    console.log('backupDir:', backupDir);  
 
     const handleExportDb = async () => {
         console.log('Exporting database...');
@@ -38,6 +54,35 @@ const SettingsScreen = () => {
         }
     };
 
+    const handleBackupDb = async () => {
+        console.log('Backing up database...');
+        try {
+            const result = await dbApi.handleBackup();
+            if (result) {
+                console.log('Database backed up successfully to ', result);
+                toastr.success(t('db backed up to') + ' ' + result);
+            }
+        } catch (err) {
+            console.error('Error backing up database', err);
+            toastr.error(t('db backup error'));
+        }
+    }
+
+    const handleChangeBackupDir = async () => {
+        console.log('Changing backup directory...');
+        try {
+            const result = await dbApi.changeBackupDir();
+            if (result) {
+                console.log('Backup directory changed successfully to ', result);
+                toastr.success(t('backup dir changed to') + ' ' + result);
+                setBackupDir(result);
+            }
+        } catch (err) {
+            console.error('Error changing backup directory', err);
+            toastr.error(t('backup dir change error'));
+        }
+    }
+
     return (
         <div className='max-w-6xl w-full'>
             <Accordion defaultExpanded>
@@ -52,6 +97,12 @@ const SettingsScreen = () => {
                         <Button variant="contained" color="primary" onClick={handleImportDb} startIcon={<FileDownloadIcon />}>
                             {t('import')}
                         </Button>
+                        <Button variant="contained" color="secondary" onClick={handleBackupDb} startIcon={<FileUploadIcon />}>
+                            {t('backup')}
+                        </Button>
+                        <Typography variant="body2" onClick={handleChangeBackupDir}>
+                            {backupDir}
+                        </Typography>
                     </div>
                 </AccordionDetails>
             </Accordion>

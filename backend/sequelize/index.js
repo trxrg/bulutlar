@@ -2,7 +2,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 const { setRelations } = require('./relations');
 const { ensureFolderExists } = require('../fsOps');
 const path = require('path');
-const config = require('../config.js');
+const { config } = require('../config.js');
 const { log, error, warn } = require('../logger');
 
 const dbPath = config.dbPath;

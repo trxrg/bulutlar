@@ -3,7 +3,7 @@ const { sequelize } = require("../sequelize");
 const { ensureFolderExists } = require('../fsOps');
 const path = require('path');
 const fs = require('fs').promises;
-const config = require('../config.js');
+const { config } = require('../config.js');
 const { log, error, warn } = require('../logger');
 
 const imagesFolderPath = config.imagesFolderPath;

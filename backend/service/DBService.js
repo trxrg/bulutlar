@@ -2,17 +2,17 @@ const fs = require('fs-extra');
 const path = require('path');
 const { ipcMain, dialog } = require('electron')
 
-const config = require('../config');
+const { config, changeDbBackupFolderPath } = require('../config');
 const { mainWindow } = require('../main');
 const { log, error, warn } = require('../logger');
 
 function initService() {
     ipcMain.handle('DB/handleExport', () => handleExport());
     ipcMain.handle('DB/handleImport', () => handleImport());
+    ipcMain.handle('DB/handleBackup', () => handleBackup());
+    ipcMain.handle('DB/changeBackupDir', () => handleChangeBackupDir());
+    ipcMain.handle('DB/getBackupDir', () => getBackupDir());
 }
-
-const dbDir = path.dirname(config.dbPath);
-const dbBackupDir = config.dbBackupFolderPath;
 
 async function handleExport() {
     const result = await dialog.showOpenDialog(mainWindow, {
@@ -26,6 +26,7 @@ async function handleExport() {
         return;
     }
 
+    const dbDir = path.dirname(config.dbPath);
     const dateTime = new Date().toISOString().replace(/[:.]/g, '-');
     const dir = path.join(result.filePaths[0], `data-${dateTime}`);
     try {
@@ -51,9 +52,9 @@ async function handleImport() {
     }
 
     const dateTime = new Date().toISOString().replace(/[:.]/g, '-');
-    const dirForOriginal = path.join(dbBackupDir, `data-${dateTime}`);
+    const dirForOriginal = path.join(config.dbBackupFolderPath, `data-${dateTime}`);
     const dirOfNewData = result.filePaths[0];
-    const dirOfActive = dbDir;
+    const dirOfActive = path.dirname(config.dbPath);
     try {
         await fs.copy(dirOfActive, dirForOriginal);
         log(`Original database copied from ${dirOfActive} to ${dirForOriginal}`);
@@ -64,6 +65,39 @@ async function handleImport() {
         error('Error in DBService handleImport ', err);
         throw err;
     }
+}
+
+async function handleBackup() {
+    const dateTime = new Date().toISOString().replace(/[:.]/g, '-');
+    const targetDir = path.join(config.dbBackupFolderPath, `data-${dateTime}`);
+    const dbDir = path.dirname(config.dbPath);
+    try {
+        await fs.copy(dbDir, targetDir);
+        log(`Database copied from ${dbDir} to ${targetDir}`);
+        return targetDir;
+    } catch (err) {
+        error('Error in DBService handleBackup ', err);
+        throw err;
+    }
+}
+
+async function handleChangeBackupDir() {
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory'], // Open directory selection dialog
+    });
+
+    log('Changeing backup dir to ', result.filePaths[0]);
+
+    if (result.canceled) {
+        log('Change cancelled');
+        return;
+    }
+
+    changeDbBackupFolderPath(result.filePaths[0]);
+}
+
+function getBackupDir() {
+    return config.dbBackupFolderPath;
 }
 
 module.exports = {

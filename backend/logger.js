@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { ensureFolderExists } = require('./fsOps');
 const path = require('path');
-const config = require('./config.js');
+const { config } = require('./config.js');
 
 const logFilePath = config.logFilePath;
 

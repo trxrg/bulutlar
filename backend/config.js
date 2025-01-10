@@ -3,6 +3,16 @@ const path = require('path');
 const { app } = require('electron')
 const isDev = app.isPackaged ? false : require('electron-is-dev');
 
+const changeDbBackupFolderPath = (newPath) => {
+    development.dbBackupFolderPath = newPath;
+    production.dbBackupFolderPath = newPath;
+}
+
+const revertDbBackupFolderPath = () => {
+    development.dbBackupFolderPath = path.resolve(__dirname, "../data/backup");
+    production.dbBackupFolderPath = path.resolve(__dirname, "../../../data/backup");
+}
+
 const development = {
     env: 'development',
     logFilePath: path.resolve(__dirname, "../logs/app.log"),
@@ -21,4 +31,4 @@ const production = {
 
 const config = isDev ? development : production;
 
-module.exports = config;
+module.exports = {config, changeDbBackupFolderPath, revertDbBackupFolderPath};

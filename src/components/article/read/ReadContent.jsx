@@ -1,16 +1,13 @@
 import React, { useRef, useState, useContext } from "react";
-
 import { articleApi, commentApi } from '../../../backend-adapter/BackendAdapter.js';
-import RichEditor from "./editor/RichEditor.jsx";
 import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
-import ImageInput from "../../image/ImageInput.jsx";
 import AddLinkModal from "../modals/AddLinkModal.jsx";
+import RichEditor from "./editor/RichEditor.jsx";
 import toastr from "toastr";
 
 const ReadContent = () => {
 
-    const imageInputRef = useRef(null);
     const mainTextEditorRef = useRef(null);
     const explanationEditorRef = useRef(null);
     const commentEditorRef = useRef(null);
@@ -58,17 +55,14 @@ const ReadContent = () => {
     const addLink = (url) => activeEditorRef && activeEditorRef.current.addLink(url);
     const toggleStyle = (style) => activeEditorRef && activeEditorRef.current.toggleInlineStyle(style);
     const toggleBlockType = (blockType) => activeEditorRef && activeEditorRef.current.toggleBlockType(blockType);
-    
-    
-    const handleInsertImageClicked = () => {
-        imageInputRef.current.click();
-    };
-    
-    const addImagesToArticleAndDB = async (images) => {
+
+
+    const handleInsertImageClicked = async () => {
         try {
-            for (const image of images) {
+            const imageEntities = await articleApi.openDialogToAddImages(article.id);
+
+            for (const imageEntity of imageEntities) {
                 if (activeEditorRef) {
-                    const imageEntity = await articleApi.addImage(article.id, image);
                     activeEditorRef.current.addImage(imageEntity);
                 }
             }
@@ -77,8 +71,8 @@ const ReadContent = () => {
             toastr.error(t('errorAddingImage'));
         }
         syncArticleFromBE();
-    }
-    
+    };
+
     React.useImperativeHandle(readContentRef, () => ({
         addLink,
         saveContent,
@@ -113,7 +107,7 @@ const ReadContent = () => {
 
     return (
         <div className="flex flex-col items-center bg-white">
-            <div className={`leading-loose w-full ${fontSize}`}>
+            <div className={`leading-loose w-full ${fontSize} pb-5`}>
                 {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border-b border-gray-700 p-4'>
                     <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
                 </div>}
@@ -129,9 +123,6 @@ const ReadContent = () => {
                             <RichEditor name={'comment'} htmlContent={article.comments[0]?.text} rawContent={article.comments[0]?.textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
                         </div>
                     </div>}
-
-                <ImageInput onSelectImages={addImagesToArticleAndDB} ref={imageInputRef}></ImageInput>
-                <div className='p-5'></div>
             </div>
             <AddLinkModal isOpen={isAddLinkModalOpen} onRequestClose={() => setAddLinkModalOpen(false)} handleAdd={handleAddLink} title={'add link'} />
         </div>

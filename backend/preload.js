@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld('api', {
     updateCategory:    (id, newCategoryName)=> ipcRenderer.invoke('article/updateCategory', id, newCategoryName),
     updateDate:        (id, newDate)        => ipcRenderer.invoke('article/updateDate', id, newDate),
     addImage:          (id, image)          => ipcRenderer.invoke('article/addImage', id, image),
+    openDialogToAddImages: (id)              => ipcRenderer.invoke('article/openDialogToAddImages', id),
     addAnnotation:     (id, annotation)     => ipcRenderer.invoke('article/addAnnotation', id, annotation),
     getAll:            (order)              => ipcRenderer.invoke('article/getAll', order),
     getById:           (id)                 => ipcRenderer.invoke('article/getById', id),

@@ -1,5 +1,7 @@
-const { ipcMain } = require('electron')
+const { ipcMain, dialog } = require('electron')
 const { Op } = require("sequelize");
+const fs = require('fs').promises;
+const path = require('path');
 const { sequelize } = require("../sequelize");
 const tagService = require('./TagService');
 const ownerService = require('./OwnerService');
@@ -7,6 +9,7 @@ const categoryService = require('./CategoryService');
 const commentService = require('./CommentService');
 const imageService = require('./ImageService');
 const annotationService = require('./AnnotationService');
+const { log, error, warn } = require('../logger');
 
 function initService() {
     ipcMain.handle('article/create', (event, article) => createArticle(article));
@@ -18,6 +21,7 @@ function initService() {
     ipcMain.handle('article/updateTitle', (event, id, newTitle) => updateArticleTitle(id, newTitle));
     ipcMain.handle('article/updateDate', (event, id, newDate) => updateArticleDate(id, newDate));
     ipcMain.handle('article/addImage', (event, id, image) => addImageToArticle(id, image));
+    ipcMain.handle('article/openDialogToAddImages', (event, id) => openDialogToAddImages(id));
     ipcMain.handle('article/addAnnotation', (event, id, annotation) => addAnnotationToArticle(id, annotation));
     ipcMain.handle('article/getAll', (event, order) => getAllArticles(order));
     ipcMain.handle('article/getById', (event, id) => getArticleById(id));
@@ -417,6 +421,35 @@ async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
 
 //     return entities.map(entity => articleEntity2Json(entity));
 // }
+
+
+async function openDialogToAddImages(articleId) {
+
+    try {
+        const result = await dialog.showOpenDialog({
+            properties: ['openFile', 'multiSelections'],
+            filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif'] }]
+        })
+
+        if (!result.canceled) {
+            const images = [];
+            for (const filePath of result.filePaths) {
+                const image = {
+                    name: path.basename(filePath),
+                    type: path.extname(filePath).slice(1),
+                    path: filePath,
+                    size: (await fs.stat(filePath)).size,
+                };
+                log(`Adding image to article ${articleId}:`, image);
+                images.push(await addImageToArticle(articleId, image));
+            }
+            return images;
+        }
+
+    } catch (e) {
+        error('Error in openDialogToAddImagesToArticle', e);
+    }
+}
 
 function articleEntity2Json(entity) {
     if (entity.dataValues.tags)

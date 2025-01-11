@@ -26,7 +26,7 @@ async function handleExport() {
         return;
     }
 
-    const dbDir = path.dirname(config.dbPath);
+    const dbDir = path.dirname(config.contentDbPath);
     const dateTime = new Date().toISOString().replace(/[:.]/g, '-');
     const dir = path.join(result.filePaths[0], `data-${dateTime}`);
     try {
@@ -54,7 +54,7 @@ async function handleImport() {
     const dateTime = new Date().toISOString().replace(/[:.]/g, '-');
     const dirForOriginal = path.join(config.dbBackupFolderPath, `data-${dateTime}`);
     const dirOfNewData = result.filePaths[0];
-    const dirOfActive = path.dirname(config.dbPath);
+    const dirOfActive = path.dirname(config.contentDbPath);
     try {
         await fs.copy(dirOfActive, dirForOriginal);
         log(`Original database copied from ${dirOfActive} to ${dirForOriginal}`);
@@ -70,7 +70,7 @@ async function handleImport() {
 async function handleBackup() {
     const dateTime = new Date().toISOString().replace(/[:.]/g, '-');
     const targetDir = path.join(config.dbBackupFolderPath, `data-${dateTime}`);
-    const dbDir = path.dirname(config.dbPath);
+    const dbDir = path.dirname(config.contentDbPath);
     try {
         await fs.copy(dbDir, targetDir);
         log(`Database copied from ${dbDir} to ${targetDir}`);

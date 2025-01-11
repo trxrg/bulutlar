@@ -61,6 +61,9 @@ const ReadContent = () => {
         try {
             const imageEntities = await articleApi.openDialogToAddImages(article.id);
 
+            if (!imageEntities)
+                return;
+
             for (const imageEntity of imageEntities) {
                 if (activeEditorRef) {
                     activeEditorRef.current.addImage(imageEntity);

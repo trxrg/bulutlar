@@ -5,14 +5,14 @@ const path = require('path');
 const { config } = require('../config.js');
 const { log, error, warn } = require('../logger');
 
-const dbPath = config.dbPath;
-ensureFolderExists(path.dirname(dbPath));
+const contentDbPath = config.contentDbPath;
+ensureFolderExists(path.dirname(contentDbPath));
 
-log('Resolved dbPath:', dbPath);
+log('Resolved contentDbPath:', contentDbPath);
 
 const sequelize = new Sequelize({
 	dialect: 'sqlite',
-	storage: dbPath,
+	storage: contentDbPath,
 	logQueryParameters: true,
 	benchmark: true,
 	logging: (msg) => {

@@ -428,7 +428,7 @@ async function openDialogToAddImages(articleId) {
     try {
         const result = await dialog.showOpenDialog({
             properties: ['openFile', 'multiSelections'],
-            filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif'] }]
+            filters: [{ name: 'Images', extensions: ['jpg', 'png', 'gif', 'jpeg'] }]
         })
 
         if (!result.canceled) {

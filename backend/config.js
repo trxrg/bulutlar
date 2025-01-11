@@ -16,7 +16,8 @@ const revertDbBackupFolderPath = () => {
 const development = {
     env: 'development',
     logFilePath: path.resolve(__dirname, "../logs/app.log"),
-    dbPath: path.resolve(__dirname, "../data/active/main.db"),
+    contentDbPath: path.resolve(__dirname, "../data/active/content.db"),
+    programDbPath: path.resolve(__dirname, "../data/active/program.db"),
     dbBackupFolderPath: path.resolve(__dirname, "../data/backup"),
     imagesFolderPath: path.resolve(__dirname, "../data/active/images"),
 };
@@ -24,7 +25,8 @@ const development = {
 const production = {
     env: 'production',
     logFilePath: path.resolve(__dirname, "../../../logs/app.log"),
-    dbPath: path.resolve(__dirname, "../../../data/active/main.db"),
+    contentDbPath: path.resolve(__dirname, "../../../data/active/content.db"),
+    programDbPath: path.resolve(__dirname, "../../../data/active/program.db"),
     dbBackupFolderPath: path.resolve(__dirname, "../../../data/backup"),
     imagesFolderPath: path.resolve(__dirname, "../../../data/active/images"),
 };

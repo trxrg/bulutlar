@@ -94,6 +94,7 @@ async function handleChangeBackupDir() {
     }
 
     changeDbBackupFolderPath(result.filePaths[0]);
+    return config.dbBackupFolderPath;
 }
 
 function getBackupDir() {

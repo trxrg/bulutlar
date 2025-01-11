@@ -111,6 +111,8 @@
     "import": "İçe Aktar",
     "db imported from": "Veritabanı şu dizinden içe aktarıldı",
     "db import error": "Veritabanı içe aktarılırken hata oluştu",
+    "backup": "Yedekle",
+    "backup folder": "Yedekleme Klasörü",
 
     "streak message 0": "Bir hata oluştu",
     "streak message 1": "İlk gün heyecanı...",

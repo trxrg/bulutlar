@@ -34,8 +34,8 @@
 
     "comment": "Comment",
     "comments": "Comments",
-    
     "owner": "Owner",
+    
     "owners": "Owners",
     "owner name": "Owner Name",
     "add new owner": "Add New Owner",
@@ -111,6 +111,8 @@
     "import": "Import",
     "db imported from": "Database imported from",
     "db import error": "Database import error",
+    "backup": "Backup",
+    "backup folder": "Backup Folder",
 
     "streak message 0": "Something went wrong",
     "streak message 1": "First day excitement...",

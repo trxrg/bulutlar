@@ -13,7 +13,7 @@ const SettingsScreen = () => {
 
     useEffect(() => {
         const fetchBackupDir = async () => {
-            try {                
+            try {
                 setBackupDir(await dbApi.getBackupDir());
                 console.log('Fetched backup directory:', backupDir);
             } catch (err) {
@@ -24,7 +24,7 @@ const SettingsScreen = () => {
         fetchBackupDir();
     }, []);
 
-    console.log('backupDir:', backupDir);  
+    console.log('backupDir:', backupDir);
 
     const handleExportDb = async () => {
         console.log('Exporting database...');
@@ -73,9 +73,9 @@ const SettingsScreen = () => {
         try {
             const result = await dbApi.changeBackupDir();
             if (result) {
+                setBackupDir(result);
                 console.log('Backup directory changed successfully to ', result);
                 toastr.success(t('backup dir changed to') + ' ' + result);
-                setBackupDir(result);
             }
         } catch (err) {
             console.error('Error changing backup directory', err);
@@ -87,22 +87,28 @@ const SettingsScreen = () => {
         <div className='max-w-6xl w-full'>
             <Accordion defaultExpanded>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography>{t('database')}</Typography>
+                    <Typography variant='h5'>{t('database')}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <div className='flex flex-col gap-3 w-fit'>
-                        <Button variant="contained" color="primary" onClick={handleExportDb} startIcon={<FileUploadIcon />}>
-                            {t('export')}
-                        </Button>
-                        <Button variant="contained" color="primary" onClick={handleImportDb} startIcon={<FileDownloadIcon />}>
-                            {t('import')}
-                        </Button>
-                        <Button variant="contained" color="secondary" onClick={handleBackupDb} startIcon={<FileUploadIcon />}>
-                            {t('backup')}
-                        </Button>
-                        <Typography variant="body2" onClick={handleChangeBackupDir}>
-                            {backupDir}
-                        </Typography>
+                    <div className='flex flex-row gap-3'>
+                        <div className='flex flex-col gap-3 w-fit'>
+                            <Button variant="contained" color="secondary" onClick={handleBackupDb} startIcon={<FileUploadIcon />}>
+                                {t('backup')}
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={handleExportDb} startIcon={<FileUploadIcon />}>
+                                {t('export')}
+                            </Button>
+                            <Button variant="contained" color="primary" onClick={handleImportDb} startIcon={<FileDownloadIcon />}>
+                                {t('import')}
+                            </Button>
+                        </div>
+                        <div className='h-fit flex flex-row'>
+                            <Typography variant="body1" className='p-1'>{t('backup folder')}: </Typography>
+                            <Typography variant="body2" onClick={handleChangeBackupDir}
+                                className='border-4 border-blue-500 rounded-lg p-1 cursor-pointer'>
+                                {backupDir}
+                            </Typography>
+                        </div>
                     </div>
                 </AccordionDetails>
             </Accordion>

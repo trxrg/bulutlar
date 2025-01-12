@@ -2,9 +2,10 @@ const fs = require('fs-extra');
 const path = require('path');
 const { ipcMain, dialog } = require('electron')
 
-const { config, changeDbBackupFolderPath } = require('../config');
 const { mainWindow } = require('../main');
+const { startSequelize, stopSequelize } = require("../sequelize");
 const { log, error, warn } = require('../logger');
+const { config, changeDbBackupFolderPath } = require('../config');
 
 function initService() {
     ipcMain.handle('DB/handleExport', () => handleExport());
@@ -56,10 +57,12 @@ async function handleImport() {
     const dirOfNewData = result.filePaths[0];
     const dirOfActive = path.dirname(config.contentDbPath);
     try {
+        stopSequelize();
         await fs.copy(dirOfActive, dirForOriginal);
         log(`Original database copied from ${dirOfActive} to ${dirForOriginal}`);
         await fs.copy(dirOfNewData, dirOfActive);
         log(`Imported database copied from ${dirOfNewData} to ${dirOfActive}`);
+        startSequelize();
         return dirOfNewData;
     } catch (err) {
         error('Error in DBService handleImport ', err);

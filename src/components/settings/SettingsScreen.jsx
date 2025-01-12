@@ -4,11 +4,13 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { Button, Typography, AccordionDetails, AccordionSummary, Accordion } from '@mui/material';
 import { AppContext } from '../../store/app-context';
+import { DBContext } from '../../store/db-context';
 import { dbApi } from '../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
 
 const SettingsScreen = () => {
     const { translate: t } = useContext(AppContext);
+    const { fetchAllData } = useContext(DBContext);
     const [backupDir, setBackupDir] = useState('');
 
     useEffect(() => {
@@ -47,6 +49,7 @@ const SettingsScreen = () => {
             if (result) {
                 console.log('Database imported successfully from ', result);
                 toastr.success(t('db imported from') + ' ' + result);
+                fetchAllData();
             }
         } catch (err) {
             console.error('Error importing database', err);

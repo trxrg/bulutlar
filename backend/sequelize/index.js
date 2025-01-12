@@ -5,26 +5,36 @@ const path = require('path');
 const { config } = require('../config.js');
 const { log, error, warn } = require('../logger');
 
-const contentDbPath = config.contentDbPath;
-ensureFolderExists(path.dirname(contentDbPath));
+let sequelize;
+function startSequelize() {
+	const contentDbPath = config.contentDbPath;
+	ensureFolderExists(path.dirname(contentDbPath));
+	log('Resolved contentDbPath:', contentDbPath);
+    
+	sequelize = new Sequelize({
+        dialect: 'sqlite',
+        storage: contentDbPath,
+        logQueryParameters: true,
+        benchmark: true,
+        logging: (msg) => {
+            if (msg.startsWith('Executing (default)') && msg.includes('ERROR')) {
+                error(msg);
+            }
+        },
+        define: {
+            timestamps: true
+        }
+    });
 
-log('Resolved contentDbPath:', contentDbPath);
+    // programSequelize = new Sequelize({
+    //     dialect: 'sqlite',
+    //     storage: dbPath,
+    // });
+}
 
-const sequelize = new Sequelize({
-	dialect: 'sqlite',
-	storage: contentDbPath,
-	logQueryParameters: true,
-	benchmark: true,
-	logging: (msg) => {
-		if (msg.startsWith('Executing (default)') && msg.includes('ERROR')) {
-			// Log only messages containing 'ERROR' (adjust condition as per your Sequelize version)
-			error(msg);
-		}
-	},
-	define: {
-		timestamps: true
-	}
-});
+function stopSequelize() {
+	sequelize.close();
+}
 
 const modelDefiners = [
 	require('./model/owner.model'),
@@ -41,15 +51,18 @@ const modelDefiners = [
 async function initDB() {
 	log('initializing db');
 
+	
 	for (const modelDefiner of modelDefiners) {
 		modelDefiner(sequelize, DataTypes);
 	}
-
+	
 	// We execute any extra setup after the models are defined, such as adding associations.
 	setRelations(sequelize);
-
+	
 	await sequelize.sync();
 }
 
+startSequelize();
+
 // We export the sequelize connection instance to be used around our app.
-module.exports = { sequelize, initDB };
+module.exports = { sequelize, initDB, startSequelize, stopSequelize };

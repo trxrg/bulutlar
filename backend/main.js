@@ -47,9 +47,9 @@ const createWindow = () => {
       : `file://${path.join(__dirname, '../build/index.html')}` // Production URL there is a problem here, it opens empty
   );
 
-  if (isDev) {
-    mainWindow.webContents.openDevTools({ mode: 'detach' });
-  }
+  // if (isDev) {
+  //   mainWindow.webContents.openDevTools({ mode: 'detach' });
+  // }
 }
 
 const handleStreak = async () => {

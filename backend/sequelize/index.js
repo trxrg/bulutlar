@@ -31,8 +31,8 @@ function startSequelize() {
     // });
 }
 
-function stopSequelize() {
-	sequelize.close();
+async function stopSequelize() {
+	await sequelize.close();
 }
 
 const modelDefiners = [
@@ -49,7 +49,6 @@ const modelDefiners = [
 
 async function initDB() {
 	console.info('initializing db');
-
 	
 	for (const modelDefiner of modelDefiners) {
 		modelDefiner(sequelize, DataTypes);
@@ -57,7 +56,7 @@ async function initDB() {
 	
 	// We execute any extra setup after the models are defined, such as adding associations.
 	setRelations(sequelize);
-	
+
 	await sequelize.sync();
 }
 

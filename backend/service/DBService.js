@@ -3,7 +3,7 @@ const path = require('path');
 const { ipcMain, dialog } = require('electron')
 
 const { mainWindow } = require('../main');
-const { startSequelize, stopSequelize } = require("../sequelize");
+const { initDB, stopSequelize, startSequelize } = require("../sequelize");
 const { config, changeDbBackupFolderPath } = require('../config');
 
 function initService() {
@@ -51,17 +51,16 @@ async function handleImport() {
         return;
     }
 
-    const dateTime = new Date().toISOString().replace(/[:.]/g, '-');
-    const dirForOriginal = path.join(config.dbBackupFolderPath, `data-${dateTime}`);
+    
     const dirOfNewData = result.filePaths[0];
     const dirOfActive = path.dirname(config.contentDbPath);
     try {
-        stopSequelize();
-        await fs.copy(dirOfActive, dirForOriginal);
-        console.info(`Original database copied from ${dirOfActive} to ${dirForOriginal}`);
-        await fs.copy(dirOfNewData, dirOfActive);
-        console.info(`Imported database copied from ${dirOfNewData} to ${dirOfActive}`);
-        startSequelize();
+        // backup current db before importing new one
+        await handleBackup();
+        await stopSequelize(); // we can stop sequelize
+        await fs.copy(dirOfNewData, dirOfActive); // we can copy the files
+        console.info(`Imported database copied from ${dirOfNewData}`);
+        startSequelize(); // TODO problem in restarting sequelize
         return dirOfNewData;
     } catch (err) {
         console.error('Error in DBService handleImport ', err);
@@ -75,7 +74,7 @@ async function handleBackup() {
     const dbDir = path.dirname(config.contentDbPath);
     try {
         await fs.copy(dbDir, targetDir);
-        console.info(`Database copied from ${dbDir} to ${targetDir}`);
+        console.info(`Original database backed up to ${targetDir}`);
         return targetDir;
     } catch (err) {
         console.error('Error in DBService handleBackup ', err);

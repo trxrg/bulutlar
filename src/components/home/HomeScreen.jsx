@@ -12,31 +12,31 @@ const HomeScreen = () => {
     const { setActiveScreen, setStreakModalOpen, translate: t } = useContext(AppContext);
     const { streak, dbVersion } = useContext(DBContext);
 
-    const fetchImageData = async () => {
-        const image = {
-            path: 'treasure-chest.jpeg',
-            type: 'image/jpeg'
-        };
-        try {
-            const data = await imageApi.getDataByPath(image);
-            setImageData(data);
-            setImageLoaded(true);
-        } catch (err) {
-            console.error('error in fetchImageData', err);
-        }
-    }
+    // const fetchImageData = async () => {
+    //     const image = {
+    //         path: 'treasure-chest.jpeg',
+    //         type: 'image/jpeg'
+    //     };
+    //     try {
+    //         const data = await imageApi.getDataByPath(image);
+    //         setImageData(data);
+    //         setImageLoaded(true);
+    //     } catch (err) {
+    //         console.error('error in fetchImageData', err);
+    //     }
+    // }
 
-    useEffect(() => { fetchImageData(); }, []);
+    // useEffect(() => { fetchImageData(); }, []);
 
     return (
         <div className='relative w-full h-full'>
-            {imageLoaded && (
+            {/* {imageLoaded && (
                 <img
                     src={imageData}
                     alt='Bulutlar'
                     className='absolute top-0 left-0 w-full h-full object-cover opacity-10'
                 />
-            )}
+            )} */}
             <div className='relative flex flex-col items-center w-full h-full gap-5'>
                 <h1 className='text-5xl text-[#0C3B2E] p-4 select-none mt-5'>HAZINE</h1>
                 <div className='flex flex-col items-center gap-5'>

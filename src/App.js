@@ -6,6 +6,8 @@ import DBContextProvider from './store/db-context';
 import { useEffect } from 'react';
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
+import log from 'electron-log/renderer';
+Object.assign(console, log.functions);
 
 // Optional: Configure Toastr options
 toastr.options = {

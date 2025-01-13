@@ -32,7 +32,8 @@ const revertDbBackupFolderPath = () => {
 
 const initConfig = () => {
     // LOG CONFIGS
-    const log = require('electron-log');
+    const log = require('electron-log/main');
+    log.initialize();
     log.transports.file.level = 'info';
     log.transports.file.maxSize = 5 * 1024 * 1024; // 5 MB
     log.transports.file.resolvePathFn = () => config.logFilePath;

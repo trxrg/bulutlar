@@ -17,8 +17,8 @@ export default function DBContextProvider({ children }) {
         try {
             const updatedArticle = await articleApi.getById(id);
 
-            console.log('updated article')
-            console.log(updatedArticle)
+            console.log(`article updated. id: ${id}`)
+            console.debug(`title: ${updatedArticle.title}`)
 
             const updatedArticles = allArticles.map(article => article.id === id ? updatedArticle : article);
             setAllArticles(updatedArticles);
@@ -151,7 +151,7 @@ export default function DBContextProvider({ children }) {
     }, []);
 
     const fetchAllData = useCallback(async () => {
-        console.log('syncing with DB');
+        console.info('syncing with DB');
         try {
             await fetchAllOwners();
             await fetchAllCategories();

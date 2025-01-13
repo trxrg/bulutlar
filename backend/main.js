@@ -1,17 +1,17 @@
 const path = require('node:path')
 const { app, BrowserWindow } = require('electron')
 const isDev = app.isPackaged ? false : require('electron-is-dev');
-
 require('@electron/remote/main').initialize();
+
 const { initDB } = require('./sequelize');
 const { initServices } = require('./service');
+const { initConfig } = require('./config');
 const lookupService = require('./service/LookupService');
+
 let mainWindow;
 
 require('./scripts/docReader')
 require('./scripts/jsonReader')
-
-const { log, error, warn } = require('./logger');
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -31,7 +31,6 @@ const createWindow = () => {
           scriptSrc: ["'self'"],
           styleSrc: ["'self'"],
           imgSrc: ["'self'"],
-          // Add more directives as needed
         }
       }
     },
@@ -76,17 +75,20 @@ const handleStreak = async () => {
 const handleDBVersion = async () => {
   const dbVersion = await lookupService.getOrCreateLookup('dbVersion', '1.0.0');
   if (dbVersion)
-    log('dbVersion: ', dbVersion.value);
+    console.info('dbVersion: ', dbVersion.value);
   else
-    log('dbVersion not found');
+    console.info('dbVersion not found');
 }
 
 app.whenReady().then(async () => {
+  initConfig();
   await initDB();
   initServices();
   handleStreak();
   handleDBVersion();
   createWindow();
+  
+  console.info('App started');
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

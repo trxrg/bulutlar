@@ -1,7 +1,5 @@
 function setRelations(sequelize) {
-	console.log('setting model relations');
-
-	console.log(sequelize.models);
+	console.info('setting model relations');
 
 	const { owner, article, comment, image, annotation, tag, category, group } = sequelize.models;
 
@@ -30,6 +28,8 @@ function setRelations(sequelize) {
 	article.belongsToMany(group, { through: 'article_group_rel' });
 
 	article.belongsToMany(article, { through: 'article_article_rel', as: 'relatedArticles', foreignKey: 'articleId', otherKey: 'relatedArticleId' });
+
+	console.info('model relations set');
 }
 
 module.exports = { setRelations };

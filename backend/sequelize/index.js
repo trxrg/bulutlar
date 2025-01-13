@@ -3,13 +3,12 @@ const { setRelations } = require('./relations');
 const { ensureFolderExists } = require('../fsOps');
 const path = require('path');
 const { config } = require('../config.js');
-const { log, error, warn } = require('../logger');
 
 let sequelize;
 function startSequelize() {
 	const contentDbPath = config.contentDbPath;
 	ensureFolderExists(path.dirname(contentDbPath));
-	log('Resolved contentDbPath:', contentDbPath);
+	console.info('Resolved contentDbPath:', contentDbPath);
     
 	sequelize = new Sequelize({
         dialect: 'sqlite',
@@ -18,7 +17,7 @@ function startSequelize() {
         benchmark: true,
         logging: (msg) => {
             if (msg.startsWith('Executing (default)') && msg.includes('ERROR')) {
-                error(msg);
+                console.error(msg);
             }
         },
         define: {
@@ -49,7 +48,7 @@ const modelDefiners = [
 ];
 
 async function initDB() {
-	log('initializing db');
+	console.info('initializing db');
 
 	
 	for (const modelDefiner of modelDefiners) {

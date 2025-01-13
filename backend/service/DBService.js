@@ -4,7 +4,6 @@ const { ipcMain, dialog } = require('electron')
 
 const { mainWindow } = require('../main');
 const { startSequelize, stopSequelize } = require("../sequelize");
-const { log, error, warn } = require('../logger');
 const { config, changeDbBackupFolderPath } = require('../config');
 
 function initService() {
@@ -20,10 +19,10 @@ async function handleExport() {
         properties: ['openDirectory'], // Open directory selection dialog
     });
 
-    log('Exporting database to ', result.filePaths[0]);
+    console.info('Exporting database to ', result.filePaths[0]);
 
     if (result.canceled) {
-        log('Export cancelled');
+        console.info('Export cancelled');
         return;
     }
 
@@ -32,10 +31,10 @@ async function handleExport() {
     const dir = path.join(result.filePaths[0], `data-${dateTime}`);
     try {
         await fs.copy(dbDir, dir);
-        log(`Database copied from ${dbDir} to ${dir}`);
+        console.info(`Database copied from ${dbDir} to ${dir}`);
         return dir;
     } catch (err) {
-        error('Error in DBService handleExport ', err);
+        console.error('Error in DBService handleExport ', err);
         throw err;
     }
 }
@@ -45,10 +44,10 @@ async function handleImport() {
         properties: ['openDirectory'], // Open directory selection dialog
     });
 
-    log('Importing database from ', result.filePaths[0]);
+    console.info('Importing database from ', result.filePaths[0]);
 
     if (result.canceled) {
-        log('Import cancelled');
+        console.info('Import cancelled');
         return;
     }
 
@@ -59,13 +58,13 @@ async function handleImport() {
     try {
         stopSequelize();
         await fs.copy(dirOfActive, dirForOriginal);
-        log(`Original database copied from ${dirOfActive} to ${dirForOriginal}`);
+        console.info(`Original database copied from ${dirOfActive} to ${dirForOriginal}`);
         await fs.copy(dirOfNewData, dirOfActive);
-        log(`Imported database copied from ${dirOfNewData} to ${dirOfActive}`);
+        console.info(`Imported database copied from ${dirOfNewData} to ${dirOfActive}`);
         startSequelize();
         return dirOfNewData;
     } catch (err) {
-        error('Error in DBService handleImport ', err);
+        console.error('Error in DBService handleImport ', err);
         throw err;
     }
 }
@@ -76,10 +75,10 @@ async function handleBackup() {
     const dbDir = path.dirname(config.contentDbPath);
     try {
         await fs.copy(dbDir, targetDir);
-        log(`Database copied from ${dbDir} to ${targetDir}`);
+        console.info(`Database copied from ${dbDir} to ${targetDir}`);
         return targetDir;
     } catch (err) {
-        error('Error in DBService handleBackup ', err);
+        console.error('Error in DBService handleBackup ', err);
         throw err;
     }
 }
@@ -89,10 +88,10 @@ async function handleChangeBackupDir() {
         properties: ['openDirectory'], // Open directory selection dialog
     });
 
-    log('Changeing backup dir to ', result.filePaths[0]);
+    console.info('Changeing backup dir to ', result.filePaths[0]);
 
     if (result.canceled) {
-        log('Change cancelled');
+        console.info('Change cancelled');
         return;
     }
 

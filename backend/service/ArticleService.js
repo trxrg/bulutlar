@@ -9,7 +9,6 @@ const categoryService = require('./CategoryService');
 const commentService = require('./CommentService');
 const imageService = require('./ImageService');
 const annotationService = require('./AnnotationService');
-const { log, error, warn } = require('../logger');
 
 function initService() {
     ipcMain.handle('article/create', (event, article) => createArticle(article));
@@ -440,14 +439,14 @@ async function openDialogToAddImages(articleId) {
                     path: filePath,
                     size: (await fs.stat(filePath)).size,
                 };
-                log(`Adding image to article ${articleId}:`, image);
+                console.log(`Adding image to article ${articleId}:`, image);
                 images.push(await addImageToArticle(articleId, image));
             }
             return images;
         }
 
     } catch (e) {
-        error('Error in openDialogToAddImagesToArticle', e);
+        console.error('Error in openDialogToAddImagesToArticle', e);
     }
 }
 

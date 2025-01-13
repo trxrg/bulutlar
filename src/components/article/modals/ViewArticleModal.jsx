@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 
-import GeneralModal from '../../common/GeneralModal';
-import { AppContext } from '../../../store/app-context';
+import GeneralModal from '../../common/GeneralModal.jsx';
+import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
 import { ReadContext } from '../../../store/read-context.jsx';
-import ActionButton from '../../common/ActionButton';
+import ActionButton from '../../common/ActionButton.jsx';
 import ArticleInfo from '../ArticleInfo.jsx';
 
 const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, afterViewInNewTab }) => {

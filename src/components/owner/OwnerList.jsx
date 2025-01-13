@@ -4,7 +4,7 @@ import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
 import GeneralModal from "../common/GeneralModal";
-import AddOwner from '../owner/AddOwner';
+import AddOwner from './AddOwner';
 
 const CustomOption = (props) => {
     return (

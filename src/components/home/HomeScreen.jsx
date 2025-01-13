@@ -1,8 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { AppContext } from '../../store/app-context';
+import { AppContext } from '../../store/app-context.jsx';
 import { DBContext } from '../../store/db-context.jsx';
 import { imageApi } from '../../backend-adapter/BackendAdapter.js';
-import ActionButton from '../common/ActionButton';
+import ActionButton from '../common/ActionButton.jsx';
 import '../../styles.css';
 
 const HomeScreen = () => {

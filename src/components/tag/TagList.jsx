@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import TagButton from '../../components/tag/TagButton.jsx';
+import TagButton from './TagButton.jsx';
 
 import { DBContext } from '../../store/db-context.jsx';
 import { AppContext } from '../../store/app-context.jsx';

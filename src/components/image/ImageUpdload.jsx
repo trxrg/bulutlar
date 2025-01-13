@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ImageInput from './ImageInput.jsx';
-import ActionButton from '../common/ActionButton';
+import ActionButton from '../common/ActionButton.jsx';
 import { imageApi } from '../../backend-adapter/BackendAdapter.js';
 
 const ImageUpload = ({ images, setImages}) => {

@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { DBContext } from '../../store/db-context';
+import { DBContext } from '../../store/db-context.jsx';
 import { AppContext } from '../../store/app-context.jsx';
 
 import { articleApi } from '../../backend-adapter/BackendAdapter.js';
 import OwnerModal from '../owner/OwnerModal.jsx';
 import CategoryModal from '../category/CategoryModal.jsx';
-import RichInput from '../common/RichInput';
+import RichInput from '../common/RichInput.jsx';
 
 const ArticleInfo = ({ article, isEditable = true }) => {
 

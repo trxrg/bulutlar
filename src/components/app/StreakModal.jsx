@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
-import GeneralModal from '../common/GeneralModal';
-import { AppContext } from '../../store/app-context';
+import GeneralModal from '../common/GeneralModal.jsx';
+import { AppContext } from '../../store/app-context.jsx';
 import { DBContext } from '../../store/db-context.jsx';
 
 const StreakModal = ({ isOpen, onRequestClose }) => {

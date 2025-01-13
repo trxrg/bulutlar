@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
 
-import GeneralModal from '../../common/GeneralModal';
-import { AppContext } from '../../../store/app-context';
+import GeneralModal from '../../common/GeneralModal.jsx';
+import { AppContext } from '../../../store/app-context.jsx';
 import { ReadContext } from '../../../store/read-context.jsx';
-import ActionButton from '../../common/ActionButton';
+import ActionButton from '../../common/ActionButton.jsx';
 import ArticleList from '../ArticleList.jsx';
 import ViewArticleModal from './ViewArticleModal.jsx';
 

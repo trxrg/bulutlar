@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import Modal from 'react-modal';
 
-import ActionButton from '../common/ActionButton.jsx';
+import ActionButton from './ActionButton.jsx';
 import { AppContext } from '../../store/app-context.jsx';
 
 Modal.setAppElement('#root');

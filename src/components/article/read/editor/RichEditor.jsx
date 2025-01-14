@@ -264,18 +264,18 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     
             if (blockElement && editorRef.current) {
                 const editorBounds = editorRef.current.getBoundingClientRect();
-                const blockBounds = blockElement.getBoundingClientRect();
+                const caretBounds = window.getSelection().getRangeAt(0).getBoundingClientRect();
     
-                // Check if the block is out of view and scroll if necessary
-                if (blockBounds.top < editorBounds.top || blockBounds.bottom > editorBounds.bottom) {
-                    // Scroll the block into view, but keep some padding
+                // Check if the caret is out of view and scroll if necessary
+                if (caretBounds.top < editorBounds.top || caretBounds.bottom > editorBounds.bottom) {
+                    // Scroll the caret into view, but keep some padding
                     blockElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     
                     // Adjust scroll position to keep caret in view
                     const scrollPadding = 10; // Adjust this value as needed
-                    if (blockBounds.top < editorBounds.top) {
+                    if (caretBounds.top < editorBounds.top) {
                         editorRef.current.scrollTop -= scrollPadding;
-                    } else if (blockBounds.bottom > editorBounds.bottom) {
+                    } else if (caretBounds.bottom > editorBounds.bottom) {
                         editorRef.current.scrollTop += scrollPadding;
                     }
                 }

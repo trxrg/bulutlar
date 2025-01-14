@@ -49,6 +49,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
 
     const editorStateRef = useRef(editorState);
+    const editorRef = useRef();
 
     const persist = (newEditorState) => {
         handleContentChange(stateToHTML(newEditorState.getCurrentContent()), convertToRaw(newEditorState.getCurrentContent()));
@@ -249,6 +250,24 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const handleEditorChange = (newEditorState) => {
         editorStateRef.current = newEditorState;
         setEditorState(newEditorState);
+
+        // Get the current selection
+        const selectionState = newEditorState.getSelection();
+        const anchorKey = selectionState.getAnchorKey();
+        const currentContent = newEditorState.getCurrentContent();
+        const currentBlock = currentContent.getBlockForKey(anchorKey);
+        const blockKey = currentBlock.getKey();
+        const blockElement = document.querySelector(`[data-offset-key="${blockKey}-0-0"]`);
+
+        if (blockElement && editorRef.current) {
+            const editorBounds = editorRef.current.getBoundingClientRect();
+            const blockBounds = blockElement.getBoundingClientRect();
+
+            // Check if the block is out of view and scroll if necessary
+            if (blockBounds.top < editorBounds.top || blockBounds.bottom > editorBounds.bottom) {
+                blockElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
     };
 
     const blockRendererFn = (contentBlock) => {
@@ -341,7 +360,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     return (
         <div className='relative flex justify-center cursor-text' onMouseUp={handleMouseUp}>
-            <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' bg-white max-w-6xl w-full'} >
+            <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' bg-white max-w-6xl w-full'} ref={editorRef}>
                 {editorState.getCurrentContent().hasText() || !editable ? null : (
                     <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">
                         <span className="text-gray-400">Start typing your content here...</span>

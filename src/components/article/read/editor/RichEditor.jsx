@@ -250,33 +250,37 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const handleEditorChange = (newEditorState) => {
         editorStateRef.current = newEditorState;
         setEditorState(newEditorState);
-
+    
         // Get the current selection
         const selectionState = newEditorState.getSelection();
         const anchorKey = selectionState.getAnchorKey();
         const currentContent = newEditorState.getCurrentContent();
         const currentBlock = currentContent.getBlockForKey(anchorKey);
         const blockKey = currentBlock.getKey();
-        const blockElement = document.querySelector(`[data-offset-key="${blockKey}-0-0"]`);
-
-        if (blockElement && editorRef.current) {
-            const editorBounds = editorRef.current.getBoundingClientRect();
-            const blockBounds = blockElement.getBoundingClientRect();
-
-            // Check if the block is out of view and scroll if necessary
-            if (blockBounds.top < editorBounds.top || blockBounds.bottom > editorBounds.bottom) {
-                // Scroll the block into view, but keep some padding
-                blockElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-                // Adjust scroll position to keep caret in view
-                const scrollPadding = 10; // Adjust this value as needed
-                if (blockBounds.top < editorBounds.top) {
-                    editorRef.current.scrollTop -= scrollPadding;
-                } else if (blockBounds.bottom > editorBounds.bottom) {
-                    editorRef.current.scrollTop += scrollPadding;
+    
+        // Use setTimeout to allow the DOM to update before querying for the new block element
+        setTimeout(() => {
+            const blockElement = document.querySelector(`[data-offset-key="${blockKey}-0-0"]`);
+    
+            if (blockElement && editorRef.current) {
+                const editorBounds = editorRef.current.getBoundingClientRect();
+                const blockBounds = blockElement.getBoundingClientRect();
+    
+                // Check if the block is out of view and scroll if necessary
+                if (blockBounds.top < editorBounds.top || blockBounds.bottom > editorBounds.bottom) {
+                    // Scroll the block into view, but keep some padding
+                    blockElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+                    // Adjust scroll position to keep caret in view
+                    const scrollPadding = 10; // Adjust this value as needed
+                    if (blockBounds.top < editorBounds.top) {
+                        editorRef.current.scrollTop -= scrollPadding;
+                    } else if (blockBounds.bottom > editorBounds.bottom) {
+                        editorRef.current.scrollTop += scrollPadding;
+                    }
                 }
             }
-        }
+        }, 0);
     };
 
     const blockRendererFn = (contentBlock) => {

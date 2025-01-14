@@ -265,7 +265,16 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
             // Check if the block is out of view and scroll if necessary
             if (blockBounds.top < editorBounds.top || blockBounds.bottom > editorBounds.bottom) {
+                // Scroll the block into view, but keep some padding
                 blockElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                // Adjust scroll position to keep caret in view
+                const scrollPadding = 10; // Adjust this value as needed
+                if (blockBounds.top < editorBounds.top) {
+                    editorRef.current.scrollTop -= scrollPadding;
+                } else if (blockBounds.bottom > editorBounds.bottom) {
+                    editorRef.current.scrollTop += scrollPadding;
+                }
             }
         }
     };

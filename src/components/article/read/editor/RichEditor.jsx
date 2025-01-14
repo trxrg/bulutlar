@@ -250,37 +250,6 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const handleEditorChange = (newEditorState) => {
         editorStateRef.current = newEditorState;
         setEditorState(newEditorState);
-    
-        // Get the current selection
-        const selectionState = newEditorState.getSelection();
-        const anchorKey = selectionState.getAnchorKey();
-        const currentContent = newEditorState.getCurrentContent();
-        const currentBlock = currentContent.getBlockForKey(anchorKey);
-        const blockKey = currentBlock.getKey();
-    
-        // Use setTimeout to allow the DOM to update before querying for the new block element
-        setTimeout(() => {
-            const blockElement = document.querySelector(`[data-offset-key="${blockKey}-0-0"]`);
-    
-            if (blockElement && editorRef.current) {
-                const editorBounds = editorRef.current.getBoundingClientRect();
-                const caretBounds = window.getSelection().getRangeAt(0).getBoundingClientRect();
-    
-                // Check if the caret is out of view and scroll if necessary
-                if (caretBounds.top < editorBounds.top || caretBounds.bottom > editorBounds.bottom) {
-                    // Scroll the caret into view, but keep some padding
-                    blockElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    
-                    // Adjust scroll position to keep caret in view
-                    const scrollPadding = 10; // Adjust this value as needed
-                    if (caretBounds.top < editorBounds.top) {
-                        editorRef.current.scrollTop -= scrollPadding;
-                    } else if (caretBounds.bottom > editorBounds.bottom) {
-                        editorRef.current.scrollTop += scrollPadding;
-                    }
-                }
-            }
-        }, 0);
     };
 
     const blockRendererFn = (contentBlock) => {
@@ -373,7 +342,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     return (
         <div className='relative flex justify-center cursor-text' onMouseUp={handleMouseUp}>
-            <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' bg-white max-w-6xl w-full'} ref={editorRef}>
+            <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' overflow-y-auto bg-white max-w-6xl w-full'} ref={editorRef}>
                 {editorState.getCurrentContent().hasText() || !editable ? null : (
                     <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">
                         <span className="text-gray-400">Start typing your content here...</span>

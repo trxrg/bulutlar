@@ -186,13 +186,14 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const handleMouseUp = (e) => {
         const selection = window.getSelection();
         if (selection.rangeCount > 0 && !selection.isCollapsed) {
-            const range = selection.getRangeAt(0).getBoundingClientRect();
             const editorBounds = e.currentTarget.getBoundingClientRect();
-            const top = Math.max(range.top - editorBounds.top - 60, 0);
-            const left = range.left - editorBounds.left;
+            // const range = selection.getRangeAt(0).getBoundingClientRect();
+            // const top = Math.max(range.top - editorBounds.top - 60, 0);
+            // const left = range.left - editorBounds.left;
+            
             setContextMenuPosition({
-                top: top,
-                left: left
+                top: e.clientY - editorBounds.top,
+                left: e.clientX - editorBounds.left,
             });
             setContextMenuIsOpen(true);
         } else {

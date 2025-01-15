@@ -190,7 +190,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
             // const range = selection.getRangeAt(0).getBoundingClientRect();
             // const top = Math.max(range.top - editorBounds.top - 60, 0);
             // const left = range.left - editorBounds.left;
-            
+
             setContextMenuPosition({
                 top: e.clientY - editorBounds.top,
                 left: e.clientX - editorBounds.left,
@@ -250,7 +250,11 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     const handleEditorChange = (newEditorState) => {
         editorStateRef.current = newEditorState;
-        setEditorState(newEditorState);
+        setEditorState(!newEditorState.getSelection().getHasFocus()
+            ? EditorState.moveFocusToEnd(newEditorState)
+            : newEditorState
+        );
+        // setEditorState(newEditorState);
     };
 
     const blockRendererFn = (contentBlock) => {

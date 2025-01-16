@@ -18,7 +18,7 @@ const Link = (props) => {
 
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
-    
+
 
     const handleClick = (e) => {
         e.preventDefault();
@@ -29,23 +29,23 @@ const Link = (props) => {
 
         try {
             if (isArticleUrl(url))
-                handleAddTab(e, urlToArticleId(url));    
+                handleAddTab(e, urlToArticleId(url));
         } catch (error) {
             console.error('Error handling link click:', error);
-        }        
+        }
         // handle other types of links here
     };
 
     const handleRightClick = (e) => {
         e.preventDefault();
 
-        const grandParentRect = e.currentTarget.getBoundingClientRect();
+        // const parentRect = e.currentTarget.getBoundingClientRect();
 
-        const posx = e.clientX - grandParentRect.left;
-        const posy = e.clientY - grandParentRect.top;
+        // const posx = e.clientX - parentRect.left;
+        // const posy = e.clientY - parentRect.top;
 
         setContextMenuIsOpen(true);
-        setContextMenuPosition({ x: posx, y: posy });
+        setContextMenuPosition({ x: 0, y: 0 });
     }
 
     const handleRemoveLink = () => {
@@ -54,7 +54,7 @@ const Link = (props) => {
     }
 
     return (
-        <a className='relative'>
+        <div className='inline relative border-2 border-blue-500'>
             <span className="link" onClick={handleClick} onContextMenu={handleRightClick}>
                 {children}
             </span>
@@ -67,7 +67,7 @@ const Link = (props) => {
                     </ActionButton>
                 </div>
             </ContextMenu>
-        </a>
+        </div>
     );
 };
 

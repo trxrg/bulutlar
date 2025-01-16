@@ -54,7 +54,7 @@ const Link = (props) => {
     }
 
     return (
-        <div className='inline relative border-2 border-blue-500'>
+        <div className='inline relative'>
             <span className="link" onClick={handleClick} onContextMenu={handleRightClick}>
                 {children}
             </span>

@@ -13,12 +13,14 @@ export default function ReadContextProvider({ children, article }) {
     const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
     const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
     const [isAddLinkModalOpen, setAddLinkModalOpen] = useState(false);
+    const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
+    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
     const articleId = article.id;
 
     const readContentRef = useRef();
 
     const fontSizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl', 'text-7xl'];
-   
+
     const syncArticleFromBE = async () => {
         await fetchArticleById(article.id);
     }
@@ -93,12 +95,12 @@ export default function ReadContextProvider({ children, article }) {
     const ctxValue = {
         article,
         articleId,
-        readContentRef,    
+        readContentRef,
         toggleStyle,
         toggleBlockType,
         handleInsertImageClicked,
         saveContent,
-        resetContent,        
+        resetContent,
         syncArticleFromBE,
         fontSize,
         increaseFontSize,
@@ -114,6 +116,10 @@ export default function ReadContextProvider({ children, article }) {
         getCategoryName,
         getOwnerName,
         addLink,
+        contextMenuIsOpen,
+        setContextMenuIsOpen,
+        contextMenuPosition,
+        setContextMenuPosition,
     };
 
     return <ReadContext.Provider value={ctxValue}>

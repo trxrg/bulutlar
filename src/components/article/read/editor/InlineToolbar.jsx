@@ -21,7 +21,7 @@ const InlineToolbar = () => {
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'SUPERSCRIPT')}><ArrowUpIcon className='w-4 h-4' /></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'SUBSCRIPT')}><ArrowDownIcon className='w-4 h-4' /></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-600 w-4 h-4'></span></FormatButton>
-                <FormatButton onMouseDown={(e) => setAddLinkModalOpen(true)}><LinkIcon className="w-6 h-6" /></FormatButton>
+                <FormatButton onClick={(e) => setAddLinkModalOpen(true)}><LinkIcon className="w-6 h-6" /></FormatButton>
             </div>           
         </>
     );

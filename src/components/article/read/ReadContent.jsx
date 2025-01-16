@@ -4,6 +4,8 @@ import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
 import AddLinkModal from "../modals/AddLinkModal.jsx";
 import RichEditor from "./editor/RichEditor.jsx";
+import ContextMenu from "../../common/ContextMenu.jsx";
+import InlineToolbar from "./editor/InlineToolbar.jsx";
 import toastr from "toastr";
 
 const ReadContent = () => {
@@ -13,7 +15,7 @@ const ReadContent = () => {
     const commentEditorRef = useRef(null);
 
     const [activeEditorRef, setActiveEditorRef] = useState(mainTextEditorRef);
-    const { article, readContentRef, fontSize, editable, syncArticleFromBE, isAddLinkModalOpen, setAddLinkModalOpen } = useContext(ReadContext);
+    const { article, readContentRef, fontSize, editable, syncArticleFromBE, isAddLinkModalOpen, setAddLinkModalOpen, contextMenuIsOpen, contextMenuPosition, setContextMenuIsOpen } = useContext(ReadContext);
     const { translate: t } = useContext(AppContext);
 
     const updateMainText = async (html, json) => {
@@ -128,6 +130,9 @@ const ReadContent = () => {
                     </div>}
             </div>
             <AddLinkModal isOpen={isAddLinkModalOpen} onRequestClose={() => setAddLinkModalOpen(false)} handleAdd={handleAddLink} title={'add link'} />
+            <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>
+                <InlineToolbar />
+            </ContextMenu>
         </div>
     );
 };

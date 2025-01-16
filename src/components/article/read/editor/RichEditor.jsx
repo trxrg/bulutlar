@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { Editor, EditorState, RichUtils, AtomicBlockUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw, getDefaultKeyBinding } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import { imageApi } from '../../../../backend-adapter/BackendAdapter';
+import { ReadContext } from '../../../../store/read-context';
 import ContextMenu from '../../../common/ContextMenu';
 import InlineToolbar from './InlineToolbar';
 import Link from './Link';
@@ -45,11 +46,13 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const [editorState, setEditorState] = useState(rawContent
         ? EditorState.createWithContent(convertFromRaw(rawContent), decorator)
         : createEditorStateFromHTMLAndDecorator(htmlContent, decorator));
-    const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
-    const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
+    // const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
+    // const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
 
     const editorStateRef = useRef(editorState);
     const editorRef = useRef();
+
+    const { setContextMenuIsOpen, setContextMenuPosition } = useContext(ReadContext);
 
     const persist = (newEditorState) => {
         handleContentChange(stateToHTML(newEditorState.getCurrentContent()), convertToRaw(newEditorState.getCurrentContent()));
@@ -186,7 +189,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const handleMouseUp = (e) => {
         const selection = window.getSelection();
         if (selection.rangeCount > 0 && !selection.isCollapsed) {
-            const editorBounds = e.currentTarget.getBoundingClientRect();
+            const editorBounds = e.currentTarget.parentElement.parentElement.parentElement.parentElement.getBoundingClientRect();
             // const range = selection.getRangeAt(0).getBoundingClientRect();
             // const top = Math.max(range.top - editorBounds.top - 60, 0);
             // const left = range.left - editorBounds.left;
@@ -250,11 +253,18 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     const handleEditorChange = (newEditorState) => {
         editorStateRef.current = newEditorState;
-        setEditorState(!newEditorState.getSelection().getHasFocus()
-            ? EditorState.moveFocusToEnd(newEditorState)
-            : newEditorState
-        );
-        // setEditorState(newEditorState);
+        // setEditorState(!newEditorState.getSelection().getHasFocus()
+        //     ? EditorState.moveFocusToEnd(newEditorState)
+        //     : newEditorState
+        // );
+
+        // setEditorState(!newEditorState.getSelection().getHasFocus()
+        //     ? EditorState.moveSelectionToEnd(newEditorState)
+        //     : newEditorState
+        // );
+        
+        setEditorState(newEditorState);
+        // setEditorState(EditorState.forceSelection(newEditorState, editorState.getSelection()));
     };
 
     const blockRendererFn = (contentBlock) => {
@@ -368,9 +378,9 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                     blockRendererFn={blockRendererFn}
                 />
             </div>
-            <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>
+            {/* <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>
                 <InlineToolbar />
-            </ContextMenu>
+            </ContextMenu> */}
         </div>
     );
 });

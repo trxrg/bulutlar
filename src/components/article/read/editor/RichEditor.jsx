@@ -49,6 +49,9 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     // const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     // const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
 
+    const [addedImageIdsWhileEditing, setAddedImageIdsWhileEditing] = useState([]);
+    const [deletedImageIdsWhileEditing, setDeletedImageIdsWhileEditing] = useState([]);
+
     const editorStateRef = useRef(editorState);
     const editorRef = useRef();
 
@@ -123,6 +126,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
             const contentStateWithEntity = contentState.createEntity('IMAGE', 'IMMUTABLE', image);
             const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
             const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
+            setAddedImageIdsWhileEditing(addedImageIdsWhileEditing => [...addedImageIdsWhileEditing, image.id]);
             return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ');
         });
     };
@@ -146,7 +150,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
         return images;
     };
 
-    const deleteAtomicBlock = (blockKey) => {
+    const deleteAtomicBlock = (blockKey, imageId) => {
         const contentState = editorStateRef.current.getCurrentContent();
         const blockMap = contentState.getBlockMap();
         const block = contentState.getBlockForKey(blockKey);
@@ -181,6 +185,8 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
             newEditorState,
             currentSelection
         );
+
+        setDeletedImageIdsWhileEditing(deletedImageIdsWhileEditing => [...deletedImageIdsWhileEditing, imageId]);
 
         // Update the editor state
         setEditorState(finalEditorState);
@@ -220,26 +226,36 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
 
     const getContent = () => {
         const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTMLAndDecorator(htmlContent, decorator);
-        const currentImageIds = getImages(editorState).map(image => image.id);
-        const originalImageIds = getImages(originalEditorState).map(image => image.id);
+        // const currentImageIds = getImages(editorState).map(image => image.id);
+        // const originalImageIds = getImages(originalEditorState).map(image => image.id);
 
-        // find images that are present in the originaleditorstate but not in the current editorState
-        // delete them from the db and the fs as they will be removed from the editor content
-        const imagesToDelete = originalImageIds.filter(id => !currentImageIds.includes(id));
-        imagesToDelete.forEach(imageId => imageApi.deleteById(imageId));
+        // // find images that are present in the originaleditorstate but not in the current editorState
+        // // delete them from the db and the fs as they will be removed from the editor content
+        // const imagesToDelete = originalImageIds.filter(id => !currentImageIds.includes(id));
+        // imagesToDelete.forEach(imageId => imageApi.deleteById(imageId));
+
+        // delete images (from db) that are deleted while editing
+        deletedImageIdsWhileEditing.forEach(imageId => imageApi.deleteById(imageId));
+        setAddedImageIdsWhileEditing([]);
+        setDeletedImageIdsWhileEditing([]);
 
         return { html: stateToHTML(editorState.getCurrentContent()), json: convertToRaw(editorState.getCurrentContent()) };
     }
 
     const resetContent = () => {
         const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTMLAndDecorator(htmlContent, decorator);
-        const currentImageIds = getImages(editorState).map(image => image.id);
-        const originalImageIds = getImages(originalEditorState).map(image => image.id);
+        // const currentImageIds = getImages(editorState).map(image => image.id);
+        // const originalImageIds = getImages(originalEditorState).map(image => image.id);
 
-        // find images that are present in the current editorstate but not in the originalEditorState
-        // delete them from the db and the fs as they will be removed from the editor content
-        const imagesToDelete = currentImageIds.filter(id => !originalImageIds.includes(id));
-        imagesToDelete.forEach(imageId => imageApi.deleteById(imageId));
+        // // find images that are present in the current editorstate but not in the originalEditorState
+        // // delete them from the db and the fs as they will be removed from the editor content
+        // const imagesToDelete = currentImageIds.filter(id => !originalImageIds.includes(id));
+        // imagesToDelete.forEach(imageId => imageApi.deleteById(imageId));
+
+        // delete images (from db) that are added while editing
+        addedImageIdsWhileEditing.forEach(imageId => imageApi.deleteById(imageId));
+        setAddedImageIdsWhileEditing([]);
+        setDeletedImageIdsWhileEditing([]);
 
         setEditorState(originalEditorState);
     }
@@ -284,7 +300,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
                         props: {
                             block: contentBlock,
                             contentState,
-                            onDelete: () => deleteAtomicBlock(contentBlock.getKey()),
+                            onDelete: (imageId) => deleteAtomicBlock(contentBlock.getKey(), imageId),
                         }
                     };
                 } else if (entityType === 'VIDEO') {

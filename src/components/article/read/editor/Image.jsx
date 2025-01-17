@@ -54,7 +54,7 @@ const Image = (props) => {
     const handleDeleteImage = async () => {
         setDeleteConfirmModalIsOpen(false);
         try {
-            onDelete();
+            onDelete(imageEntity.id);
             // await imageApi.deleteById(imageEntity.id);
             toastr.success(t('image') + t('deleted'));
         } catch (error) {

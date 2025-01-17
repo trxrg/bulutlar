@@ -68,6 +68,7 @@ const ReadContent = () => {
 
             for (const imageEntity of imageEntities) {
                 if (activeEditorRef) {
+                    console.info('Inserting image to article:', imageEntity);
                     activeEditorRef.current.addImage(imageEntity);
                 }
             }

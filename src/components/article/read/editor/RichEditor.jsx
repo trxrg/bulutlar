@@ -118,11 +118,13 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     // ================================ IMAGES ================================
 
     const addImage = (image) => {
-        const contentState = editorState.getCurrentContent();
-        const contentStateWithEntity = contentState.createEntity('IMAGE', 'IMMUTABLE', image);
-        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-        const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
-        setEditorState(AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' '));
+        setEditorState(editorState => {
+            const contentState = editorState.getCurrentContent();
+            const contentStateWithEntity = contentState.createEntity('IMAGE', 'IMMUTABLE', image);
+            const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+            const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
+            return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ');
+        });
     };
 
     const getImages = (editorState) => {

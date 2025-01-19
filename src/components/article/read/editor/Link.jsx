@@ -1,11 +1,12 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { AppContext } from '../../../../store/app-context';
+import { DBContext } from '../../../../store/db-context';
 import ContextMenu from '../../../common/ContextMenu';
 import ActionButton from '../../../common/ActionButton';
 import { isArticleUrl, urlToArticleId } from '../../util';
+import ArticleInfo from '../../ArticleInfo';
 
 const Link = (props) => {
-
     const contentState = props.contentState;
     const blockKey = props.blockKey;
     const entityKey = props.entityKey;
@@ -15,59 +16,95 @@ const Link = (props) => {
     const end = props.end;
 
     const { translate: t, handleAddTab } = useContext(AppContext);
+    const { getArticleById } = useContext(DBContext);
 
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
+    const [infoMenuIsOpen, setInfoMenuIsOpen] = useState(false);
+    const [article, setArticle] = useState(null);
 
+    const linkRef = useRef(null);
 
     const handleClick = (e) => {
         e.preventDefault();
-
-        const { url } = contentState.getEntity(entityKey).getData();
-
-        console.log('Link clicked:', url);
-
         try {
-            if (isArticleUrl(url))
-                handleAddTab(e, urlToArticleId(url));
+            if (article) {
+                console.info('Link clicked for articleId:', article.id);
+                handleAddTab(e, article.id);
+            } else {
+                console.warn('Link clicked but article is null');
+            }
         } catch (error) {
             console.error('Error handling link click:', error);
         }
-        // handle other types of links here
     };
 
     const handleRightClick = (e) => {
         e.preventDefault();
-
-        // const parentRect = e.currentTarget.getBoundingClientRect();
-
-        // const posx = e.clientX - parentRect.left;
-        // const posy = e.clientY - parentRect.top;
-
         setContextMenuIsOpen(true);
-        setContextMenuPosition({ x: 0, y: 0 });
-    }
+    };
 
     const handleRemoveLink = () => {
         onDelete(blockKey, { start, end });
         setContextMenuIsOpen(false);
+    };
+
+    useEffect(() => {
+        try {
+            const { url } = contentState.getEntity(entityKey).getData();
+            if (isArticleUrl(url)) {
+                const id = urlToArticleId(url);
+                setArticle(getArticleById(id));
+            }
+        } catch (error) {
+            console.error('Error getting article id or title:', error);
+        }
+    }, []);
+
+    const handleMouseEnter = () => {
+        calculateContextMenuPosition();
+        setInfoMenuIsOpen(true);
+    };
+
+    const handleMouseLeave = () => {
+        setInfoMenuIsOpen(false);
+    };
+
+    const calculateContextMenuPosition = () => {
+        if (linkRef.current) {
+            const rect = linkRef.current.getBoundingClientRect();
+            const rectParent = linkRef.current.parentElement.getBoundingClientRect();
+            setContextMenuPosition({ x: rect.left - rectParent.left, y: rect.top - rectParent.top + rect.height });
+        }
     }
 
     return (
-        <div className='inline relative'>
-            <span className="link" onClick={handleClick} onContextMenu={handleRightClick}>
-                {children}
-            </span>
-            <ContextMenu isOpen={contextMenuIsOpen}
-                onClose={() => setContextMenuIsOpen(false)}
-                position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
-                <div className='flex flex-col'>
-                    <ActionButton color={'red'} onClick={handleRemoveLink}
-                        className='hover:bg-red-300'>{t('remove link')}
-                    </ActionButton>
-                </div>
+        <>
+            <div className='inline relative' ref={linkRef}>
+                <span className="link" onClick={handleClick} onContextMenu={handleRightClick}
+                    onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                    {children}
+                </span>
+                <ContextMenu isOpen={contextMenuIsOpen}
+                    onClose={() => setContextMenuIsOpen(false)}
+                    position={{ top: contextMenuPosition.y, left: 0 }}>
+                    <div className='flex flex-col'>
+                        <ActionButton color={'red'} onClick={handleRemoveLink}
+                            className='hover:bg-red-300'>{t('remove link')}
+                        </ActionButton>
+                    </div>
+                </ContextMenu>
+            </div>
+            <ContextMenu isOpen={infoMenuIsOpen}
+                onClose={() => setInfoMenuIsOpen(false)}
+                position={{ top: contextMenuPosition.y, left: 0 }}>
+                {article &&
+                    <div className='flex flex-col'>
+                        <p>{article.title}</p>
+                        <ArticleInfo article={article} isEditable={false}></ArticleInfo>
+                    </div>}
             </ContextMenu>
-        </div>
+        </>
     );
 };
 

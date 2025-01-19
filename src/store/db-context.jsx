@@ -163,7 +163,7 @@ export default function DBContextProvider({ children }) {
         } catch (err) {
             console.error(err);
         }
-    }, []);
+    }, [articleOrder]);
 
     const getCategoryById = useCallback((id) => {
         return allCategories.find(category => category.id === id);

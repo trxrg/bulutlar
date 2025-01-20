@@ -86,6 +86,9 @@ app.whenReady().then(async () => {
   initServices();
   handleStreak();
   handleDBVersion();
+
+  require('./scripts/dateConverter'); // TODO DELETE
+
   createWindow();
   
   console.info('App started');

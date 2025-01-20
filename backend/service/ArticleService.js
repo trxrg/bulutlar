@@ -2,6 +2,7 @@ const { ipcMain, dialog } = require('electron')
 const { Op } = require("sequelize");
 const fs = require('fs').promises;
 const path = require('path');
+const hijriSafe = require('hijri-date/lib/safe');
 const { sequelize } = require("../sequelize");
 const tagService = require('./TagService');
 const ownerService = require('./OwnerService');
@@ -208,10 +209,13 @@ async function updateArticleDate(id, newDate) {
         if (!article)
             throw ('no article found with id: ' + id);
 
+        const newHDate = gregorianToHijri(newDate);
         await article.update({ date: newDate });
         await article.update({ number: calculateNumber(newDate) });
+        await article.update({ date2: newHDate });
+        await article.update({ number2: calculateNumber(newHDate) });
     } catch (error) {
-        console.error('Error in updateArticleTitle', error);
+        console.error('Error in updateArticleDate', error);
         throw error;
     }
 }
@@ -494,8 +498,17 @@ function calculateNumber(datestr) {
     return result;
 }
 
+function gregorianToHijri(gDate) {
+    let hijri = hijriSafe.toHijri(gDate);
+    hijri = hijri.subtractDay(); // the library returns one day after the actual date, idk why
+    const hDate = new Date(Date.UTC(hijri.year, hijri.month - 1, hijri.date));
+    return hDate;
+}
+
 module.exports = {
     initService,
     getArticleEntity,
     createArticleProgrammatically,
+    getAllArticles, //  TODO: remove
+    updateArticleDate, // TODO: remove
 };

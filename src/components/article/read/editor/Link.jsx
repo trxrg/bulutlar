@@ -22,6 +22,7 @@ const Link = (props) => {
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
     const [infoMenuIsOpen, setInfoMenuIsOpen] = useState(false);
     const [article, setArticle] = useState(null);
+    const [url, setUrl] = useState(null);
 
     const linkRef = useRef(null);
 
@@ -32,7 +33,7 @@ const Link = (props) => {
                 console.info('Link clicked for articleId:', article.id);
                 handleAddTab(e, article.id);
             } else {
-                console.warn('Link clicked but article is null');
+                console.warn('Link clicked but article is null url:', url);
             }
         } catch (error) {
             console.error('Error handling link click:', error);
@@ -52,6 +53,7 @@ const Link = (props) => {
     useEffect(() => {
         try {
             const { url } = contentState.getEntity(entityKey).getData();
+            setUrl(url);
             if (isArticleUrl(url)) {
                 const id = urlToArticleId(url);
                 setArticle(getArticleById(id));

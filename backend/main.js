@@ -87,7 +87,7 @@ app.whenReady().then(async () => {
   handleStreak();
   handleDBVersion();
 
-  require('./scripts/dateConverter'); // TODO DELETE
+  // require('./scripts/dateConverter'); // TODO DELETE
 
   createWindow();
   

@@ -39,12 +39,14 @@ async function createArticle(article) { // Now transactional
     const transaction = await sequelize.transaction();
 
     try {
+        article.date2 = gregorianToHijri(article.date);
         article.number = calculateNumber(article.date);
+        article.number2 = calculateNumber(article.date2);
         article.code = Math.random().toString(36).substring(2);
+
         const entity = await sequelize.models.article.create(article, { transaction });
-
         console.log('article added, id: ' + entity.id);
-
+        
         if (article.owner && article.owner.name) {
             const owner = await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name, transaction);
             await entity.setOwner(owner, { transaction });
@@ -204,6 +206,7 @@ async function updateArticleTitle(id, newTitle) {
 
 async function updateArticleDate(id, newDate) {
     try {
+        console.log('updating article date:', newDate);
         const article = await sequelize.models.article.findByPk(id);
 
         if (!article)
@@ -499,7 +502,7 @@ function calculateNumber(datestr) {
 }
 
 function gregorianToHijri(gDate) {
-    let hijri = hijriSafe.toHijri(gDate);
+    let hijri = hijriSafe.toHijri(new Date(gDate));
     hijri = hijri.subtractDay(); // the library returns one day after the actual date, idk why
     const hDate = new Date(Date.UTC(hijri.year, hijri.month - 1, hijri.date));
     return hDate;

@@ -95,6 +95,7 @@
     "updated": " updated",
     "deleted": " deleted",
     "loading": "Loading",
+    "filter by name": "Filter by name",
 
     "image": "Image",
     "errorAddingImage": "Error adding image",

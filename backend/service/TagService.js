@@ -22,10 +22,15 @@ async function addTagIfNotPresent(tagName) {
     }
 }
 
-async function updateTagName(tagName, newName) {
-    const tag = await sequelize.models.tag.findOne({ where: { name: tagName } });
-    const result = await tag.update({ name: newName });
-    return result.dataValues;
+async function updateTagName(id, newName) {
+    try {
+        const tag = await sequelize.models.tag.findByPk(id);
+        const result = await tag.update({ name: newName });
+        return result.dataValues;
+    } catch (error) {
+        console.error('error in updateTagName', error);
+        return { error: error.message };
+    }
 }
 
 async function getTagWithNameAddIfNotPresent(tagName, transaction = null) {
@@ -62,12 +67,51 @@ async function getTagWithNameLike(nameLike) {
 }
 
 async function getAllTags() {
-    const result = await sequelize.models.tag.findAll();
+    const result = await sequelize.models.tag.findAll({
+        attributes: {
+            include: [
+                [sequelize.fn('COUNT', sequelize.col('articles.id')), 'articleCount'],
+            ]
+        },
+        include: [
+            {
+                model: sequelize.models.article,
+                as: 'articles',
+                attributes: [], // We don't need any attributes from Article
+            },
+        ],
+        group: ['Tag.id'], // Group by Category ID
+    });
     return result.map(item => item.dataValues);
 }
 
-async function deleteTagById(tagName) {
-    await sequelize.models.tag.destroy({ where: { name: tagName } });
+
+
+async function getAllCategories() {
+    const result = await sequelize.models.category.findAll({
+        attributes: {
+            include: [
+                [sequelize.fn('COUNT', sequelize.col('articles.id')), 'articleCount'],
+            ]
+        },
+        include: [
+            {
+                model: sequelize.models.article,
+                as: 'articles',
+                attributes: [], // We don't need any attributes from Article
+            },
+        ],
+        group: ['Category.id'], // Group by Category ID
+    });
+    return result.map(item => item.dataValues);
+}
+
+async function deleteTagById(id) {
+    const tag = await sequelize.models.tag.findByPk(id);
+    if (tag)
+        await tag.destroy();
+    else
+        console.error('tag not found with id', id);
     return getAllTags();
 }
 

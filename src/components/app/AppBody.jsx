@@ -8,6 +8,7 @@ import HomeScreen from '../home/HomeScreen';
 import { AppContext } from '../../store/app-context';
 import AnnotationScreen from '../annotation/AnnotationScreen';
 import SettingsScreen from '../settings/SettingsScreen';
+import TagScreen from '../tag/TagScreen';
 
 
 const AppBody = () => {
@@ -30,6 +31,9 @@ const AppBody = () => {
                 : undefined}
             {activeScreen === 'owners' ?
                 <OwnerScreen />
+                : undefined}
+            {activeScreen === 'tags' ?
+                <TagScreen />
                 : undefined}
             {activeScreen === 'annotations' ?
                 <AnnotationScreen />

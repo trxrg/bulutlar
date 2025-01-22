@@ -54,8 +54,11 @@ contextBridge.exposeInMainWorld('api', {
     deleteById:    (id)     => ipcRenderer.invoke('image/deleteById', id),
   },
   tag: {
-    getAll: () => ipcRenderer.invoke('tag/getAll'),
-    getById: (id) => ipcRenderer.invoke('tag/getById', id),
+    create:     (tag) => ipcRenderer.invoke('tag/create', tag),
+    getAll:     () => ipcRenderer.invoke('tag/getAll'),
+    getById:    (id) => ipcRenderer.invoke('tag/getById', id),
+    updateName: (id, newName) => ipcRenderer.invoke('tag/updateName', id, newName),
+    deleteById: (id) => ipcRenderer.invoke('tag/deleteById', id),
   },
   annotation: {
     deleteById:       (annotationId)          => ipcRenderer.invoke('annotation/deleteById', annotationId),

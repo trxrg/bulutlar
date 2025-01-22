@@ -45,6 +45,7 @@ const HomeScreen = () => {
                 <div className='flex gap-2'>
                     <ActionButton onClick={() => setActiveScreen('categories')}>{t('categories')}</ActionButton>
                     <ActionButton onClick={() => setActiveScreen('owners')}>{t('owners')}</ActionButton>
+                    <ActionButton onClick={() => setActiveScreen('tags')}>{t('tags')}</ActionButton>
                     <ActionButton onClick={() => setActiveScreen('annotations')}>{t('annotations')}</ActionButton>
                     <ActionButton onClick={() => setActiveScreen('settings')}>{t('settings')}</ActionButton>
                 </div>

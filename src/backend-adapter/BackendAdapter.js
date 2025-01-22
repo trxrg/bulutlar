@@ -10,6 +10,7 @@ export const articleApi = {
     updateOwner:        async (id, newOwnerName)    => window.api.article.updateOwner(id, newOwnerName),
     updateCategory:     async (id, newCategoryName) => window.api.article.updateCategory(id, newCategoryName),
     updateDate:         async (id, newDate)         => window.api.article.updateDate(id, newDate),
+    updateDate2:        async (id, newDate)         => window.api.article.updateDate2(id, newDate),
     addImage:           async (id, image)           => window.api.article.addImage(id, image),
     openDialogToAddImages: async (id)               => window.api.article.openDialogToAddImages(id),
     addAnnotation:      async (id, annotation)      => window.api.article.addAnnotation(id, annotation),

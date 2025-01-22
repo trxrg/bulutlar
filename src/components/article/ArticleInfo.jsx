@@ -38,6 +38,11 @@ const ArticleInfo = ({ article, isEditable = true }) => {
         fetchArticleById(article.id);
     }
 
+    const handleUpdateDate2 = async (newDate) => {
+        await articleApi.updateDate2(article.id, newDate);
+        fetchArticleById(article.id);
+    }
+
     const owner = getOwnerById(article.ownerId);
     const category = getCategoryById(article.categoryId);
 
@@ -49,8 +54,13 @@ const ArticleInfo = ({ article, isEditable = true }) => {
                 <RichInput className='flex' initialText={new Date(article.date).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate}></RichInput>
                 :
                 new Date(article.date).toLocaleDateString('tr')}</span>
-            <span>{" | " + getDayOfWeek() + ' | '}</span>
-            <span>({article.number})</span>
+            <span>{" (" + article.number + ") | "}</span>
+            <span className='inline-flex'>{isEditable ?
+                <RichInput className='flex' initialText={new Date(article.date2).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate2}></RichInput>
+                :
+                new Date(article.date2).toLocaleDateString('tr')}</span>
+            <span>{" (" + article.number2 + ") | "}</span>
+            <span>{getDayOfWeek()}</span>
             <OwnerModal isOpen={ownerModalIsOpen} onRequestClose={() => setOwnerModalIsOpen(false)} initialOwnerName={owner && owner.name} onConfirm={handleUpdateOwner}></OwnerModal>
             <CategoryModal isOpen={categoryModalIsOpen} onRequestClose={() => setCategoryModalIsOpen(false)} initialCategoryName={category && category.name} onConfirm={handleUpdateCategory}></CategoryModal>
         </div >

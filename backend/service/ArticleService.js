@@ -20,6 +20,7 @@ function initService() {
     ipcMain.handle('article/updateCategory', (event, id, newCategoryName) => updateArticleCategory(id, newCategoryName));
     ipcMain.handle('article/updateTitle', (event, id, newTitle) => updateArticleTitle(id, newTitle));
     ipcMain.handle('article/updateDate', (event, id, newDate) => updateArticleDate(id, newDate));
+    ipcMain.handle('article/updateDate2', (event, id, newDate) => updateArticleDate2(id, newDate));
     ipcMain.handle('article/addImage', (event, id, image) => addImageToArticle(id, image));
     ipcMain.handle('article/openDialogToAddImages', (event, id) => openDialogToAddImages(id));
     ipcMain.handle('article/addAnnotation', (event, id, annotation) => addAnnotationToArticle(id, annotation));
@@ -46,7 +47,7 @@ async function createArticle(article) { // Now transactional
 
         const entity = await sequelize.models.article.create(article, { transaction });
         console.log('article added, id: ' + entity.id);
-        
+
         if (article.owner && article.owner.name) {
             const owner = await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name, transaction);
             await entity.setOwner(owner, { transaction });
@@ -128,7 +129,7 @@ async function deleteArticleById(id) {
         await commentService.deleteCommentsByArticleId(id);
         await imageService.deleteImagesByArticleId(id);
         await annotationService.deleteAnnotationsByArticleId(id);
-        
+
         await article.destroy();
     } catch (error) {
         console.error('Error deleting article:', error);
@@ -217,6 +218,22 @@ async function updateArticleDate(id, newDate) {
         await article.update({ number: calculateNumber(newDate) });
         await article.update({ date2: newHDate });
         await article.update({ number2: calculateNumber(newHDate) });
+    } catch (error) {
+        console.error('Error in updateArticleDate', error);
+        throw error;
+    }
+}
+
+async function updateArticleDate2(id, newDate) {
+    try {
+        console.log('updating article date2:', newDate);
+        const article = await sequelize.models.article.findByPk(id);
+
+        if (!article)
+            throw ('no article found with id: ' + id);
+
+        await article.update({ date2: newDate });
+        await article.update({ number2: calculateNumber(newDate) });
     } catch (error) {
         console.error('Error in updateArticleDate', error);
         throw error;
@@ -326,10 +343,10 @@ async function addTagToArticle(id, tagName) {
 
         if (!article)
             throw ('no article found with id: ' + id);
-            
+
         const tag = await tagService.getTagWithNameAddIfNotPresent(tagName);
-        
-        if (! await article.hasTag(tagName))            
+
+        if (! await article.hasTag(tagName))
             await article.addTag(tag);
 
         return await getArticleById(id);

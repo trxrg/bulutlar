@@ -27,7 +27,7 @@ const SearchFilterings = () => {
                     <KeywordFiltering />
                 </AccordionDetails>
             </Accordion>
-            <Accordion defaultExpanded>
+            <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headStyle}>
                     <Typography>{t('category')}</Typography>
                 </AccordionSummary>
@@ -35,7 +35,7 @@ const SearchFilterings = () => {
                     <CategoryFiltering />
                 </AccordionDetails>
             </Accordion>
-            <Accordion defaultExpanded>
+            <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headStyle}>
                     <Typography>{t('owner')}</Typography>
                 </AccordionSummary>
@@ -43,7 +43,7 @@ const SearchFilterings = () => {
                     <OwnerFiltering />
                 </AccordionDetails>
             </Accordion>
-            <Accordion defaultExpanded>
+            <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headStyle}>
                     <Typography>{t('tag')}</Typography>
                 </AccordionSummary>

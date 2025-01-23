@@ -1,7 +1,10 @@
 import React, { useContext, useState } from 'react';
 import ActionButton from '../../../common/ActionButton';
+import FormatButton from '../../../common/FormatButton';
 import { SearchContext } from '../../../../store/search-context';
 import { useTranslation } from 'react-i18next';
+
+import { XMarkIcon, PlusIcon } from '@heroicons/react/24/solid';
 
 const KeywordFiltering = () => {
 
@@ -20,22 +23,32 @@ const KeywordFiltering = () => {
         setKeywords(keywords.filter((_, index) => index !== indexToRemove));
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleAddKeyword();
+        }
+    };
+
     return (
-        <div className='bg-stone-50 p-1 rounded-md'>
-            <label className="my-2">{t('keyword')}:</label>
-            <div className="flex flex-wrap justify-between p-1 overflow-auto max-h-40">
+        <div className='p-1 flex flex-col overflow-auto max-h-40'>
+            <div className="flex flex-wrap mb-3">
                 <input
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
+                    className='flex-1 p-1 border rounded'
+                    onKeyDown={handleKeyDown}
+                    placeholder={t('enter keyword')}
                 />
-                <ActionButton onClick={handleAddKeyword}>{t('add')}</ActionButton>
+                <div className='flex flex-shrink-0 ml-1'>
+                    <FormatButton onClick={handleAddKeyword}><PlusIcon className="w-5 h-5" /></FormatButton>
+                </div>
             </div>
             <ul>
                 {keywords.map((keyword, index) => (
                     <li key={index}>
-                        <div className='flex justify-between'>
+                        <div className='flex justify-between py-1 border-t border-red-300'>
                             <p>{keyword}</p>
-                            <ActionButton onClick={() => handleRemoveKeyword(index)}>{t('remove')}</ActionButton>
+                            <FormatButton onClick={() => handleRemoveKeyword(index)}><XMarkIcon className="w-4 h-4" /></FormatButton>
                         </div>
                     </li>
                 ))}

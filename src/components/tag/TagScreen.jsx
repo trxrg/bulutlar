@@ -78,7 +78,7 @@ const TagScreen = () => {
 
     return (
         <div className="container h-full overflow-y-auto mx-auto p-4">
-            <div className="mb-4">
+            <div className="mb-2">
                 <input
                     type="text"
                     placeholder={t('filter by name')}

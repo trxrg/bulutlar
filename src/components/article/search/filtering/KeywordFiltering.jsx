@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import ActionButton from '../../../common/ActionButton';
 import FormatButton from '../../../common/FormatButton';
 import { SearchContext } from '../../../../store/search-context';
 import { useTranslation } from 'react-i18next';

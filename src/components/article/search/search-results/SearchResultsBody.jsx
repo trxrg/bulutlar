@@ -4,6 +4,7 @@ import ArticleShort from './ArticleShort.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
 import { DBContext } from '../../../../store/db-context.jsx';
 import { SearchContext } from '../../../../store/search-context.jsx';
+import toastr from 'toastr';
 
 const SearchResultsBody = () => {
     const { handleAddTab, translate: t } = useContext(AppContext);
@@ -18,28 +19,23 @@ const SearchResultsBody = () => {
         applyFiltering(allArticles, filtering);
     }, [allArticles, filtering]);
 
+    const normalizeText = (text) => {
+        if (!text)
+            return '';
+        const turkishMap = {
+            'ç': 'c', 'Ç': 'C',
+            'ğ': 'g', 'Ğ': 'G',
+            'ı': 'i', 'İ': 'I',
+            'ö': 'o', 'Ö': 'O',
+            'ş': 's', 'Ş': 'S',
+            'ü': 'u', 'Ü': 'U'
+        };
+        const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
+        return result;
+    };
+
     const applyFiltering = (allArticles, filtering) => {
         let localFilteredArticles = allArticles;
-
-        // alternative normalize function
-        // const normalizeText = (text) => {
-        //     return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ı/g, 'i');
-        // };
-
-        const normalizeText = (text) => {
-            if (!text)
-                return '';
-            const turkishMap = { 
-                'ç': 'c', 'Ç': 'C', 
-                'ğ': 'g', 'Ğ': 'G', 
-                'ı': 'i', 'İ': 'I', 
-                'ö': 'o', 'Ö': 'O', 
-                'ş': 's', 'Ş': 'S', 
-                'ü': 'u', 'Ü': 'U' 
-            };
-            const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
-            return result;
-        };
 
         if (filtering.ownerNames && filtering.ownerNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => art.ownerId && filtering.ownerNames.includes(getOwnerById(art.ownerId).name));
@@ -50,6 +46,12 @@ const SearchResultsBody = () => {
         if (filtering.categoryNames && filtering.categoryNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => art.categoryId && filtering.categoryNames.includes(getCategoryById(art.categoryId).name));
 
+        if (filtering.startDate || filtering.endDate)
+            localFilteredArticles = applyDateFiltering(localFilteredArticles, 'date', filtering.startDate, filtering.endDate);
+        
+        if (filtering.startDate2 || filtering.endDate2)
+            localFilteredArticles = applyDateFiltering(localFilteredArticles, 'date2', filtering.startDate2, filtering.endDate2);
+        
         if (filtering.keywords && filtering.keywords.length) {
             localFilteredArticles = localFilteredArticles.filter(art => filtering.keywords.some(keyword => {
                 const normalizedKeyword = normalizeText(keyword);
@@ -62,6 +64,36 @@ const SearchResultsBody = () => {
 
         setFilteredArticles(localFilteredArticles);
     };
+
+    const applyDateFiltering = (filteredArticles, field, startDate, endDate) => {
+        let localFilteredArticles = filteredArticles;
+
+        try {
+            if (startDate) {
+                if (startDate.day)
+                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getDate()) >= startDate.day);
+                if (startDate.month)
+                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getMonth()) >= startDate.month-1);
+                if (startDate.year)
+                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getFullYear()) >= startDate.year);
+            }
+
+            if (endDate) {
+                if (endDate.day)
+                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getDate()) <= endDate.day);
+                if (endDate.month)
+                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getMonth()) <= endDate.month-1);
+                if (endDate.year)
+                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getFullYear()) <= endDate.year);
+            }
+
+            return localFilteredArticles;
+        } catch (error) {
+            console.error('Error in applyDateFiltering', error);
+            toastr.error('Error in applyDateFiltering');
+            return filteredArticles;
+        }
+    }
 
     return (
         <>

@@ -65,6 +65,8 @@
 
     "keyword": "Anahtar kelime",
     "enter keyword": "Anahtar kelime girin",
+    "start": "Başlangıç",
+    "end": "Bitiş",
 
     "title": "Başlık",
     "date": "Tarih",
@@ -85,6 +87,7 @@
     "update": "Güncelle",
     "view": "Görüntüle",
     "start reading": "Okumaya Başla",
+    "apply": "Uygula",
 
     "creation": "Oluşturulma",
     "last update": "Son Güncelleme",

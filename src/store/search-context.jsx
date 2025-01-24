@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { DBContext } from './db-context';
 import { AppContext } from './app-context';
+import { da } from 'date-fns/locale';
 
 export const SearchContext = createContext();
 
@@ -16,6 +17,14 @@ export default function SearchContextProvider({ children }) {
     const [selectedTagNames, setSelectedTagNames] = useState([]);
     const [selectedCategoryNames, setSelectedCategoryNames] = useState([]);
     const [keywords, setKeywords] = useState([]);
+    const [startDate, setStartDate] = useState({day: null, month: null, year: null});
+    const [endDate, setEndDate] = useState({day: null, month: null, year: null});
+    const [startDate2, setStartDate2] = useState({day: null, month: null, year: null});
+    const [endDate2, setEndDate2] = useState({day: null, month: null, year: null});
+    const [minNumber, setMinNumber] = useState(null);
+    const [maxNumber, setMaxNumber] = useState(null);
+    const [minNumber2, setMinNumber2] = useState(null);
+    const [maxNumber2, setMaxNumber2] = useState(null);
 
     const [areArticlesSelectable, setArticlesSelectable] = useState(false);
     const [allOrNoneSelected, setAllOrNoneSelected] = useState(false);
@@ -42,8 +51,16 @@ export default function SearchContextProvider({ children }) {
             tagNames: selectedTagNames,
             categoryNames: selectedCategoryNames,
             keywords: keywords,
+            startDate: startDate,
+            endDate: endDate,
+            startDate2: startDate2,
+            endDate2: endDate2,
+            minNumber: minNumber,
+            maxNumber: maxNumber,
+            minNumber2: minNumber2,
+            maxNumber2: maxNumber2,
         });
-    }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames, keywords]);
+    }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames, keywords, startDate, endDate, startDate2, endDate2, minNumber, maxNumber, minNumber2, maxNumber2]);
 
     const ctxValue = {
         filtering,
@@ -66,6 +83,22 @@ export default function SearchContextProvider({ children }) {
         selectAllOrNone,
         selectAllOrNoneClicks,
         allOrNoneSelected,
+        startDate,
+        setStartDate,
+        endDate,
+        setEndDate,
+        startDate2,
+        setStartDate2,
+        endDate2,
+        setEndDate2,
+        minNumber,
+        setMinNumber,
+        maxNumber,
+        setMaxNumber,
+        minNumber2,
+        setMinNumber2,
+        maxNumber2,
+        setMaxNumber2,
     };
 
     return (

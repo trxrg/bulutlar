@@ -6,6 +6,8 @@ import KeywordFiltering from './KeywordFiltering.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Typography, AccordionDetails, AccordionSummary, Accordion } from '@mui/material';
+import Date1Filtering from './Date1Filtering.jsx';
+import Date2Filtering from './Date2Filtering.jsx';
 
 const SearchFilterings = () => {
 
@@ -49,6 +51,22 @@ const SearchFilterings = () => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <TagFiltering />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headStyle}>
+                    <Typography>{t('date')}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Date1Filtering />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headStyle}>
+                    <Typography>{t('date')}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Date2Filtering />
                 </AccordionDetails>
             </Accordion>
         </>

@@ -65,6 +65,8 @@
 
     "keyword": "Keyword",
     "enter keyword": "Enter keyword",
+    "start": "Start",
+    "end": "End",
 
     "title": "Title",
     "date": "Date",
@@ -85,6 +87,7 @@
     "update": "Update",
     "view": "View",
     "start reading": "Start Reading",
+    "apply": "Apply",
 
     "creation": "Created",
     "last update": "Last Update",

@@ -34,7 +34,7 @@ const KeywordFiltering = () => {
                 <input
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    className='flex-1 p-1 border rounded'
+                    className='flex-1 p-1 border border-black rounded'
                     onKeyDown={handleKeyDown}
                     placeholder={t('enter keyword')}
                 />

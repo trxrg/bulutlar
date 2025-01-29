@@ -17,6 +17,8 @@ const DateFiltering = ({ startDate, setStartDate, endDate, setEndDate }) => {
         setEndDate({ day: endDay, month: endMonth, year: endYear });
     }
 
+    const inputStyle = 'flex-1 min-w-0 border border-black rounded p-1';
+
     return (
         <div className='flex flex-col gap-4'>
             <div className='flex flex-col gap-2'>
@@ -26,19 +28,22 @@ const DateFiltering = ({ startDate, setStartDate, endDate, setEndDate }) => {
                         type="number"
                         value={startDay}
                         onChange={e => setStartDay(e.target.value)}
-                        placeholder="DD"
+                        placeholder={t('day')}
+                        className={inputStyle}
                     />
                     <input
                         type="number"
                         value={startMonth}
                         onChange={(e) => setStartMonth(e.target.value)}
-                        placeholder="MM"
+                        placeholder={t('month')}
+                        className={inputStyle}
                     />
                     <input
                         type="number"
                         value={startYear}
                         onChange={(e) => setStartYear(e.target.value)}
-                        placeholder="YYYY"
+                        placeholder={t('year')}
+                        className={inputStyle}
                     />
                 </div>
             </div>
@@ -49,19 +54,22 @@ const DateFiltering = ({ startDate, setStartDate, endDate, setEndDate }) => {
                         type="number"
                         value={endDay}
                         onChange={(e) => setEndDay(e.target.value)}
-                        placeholder="DD"
+                        placeholder={t('day')}
+                        className={inputStyle}
                     />
                     <input
                         type="number"
                         value={endMonth}
                         onChange={(e) => setEndMonth(e.target.value)}
-                        placeholder="MM"
+                        placeholder={t('month')}
+                        className={inputStyle}
                     />
                     <input
                         type="number"
                         value={endYear}
                         onChange={(e) => setEndYear(e.target.value)}
-                        placeholder="YYYY"
+                        placeholder={t('year')}
+                        className={inputStyle}
                     />
                 </div>
             </div>

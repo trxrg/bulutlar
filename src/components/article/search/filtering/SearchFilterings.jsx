@@ -55,7 +55,7 @@ const SearchFilterings = () => {
             </Accordion>
             <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headStyle}>
-                    <Typography>{t('date')}</Typography>
+                    <Typography>{t('gregorian date')}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Date1Filtering />
@@ -63,7 +63,7 @@ const SearchFilterings = () => {
             </Accordion>
             <Accordion>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headStyle}>
-                    <Typography>{t('date')}</Typography>
+                    <Typography>{t('hijri date')}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                     <Date2Filtering />

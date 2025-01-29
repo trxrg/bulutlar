@@ -72,6 +72,17 @@
     "date": "Tarih",
     "streak": "Seri",
 
+    "day": "Gün",
+    "days": "Günler",
+    "week": "Hafta",
+    "weeks": "Haftalar",
+    "month": "Ay",
+    "months": "Aylar",
+    "year": "Yıl",
+    "years": "Yıllar",
+    "gregorian date": "Miladi Tarih",
+    "hijri date": "Hicri Tarih",
+
     "search": "Ara",
     "add": "Ekle",
     "remove": "Kaldır",

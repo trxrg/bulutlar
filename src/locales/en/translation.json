@@ -72,6 +72,13 @@
     "date": "Date",
     "streak": "Streak",
 
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "year": "Year",
+    "gregorian date": "Gregorian Date",
+    "hijri date": "Hijri Date",
+
     "search": "Search",
     "add": "Add",
     "remove": "Remove",

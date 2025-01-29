@@ -8,6 +8,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Typography, AccordionDetails, AccordionSummary, Accordion } from '@mui/material';
 import Date1Filtering from './Date1Filtering.jsx';
 import Date2Filtering from './Date2Filtering.jsx';
+import Number1Filtering from './Number1Filtering.jsx';
+import Number2Filtering from './Number2Filtering.jsx';
 
 const SearchFilterings = () => {
 
@@ -67,6 +69,22 @@ const SearchFilterings = () => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <Date2Filtering />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headStyle}>
+                    <Typography>{t('gregorian number')}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Number1Filtering />
+                </AccordionDetails>
+            </Accordion>
+            <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={headStyle}>
+                    <Typography>{t('hijri number')}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Number2Filtering />
                 </AccordionDetails>
             </Accordion>
         </>

@@ -52,6 +52,12 @@ const SearchResultsBody = () => {
         if (filtering.startDate2 || filtering.endDate2)
             localFilteredArticles = applyDateFiltering(localFilteredArticles, 'date2', filtering.startDate2, filtering.endDate2);
         
+        if (filtering.numbers1 && filtering.numbers1.length)
+            localFilteredArticles = localFilteredArticles.filter(art => filtering.numbers1.includes(String(art.number)));
+        
+        if (filtering.numbers2 && filtering.numbers2.length)
+            localFilteredArticles = localFilteredArticles.filter(art => filtering.numbers2.includes(String(art.number2)));
+        
         if (filtering.keywords && filtering.keywords.length) {
             localFilteredArticles = localFilteredArticles.filter(art => filtering.keywords.some(keyword => {
                 const normalizedKeyword = normalizeText(keyword);

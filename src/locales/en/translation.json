@@ -78,6 +78,8 @@
     "year": "Year",
     "gregorian date": "Gregorian Date",
     "hijri date": "Hijri Date",
+    "gregorian number": "Gregorian Number",
+    "hijri number": "Hijri Number",
 
     "search": "Search",
     "add": "Add",

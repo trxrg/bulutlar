@@ -5,8 +5,10 @@ const SearchHeader = () => {
     const { t } = useTranslation();
 
     return (
-        <div className='bg-stone-50 py-1 px-2 border-b-4 border-red-300'>
-            <h1>{t('filters')}:</h1>
+        <div className={'overflow-auto px-6 py-3 bg-stone-100 border-b-4 border-red-300'}>
+            <div className="text-3xl font-semibold text-gray-800">
+                {t('article center')}
+            </div>
         </div>
     );
 };

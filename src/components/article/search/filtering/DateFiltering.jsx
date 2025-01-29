@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { AppContext } from '../../../../store/app-context';
 import ActionButton from '../../../common/ActionButton';
 
@@ -16,6 +16,15 @@ const DateFiltering = ({ startDate, setStartDate, endDate, setEndDate }) => {
         setStartDate({ day: startDay, month: startMonth, year: startYear });
         setEndDate({ day: endDay, month: endMonth, year: endYear });
     }
+
+    useEffect(() => {
+        setStartDay(startDate.day ? startDate.day : '');
+        setStartMonth(startDate.month ? startDate.month : '');
+        setStartYear(startDate.year ? startDate.year : '');
+        setEndDay(endDate.day ? endDate.day : '');
+        setEndMonth(endDate.month ? endDate.month : '');
+        setEndYear(endDate.year ? endDate.year : '');
+    }, [startDate, endDate]);
 
     const inputStyle = 'flex-1 min-w-0 border border-black rounded p-1';
 

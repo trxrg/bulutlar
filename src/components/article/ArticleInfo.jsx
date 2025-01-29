@@ -55,12 +55,12 @@ const ArticleInfo = ({ article, isEditable = true }) => {
                 :
                 new Date(article.date).toLocaleDateString('tr')}</span>
             <span>{" (" + article.number + ") | "}</span>
+            <span>{getDayOfWeek() + " | "}</span>
             <span className='inline-flex'>{isEditable ?
                 <RichInput className='flex' initialText={new Date(article.date2).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate2}></RichInput>
                 :
                 new Date(article.date2).toLocaleDateString('tr')}</span>
-            <span>{" (" + article.number2 + ") | "}</span>
-            <span>{getDayOfWeek()}</span>
+            <span>{" (" + article.number2 + ")"}</span>
             <OwnerModal isOpen={ownerModalIsOpen} onRequestClose={() => setOwnerModalIsOpen(false)} initialOwnerName={owner && owner.name} onConfirm={handleUpdateOwner}></OwnerModal>
             <CategoryModal isOpen={categoryModalIsOpen} onRequestClose={() => setCategoryModalIsOpen(false)} initialCategoryName={category && category.name} onConfirm={handleUpdateCategory}></CategoryModal>
         </div >

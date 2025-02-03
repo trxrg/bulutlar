@@ -6,12 +6,15 @@ const fs = require('fs').promises;
 const { config } = require('../config.js');
 
 let imagesFolderPath;
+let publicFolderPath;
 
 function initService() {
     ipcMain.handle('image/getDataById', (event, id) => getImageDataById(id));
     ipcMain.handle('image/getDataByPath', (event, path) => getImageDataByPath(path));
+    ipcMain.handle('image/getDataByAnyPath', (event, path, type) => getImageDataFromPublic(path, type));
     ipcMain.handle('image/deleteById', (event, id) => deleteImageById(id));
     
+    publicFolderPath = config.publicFolderPath;
     imagesFolderPath = config.imagesFolderPath;
     ensureFolderExists(imagesFolderPath);
 
@@ -65,6 +68,17 @@ async function getImageDataByPath(image) {
         return `data:${image.type};base64,${fileData}`;
     } catch (err) {
         console.error('Error in getImageDataByPath', err);
+    }
+}
+
+async function getImageDataFromPublic(relPath, imageType) {
+    try {
+        const absPath = path.join(publicFolderPath, relPath);
+        const fileData = await fs.readFile(absPath, 'base64');
+        
+        return `data:${imageType};base64,${fileData}`;
+    } catch (err) {
+        console.error('Error in getImageDataByAnyPath', err);
     }
 }
 

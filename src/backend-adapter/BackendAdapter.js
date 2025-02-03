@@ -48,6 +48,7 @@ export const commentApi = {
 export const imageApi = {
     getDataById:        async (id)                  => window.api.image.getDataById(id),
     getDataByPath:      async (image)               => window.api.image.getDataByPath(image),
+    getDataByAnyPath:   async (path, type)          => window.api.image.getDataByAnyPath(path, type),
     deleteById:         async (id)                  => window.api.image.deleteById(id),
 };
 

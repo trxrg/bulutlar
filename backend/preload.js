@@ -51,6 +51,7 @@ contextBridge.exposeInMainWorld('api', {
   image: {
     getDataById:   (id)     => ipcRenderer.invoke('image/getDataById', id),
     getDataByPath: (image)  => ipcRenderer.invoke('image/getDataByPath', image),
+    getDataByAnyPath: (path, type) => ipcRenderer.invoke('image/getDataByAnyPath', path, type),
     deleteById:    (id)     => ipcRenderer.invoke('image/deleteById', id),
   },
   tag: {

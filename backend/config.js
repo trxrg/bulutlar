@@ -19,7 +19,7 @@ const production = {
     programDbPath: path.resolve(__dirname, "../../../data/active/program.db"),
     dbBackupFolderPath: path.resolve(__dirname, "../../../data/backup"),
     imagesFolderPath: path.resolve(__dirname, "../../../data/active/images"),
-    publicFolderPath: path.resolve(__dirname, "../../../public"),
+    publicFolderPath: path.resolve(__dirname, '../../../public'),
 };
 
 const changeDbBackupFolderPath = (newPath) => {

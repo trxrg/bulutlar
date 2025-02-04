@@ -28,22 +28,22 @@ const HomeScreen = () => {
 
     return (
         <div className='relative flex w-full h-full'>
-            <div className='absolute inset-0' style={{ backgroundImage: imageLoaded ? `url(${imageData})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+            {imageLoaded && <div className='absolute inset-0' style={{ backgroundImage: `url(${imageData})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>}
             <div className='relative flex w-full h-full'>
                 <div className='w-3/4'></div>
-                <div className='flex flex-col flex-shrink-0 items-center gap-5 bg-stone-100 bg-opacity-80 px-10 py-5'>
-                    <h1 className='text-5xl text-[#0C3B2E] p-4 select-none mt-5'>HAZINE</h1>
+                <div className='flex flex-col flex-shrink-0 items-center justify-center gap-5 bg-stone-100 bg-opacity-80 px-10 py-5'>
+                    <h1 className='text-5xl text-[#0C3B2E] pb-8 select-none'>HAZINE</h1>
                     <div className='flex flex-col gap-5'>
-                        <Button size={"large"} onClick={() => setActiveScreen('tabs')} variant="contained" color="primary">{t('articles')}</Button>                
-                        <Button size={"large"} onClick={() => setActiveScreen('categories')} variant="outlined">{t('categories')}</Button>
-                        <Button size={"large"} onClick={() => setActiveScreen('owners')} variant="outlined">{t('owners')}</Button>
-                        <Button size={"large"} onClick={() => setActiveScreen('tags')} variant="outlined">{t('tags')}</Button>
-                        <Button size={"large"} onClick={() => setActiveScreen('annotations')} variant="outlined">{t('annotations')}</Button>
-                        <Button size={"large"} onClick={() => setActiveScreen('settings')} variant="outlined">{t('settings')}</Button>
+                        <Button size={"large"} onClick={() => setActiveScreen('tabs')} variant="contained" color="secondary">{t('articles')}</Button>                
+                        <Button size={"large"} onClick={() => setActiveScreen('categories')} variant="outlined" color='secondary'>{t('categories')}</Button>
+                        <Button size={"large"} onClick={() => setActiveScreen('owners')} variant="outlined" color='secondary'>{t('owners')}</Button>
+                        <Button size={"large"} onClick={() => setActiveScreen('tags')} variant="outlined" color='secondary'>{t('tags')}</Button>
+                        <Button size={"large"} onClick={() => setActiveScreen('annotations')} variant="outlined" color='secondary'>{t('annotations')}</Button>
+                        <Button size={"large"} onClick={() => setActiveScreen('settings')} variant="outlined" color='secondary'>{t('settings')}</Button>
                     </div>
-                    <div className='cursor-pointer' onClick={() => setStreakModalOpen(true)}>
+                    {/* <div className='cursor-pointer' onClick={() => setStreakModalOpen(true)}>
                         <span className='text-5xl text-green-600 font-bold'>⚡{streak}</span>
-                    </div>
+                    </div> */}
                     <div>
                         <h2>db version: {dbVersion}</h2>
                     </div>

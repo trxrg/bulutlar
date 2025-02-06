@@ -1,6 +1,6 @@
-const { ipcMain } = require('electron')
-const { Op } = require("sequelize");
-const { sequelize } = require("../sequelize");
+import { ipcMain } from 'electron';
+import { Op } from 'sequelize';
+import { sequelize } from '../sequelize/index.js';
 
 function initService() {
     ipcMain.handle('owner/create', (event, owner) => createOwner(owner));
@@ -115,8 +115,10 @@ async function deleteOwnerById(id) {
     }
 }
 
-module.exports = {
+const OwnerService = {
     addOwner: createOwner,
     getOwnerWithNameAddIfNotPresent,
     initService
 };
+
+export default OwnerService;

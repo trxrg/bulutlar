@@ -4,6 +4,7 @@
   "description": "",
   "main": "backend/main.js",
   "homepage": "./",
+  "type": "module",
   "scripts": {
     "start-react": "react-scripts start",
     "build-react": "react-scripts build",

@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from 'fs';
 
 function ensureFolderExists(folderPath) {
     if (!fs.existsSync(folderPath)) {
@@ -6,6 +6,6 @@ function ensureFolderExists(folderPath) {
     }
 }
 
-module.exports = {
+export {
     ensureFolderExists
 };

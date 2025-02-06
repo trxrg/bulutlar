@@ -1,6 +1,6 @@
-const { ipcMain } = require('electron');
-const { Op } = require("sequelize");
-const { sequelize } = require("../sequelize");
+import { ipcMain } from 'electron';
+import { Op } from 'sequelize';
+import { sequelize } from '../sequelize/index.js';
 
 function initService() {
     ipcMain.handle('comment/updateText', (event, id, newText) => updateText(id, newText));
@@ -75,8 +75,10 @@ async function deleteCommentsByArticleId(articleId) {
     }
 }
 
-module.exports = {
+const CommentService = {
     createComment,
     deleteCommentsByArticleId,
     initService
 };
+
+export default CommentService;

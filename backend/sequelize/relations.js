@@ -32,4 +32,4 @@ function setRelations(sequelize) {
 	console.info('model relations set');
 }
 
-module.exports = { setRelations };
+export { setRelations };

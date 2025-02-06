@@ -1,8 +1,7 @@
-const { ipcMain } = require('electron')
-const fs = require('fs');
-const path = require('path');
-const articleService = require('../service/ArticleService')
-
+import { ipcMain } from 'electron';
+import fs from 'fs';
+import path from 'path';
+import articleService from '../service/ArticleService.js';
 
 ipcMain.handle('DB/loadArticlesFromTxt', (event) => loadArticlesFromTxt());
 

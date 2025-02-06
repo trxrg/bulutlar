@@ -1,10 +1,10 @@
-const fs = require('fs-extra');
-const path = require('path');
-const { ipcMain, dialog } = require('electron')
+import fs from 'fs-extra';
+import path from 'path';
+import { ipcMain, dialog } from 'electron';
 
-const { mainWindow } = require('../main');
-const { initDB, stopSequelize, startSequelize } = require("../sequelize");
-const { config, changeDbBackupFolderPath } = require('../config');
+import { mainWindow } from '../main.js';
+import { initDB, stopSequelize, startSequelize } from '../sequelize/index.js';
+import { config, changeDbBackupFolderPath } from '../config.js';
 
 function initService() {
     ipcMain.handle('DB/handleExport', () => handleExport());
@@ -102,6 +102,8 @@ function getBackupDir() {
     return config.dbBackupFolderPath;
 }
 
-module.exports = {
+const dbService = {
     initService,
 };
+
+export default dbService;

@@ -1,5 +1,5 @@
-module.exports = (sequelize, DataTypes) => {
-    const Owner = sequelize.define('owner', {
+const Owner = (sequelize, DataTypes) => {
+    return sequelize.define('owner', {
         name: {
             allowNull: false,
             type: DataTypes.STRING,
@@ -28,6 +28,6 @@ module.exports = (sequelize, DataTypes) => {
             }
         }
     });
-
-    return Owner;
 };
+
+export default Owner;

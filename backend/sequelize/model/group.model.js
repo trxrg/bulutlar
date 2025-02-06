@@ -1,4 +1,6 @@
-module.exports = (sequelize, DataTypes) => {
+import { DataTypes } from 'sequelize';
+
+export default (sequelize) => {
     const Group = sequelize.define('group', {
         name: {
             allowNull: false,
@@ -11,4 +13,4 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     return Group;
-}
+};

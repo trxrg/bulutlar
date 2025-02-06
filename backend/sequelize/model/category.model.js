@@ -1,4 +1,6 @@
-module.exports = (sequelize, DataTypes) => {
+import { DataTypes } from 'sequelize';
+
+export default (sequelize) => {
     const Category = sequelize.define('category', {
         name: {
             allowNull: false,
@@ -25,4 +27,4 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     return Category;
-}
+};

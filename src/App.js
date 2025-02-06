@@ -1,12 +1,12 @@
 import './App.css';
-import AppScreen from './components/app/AppScreen';
-import ErrorBoundary from './ErrorBoundary';
-import AppContextProvider from './store/app-context';
-import DBContextProvider from './store/db-context';
+import AppScreen from './components/app/AppScreen.jsx';
+import ErrorBoundary from './ErrorBoundary.jsx';
+import AppContextProvider from './store/app-context.jsx';
+import DBContextProvider from './store/db-context.jsx';
 import { useEffect } from 'react';
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
-import log from 'electron-log/renderer';
+import log from 'electron-log/renderer.js';
 Object.assign(console, log.functions);
 
 // Optional: Configure Toastr options

@@ -1,4 +1,5 @@
-const { contextBridge, ipcRenderer } = require('electron')
+// converting preload to es module breaks the app
+const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('versions', {
   node: () => process.versions.node,

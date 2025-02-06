@@ -1,6 +1,6 @@
-const { ipcMain } = require('electron')
-const { Op } = require("sequelize");
-const { sequelize } = require("../sequelize");
+import { ipcMain } from 'electron';
+import { Op } from 'sequelize';
+import { sequelize } from '../sequelize/index.js';
 
 function initService() {
     ipcMain.handle('tag/create', (event, tag) => createTag(tag));
@@ -115,10 +115,12 @@ async function deleteTagById(id) {
     return getAllTags();
 }
 
-module.exports = {
-    addTag: createTag,
+const TagService = {
+    addTag: createTag ,
     addTagIfNotPresent,
     getTagWithName,
     getTagWithNameAddIfNotPresent,
     initService
 };
+
+export default TagService;

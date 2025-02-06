@@ -1,5 +1,6 @@
-const { ipcMain } = require('electron');
-const { sequelize } = require("../sequelize");
+import { ipcMain } from 'electron';
+import { sequelize } from "../sequelize/index.js";
+import Annotation from '../sequelize/model/annotation.model.js';
 
 function initService() {
     ipcMain.handle('annotation/getAll', getAllAnnotations);
@@ -80,8 +81,10 @@ async function deleteAnnotationsByArticleId(articleId) {
     }
 }
 
-module.exports = {
+const AnnotationService = {
     initService,
     createAnnotation,
     deleteAnnotationsByArticleId,
 };
+
+export default AnnotationService;

@@ -1,5 +1,5 @@
-const { Sequelize } = require('sequelize');
-const { Umzug, SequelizeStorage } = require('umzug');
+import { Sequelize } from 'sequelize';
+import { Umzug, SequelizeStorage } from 'umzug';
 
 // Use the same Sequelize instance as in your index.js
 const sequelize = new Sequelize({

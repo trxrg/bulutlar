@@ -1,4 +1,4 @@
-const { getAllArticles, updateArticleDate } = require('../service/ArticleService');
+import { getAllArticles, updateArticleDate } from '../service/ArticleService.js';
 
 const convertDateForArticles = async () => {
     const articles = await getAllArticles();

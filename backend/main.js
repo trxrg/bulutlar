@@ -1,17 +1,24 @@
-const path = require('node:path')
-const { app, BrowserWindow } = require('electron')
-const isDev = app.isPackaged ? false : require('electron-is-dev');
-require('@electron/remote/main').initialize();
+import path from 'node:path';
+import { app, BrowserWindow } from 'electron';
+import isDev from 'electron-is-dev';
+import { initialize, enable} from '@electron/remote/main/index.js';
+import { startSequelize } from './sequelize/index.js';
+import { initServices } from './service/index.js';
+import { initConfig } from './config.js';
+import lookupService from './service/LookupService.js';
+import './scripts/docReader.js';
+import './scripts/jsonReader.js';
 
-const { initDB } = require('./sequelize');
-const { initServices } = require('./service');
-const { initConfig } = require('./config');
-const lookupService = require('./service/LookupService');
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+console.log('main.js running')
+console.log('dirname: ', __dirname)
+initialize();
 
 let mainWindow;
-
-require('./scripts/docReader')
-require('./scripts/jsonReader')
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -23,7 +30,7 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js'),
       enableRemoteModule: true, // Enable remote module
       contextIsolation: true,
-      sandbox: false,
+      sandbox: true,
       webSecurity: true,
       contentSecurityPolicy: {
         directives: {
@@ -39,7 +46,7 @@ const createWindow = () => {
   mainWindow.setMenuBarVisibility(false);
 
 
-  require('@electron/remote/main').enable(mainWindow.webContents);
+  enable(mainWindow.webContents);
 
   mainWindow.loadURL(
     isDev
@@ -82,7 +89,8 @@ const handleDBVersion = async () => {
 
 app.whenReady().then(async () => {
   initConfig();
-  await initDB();
+  await startSequelize();
+  // await initDB();
   initServices();
   handleStreak();
   handleDBVersion();
@@ -107,6 +115,6 @@ app.on('window-all-closed', () => {
 })
 
 
-module.exports = {
+export {
   mainWindow,
 }

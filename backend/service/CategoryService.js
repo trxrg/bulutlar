@@ -1,6 +1,5 @@
-const { ipcMain } = require('electron');
-const { Op } = require("sequelize");
-const { sequelize } = require("../sequelize");
+import { ipcMain } from 'electron';
+import { sequelize } from "../sequelize/index.js";
 
 function initService() {
     ipcMain.handle('category/create', (event, category) => createCategory(category));
@@ -114,8 +113,10 @@ async function getAllCategories() {
     return result.map(item => item.dataValues);
 }
 
-module.exports = {
+const CategoryService = {
     addCategory: createCategory,
     getCategoryWithNameAddIfNotPresent,
     initService
 };
+
+export default CategoryService;

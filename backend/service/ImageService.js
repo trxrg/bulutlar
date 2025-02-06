@@ -1,9 +1,9 @@
-const { ipcMain } = require('electron');
-const { sequelize } = require("../sequelize");
-const { ensureFolderExists } = require('../fsOps');
-const path = require('path');
-const fs = require('fs').promises;
-const { config } = require('../config.js');
+import { ipcMain } from 'electron';
+import { sequelize } from '../sequelize/index.js';
+import { ensureFolderExists } from '../fsOps.js';
+import path from 'path';
+import fs from 'fs/promises';
+import { config } from '../config.js';
 
 let imagesFolderPath;
 let publicFolderPath;
@@ -115,8 +115,10 @@ function getImageAbsPath(imagePath) {
     return path.join(imagesFolderPath, imagePath);
 }
 
-module.exports = {
+const ImageService = {
     initService,
     createImage,
     deleteImagesByArticleId,
 };
+
+export default ImageService;

@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
     const Lookup = sequelize.define('lookup', {
         label: { allowNull: false, unique: true, type: DataTypes.STRING },
         value: { type: DataTypes.JSON },

@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
     const Comment = sequelize.define('comment', {        
         // author: { type: DataTypes.STRING }, TODO
         date: { type: DataTypes.DATE },

@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
     const Image = sequelize.define('image', {
         name: { allowNull: false, type: DataTypes.STRING },
         type: { allowNull: false, type: DataTypes.STRING },

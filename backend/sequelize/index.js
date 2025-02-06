@@ -1,16 +1,25 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const { setRelations } = require('./relations');
-const { ensureFolderExists } = require('../fsOps');
-const path = require('path');
-const { config } = require('../config.js');
+import { Sequelize, DataTypes } from 'sequelize';
+import { setRelations } from './relations.js';
+import { ensureFolderExists } from '../fsOps.js';
+import path from 'path';
+import { config } from '../config.js';
+import ownerModel from './model/owner.model.js';
+import articleModel from './model/article.model.js';
+import tagModel from './model/tag.model.js';
+import categoryModel from './model/category.model.js';
+import commentModel from './model/comment.model.js';
+import groupModel from './model/group.model.js';
+import imageModel from './model/image.model.js';
+import annotationModel from './model/annotation.model.js';
+import lookupModel from './model/lookup.model.js';
 
 let sequelize;
-function startSequelize() {
-	const contentDbPath = config.contentDbPath;
-	ensureFolderExists(path.dirname(contentDbPath));
-	console.info('Resolved contentDbPath:', contentDbPath);
-    
-	sequelize = new Sequelize({
+const startSequelize = async () => {
+    const contentDbPath = config.contentDbPath;
+    ensureFolderExists(path.dirname(contentDbPath));
+    console.info('Resolved contentDbPath:', contentDbPath);
+
+    sequelize = new Sequelize({
         dialect: 'sqlite',
         storage: contentDbPath,
         logQueryParameters: true,
@@ -25,42 +34,32 @@ function startSequelize() {
         }
     });
 
-    // programSequelize = new Sequelize({
-    //     dialect: 'sqlite',
-    //     storage: dbPath,
-    // });
-}
+    await initDB();
 
-async function stopSequelize() {
-	await sequelize.close();
-}
+    setRelations(sequelize);
+};
+
+const stopSequelize = async () => {
+    await sequelize.close();
+};
 
 const modelDefiners = [
-	require('./model/owner.model'),
-	require('./model/article.model'),
-	require('./model/tag.model'),
-	require('./model/category.model'),
-	require('./model/comment.model'),
-	require('./model/group.model'),
-	require('./model/image.model'),
-	require('./model/annotation.model'),
-	require('./model/lookup.model'),
+    ownerModel,
+    articleModel,
+    tagModel,
+    categoryModel,
+    commentModel,
+    groupModel,
+    imageModel,
+    annotationModel,
+    lookupModel,
 ];
 
-async function initDB() {
-	console.info('initializing db');
-	
-	for (const modelDefiner of modelDefiners) {
-		modelDefiner(sequelize, DataTypes);
-	}
-	
-	// We execute any extra setup after the models are defined, such as adding associations.
-	setRelations(sequelize);
+const initDB = async () => {
+    for (const modelDefiner of modelDefiners) {
+        modelDefiner(sequelize, DataTypes);
+    }
+    await sequelize.sync();
+};
 
-	await sequelize.sync();
-}
-
-startSequelize();
-
-// We export the sequelize connection instance to be used around our app.
-module.exports = { sequelize, initDB, startSequelize, stopSequelize };
+export { startSequelize, stopSequelize, initDB, sequelize };

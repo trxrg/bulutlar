@@ -1,6 +1,13 @@
-const path = require('path');
-const { app } = require('electron')
-const isDev = app.isPackaged ? false : require('electron-is-dev');
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { app } from 'electron';
+import isDev from 'electron-is-dev';
+import log from 'electron-log';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const isDevMode = app.isPackaged ? false : isDev;
 
 const development = {
     env: 'development',
@@ -34,7 +41,6 @@ const revertDbBackupFolderPath = () => {
 
 const initConfig = () => {
     // LOG CONFIGS
-    const log = require('electron-log/main');
     log.initialize();
     log.transports.file.level = 'info';
     log.transports.file.maxSize = 5 * 1024 * 1024; // 5 MB
@@ -49,6 +55,6 @@ const initConfig = () => {
     console.info('Config initialized');
 }
 
-const config = isDev ? development : production;
+const config = isDevMode ? development : production;
 
-module.exports = { config, initConfig, changeDbBackupFolderPath, revertDbBackupFolderPath };
+export { config, initConfig, changeDbBackupFolderPath, revertDbBackupFolderPath };

@@ -1,18 +1,21 @@
-const services = [
-    require('./OwnerService'),
-    require('./ArticleService'),
-    require('./TagService'),
-    require('./CategoryService'),
-    require('./CommentService'),
-    require('./ImageService'),
-    require('./AnnotationService'),
-    require('./LookupService'),
-    require('./DBService'),
+const servicePromises = [
+    import('./OwnerService.js'),
+    import('./ArticleService.js'),
+    import('./TagService.js'),
+    import('./CategoryService.js'),
+    import('./CommentService.js'),
+    import('./ImageService.js'),
+    import('./AnnotationService.js'),
+    import('./LookupService.js'),
+    import('./DBService.js'),
 ];
 
 function initServices() {
-    for (const service of services)
-        service.initService();
+    Promise.all(servicePromises).then(modules => {
+        const services = modules.map(module => module.default);
+        for (const service of services)
+            service.initService();
+    });
 }
 
-module.exports = { initServices }
+export { initServices }

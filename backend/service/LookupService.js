@@ -1,5 +1,5 @@
-const { ipcMain } = require('electron')
-const { sequelize } = require("../sequelize");
+import { ipcMain } from 'electron';
+import { sequelize } from '../sequelize/index.js';
 
 function initService() {
     ipcMain.handle('lookup/create', (event, lookup) => createLookup(lookup));
@@ -81,7 +81,7 @@ async function setLastActiveDateToToday() {
     }
 }
 
-module.exports = {
+const LookupService = {
     initService,
     getLookupByLabel,
     createLookup,
@@ -89,3 +89,5 @@ module.exports = {
     getOrCreateLookup,
     removeTimeFromDate,
 };
+
+export default LookupService;

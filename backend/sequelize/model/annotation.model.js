@@ -1,5 +1,7 @@
-module.exports = (sequelize, DataTypes) => {
-    const Annotation = sequelize.define('annotation', {
+import { DataTypes } from 'sequelize';
+
+const Annotation = (sequelize) => {
+    return sequelize.define('annotation', {
         quote: {
             type: DataTypes.TEXT
         },
@@ -7,6 +9,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT
         }
     });
+};
 
-    return Annotation;
-}
+export default Annotation;

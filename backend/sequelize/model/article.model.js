@@ -1,4 +1,6 @@
-module.exports = (sequelize, DataTypes) => {
+import { DataTypes } from 'sequelize';
+
+export default (sequelize) => {
     const Article = sequelize.define('article', {
         title: {
             allowNull: false,
@@ -28,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
         text: { type: DataTypes.TEXT },
         textJson: { type: DataTypes.JSON },
         code: { allowNull: false, type: DataTypes.STRING },
-        isEditable: {type: DataTypes.BOOLEAN, defaultValue: true},
+        isEditable: { type: DataTypes.BOOLEAN, defaultValue: true },
     }, {
         indexes: [
             {

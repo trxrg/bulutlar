@@ -1,15 +1,15 @@
-const { ipcMain, dialog } = require('electron')
-const { Op } = require("sequelize");
-const fs = require('fs').promises;
-const path = require('path');
-const hijriSafe = require('hijri-date/lib/safe');
-const { sequelize } = require("../sequelize");
-const tagService = require('./TagService');
-const ownerService = require('./OwnerService');
-const categoryService = require('./CategoryService');
-const commentService = require('./CommentService');
-const imageService = require('./ImageService');
-const annotationService = require('./AnnotationService');
+import { ipcMain, dialog } from 'electron';
+import { Op } from 'sequelize';
+import fs from 'fs/promises';
+import path from 'path';
+import hijriSafe from 'hijri-date/lib/safe.js';
+import { sequelize } from '../sequelize/index.js';
+import tagService from './TagService.js';
+import ownerService from './OwnerService.js';
+import categoryService from './CategoryService.js';
+import commentService from './CommentService.js';
+import imageService from './ImageService.js';
+import annotationService from './AnnotationService.js';
 
 function initService() {
     ipcMain.handle('article/create', (event, article) => createArticle(article));
@@ -525,10 +525,12 @@ function gregorianToHijri(gDate) {
     return hDate;
 }
 
-module.exports = {
+const ArticleService = {
     initService,
     getArticleEntity,
     createArticleProgrammatically,
     getAllArticles, //  TODO: remove
     updateArticleDate, // TODO: remove
 };
+
+export default ArticleService;

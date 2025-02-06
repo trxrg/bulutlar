@@ -3,18 +3,23 @@ import { fileURLToPath } from 'url';
 import { app } from 'electron';
 import isDev from 'electron-is-dev';
 import log from 'electron-log';
+import Store from 'electron-store';
+
+const store = new Store();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const isDevMode = app.isPackaged ? false : isDev;
 
+const storedDbBackupFolderPath = store.get('dbBackupFolderPath');
+
 const development = {
     env: 'development',
     logFilePath: path.resolve(__dirname, "../logs/app.log"),
     contentDbPath: path.resolve(__dirname, "../data/active/content.db"),
     programDbPath: path.resolve(__dirname, "../data/active/program.db"),
-    dbBackupFolderPath: path.resolve(__dirname, "../data/backup"),
+    dbBackupFolderPath: storedDbBackupFolderPath || path.resolve(__dirname, "../data/backup"),
     imagesFolderPath: path.resolve(__dirname, "../data/active/images"),
     publicFolderPath: path.resolve(__dirname, "../public"),
 };
@@ -24,7 +29,7 @@ const production = {
     logFilePath: path.resolve(__dirname, "../../../logs/app.log"),
     contentDbPath: path.resolve(__dirname, "../../../data/active/content.db"),
     programDbPath: path.resolve(__dirname, "../../../data/active/program.db"),
-    dbBackupFolderPath: path.resolve(__dirname, "../../../data/backup"),
+    dbBackupFolderPath: storedDbBackupFolderPath || path.resolve(__dirname, "../../../data/backup"),
     imagesFolderPath: path.resolve(__dirname, "../../../data/active/images"),
     publicFolderPath: path.resolve(__dirname, '../../../public'),
 };
@@ -32,6 +37,8 @@ const production = {
 const changeDbBackupFolderPath = (newPath) => {
     development.dbBackupFolderPath = newPath;
     production.dbBackupFolderPath = newPath;
+    
+    store.set('dbBackupFolderPath', newPath);
 }
 
 const revertDbBackupFolderPath = () => {

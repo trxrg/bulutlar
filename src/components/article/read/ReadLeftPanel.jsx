@@ -12,7 +12,7 @@ const ReadLeftPanel = () => {
 
     const [isAnnotationModalOpen, setAnnotationModalOpen] = useState(false);
     const [annotationForModal, setAnnotationForModal] = useState(null);
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, setActiveScreen } = useContext(AppContext);
     const { getAnnotationById } = useContext(DBContext);
     const { article } = useContext(ReadContext);
 
@@ -26,11 +26,15 @@ const ReadLeftPanel = () => {
         setAnnotationModalOpen(true);
     }
 
+    const handleNotesClick = () => {
+        setActiveScreen('annotations');
+    }
+
     return (
         <div className='h-full bg-white'>
             <BodyWithFixedHeader >
                 <div className='flex flex-wrap justify-between p-2 shadow-lg'>
-                    <h2 className='ml-2 text-xl font-semibold text-gray-800'>{t('notes')}</h2>
+                    <h2 className='ml-2 text-xl font-semibold text-gray-800 hover:underline cursor-pointer' onClick={handleNotesClick}>{t('notes')}</h2>
                     <FormatButton onClick={handleAddAnnotation}><PlusIcon className="w-4 h-4" /></FormatButton>
                 </div>
                 {article.annotations && article.annotations.length > 0?

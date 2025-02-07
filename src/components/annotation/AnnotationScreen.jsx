@@ -46,7 +46,7 @@ const AnnotationScreen = () => {
             <div className="mb-2">
                 <input
                     type="text"
-                    placeholder={t('filter by name')}
+                    placeholder={t('filter notes')}
                     value={filterTerm}
                     onChange={(e) => setFilterTerm(e.target.value)}
                     className="border p-2 rounded w-full"

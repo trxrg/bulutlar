@@ -10,10 +10,11 @@ const AnnotationScreen = () => {
     const [annotationModalOpen, setAnnotationModalOpen] = useState(false);
     const [annotationForModal, setAnnotationForModal] = useState(null);
     const { allAnnotations, getArticleById } = useContext(DBContext);
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, handleAddTab, setActiveScreen } = useContext(AppContext);
 
     const handleOpenArticle = (article) => {
-        console.log('not implemented');
+        handleAddTab(null, article.id);
+        setActiveScreen('tabs');
     }
 
     const handleNoteClicked = (annotation) => {
@@ -78,7 +79,7 @@ const AnnotationScreen = () => {
                                 </td> */}
                             <td className='border-b text-center'>
                                 {article ? (
-                                    <h2 onClick={() => handleOpenArticle(article)}>{article.title}</h2>
+                                    <h2 className='cursor-pointer hover:underline' onClick={() => handleOpenArticle(article)}>{article.title}</h2>
                                 ) : (
                                     <h2>{t('article_not_found')}</h2>
                                 )}

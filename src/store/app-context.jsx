@@ -23,14 +23,14 @@ export default function AppContextProvider({ children }) {
             return;
         
         if (tabs.map(tab => tab.id).includes(articleId)) {
-            if (!e.ctrlKey && !e.metaKey)
+            if (!e || !e.ctrlKey && !e.metaKey)
                 setActiveTabId(articleId);
             return;
         }
         const newTabId = articleId;
         const newTabs = [...tabs, { id: newTabId }];
         setTabs(newTabs);
-        if (!e.ctrlKey && !e.metaKey)
+        if (!e || !e.ctrlKey && !e.metaKey)
             setActiveTabId(newTabId);
     };
 

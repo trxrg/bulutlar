@@ -197,7 +197,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
     const handleMouseUp = (e) => {
         const selection = window.getSelection();
         if (selection.rangeCount > 0 && !selection.isCollapsed) {
-            const editorBounds = e.currentTarget.parentElement.parentElement.parentElement.parentElement.getBoundingClientRect();
+            const editorBounds = e.currentTarget.parentElement.parentElement.parentElement.parentElement.parentElement.getBoundingClientRect();
             // const range = selection.getRangeAt(0).getBoundingClientRect();
             // const top = Math.max(range.top - editorBounds.top - 60, 0);
             // const left = range.left - editorBounds.left;

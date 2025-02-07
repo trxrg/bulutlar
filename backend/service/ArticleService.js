@@ -130,6 +130,15 @@ async function deleteArticleById(id) {
         await imageService.deleteImagesByArticleId(id);
         await annotationService.deleteAnnotationsByArticleId(id);
 
+        // await sequelize.models.article_article_rel.destroy({
+        //     where: {
+        //         [Op.or]: [
+        //             { articleid: id },
+        //             { relatedarticleid: id }
+        //         ]
+        //     }
+        // });
+
         await article.destroy();
     } catch (error) {
         console.error('Error deleting article:', error);

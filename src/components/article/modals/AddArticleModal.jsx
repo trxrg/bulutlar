@@ -29,7 +29,7 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
         setDispCategoryName('');
         setDispOwnerName('');
         setDispTags([]);
-        setDispTitle('');
+        setDispTitle(t('new article'));
         setMsg('');
         setDispDate(format(new Date(), 'yyyy-MM-dd'))
     }, [isOpen]);
@@ -113,10 +113,10 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                     <label className="block text-gray-700 font-bold mb-2">{t('owner')}</label>
                     <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
                 </div>
-                <div>
+                {/* <div>
                     <label className="block text-gray-700 font-bold mb-2">{t('tag')}</label>
                     <TagList selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
-                </div>
+                </div> */}
                 <div className='flex justify-end gap-2 mt-4'>
                     <ActionButton color={'blue'} onClick={handleSubmit}>{t('add')}</ActionButton>
                     <ActionButton color={'red'} onClick={onRequestClose}>{t('cancel')}</ActionButton>

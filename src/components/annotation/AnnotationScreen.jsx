@@ -69,7 +69,7 @@ const AnnotationScreen = () => {
                                 <h2>{index + 1}</h2>
                             </td>
                             <td className='border-b'>
-                                <div className='border border-2 border-green-300 rounded-md p-1 m-2 hover:underline cursor-pointer' onClick={() => handleNoteClicked(annotation)} style={{ whiteSpace: 'pre-line' }}>
+                                <div className='border border-2 rounded-md p-1 m-2 hover:underline cursor-pointer' onClick={() => handleNoteClicked(annotation)} style={{ whiteSpace: 'pre-line' }}>
                                     {annotation.note}
                                 </div>
                             </td>

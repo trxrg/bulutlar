@@ -117,6 +117,10 @@
     "filter by name": "Ada göre filtrele",
     "filter notes": "Notları filtrele",
 
+    "explanation prompt": "Açıklama girin",
+    "maintext prompt": "Ana metni girin",
+    "comment prompt": "Yorum girin",
+
     "image": "Resim",
     "errorAddingImage": "Resim eklerken hata oluştu",
     "errorDeletingImage": "Resmi silerken hata oluştu",

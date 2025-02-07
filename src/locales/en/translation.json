@@ -113,6 +113,10 @@
     "filter by name": "Filter by name",
     "filter notes": "Filter notes",
 
+    "explanation prompt": "Enter explanation",
+    "maintext prompt": "Enter main text",
+    "comment prompt": "Enter comment",
+
     "image": "Image",
     "errorAddingImage": "Error adding image",
     "errorDeletingImage": "Error deleting image",

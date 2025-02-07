@@ -115,10 +115,10 @@ const ReadContent = () => {
         <div className="flex flex-col items-center bg-white">
             <div className={`leading-loose w-full ${fontSize} pb-5`}>
                 {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border-b border-gray-700 p-4'>
-                    <RichEditor name={'explanation'} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
+                    <RichEditor prompt={t('explanation prompt')} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef}></RichEditor>
                 </div>}
                 <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
-                    <RichEditor name={'maintext'} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
+                    <RichEditor prompt={t('maintext prompt')} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef}></RichEditor>
                 </div>
                 {((article.comments[0] && !isHtmlStringEmpty(article.comments[0].text)) || editable) &&
                     <div>
@@ -126,7 +126,7 @@ const ReadContent = () => {
                             <h3 onClick={() => setActiveEditorRef()} className={"text-center font-semibold my-4 pt-2 border-t border-gray-500 " + fontSize}>{t('comment')}</h3>
                         </div>
                         <div onClick={() => setActiveEditorRef(commentEditorRef)} >
-                            <RichEditor name={'comment'} htmlContent={article.comments[0]?.text} rawContent={article.comments[0]?.textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
+                            <RichEditor prompt={t('comment prompt')} htmlContent={article.comments[0]?.text} rawContent={article.comments[0]?.textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef}></RichEditor>
                         </div>
                     </div>}
             </div>

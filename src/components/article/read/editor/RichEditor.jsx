@@ -34,7 +34,7 @@ const createEditorStateFromHTMLAndDecorator = (html, decorator) => {
     return EditorState.createWithContent(stateFromHTML(html), decorator);
 };
 
-const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleContentChange, editable }, ref) => {
+const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleContentChange, editable }, ref) => {
 
     const decorator = new CompositeDecorator([
         {
@@ -378,7 +378,7 @@ const RichEditor = React.forwardRef(({ name, htmlContent, rawContent, handleCont
             <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' overflow-y-auto bg-white max-w-6xl w-full'} ref={editorRef}>
                 {editorState.getCurrentContent().hasText() || !editable ? null : (
                     <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">
-                        <span className="text-gray-400">Start typing your content here...</span>
+                        <span className="text-gray-400">{prompt}</span>
                     </div>
                 )}
                 <Editor

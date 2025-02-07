@@ -34,7 +34,7 @@ const SearchResultsHeader = () => {
                     <FormatButton onClick={() => setSidePanelCollapsed(true)}>
                         <ChevronLeftIcon className="w-4 h-4" />
                     </FormatButton>}
-                <FormatButton onClick={() => toggleArticlesSelectable()}><PencilSquareIcon className='w-4 h-4'/></FormatButton>
+                {/* <FormatButton onClick={() => toggleArticlesSelectable()}><PencilSquareIcon className='w-4 h-4'/></FormatButton> */}
                 <FormatButton onClick={handleOrderByDateAsc}><ChevronUpIcon className='w-4 h-4'/></FormatButton>
                 <FormatButton onClick={handleOrderByDateDesc}><ChevronDownIcon className='w-4 h-4'/></FormatButton>
             </div>

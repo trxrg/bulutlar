@@ -9,7 +9,7 @@ import { dbApi } from '../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
 
 const SettingsScreen = () => {
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, resetTabs } = useContext(AppContext);
     const { fetchAllData } = useContext(DBContext);
     const [backupDir, setBackupDir] = useState('');
 
@@ -49,7 +49,8 @@ const SettingsScreen = () => {
             if (result) {
                 console.log('Database imported successfully from ', result);
                 toastr.success(t('db imported from') + ' ' + result);
-                fetchAllData();
+                await fetchAllData();
+                resetTabs();
             }
         } catch (err) {
             console.error('Error importing database', err);

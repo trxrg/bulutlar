@@ -8,7 +8,7 @@ import { config, changeDbBackupFolderPath } from '../config.js';
 
 function initService() {
     ipcMain.handle('DB/handleExport', () => handleExport());
-    ipcMain.handle('DB/handleImport', () => handleImport());
+    ipcMain.handle('DB/handleImport', async () => handleImport());
     ipcMain.handle('DB/handleBackup', () => handleBackup());
     ipcMain.handle('DB/changeBackupDir', () => handleChangeBackupDir());
     ipcMain.handle('DB/getBackupDir', () => getBackupDir());
@@ -60,7 +60,7 @@ async function handleImport() {
         await stopSequelize(); // we can stop sequelize
         await fs.copy(dirOfNewData, dirOfActive); // we can copy the files
         console.info(`Imported database copied from ${dirOfNewData}`);
-        startSequelize(); // TODO problem in restarting sequelize
+        await startSequelize(); // TODO problem in restarting sequelize
         return dirOfNewData;
     } catch (err) {
         console.error('Error in DBService handleImport ', err);

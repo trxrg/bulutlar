@@ -11,7 +11,7 @@ export default function DBContextProvider({ children }) {
     const [allAnnotations, setAllAnnotations] = useState([]);
     const [streak, setStreak] = useState(0);
     const [dbVersion, setDbVersion] = useState('');
-    const [articleOrder, setArticleOrder] = useState({field: 'date', direction: 'asc'});
+    const [articleOrder, setArticleOrder] = useState({field: 'date', direction: 'desc'});
 
     const fetchArticleById = useCallback(async (id) => {
         try {

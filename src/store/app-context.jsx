@@ -128,6 +128,13 @@ export default function AppContextProvider({ children }) {
             i18n.changeLanguage('tr');
     }
 
+    const resetTabs = () => {
+        setTabs([
+            { id: 'search', title: 'Search' }
+        ]);
+        setActiveTabId('search');
+    }
+
     const ctxValue = {
         linkClicked: handleLinkClicked,
         activeTabId,
@@ -136,6 +143,7 @@ export default function AppContextProvider({ children }) {
         closeTab: handleCloseTab,
         tabs,
         activeScreen,
+        resetTabs,
         setActiveScreen,
         handleAddArticle,
         handleAddTab,

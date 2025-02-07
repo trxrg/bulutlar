@@ -8,10 +8,10 @@ const TagsPanel = () => {
     return (
         <div className='bg-white my-2'>
             <BodyWithFixedHeader>
-                <div className='flex flex-wrap justify-between p-2'>
+                <div className='flex flex-wrap justify-between p-2 shadow-lg'>
                     <h2 className='ml-2 text-xl font-semibold text-gray-800'>{t('tags')}</h2>
                 </div>
-                <div className='mt-3'>
+                <div className='flex mt-3'>
                     <TagList2 />
                 </div>
             </BodyWithFixedHeader>

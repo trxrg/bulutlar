@@ -37,9 +37,9 @@ const AppHeader = () => {
             <h1 className='text-3xl text-gray-600'>{getActiveScreenTitle()}</h1>
             <div className="flex justify-end items-center">
                 <div className='flex gap-2'>
-                    <div className='flex items-center gap-2 mx-2 cursor-pointer' onClick={() => setStreakModalOpen(true)}>
+                    {/* <div className='flex items-center gap-2 mx-2 cursor-pointer' onClick={() => setStreakModalOpen(true)}>
                         <span className='text-xl text-green-600 font-bold'>⚡{streak}</span>
-                    </div>
+                    </div> */}
                     <FormatButton onClick={handleRefresh}><ArrowPathIcon className='w-5 h-5' /></FormatButton>
                     <FormatButton onClick={() => changeLanguage()}><GlobeAltIcon className='w-5 h-5' /></FormatButton>
                     <FormatButton onClick={() => setActiveScreen('home')}><HomeIcon className='w-5 h-5' /></FormatButton>

@@ -31,21 +31,21 @@ const HomeScreen = () => {
             {imageLoaded && <div className='absolute inset-0' style={{ backgroundImage: `url(${imageData})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>}
             <div className='relative flex w-full h-full'>
                 <div className='w-3/4'></div>
-                <div className='flex flex-col flex-shrink-0 items-center justify-center gap-5 bg-stone-100 bg-opacity-80 px-10 py-5'>
-                    <h1 className='text-5xl text-[#0C3B2E] pb-8 select-none'>HAZINE</h1>
-                    <div className='flex flex-col gap-5'>
-                        <Button size={"large"} onClick={() => setActiveScreen('tabs')} variant="contained" color="secondary">{t('articles')}</Button>                
-                        <Button size={"large"} onClick={() => setActiveScreen('categories')} variant="outlined" color='secondary'>{t('categories')}</Button>
-                        <Button size={"large"} onClick={() => setActiveScreen('owners')} variant="outlined" color='secondary'>{t('owners')}</Button>
-                        <Button size={"large"} onClick={() => setActiveScreen('tags')} variant="outlined" color='secondary'>{t('tags')}</Button>
-                        <Button size={"large"} onClick={() => setActiveScreen('annotations')} variant="outlined" color='secondary'>{t('annotations')}</Button>
-                        <Button size={"large"} onClick={() => setActiveScreen('settings')} variant="outlined" color='secondary'>{t('settings')}</Button>
+                <div className='flex flex-col flex-shrink-0 items-center justify-center gap-2 bg-stone-100 bg-opacity-80 px-20 py-10'>
+                    <h1 className='text-6xl text-[#0C3B2E] pb-10 select-none'>HAZİNE</h1>
+                    <div className='flex flex-col gap-8'>
+                        <Button size="large" onClick={() => setActiveScreen('tabs')} variant="contained" color="primary" style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('articles')}</Button>                
+                        <Button size="large" onClick={() => setActiveScreen('categories')} variant="outlined" color='primary' style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('categories')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('owners')} variant="outlined" color='primary' style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('owners')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('tags')} variant="outlined" color='primary' style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('tags')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('annotations')} variant="outlined" color='primary' style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('annotations')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('settings')} variant="outlined" color='primary' style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('settings')}</Button>
                     </div>
                     {/* <div className='cursor-pointer' onClick={() => setStreakModalOpen(true)}>
                         <span className='text-5xl text-green-600 font-bold'>⚡{streak}</span>
                     </div> */}
                     <div>
-                        <h2>db version: {dbVersion}</h2>
+                        <h2 className='text-l'>db version: {dbVersion}</h2>
                     </div>
                 </div>
             </div>

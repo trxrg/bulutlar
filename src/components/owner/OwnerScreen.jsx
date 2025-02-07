@@ -122,7 +122,7 @@ const OwnerScreen = () => {
                                 <td className="py-2 px-4 border-b text-center">{owner.articleCount}</td>
                                 <td className="py-2 px-4 border-b text-center">
                                     <div className="flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <button className="bg-blue-500 text-white px-2 py-1 rounded">{t('go to articles')}</button>
+                                        {/* <button className="bg-blue-500 text-white px-2 py-1 rounded">{t('go to articles')}</button> */}
                                         {owner.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteOwner(owner.id)}>{t('delete')}</ActionButton>}
                                     </div>
                                 </td>

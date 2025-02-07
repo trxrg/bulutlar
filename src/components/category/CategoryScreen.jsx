@@ -68,7 +68,7 @@ const CategoryScreen = () => {
                                     />
                                 </td>
                                 <td className="py-2 px-4 border-b text-center">
-                                    <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2">{t('go to articles')}</button>
+                                    {/* <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2">{t('go to articles')}</button> */}
                                     {category.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteCategory(category.id)}>{t('delete')}</ActionButton>}
                                 </td>
                             </tr>

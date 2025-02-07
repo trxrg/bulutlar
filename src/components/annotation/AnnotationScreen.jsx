@@ -26,7 +26,7 @@ const AnnotationScreen = () => {
                         <tr>
                             <th className="py-2 px-4 border-b"></th>
                             <th className="py-2 px-4 border-b">{t('note')}</th>
-                            <th className="py-2 px-4 border-b">{t('quote')}</th>
+                            {/* <th className="py-2 px-4 border-b">{t('quote')}</th> */}
                             <th className="py-2 px-4 border-b">{t('article')}</th>
                         </tr>
                     </thead>
@@ -43,12 +43,12 @@ const AnnotationScreen = () => {
                                         {annotation.note}
                                     </div>
                                 </td>
-                                <td className='border-b text-center'>
+                                {/* <td className='border-b text-center'>
                                     <h2>{annotation.quote}</h2>
-                                </td>
+                                </td> */}
                                 <td className='border-b text-center'>
                                     {article ? (
-                                        <h2 className='cursor-pointer hover:underline' onClick={() => handleOpenArticle(article)}>{article.title}</h2>
+                                        <h2 onClick={() => handleOpenArticle(article)}>{article.title}</h2>
                                     ) : (
                                         <h2>{t('article_not_found')}</h2>
                                     )}

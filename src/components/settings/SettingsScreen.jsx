@@ -115,7 +115,7 @@ const SettingsScreen = () => {
                     </div>
                 </AccordionDetails>
             </Accordion>
-            <Accordion defaultExpanded>
+            {/* <Accordion defaultExpanded>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography>{t('appearance')}</Typography>
                 </AccordionSummary>
@@ -124,7 +124,7 @@ const SettingsScreen = () => {
                         Manage your appearance settings here.
                     </Typography>
                 </AccordionDetails>
-            </Accordion>
+            </Accordion> */}
             {/* Add more Accordion components for other settings categories */}
         </div>
     );

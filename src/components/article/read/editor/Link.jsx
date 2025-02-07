@@ -5,6 +5,7 @@ import ContextMenu from '../../../common/ContextMenu';
 import ActionButton from '../../../common/ActionButton';
 import { isArticleUrl, urlToArticleId } from '../../util';
 import ArticleInfo from '../../ArticleInfo';
+import toastr from 'toastr';
 
 const Link = (props) => {
     const contentState = props.contentState;
@@ -34,6 +35,7 @@ const Link = (props) => {
                 handleAddTab(e, article.id);
             } else {
                 console.warn('Link clicked but article is null url:', url);
+                toastr.warning(t('link not found'));
             }
         } catch (error) {
             console.error('Error handling link click:', error);

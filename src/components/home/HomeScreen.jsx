@@ -47,6 +47,9 @@ const HomeScreen = () => {
                     <div>
                         <h2 className='text-l'>db version: {dbVersion}</h2>
                     </div>
+                    <div>
+                        <h2 className='text-l'>app version: beta-1.0.0</h2>
+                    </div>
                 </div>
             </div>
         </div>

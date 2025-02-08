@@ -28,12 +28,12 @@ const SearchFilterings = () => {
     const isDate1Active = startDate.day || startDate.month || startDate.year || endDate.day || endDate.month || endDate.year;
     const isDate2Active = startDate2.day || startDate2.month || startDate2.year || endDate2.day || endDate2.month || endDate2.year;
     const clearDate1 = () => {
-        setStartDate({ day: null, month: null, year: null });
-        setEndDate({ day: null, month: null, year: null });
+        setStartDate({ day: '', month: '', year: '' });
+        setEndDate({ day: '', month: '', year: '' });
     }
     const clearDate2 = () => {
-        setStartDate2({ day: null, month: null, year: null });
-        setEndDate2({ day: null, month: null, year: null });
+        setStartDate2({ day: '', month: '', year: '' });
+        setEndDate2({ day: '', month: '', year: '' });
     }
 
     return (

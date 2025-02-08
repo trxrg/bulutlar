@@ -129,7 +129,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         highlightedText = highlightKeywords(article.text, keywords);
         highlightedTextParts = getToBeHighlightedParts(article.text, keywords).map(part => highlightKeywords(part, keywords));
         highlightedExplanation = highlightKeywords(article.explanation, keywords);
-        highlightedCommentParts = getToBeHighlightedParts(article.comments[0] ? article.comments[0].text : '', keywords);
+        highlightedCommentParts = getToBeHighlightedParts(article.comments[0] ? article.comments[0].text : '', keywords).map(part => highlightKeywords(part, keywords));
     }
 
     return (

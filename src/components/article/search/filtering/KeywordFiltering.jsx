@@ -35,11 +35,11 @@ const KeywordFiltering = () => {
         setter(event.target.checked);
     };
 
-    const checkboxStyle = 'border-2 pr-3 select-none cursor-pointer';
+    const checkboxStyle = 'select-none cursor-pointer';
 
     return (
-        <div className='p-1 flex flex-col overflow-auto max-h-60'>
-            <div className="flex flex-wrap mb-3">
+        <div className='p-1 flex flex-col overflow-auto max-h-80'>
+            <div className="flex flex-col mb-3">
                 <label className={checkboxStyle}>
                     <Checkbox
                         checked={searchInTitle}

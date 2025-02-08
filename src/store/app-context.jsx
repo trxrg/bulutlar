@@ -135,6 +135,28 @@ export default function AppContextProvider({ children }) {
         setActiveTabId('search');
     }
 
+    const normalizeText = (text) => {
+        if (!text)
+            return '';
+        const turkishMap = { 
+            'ç': 'c', 'Ç': 'C', 
+            'ğ': 'g', 'Ğ': 'G', 
+            'ı': 'i', 'İ': 'I', 
+            'ö': 'o', 'Ö': 'O', 
+            'ş': 's', 'Ş': 'S', 
+            'ü': 'u', 'Ü': 'U' 
+        };
+        const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
+        return result;
+    };
+
+    const htmlToText = (html) => {
+        if (!html)
+            return '';
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    };
+
     const ctxValue = {
         linkClicked: handleLinkClicked,
         activeTabId,
@@ -159,6 +181,8 @@ export default function AppContextProvider({ children }) {
         translate: t,
         streakModalOpen,
         setStreakModalOpen,
+        normalizeText,
+        htmlToText,
     };
 
     return <AppContext.Provider value={ctxValue}>

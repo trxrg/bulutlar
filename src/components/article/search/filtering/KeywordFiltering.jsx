@@ -2,13 +2,16 @@ import React, { useContext, useState } from 'react';
 import FormatButton from '../../../common/FormatButton';
 import { SearchContext } from '../../../../store/search-context';
 import { useTranslation } from 'react-i18next';
+import Checkbox from '@mui/material/Checkbox';
 
 import { XMarkIcon, PlusIcon } from '@heroicons/react/24/solid';
 
 const KeywordFiltering = () => {
 
     const { t } = useTranslation();
-    const { keywords, setKeywords } = useContext(SearchContext);
+    const { keywords, setKeywords, searchInTitle,
+        searchInExplanation, searchInMainText, searchInComments,
+        setSearchInTitle, setSearchInExplanation, setSearchInMainText, setSearchInComments } = useContext(SearchContext);
     const [inputValue, setInputValue] = useState('');
 
     const handleAddKeyword = () => {
@@ -28,8 +31,44 @@ const KeywordFiltering = () => {
         }
     };
 
+    const handleCheckboxChange = (setter) => (event) => {
+        setter(event.target.checked);
+    };
+
+    const checkboxStyle = 'border-2 pr-3 select-none cursor-pointer';
+
     return (
-        <div className='p-1 flex flex-col overflow-auto max-h-40'>
+        <div className='p-1 flex flex-col overflow-auto max-h-60'>
+            <div className="flex flex-wrap mb-3">
+                <label className={checkboxStyle}>
+                    <Checkbox
+                        checked={searchInTitle}
+                        onChange={handleCheckboxChange(setSearchInTitle)}
+                    />
+                    {t('title')}
+                </label>
+                <label className={checkboxStyle}>
+                    <Checkbox
+                        checked={searchInExplanation}
+                        onChange={handleCheckboxChange(setSearchInExplanation)}
+                    />
+                    {t('explanation')}
+                </label>
+                <label className={checkboxStyle}>
+                    <Checkbox
+                        checked={searchInMainText}
+                        onChange={handleCheckboxChange(setSearchInMainText)}
+                    />
+                    {t('main text')}
+                </label>
+                <label className={checkboxStyle}>
+                    <Checkbox
+                        checked={searchInComments}
+                        onChange={handleCheckboxChange(setSearchInComments)}
+                    />
+                    {t('comment')}
+                </label>
+            </div>
             <div className="flex flex-wrap mb-3">
                 <input
                     value={inputValue}

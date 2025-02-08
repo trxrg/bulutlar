@@ -7,9 +7,11 @@ import { SearchContext } from '../../../../store/search-context.jsx';
 import toastr from 'toastr';
 
 const SearchResultsBody = () => {
-    const { handleAddTab, translate: t } = useContext(AppContext);
+    const { handleAddTab, translate: t, normalizeText, htmlToText } = useContext(AppContext);
     const { allArticles, getOwnerById, getTagById, getCategoryById } = useContext(DBContext);
-    const { filtering, filteredArticles, setFilteredArticles } = useContext(SearchContext);
+    const { filtering, filteredArticles, setFilteredArticles,
+        searchInTitle, searchInExplanation,
+        searchInMainText, searchInComments } = useContext(SearchContext);
 
     useEffect(() => {
         setFilteredArticles([...allArticles]);
@@ -18,21 +20,6 @@ const SearchResultsBody = () => {
     useEffect(() => {
         applyFiltering(allArticles, filtering);
     }, [allArticles, filtering]);
-
-    const normalizeText = (text) => {
-        if (!text)
-            return '';
-        const turkishMap = {
-            'ç': 'c', 'Ç': 'C',
-            'ğ': 'g', 'Ğ': 'G',
-            'ı': 'i', 'İ': 'I',
-            'ö': 'o', 'Ö': 'O',
-            'ş': 's', 'Ş': 'S',
-            'ü': 'u', 'Ü': 'U'
-        };
-        const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
-        return result;
-    };
 
     const applyFiltering = (allArticles, filtering) => {
         let localFilteredArticles = allArticles;
@@ -48,23 +35,23 @@ const SearchResultsBody = () => {
 
         if (filtering.startDate || filtering.endDate)
             localFilteredArticles = applyDateFiltering(localFilteredArticles, 'date', filtering.startDate, filtering.endDate);
-        
+
         if (filtering.startDate2 || filtering.endDate2)
             localFilteredArticles = applyDateFiltering(localFilteredArticles, 'date2', filtering.startDate2, filtering.endDate2);
-        
+
         if (filtering.numbers1 && filtering.numbers1.length)
             localFilteredArticles = localFilteredArticles.filter(art => filtering.numbers1.includes(String(art.number)));
-        
+
         if (filtering.numbers2 && filtering.numbers2.length)
             localFilteredArticles = localFilteredArticles.filter(art => filtering.numbers2.includes(String(art.number2)));
-        
+
         if (filtering.keywords && filtering.keywords.length) {
             localFilteredArticles = localFilteredArticles.filter(art => filtering.keywords.some(keyword => {
                 const normalizedKeyword = normalizeText(keyword);
-                return normalizeText(art.title).includes(normalizedKeyword) ||
-                    normalizeText(art.text).includes(normalizedKeyword) ||
-                    normalizeText(art.explanation).includes(normalizedKeyword) ||
-                    (art.comments[0] && normalizeText(art.comments[0].text).includes(normalizedKeyword));
+                return (searchInTitle && normalizeText(htmlToText(art.title)).includes(normalizedKeyword)) ||
+                    (searchInMainText && normalizeText(htmlToText(art.text)).includes(normalizedKeyword)) ||
+                    (searchInExplanation && normalizeText(htmlToText(art.explanation)).includes(normalizedKeyword)) ||
+                    (searchInComments && (art.comments[0] && normalizeText(htmlToText(art.comments[0].text)).includes(normalizedKeyword)));
             }));
         }
 
@@ -79,7 +66,7 @@ const SearchResultsBody = () => {
                 if (startDate.day)
                     localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getDate()) >= startDate.day);
                 if (startDate.month)
-                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getMonth()) >= startDate.month-1);
+                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getMonth()) >= startDate.month - 1);
                 if (startDate.year)
                     localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getFullYear()) >= startDate.year);
             }
@@ -88,7 +75,7 @@ const SearchResultsBody = () => {
                 if (endDate.day)
                     localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getDate()) <= endDate.day);
                 if (endDate.month)
-                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getMonth()) <= endDate.month-1);
+                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getMonth()) <= endDate.month - 1);
                 if (endDate.year)
                     localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getFullYear()) <= endDate.year);
             }

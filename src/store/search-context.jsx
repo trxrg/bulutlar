@@ -18,6 +18,10 @@ export default function SearchContextProvider({ children }) {
     const [selectedNumbers1, setSelectedNumbers1] = useState([]);
     const [selectedNumbers2, setSelectedNumbers2] = useState([]);
     const [keywords, setKeywords] = useState([]);
+    const [ searchInTitle, setSearchInTitle ] = useState(true);
+    const [ searchInExplanation, setSearchInExplanation ] = useState(true);
+    const [ searchInMainText, setSearchInMainText ] = useState(true);
+    const [ searchInComments, setSearchInComments ] = useState(true);
     const [startDate, setStartDate] = useState({day: null, month: null, year: null});
     const [endDate, setEndDate] = useState({day: null, month: null, year: null});
     const [startDate2, setStartDate2] = useState({day: null, month: null, year: null});
@@ -90,6 +94,14 @@ export default function SearchContextProvider({ children }) {
         setSelectedNumbers1,
         selectedNumbers2,
         setSelectedNumbers2,
+        searchInTitle,
+        setSearchInTitle,
+        searchInExplanation,
+        setSearchInExplanation,
+        searchInMainText,
+        setSearchInMainText,
+        searchInComments,
+        setSearchInComments,
     };
 
     return (

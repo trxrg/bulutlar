@@ -10,7 +10,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
 
     const [isSelected, setIsSelected] = useState(false);
     const { getCategoryById, getTagById } = useContext(DBContext);
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, normalizeText, htmlToText } = useContext(AppContext);
     const { areArticlesSelectable, allOrNoneSelected, selectAllOrNoneClicks } = useContext(SearchContext);
 
     const numberOfTags = 3;
@@ -21,21 +21,6 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     useEffect(() => {
         setIsSelected(allOrNoneSelected);
     }, [selectAllOrNoneClicks]);
-
-    const normalizeText = (text) => {
-        if (!text)
-            return '';
-        const turkishMap = { 
-            'ç': 'c', 'Ç': 'C', 
-            'ğ': 'g', 'Ğ': 'G', 
-            'ı': 'i', 'İ': 'I', 
-            'ö': 'o', 'Ö': 'O', 
-            'ş': 's', 'Ş': 'S', 
-            'ü': 'u', 'Ü': 'U' 
-        };
-        const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
-        return result;
-    };
 
     const highlightKeywords = (text, keywords) => {
         if (!text || text.length === 0)
@@ -116,13 +101,6 @@ export default function ArticleShort({ article, keywords, handleClick }) {
 
     const handleCheckboxChange = () => {
         setIsSelected(!isSelected);
-    };
-
-    const htmlToText = (html) => {
-        if (!html)
-            return '';
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        return doc.body.textContent || "";
     };
 
     let highlightedTitle;

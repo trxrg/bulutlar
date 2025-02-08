@@ -18,14 +18,14 @@ export default function SearchContextProvider({ children }) {
     const [selectedNumbers1, setSelectedNumbers1] = useState([]);
     const [selectedNumbers2, setSelectedNumbers2] = useState([]);
     const [keywords, setKeywords] = useState([]);
-    const [ searchInTitle, setSearchInTitle ] = useState(true);
-    const [ searchInExplanation, setSearchInExplanation ] = useState(true);
-    const [ searchInMainText, setSearchInMainText ] = useState(true);
-    const [ searchInComments, setSearchInComments ] = useState(true);
-    const [startDate, setStartDate] = useState({day: null, month: null, year: null});
-    const [endDate, setEndDate] = useState({day: null, month: null, year: null});
-    const [startDate2, setStartDate2] = useState({day: null, month: null, year: null});
-    const [endDate2, setEndDate2] = useState({day: null, month: null, year: null});
+    const [searchInTitle, setSearchInTitle] = useState(true);
+    const [searchInExplanation, setSearchInExplanation] = useState(true);
+    const [searchInMainText, setSearchInMainText] = useState(true);
+    const [searchInComments, setSearchInComments] = useState(true);
+    const [startDate, setStartDate] = useState({ day: null, month: null, year: null });
+    const [endDate, setEndDate] = useState({ day: null, month: null, year: null });
+    const [startDate2, setStartDate2] = useState({ day: null, month: null, year: null });
+    const [endDate2, setEndDate2] = useState({ day: null, month: null, year: null });
 
     const [areArticlesSelectable, setArticlesSelectable] = useState(false);
     const [allOrNoneSelected, setAllOrNoneSelected] = useState(false);
@@ -59,7 +59,10 @@ export default function SearchContextProvider({ children }) {
             numbers1: selectedNumbers1,
             numbers2: selectedNumbers2,
         });
-    }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames, selectedNumbers1, selectedNumbers2, keywords, startDate, endDate, startDate2, endDate2]);
+    }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames,
+        selectedNumbers1, selectedNumbers2, keywords, startDate,
+        endDate, startDate2, endDate2,
+        searchInTitle, searchInExplanation, searchInMainText, searchInComments]);
 
     const ctxValue = {
         filtering,

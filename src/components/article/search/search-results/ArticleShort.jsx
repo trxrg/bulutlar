@@ -118,18 +118,23 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         setIsSelected(!isSelected);
     };
 
+    const htmlToText = (html) => {
+        if (!html)
+            return '';
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
+    };
+
     let highlightedTitle;
-    let highlightedText;
     let highlightedTextParts = [];
     let highlightedExplanation;
     let highlightedCommentParts = [];
 
     if (keywords) {
         highlightedTitle = highlightKeywords(article.title, keywords);
-        highlightedText = highlightKeywords(article.text, keywords);
-        highlightedTextParts = getToBeHighlightedParts(article.text, keywords).map(part => highlightKeywords(part, keywords));
-        highlightedExplanation = highlightKeywords(article.explanation, keywords);
-        highlightedCommentParts = getToBeHighlightedParts(article.comments[0] ? article.comments[0].text : '', keywords).map(part => highlightKeywords(part, keywords));
+        highlightedExplanation = highlightKeywords(htmlToText(article.explanation), keywords);
+        highlightedTextParts = getToBeHighlightedParts(htmlToText(article.text), keywords).map(part => highlightKeywords(part, keywords));
+        highlightedCommentParts = getToBeHighlightedParts(article.comments[0] ? htmlToText(article.comments[0].text) : '', keywords).map(part => highlightKeywords(part, keywords));
     }
 
     return (

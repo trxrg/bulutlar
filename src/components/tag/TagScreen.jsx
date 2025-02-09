@@ -6,7 +6,7 @@ import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
 
 const TagScreen = () => {
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, normalizeText } = useContext(AppContext);
     const { allTags, fetchTagById, fetchAllTags } = useContext(DBContext);
 
     const [filterTerm, setFilterTerm] = useState('');
@@ -37,7 +37,7 @@ const TagScreen = () => {
                 if (normalizeText(a[sortConfig.key]) < normalizeText(b[sortConfig.key])) {
                     return sortConfig.direction === 'ascending' ? -1 : 1;
                 }
-                if (a[sortConfig.key] > b[sortConfig.key]) {
+                if (normalizeText(a[sortConfig.key]) > normalizeText(b[sortConfig.key])) {
                     return sortConfig.direction === 'ascending' ? 1 : -1;
                 }
                 return 0;
@@ -59,21 +59,6 @@ const TagScreen = () => {
             return sortConfig.direction === 'ascending' ? ' ▲' : ' ▼';
         }
         return '';
-    };
-
-    function normalizeText(text) {
-        if (!text) return '';
-        if (typeof text !== 'string') return text;
-        const turkishMap = { 
-            'ç': 'c', 'Ç': 'C', 
-            'ğ': 'g', 'Ğ': 'G', 
-            'ı': 'i', 'İ': 'I', 
-            'ö': 'o', 'Ö': 'O', 
-            'ş': 's', 'Ş': 'S', 
-            'ü': 'u', 'Ü': 'U' 
-        };
-        const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
-        return result;
     };
 
     return (

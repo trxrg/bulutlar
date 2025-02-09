@@ -23,7 +23,7 @@ const SearchResultsHeader = () => {
     }
 
     return (
-        <div className='flex flex-wrap justify-between px-2 py-1 shadow-lg bg-stone-50'>
+        <div className='flex flex-wrap justify-between px-2 py-1 shadow-lg bg-white'>
             {/* left */}
             <div className='flex flex-wrap gap-1'>
                 {sidePanelCollapsed ?

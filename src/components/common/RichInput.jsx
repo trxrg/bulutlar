@@ -90,10 +90,10 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
                                 style={{ minWidth: inputWidth }}
                             />
                             <FormatButton onClick={handleConfirmClick}>
-                                <CheckIcon className="w-3 h-3" />
+                                <CheckIcon className="w-4 h-4" />
                             </FormatButton>
                             <FormatButton onClick={handleCancelClick}>
-                                <XMarkIcon className="w-3 h-3" />
+                                <XMarkIcon className="w-4 h-4" />
                             </FormatButton>
                         </div>
                     )

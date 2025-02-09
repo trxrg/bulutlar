@@ -2,7 +2,7 @@ const FormatButton = ({ onClick, onMouseDown, wfixed = true, children, ...props 
     return (
         <div {...props}>
             <button
-                className={(wfixed ? "w-10 " : "px-2 ") + "flex items-center justify-center h-10 bg-[#E7ECD8] hover:bg-[#F8FDE9] text-stone-400 hover:text-stone-700 rounded-md shadow-sm select-none"}
+                className={(wfixed ? "w-10 " : "px-2 ") + "flex items-center justify-center h-10 bg-[#E7ECD8] hover:bg-[#F8FDE9] text-stone-700 rounded-md shadow-sm select-none"}
                 onMouseDown={onMouseDown}
                 onClick={onClick}
             >

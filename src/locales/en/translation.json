@@ -133,6 +133,7 @@
     "export": "Export",
     "db exported to": "Database exported to",
     "db export error": "Database export error",
+    "db backed up to": "Database backed up to: ",
     "import": "Import",
     "db imported from": "Database imported from",
     "db import error": "Database import error",

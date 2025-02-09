@@ -136,6 +136,7 @@
     "appearance": "Görünüm",
     "export": "Dışa Aktar",
     "db exported to": "Veritabanı şu dizine aktarıldı",
+    "db backed up to": "Veritabanı şu dizine yedeklendi: ",
     "db export error": "Veritabanı dışa aktarılırken hata oluştu",
     "import": "İçe Aktar",
     "db imported from": "Veritabanı şu dizinden içe aktarıldı",

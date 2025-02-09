@@ -7,7 +7,7 @@ import ActionButton from '../../common/ActionButton.jsx';
 import ArticleList from '../ArticleList.jsx';
 import ViewArticleModal from './ViewArticleModal.jsx';
 
-const AddLinkModal = ({ isOpen, onRequestClose, handleAdd, title }) => {
+const AddLinkModal = ({ isOpen, onRequestClose, handleAdd }) => {
     const [selectedArticleId, setSelectedArticleId] = useState(null);
     const [viewedArticleId, setViewedArticleId] = useState(null);
     const [isViewArticleModalOpen, setIsViewArticleModalOpen] = useState(false);
@@ -27,7 +27,7 @@ const AddLinkModal = ({ isOpen, onRequestClose, handleAdd, title }) => {
 
     return (
         <>
-            <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={title}>
+            <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={t('add link')}>
                 <ArticleList onArticleChange={setSelectedArticleId} excludedArticleIds={[articleId]} onViewClicked={handleViewClicked} />
                 <div className='flex justify-end gap-2 mt-4'>
                     <ActionButton color={'blue'} onClick={handleAddClicked}>{t('add')}</ActionButton>

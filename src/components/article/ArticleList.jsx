@@ -17,11 +17,13 @@ const ArticleList = ({ onArticleChange, excludedArticleIds, onViewClicked }) => 
 
         return (
             <components.Option {...props}>
-                <div className="flex justify-between items-center w-full p-2">
+                <div className="flex justify-between items-center w-full p-2 group">
                     <div className="flex justify-between">
                         <span>{(props.data.ownerName ? props.data.ownerName + ' | ' : '') + props.data.title + ' | ' + props.data.dateStr}</span>
                     </div>
-                    <ActionButton color='blue' onClick={handleViewClicked}>{t('view')}</ActionButton>
+                    <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                        <ActionButton color='blue' onClick={handleViewClicked}>{t('view')}</ActionButton>
+                    </div>
                 </div>
             </components.Option>
         );
@@ -57,20 +59,20 @@ const ArticleList = ({ onArticleChange, excludedArticleIds, onViewClicked }) => 
     };
 
     const { allArticles, getOwnerById } = useContext(DBContext);
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, normalizeText } = useContext(AppContext);
 
     const articleOptions = [
         ...allArticles.filter(article => !excludedArticleIds || !excludedArticleIds.includes(article.id)).map(article => {
 
             const title = article.title;
             const ownerName = article.ownerId && getOwnerById(article.ownerId).name;
-            const dateStr = article.date.toLocaleDateString('tr');
+            const dateStr = article.isDateUncertain ? '' : article.date.toLocaleDateString('tr');
             return {
                 id: article.id,
                 title: title,
                 ownerName: ownerName,
                 dateStr: dateStr,
-                label: (ownerName ? ownerName + ' | ' : '') + title,
+                label: normalizeText((ownerName ? ownerName + ' | ' : '') + title),
             }
         })
     ];

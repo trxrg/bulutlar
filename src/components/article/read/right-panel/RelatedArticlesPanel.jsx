@@ -22,9 +22,9 @@ const RelatedArticlesPanel = () => {
     }    
 
     return (
-        <div className='h-full bg-white'>
+        <div className='h-full'>
             <BodyWithFixedHeader >
-                <div className='flex flex-wrap justify-between p-2 shadow-lg'>
+                <div className='flex flex-wrap justify-between p-2 shadow-lg bg-white'>
                     <h2 className='ml-2 text-xl font-semibold text-gray-800'>{t('related articles')}</h2>
                     <FormatButton onClick={() => setIsPickArticleModalOpen(true)}><PlusIcon className="w-4 h-4" /></FormatButton>
                 </div>

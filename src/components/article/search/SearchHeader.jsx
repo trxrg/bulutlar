@@ -5,7 +5,7 @@ const SearchHeader = () => {
     const { t } = useTranslation();
 
     return (
-        <div className={'overflow-auto px-6 py-3 bg-stone-100 border-b-4 border-[#809671]'}>
+        <div className={'overflow-auto px-6 py-3 bg-white border-b-4 border-[#809671]'}>
             <div className="text-3xl font-semibold text-gray-800">
                 {t('search screen')}
             </div>

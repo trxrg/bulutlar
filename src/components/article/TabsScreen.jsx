@@ -46,12 +46,12 @@ const TabsScreen = () => {
   return (
     <div className="h-full w-full flex flex-col">
       {/* Top-aligned tabs */}
-      <div className="flex-shrink-0 flex overflow-auto relative">
+      <div className="flex-shrink-0 flex overflow-auto relative bg-[#809671]">
         {tabs.map(tab => (
           <div
             key={tab.id}
             className={`${activeTabId === tab.id
-              ? 'bg-stone-50'
+              ? 'bg-white'
               : 'bg-stone-200'
               } text-gray-800 group min-w-40  py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent hover:border-[#809671] focus:outline-none relative text-left`}
             onClick={() => handleTabClick(tab.id)}

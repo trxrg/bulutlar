@@ -51,6 +51,11 @@ export default function AppContextProvider({ children }) {
         setActiveTabId(newTabId);
     };
 
+    const handleAddRandomTab = (e) => { 
+        const randomIndex = Math.floor(Math.random() * allArticles.length);
+        const randomArticle = allArticles[randomIndex];
+        handleAddTab(e, randomArticle.id);
+    };
 
     const handleCloseTab = (tabId) => {
         let updatedTabs = [...tabs];
@@ -169,6 +174,7 @@ export default function AppContextProvider({ children }) {
         setActiveScreen,
         handleAddArticle,
         handleAddTab,
+        handleAddRandomTab,
         handleCancel,
         beforeDeleteArticle,
         afterDeleteArticle,

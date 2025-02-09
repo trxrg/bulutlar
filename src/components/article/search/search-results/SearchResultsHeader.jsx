@@ -1,5 +1,7 @@
 import React, { useState, useContext } from 'react';
-import { PlusIcon, ChevronLeftIcon, ChevronRightIcon, ChevronUpIcon, ChevronDownIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, ChevronLeftIcon, ChevronRightIcon, 
+    ChevronUpIcon, ChevronDownIcon, ArrowsPointingOutIcon, 
+    ArrowsPointingInIcon, PencilSquareIcon, BoltIcon } from '@heroicons/react/24/outline';
 import { SearchContext } from '../../../../store/search-context.jsx';
 import FormatButton from '../../../common/FormatButton.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
@@ -11,7 +13,7 @@ const SearchResultsHeader = () => {
 
     const [isAddArticleModalOpen, setAddArticleModalOpen] = useState(false);
     const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed, areArticlesSelectable, toggleArticlesSelectable, selectAllOrNone } = useContext(SearchContext);
-    const { fullScreen, setFullScreen, translate: t } = useContext(AppContext);
+    const { fullScreen, setFullScreen, handleAddRandomTab, translate: t } = useContext(AppContext);
     const { setArticleOrder } = useContext(DBContext);
 
     const handleOrderByDateAsc = () => {
@@ -50,6 +52,7 @@ const SearchResultsHeader = () => {
             </div>
             {/* right */}
             <div className='flex flex-wrap gap-1'>
+                <FormatButton onClick={handleAddRandomTab}><BoltIcon className="w-4 h-4" /></FormatButton>
                 <FormatButton onClick={() => setAddArticleModalOpen(true)}><PlusIcon className="w-4 h-4" /></FormatButton>
                 {fullScreen ?
                     <FormatButton onClick={() => setFullScreen(false)}>

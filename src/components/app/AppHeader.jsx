@@ -36,7 +36,7 @@ const AppHeader = () => {
         <div className={'flex justify-between items-center py-2 px-2 border-b-4 border-[#809671] bg-white w-full h-full'}>
             <h1 className='text-3xl text-gray-600'>{getActiveScreenTitle()}</h1>
             <div className="flex justify-end items-center">
-                <div className='flex gap-2'>
+                <div className='flex gap-1'>
                     {/* <div className='flex items-center gap-2 mx-2 cursor-pointer' onClick={() => setStreakModalOpen(true)}>
                         <span className='text-xl text-green-600 font-bold'>⚡{streak}</span>
                     </div> */}

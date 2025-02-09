@@ -316,8 +316,8 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
     };
 
     const keyBindingFn = (e) => {
-
-        if (!editable) return 'handled';
+        
+        if (!editable && !((e.metaKey || e.ctrlKey) && e.key === 'c')) return 'handled';
 
         if (e.keyCode === 9 /* Tab */) {
             const maxDepth = 4; // Maximum depth of nested lists
@@ -385,7 +385,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
                     editorState={editorState}
                     onChange={handleEditorChange}
                     handleKeyCommand={editable ? undefined : () => 'handled'} // backspace enter etc.
-                    keyBindingFn={editable ? keyBindingFn : () => 'handled'}
+                    keyBindingFn={keyBindingFn}
                     handleBeforeInput={editable ? undefined : () => 'handled'}
                     handleReturn={editable ? undefined : () => 'handled'}
                     handlePastedText={editable ? undefined : () => 'handled'}

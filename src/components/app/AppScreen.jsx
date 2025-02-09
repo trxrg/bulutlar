@@ -17,7 +17,7 @@ const AppScreen = () => {
     // }, [streak]);
 
     return (
-        <div className='h-screen flex flex-col mx-auto bg-stone-200 w-screen'>
+        <div className='h-screen flex flex-col mx-auto bg-[#fffffc] w-screen'>
             {/* <div className={'flex flex-shrink-0 overflow-hidden w-full'}>
                 <CustomTitleBar />
             </div> */}

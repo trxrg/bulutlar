@@ -53,7 +53,7 @@ const TabsScreen = () => {
             className={`${activeTabId === tab.id
               ? 'bg-stone-50'
               : 'bg-stone-200'
-              } text-gray-800 group min-w-40  py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent hover:border-red-300 focus:outline-none relative text-left`}
+              } text-gray-800 group min-w-40  py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent hover:border-[#809671] focus:outline-none relative text-left`}
             onClick={() => handleTabClick(tab.id)}
           >
             {getTitle(tab.id)}

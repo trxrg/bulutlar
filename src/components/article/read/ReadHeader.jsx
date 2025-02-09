@@ -40,7 +40,7 @@ const ReadHeader = () => {
   }
 
   return (
-    <div className={fullScreen ? 'hidden' : 'overflow-auto px-6 py-3 bg-stone-100 border-b-4 border-red-300'}>
+    <div className={fullScreen ? 'hidden' : 'overflow-auto px-6 py-3 bg-stone-100 border-b-4 border-[#809671]'}>
       <RichInput initialText={article.title} handleSave={(newName) => handleChangeTitle(newName)} className="text-3xl font-semibold text-gray-800"></RichInput>
       <ArticleInfo article={article}></ArticleInfo>
     </div>

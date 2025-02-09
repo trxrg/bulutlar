@@ -46,7 +46,7 @@ const TabsScreen = () => {
   return (
     <div className="h-full w-full flex flex-col">
       {/* Top-aligned tabs */}
-      <div className="flex-shrink-0 flex overflow-auto relative bg-stone-300">
+      <div className="flex-shrink-0 flex overflow-auto relative bg-[#E7ECD8]">
         {tabs.map(tab => (
           <div
             key={tab.id}

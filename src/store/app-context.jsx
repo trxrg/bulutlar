@@ -143,6 +143,7 @@ export default function AppContextProvider({ children }) {
     const normalizeText = (text) => {
         if (!text)
             return '';
+        if (typeof text !== 'string') return text;
         const turkishMap = { 
             'ç': 'c', 'Ç': 'C', 
             'ğ': 'g', 'Ğ': 'G', 

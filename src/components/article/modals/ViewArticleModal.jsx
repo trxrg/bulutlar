@@ -8,7 +8,7 @@ import ActionButton from '../../common/ActionButton.jsx';
 import ArticleInfo from '../ArticleInfo.jsx';
 
 const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, afterViewInNewTab }) => {
-    const { translate: t, handleAddTab } = useContext(AppContext);
+    const { translate: t, handleAddTab, htmlToText } = useContext(AppContext);
     const { getArticleById } = useContext(DBContext);
     const { fontSize } = useContext(ReadContext);
     const viewedArticle = getArticleById(viewedArticleId);
@@ -22,13 +22,13 @@ const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, afterViewIn
     return (
         <>
             {viewedArticle && <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose}>
-                <div className='flex-shrink-0'>
-                    <h2 className='text-xl'>{viewedArticle.title}</h2>
-                    <ArticleInfo article={viewedArticle} isEditable={false}></ArticleInfo>
+                <div className='flex-shrink-0 shadow-lg p-2'>
+                    <h2 className={fontSize + " font-bold"}>{viewedArticle.title}</h2>
+                    <ArticleInfo article={viewedArticle} fontSize={fontSize} isEditable={false}></ArticleInfo>
                 </div>
-                <div className={'flex-1 overflow-y-auto leading-loose ' + fontSize}>
+                <div className={'flex-1 overflow-y-auto p-2 border leading-loose ' + fontSize}>
                     <article dangerouslySetInnerHTML={{ __html: viewedArticle.text }} />
-                    {viewedArticle.comments && viewedArticle.comments[0] &&
+                    {viewedArticle.comments && viewedArticle.comments[0] &&  htmlToText(viewedArticle.comments[0].text) &&
                         <>
                             <h3>{t('comment')}</h3>
                             <article dangerouslySetInnerHTML={{ __html: viewedArticle.comments[0].text }} />

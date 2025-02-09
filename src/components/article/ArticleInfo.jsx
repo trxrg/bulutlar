@@ -7,7 +7,7 @@ import OwnerModal from '../owner/OwnerModal.jsx';
 import CategoryModal from '../category/CategoryModal.jsx';
 import RichInput from '../common/RichInput.jsx';
 
-const ArticleInfo = ({ article, isEditable = true }) => {
+const ArticleInfo = ({ article, fontSize='text-lg', isEditable = true }) => {
 
     const { translate: t } = useContext(AppContext);
     const { fetchAllData, getOwnerById, fetchArticleById, getCategoryById } = useContext(DBContext);
@@ -47,7 +47,7 @@ const ArticleInfo = ({ article, isEditable = true }) => {
     const category = getCategoryById(article.categoryId);
 
     return (
-        <div className="text-lg text-gray-700 py-2" >
+        <div className={"text-gray-700 py-2 " + fontSize} >
             <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setOwnerModalIsOpen(true) : undefined}>{owner && owner.name + " | "}</span>
             <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category && category.name + " | "}</span>
             <span className='inline-flex'>{isEditable ?

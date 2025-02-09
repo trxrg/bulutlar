@@ -2,13 +2,13 @@ const ActionButton = ({ onClick, color='', size='', children }) => {
     let colorStyle = "bg-gray-200 hover:bg-gray-300 text-gray-700";
 
     if (color === 'green')
-        colorStyle = "bg-green-500 hover:bg-green-600 text-gray-100";
+        colorStyle = "bg-green-500 hover:bg-green-600 text-gray-100 font-bold";
     else if (color === 'red')
-        colorStyle = "bg-[#B53A16] hover:bg-red-600 text-gray-100";
+        colorStyle = "bg-[#B53A16] hover:bg-red-600 text-gray-100 font-bold";
     else if (color === 'blue')
-        colorStyle = "bg-[#338879] hover:bg-[#44998A] text-gray-100";
+        colorStyle = "bg-[#809671] hover:bg-[#708661] text-gray-100 font-bold";
     else
-        colorStyle = "bg-[#338879] hover:bg-[#44998A] text-gray-200";
+        colorStyle = "bg-[#809671] hover:bg-[#708661] text-gray-100 font-bold";
 
     let sizeStyle = "text-lg px-2 py-1";
 

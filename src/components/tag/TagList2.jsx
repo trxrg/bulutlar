@@ -36,13 +36,13 @@ const TagList2 = () => {
     };
 
     return (
-        <div className='p-2'>
+        <div className='p-2 w-full'>
             <div className='flex gap-2'>
                 <input
                     type="text"
                     value={inputValue}
                     onChange={handleInputChange}
-                    placeholder={t('type tags') + '...'}
+                    placeholder={t('type a tag') + '...'}
                     className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <ActionButton onClick={() => handleAddTag(inputValue)} color='blue'>{t('add')}</ActionButton>

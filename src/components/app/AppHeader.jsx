@@ -12,7 +12,7 @@ import StreakModal from './StreakModal';
 
 const AppHeader = () => {
 
-    const { getActiveScreenTitle, setActiveScreen, changeLanguage, setStreakModalOpen } = useContext(AppContext);
+    const { translate:t, getActiveScreenTitle, activeScreen, setActiveScreen, changeLanguage, setStreakModalOpen } = useContext(AppContext);
 
     const { fetchAllData, streak } = useContext(DBContext);
 
@@ -40,6 +40,7 @@ const AppHeader = () => {
                     {/* <div className='flex items-center gap-2 mx-2 cursor-pointer' onClick={() => setStreakModalOpen(true)}>
                         <span className='text-xl text-green-600 font-bold'>⚡{streak}</span>
                     </div> */}
+                    {activeScreen != 'tabs' && <ActionButton onClick={() => setActiveScreen('tabs')}>{t('articles')}</ActionButton>}
                     <FormatButton onClick={handleRefresh}><ArrowPathIcon className='w-5 h-5' /></FormatButton>
                     <FormatButton onClick={() => changeLanguage()}><GlobeAltIcon className='w-5 h-5' /></FormatButton>
                     <FormatButton onClick={() => setActiveScreen('home')}><HomeIcon className='w-5 h-5' /></FormatButton>

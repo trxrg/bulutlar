@@ -22,7 +22,7 @@ const ReadControls = () => {
     }
 
     return (
-        <div className='flex flex-wrap justify-between p-2 border-b-4 shadow-lg bg-white'>
+        <div className='flex flex-wrap justify-between p-2 shadow-lg bg-white'>
             {/* left */}
             <div className='flex flex-wrap gap-1'>
                 {leftPanelCollapsed ?

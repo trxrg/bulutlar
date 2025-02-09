@@ -68,7 +68,7 @@ const SearchResultsBody = () => {
                 if (startDate.month)
                     localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getMonth()) >= startDate.month - 1);
                 if (startDate.year)
-                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getFullYear()) >= startDate.year);
+                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getFullYear()) >= startDate.year);
             }
 
             if (endDate) {
@@ -77,7 +77,7 @@ const SearchResultsBody = () => {
                 if (endDate.month)
                     localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getMonth()) <= endDate.month - 1);
                 if (endDate.year)
-                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getFullYear()) <= endDate.year);
+                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getFullYear()) <= endDate.year);
             }
 
             return localFilteredArticles;

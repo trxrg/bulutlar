@@ -43,6 +43,8 @@ export default function SearchContextProvider({ children }) {
     useEffect(() => {
         if (fullScreen) {
             setSidePanelCollapsed(true);
+        } else {
+            setSidePanelCollapsed(false);
         }
     }, [fullScreen]);
 

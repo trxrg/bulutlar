@@ -13,9 +13,9 @@ Object.assign(console, log.functions);
 toastr.options = {
   "closeButton": true,
   "debug": false,
-  "newestOnTop": false,
+  "newestOnTop": true,
   "progressBar": true,
-  "positionClass": "toast-top-right",
+  "positionClass": "toast-bottom-left",
   "preventDuplicates": false,
   "onclick": null,
   "showDuration": "300",

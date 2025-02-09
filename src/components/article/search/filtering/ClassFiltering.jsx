@@ -40,7 +40,7 @@ const ClassFiltering = ({ allNames, selectedNames, setSelectedNames }) => {
             <div className='flex flex-row'>
                 <input
                     type="text"
-                    placeholder={t('filter by name')}
+                    placeholder={t('filter')}
                     value={filterText}
                     onChange={handleFilterChange}
                     className="flex flex-1 mb-2 p-1 border rounded"

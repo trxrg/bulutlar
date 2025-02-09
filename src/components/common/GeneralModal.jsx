@@ -11,7 +11,7 @@ const GeneralModal = ({ isOpen, onRequestClose, title, children }) => {
         >
             <div className="relative flex flex-col bg-white p-5 rounded-sm shadow-lg min-w-[50%] max-w-6xl max-h-[60%] z-50">
                 <div className={'flex justify-between ' + (title && ' mb-3')}>
-                    <h2 className='text-lg text-gray-600 select-none'>{title}</h2>
+                    <h2 className='text-2xl text-gray-600 select-none'>{title}</h2>
                     <button
                         onClick={onRequestClose}
                         className="text-gray p-1 rounded-full hover:bg-gray-400 focus:outline-none transition-all duration-300 flex items-center justify-center"

@@ -10,7 +10,7 @@ const AnnotationCard = ({ annotation, onClick }) => {
     }
 
     return (
-        <div className="rounded-md bg-gray-100 hover:bg-white border-4 border-gray-300 hover:border-gray-500 transition duration-300 ease-in-out
+        <div className="text-lg rounded-md bg-gray-100 hover:bg-white border-4 border-gray-300 hover:border-gray-500 transition duration-300 ease-in-out
         active:bg-gray-300 active:shadow-none p-5 shadow-xl cursor-pointer flex flex-col w-full overflow-hidden"
             onClick={handleClick}>
             {annotation &&

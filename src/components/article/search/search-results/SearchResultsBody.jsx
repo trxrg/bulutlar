@@ -40,10 +40,10 @@ const SearchResultsBody = () => {
             localFilteredArticles = applyDateFiltering(localFilteredArticles, 'date2', filtering.startDate2, filtering.endDate2);
 
         if (filtering.numbers1 && filtering.numbers1.length)
-            localFilteredArticles = localFilteredArticles.filter(art => filtering.numbers1.includes(String(art.number)));
+            localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && filtering.numbers1.includes(String(art.number)));
 
         if (filtering.numbers2 && filtering.numbers2.length)
-            localFilteredArticles = localFilteredArticles.filter(art => filtering.numbers2.includes(String(art.number2)));
+            localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && filtering.numbers2.includes(String(art.number2)));
 
         if (filtering.keywords && filtering.keywords.length) {
             localFilteredArticles = localFilteredArticles.filter(art => filtering.keywords.some(keyword => {
@@ -64,20 +64,20 @@ const SearchResultsBody = () => {
         try {
             if (startDate) {
                 if (startDate.day)
-                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getDate()) >= startDate.day);
+                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getDate()) >= startDate.day);
                 if (startDate.month)
-                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getMonth()) >= startDate.month - 1);
+                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getMonth()) >= startDate.month - 1);
                 if (startDate.year)
-                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getFullYear()) >= startDate.year);
+                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getFullYear()) >= startDate.year);
             }
 
             if (endDate) {
                 if (endDate.day)
-                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getDate()) <= endDate.day);
+                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getDate()) <= endDate.day);
                 if (endDate.month)
-                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getMonth()) <= endDate.month - 1);
+                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getMonth()) <= endDate.month - 1);
                 if (endDate.year)
-                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getFullYear()) <= endDate.year);
+                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getFullYear()) <= endDate.year);
             }
 
             return localFilteredArticles;

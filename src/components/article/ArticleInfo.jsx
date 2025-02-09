@@ -7,7 +7,7 @@ import OwnerModal from '../owner/OwnerModal.jsx';
 import CategoryModal from '../category/CategoryModal.jsx';
 import RichInput from '../common/RichInput.jsx';
 
-const ArticleInfo = ({ article, fontSize='text-xl', isEditable = true }) => {
+const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true }) => {
 
     const { translate: t } = useContext(AppContext);
     const { fetchAllData, getOwnerById, fetchArticleById, getCategoryById } = useContext(DBContext);
@@ -49,18 +49,21 @@ const ArticleInfo = ({ article, fontSize='text-xl', isEditable = true }) => {
     return (
         <div className={"text-gray-700 py-2 " + fontSize} >
             <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setOwnerModalIsOpen(true) : undefined}>{owner && owner.name + " | "}</span>
-            <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category && category.name + " | "}</span>
-            <span className='inline-flex'>{isEditable ?
-                <RichInput className='flex' initialText={new Date(article.date).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate}></RichInput>
-                :
-                new Date(article.date).toLocaleDateString('tr')}</span>
-            <span>{" (" + article.number + ") | "}</span>
-            <span>{getDayOfWeek() + " | "}</span>
-            <span className='inline-flex'>{isEditable ?
-                <RichInput className='flex' initialText={new Date(article.date2).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate2}></RichInput>
-                :
-                new Date(article.date2).toLocaleDateString('tr')}</span>
-            <span>{" (" + article.number2 + ")"}</span>
+            <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category && category.name}</span>
+            {!article.isDateUncertain && <>
+                <span>{" | "}</span>
+                <span className='inline-flex'>{isEditable ?
+                    <RichInput className='flex' initialText={new Date(article.date).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate}></RichInput>
+                    :
+                    new Date(article.date).toLocaleDateString('tr')}</span>
+                <span>{" (" + article.number + ") | "}</span>
+                <span>{getDayOfWeek() + " | "}</span>
+                <span className='inline-flex'>{isEditable ?
+                    <RichInput className='flex' initialText={new Date(article.date2).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate2}></RichInput>
+                    :
+                    new Date(article.date2).toLocaleDateString('tr')}</span>
+                <span>{" (" + article.number2 + ")"}</span>
+            </>}
             <OwnerModal isOpen={ownerModalIsOpen} onRequestClose={() => setOwnerModalIsOpen(false)} initialOwnerName={owner && owner.name} onConfirm={handleUpdateOwner}></OwnerModal>
             <CategoryModal isOpen={categoryModalIsOpen} onRequestClose={() => setCategoryModalIsOpen(false)} initialCategoryName={category && category.name} onConfirm={handleUpdateCategory}></CategoryModal>
         </div >

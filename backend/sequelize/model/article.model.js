@@ -31,6 +31,7 @@ export default (sequelize) => {
         textJson: { type: DataTypes.JSON },
         code: { allowNull: false, type: DataTypes.STRING },
         isEditable: { type: DataTypes.BOOLEAN, defaultValue: true },
+        isDateUncertain: { type: DataTypes.BOOLEAN, defaultValue: true },
     }, {
         indexes: [
             {

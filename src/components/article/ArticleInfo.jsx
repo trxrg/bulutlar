@@ -7,7 +7,7 @@ import OwnerModal from '../owner/OwnerModal.jsx';
 import CategoryModal from '../category/CategoryModal.jsx';
 import RichInput from '../common/RichInput.jsx';
 
-const ArticleInfo = ({ article, fontSize='text-lg', isEditable = true }) => {
+const ArticleInfo = ({ article, fontSize='text-xl', isEditable = true }) => {
 
     const { translate: t } = useContext(AppContext);
     const { fetchAllData, getOwnerById, fetchArticleById, getCategoryById } = useContext(DBContext);

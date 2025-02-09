@@ -52,7 +52,7 @@ const TabsScreen = () => {
             key={tab.id}
             className={`${activeTabId === tab.id
               ? 'bg-white'
-              : 'bg-stone-200'
+              : 'bg-stone-100'
               } text-gray-800 group min-w-40  py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent hover:border-[#809671] focus:outline-none relative text-left`}
             onClick={() => handleTabClick(tab.id)}
           >

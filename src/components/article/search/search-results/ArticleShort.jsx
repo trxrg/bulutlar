@@ -128,7 +128,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                     className="form-checkbox h-6 w-6 text-blue-600 mr-2"
                 />
             </div>}
-            <div className='flex flex-1 flex-col overflow-hidden px-10 py-6' onClick={(e) => handleClick(e, article.id)} >
+            <div className='flex flex-1 flex-col overflow-hidden px-10 py-6 text-xl' onClick={(e) => handleClick(e, article.id)} >
                 <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{keywords ? parse(highlightedTitle) : article.title}</h2>
                 <ArticleInfo article={article} isEditable={false} />
                 {keywords &&

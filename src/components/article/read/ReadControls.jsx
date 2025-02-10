@@ -2,22 +2,31 @@ import React, { useState, useContext } from 'react';
 import { PencilIcon, PhotoIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
+import { DBContext } from '../../../store/db-context.jsx';
 import FormatButton from '../../common/FormatButton.jsx';
 import ActionButton from '../../common/ActionButton.jsx';
 import ConfirmModal from '../../common/ConfirmModal.jsx';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 
 const ReadControls = () => {
 
     const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
-
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
+    const { fetchArticleById } = useContext(DBContext);
 
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
 
     const handleToggleBlockType = (event, blockType) => {
         event.preventDefault();
         toggleBlockType(blockType);
+    }
+
+    const handleStarClick = async (e) => {
+        e.stopPropagation();
+        await articleApi.setIsStarred(article.id, !article.isStarred);
+        fetchArticleById(article.id);
     }
 
     return (
@@ -41,7 +50,7 @@ const ReadControls = () => {
                     <div className='flex flex-wrap gap-1'>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
-                        <FormatButton onClick={handleInsertImageClicked}><PhotoIcon className="w-5 h-5" /></FormatButton>                        
+                        <FormatButton onClick={handleInsertImageClicked}><PhotoIcon className="w-5 h-5" /></FormatButton>
                         <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}
@@ -62,6 +71,13 @@ const ReadControls = () => {
             </div>
             {/* right */}
             <div className='flex flex-wrap gap-1'>
+                <div onClick={handleStarClick} className='flex items-center px-1'>
+                    {article.isStarred ? (
+                        <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="hover:scale-125" />
+                    ) : (
+                        <StarBorderIcon style={{ fontSize: '2rem', color: '#B0B0B0' }} className="hover:scale-125" />
+                    )}
+                </div>
                 {!editable &&
                     <FormatButton
                         onClick={() => setEditable(true)}

@@ -18,7 +18,6 @@ export default function DBContextProvider({ children }) {
             const updatedArticle = await articleApi.getById(id);
 
             console.log(`article updated. id: ${id}`)
-            console.debug(`title: ${updatedArticle.title}`)
 
             const updatedArticles = allArticles.map(article => article.id === id ? updatedArticle : article);
             setAllArticles(updatedArticles);

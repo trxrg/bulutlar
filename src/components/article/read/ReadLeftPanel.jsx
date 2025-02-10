@@ -35,7 +35,7 @@ const ReadLeftPanel = () => {
             <BodyWithFixedHeader >
                 <div className='flex flex-wrap justify-between p-2 shadow-lg bg-white'>
                     <h2 className='ml-2 text-xl font-semibold text-gray-800 hover:underline cursor-pointer' onClick={handleNotesClick}>{t('notes')}</h2>
-                    <FormatButton onClick={handleAddAnnotation}><PlusIcon className="w-4 h-4" /></FormatButton>
+                    <FormatButton onClick={handleAddAnnotation}><PlusIcon className="w-5 h-5" /></FormatButton>
                 </div>
                 {article.annotations && article.annotations.length > 0?
                     <div className='flex flex-col gap-2 p-2'>

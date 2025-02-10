@@ -26,7 +26,7 @@ const customStyles = {
         },
     }),
     option: (base, state) => {
-        const border = '4px solid ' + state.data.color;
+        const borderLeft = '20px solid ' + state.data.color;
         const backgroundColor = state.isFocused ? '#f0f0f0' : 'white';
         const color = '#333';
 
@@ -34,7 +34,7 @@ const customStyles = {
             ...base,
             backgroundColor,
             color,
-            border,
+            borderLeft,
             cursor: 'pointer'
         };
     },

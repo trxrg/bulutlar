@@ -253,7 +253,17 @@ async function updateArticleDate2(id, newDate) {
 async function updateArticleOwner(id, newOwnerName) {
     try {
         const article = await sequelize.models.article.findByPk(id);
+        if (!article)
+            throw ('no article found with id: ' + id);
+        if (!newOwnerName) {
+            article.setOwner(null);
+            return;
+        }
+
         const owner = await ownerService.getOwnerWithNameAddIfNotPresent(newOwnerName);
+        if (!owner)
+            throw ('no owner found with name: ' + newOwnerName);
+
         article.setOwner(owner);
 
     } catch (error) {

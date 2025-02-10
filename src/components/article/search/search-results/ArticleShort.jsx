@@ -149,9 +149,9 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                     <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{keywords ? parse(highlightedTitle) : article.title}</h2>
                     <div onClick={handleStarClick} className='cursor-default'>
                         {article.isStarred ? (
-                            <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="text-yellow-500 text-xl hover:text-yellow-600 hover:scale-125" />
+                            <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="hover:scale-125" />
                         ) : (
-                            <StarBorderIcon style={{ fontSize: '2rem', color: '#B0B0B0' }} className="text-gray-400 text-xl hover:text-gray-500 hover:scale-125" />
+                            <StarBorderIcon style={{ fontSize: '2rem', color: '#B0B0B0' }} className="hover:scale-125" />
                         )}
                     </div>
                 </div>

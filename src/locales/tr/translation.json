@@ -33,6 +33,7 @@
     "category name": "Kategori Adı",
     "select category": "Kategori Seç",
     "no such category": "Böyle bir kategori yok",
+    "category could not be changed": "Kategori değiştirilemedi",
 
     "comment": "Yorum",
     "comments": "Yorumlar",
@@ -45,6 +46,7 @@
     "select owner": "Kişi Seç",
     "add owner": "Kişi Ekle",
     "no such owner": "Böyle bir kişi yok",
+    "owner could not be changed": "Kişi değiştirilemedi",
         
     "tag": "Etiket",
     "tags": "Etiketler",

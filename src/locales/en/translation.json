@@ -33,6 +33,7 @@
     "category name": "Category Name",
     "select category": "Select Category",
     "no such category": "No such category",
+    "category could not be changed": "Category could not be changed",
 
     "comment": "Comment",
     "comments": "Comments",
@@ -45,6 +46,7 @@
     "select owner": "Select Owner",
     "add owner": "Add Person",
     "no such owner": "No such owner",
+    "owner could not be changed": "Owner could not be changed",
     
     "tag": "Tag",
     "tags": "Tags",
@@ -66,7 +68,7 @@
     "selectAll": "Select All",
     "selectNone": "Select None",
     "filter": "Filter",
-  "starred": "Starred",
+    "starred": "Starred",
 
     "keyword": "Keyword",
     "enter keyword": "Enter keyword",

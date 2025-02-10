@@ -6,6 +6,7 @@ import { articleApi } from '../../backend-adapter/BackendAdapter.js';
 import OwnerModal from '../owner/OwnerModal.jsx';
 import CategoryModal from '../category/CategoryModal.jsx';
 import RichInput from '../common/RichInput.jsx';
+import toastr from 'toastr';
 
 const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true }) => {
 
@@ -22,13 +23,23 @@ const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true }) => {
     }
 
     const handleUpdateOwner = async (newOwnerName) => {
-        await articleApi.updateOwner(article.id, newOwnerName);
+        try {
+            await articleApi.updateOwner(article.id, newOwnerName);
+        } catch (err) {
+            console.error(err);
+            toastr.error(t('owner could not be changed'));
+        }
         fetchAllData();
         setOwnerModalIsOpen(false);
     }
 
     const handleUpdateCategory = async (newCategoryName) => {
-        await articleApi.updateCategory(article.id, newCategoryName);
+        try {
+            await articleApi.updateCategory(article.id, newCategoryName);
+        } catch (err) {
+            console.error(err);
+            toastr.error(t('category could not be changed'));
+        }
         fetchAllData();
         setCategoryModalIsOpen(false);
     }

@@ -10,6 +10,7 @@ import Date2Filtering from './Date2Filtering.jsx';
 import Number1Filtering from './Number1Filtering.jsx';
 import Number2Filtering from './Number2Filtering.jsx';
 import FilterAccordion from './FilterAccordion.jsx';
+import Checkbox from '@mui/material/Checkbox';
 
 const SearchFilterings = () => {
 
@@ -23,7 +24,8 @@ const SearchFilterings = () => {
         startDate2, setStartDate2,
         endDate2, setEndDate2,
         selectedNumbers1, setSelectedNumbers1,
-        selectedNumbers2, setSelectedNumbers2 } = useContext(SearchContext);
+        selectedNumbers2, setSelectedNumbers2,
+        filterStarred, setFilterStarred } = useContext(SearchContext);
 
     const isDate1Active = startDate.day || startDate.month || startDate.year || endDate.day || endDate.month || endDate.year;
     const isDate2Active = startDate2.day || startDate2.month || startDate2.year || endDate2.day || endDate2.month || endDate2.year;
@@ -38,6 +40,15 @@ const SearchFilterings = () => {
 
     return (
         <>
+            <div className='flex flex-col p-3 bg-white'>
+                <label className={'select-none cursor-pointer'}>
+                    <Checkbox
+                        checked={filterStarred}
+                        onChange={(e) => setFilterStarred(e.target.checked)}
+                    />
+                    {t('starred')}
+                </label>
+            </div>
             <FilterAccordion title={t('keyword')} isFilterActive={keywords && keywords.length > 0} clearFilter={() => setKeywords([])}>
                 <KeywordFiltering />
             </FilterAccordion>

@@ -22,10 +22,11 @@ export default function SearchContextProvider({ children }) {
     const [searchInExplanation, setSearchInExplanation] = useState(true);
     const [searchInMainText, setSearchInMainText] = useState(true);
     const [searchInComments, setSearchInComments] = useState(true);
-    const [startDate, setStartDate] = useState({ day: null, month: null, year: null });
-    const [endDate, setEndDate] = useState({ day: null, month: null, year: null });
-    const [startDate2, setStartDate2] = useState({ day: null, month: null, year: null });
-    const [endDate2, setEndDate2] = useState({ day: null, month: null, year: null });
+    const [startDate, setStartDate] = useState({ day: '', month: '', year: '' });
+    const [endDate, setEndDate] = useState({ day: '', month: '', year: '' });
+    const [startDate2, setStartDate2] = useState({ day: '', month: '', year: '' });
+    const [endDate2, setEndDate2] = useState({ day: '', month: '', year: '' });
+    const [filterStarred, setFilterStarred] = useState(false);
 
     const [areArticlesSelectable, setArticlesSelectable] = useState(false);
     const [allOrNoneSelected, setAllOrNoneSelected] = useState(false);
@@ -60,10 +61,11 @@ export default function SearchContextProvider({ children }) {
             endDate2: endDate2,
             numbers1: selectedNumbers1,
             numbers2: selectedNumbers2,
+            filterStarred: filterStarred,
         });
     }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames,
         selectedNumbers1, selectedNumbers2, keywords, startDate,
-        endDate, startDate2, endDate2,
+        endDate, startDate2, endDate2, filterStarred,
         searchInTitle, searchInExplanation, searchInMainText, searchInComments]);
 
     const ctxValue = {
@@ -107,6 +109,8 @@ export default function SearchContextProvider({ children }) {
         setSearchInMainText,
         searchInComments,
         setSearchInComments,
+        filterStarred,
+        setFilterStarred,
     };
 
     return (

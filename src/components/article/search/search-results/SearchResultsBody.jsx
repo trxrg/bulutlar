@@ -24,6 +24,9 @@ const SearchResultsBody = () => {
     const applyFiltering = (allArticles, filtering) => {
         let localFilteredArticles = allArticles;
 
+        if (filtering.filterStarred)
+            localFilteredArticles = localFilteredArticles.filter(art => art.isStarred);
+
         if (filtering.ownerNames && filtering.ownerNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => art.ownerId && filtering.ownerNames.includes(getOwnerById(art.ownerId).name));
 

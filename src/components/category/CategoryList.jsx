@@ -26,8 +26,8 @@ const customStyles = {
         },
     }),
     option: (base, state) => {
-        const border = state.isFocused ? '2px solid' : 'none';
-        const backgroundColor = state.data.color;
+        const border = '4px solid ' + state.data.color;
+        const backgroundColor = state.isFocused ? '#f0f0f0' : 'white';
         const color = '#333';
 
         return {

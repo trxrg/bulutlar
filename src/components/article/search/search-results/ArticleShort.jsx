@@ -115,6 +115,13 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         highlightedCommentParts = getToBeHighlightedParts(article.comments[0] ? htmlToText(article.comments[0].text) : '', keywords).map(part => highlightKeywords(part, keywords));
     }
 
+    const getSubstringUntilNextPeriod = (text, index) => {
+        if (!text || index < 0) return '';
+        if (text.length <= index) return text;
+        const nextPeriodIndex = text.indexOf('.', index);
+        return nextPeriodIndex !== -1 ? text.slice(0, nextPeriodIndex + 1) : text;
+    };
+
     return (
         <div className="rounded-md bg-gray-100 hover:bg-white border-4
         active:bg-gray-300 active:shadow-none shadow-xl cursor-pointer flex flex-row w-full overflow-hidden"
@@ -137,7 +144,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                     </article>
                 }
                 <article className='my-2'>
-                    {keywords ? highlightedTextParts.map(part => parse('<p>' + part + '</p><p>...</p>')) : (article.text && parse(article.text.substring(0, numberOfCharsForText)))}
+                    {keywords ? highlightedTextParts.map(part => parse('<p>' + part + '</p><p>...</p>')) : (article.text && parse(getSubstringUntilNextPeriod(article.text, numberOfCharsForText)))}
                 </article>
                 {keywords &&
                     <article className='my-2'>

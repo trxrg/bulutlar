@@ -6,7 +6,6 @@ import FormatButton from '../../common/FormatButton.jsx';
 import ActionButton from '../../common/ActionButton.jsx';
 import ConfirmModal from '../../common/ConfirmModal.jsx';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
-import ArticleInfo from '../ArticleInfo.jsx';
 
 const ReadControls = () => {
 

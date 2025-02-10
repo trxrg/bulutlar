@@ -30,15 +30,15 @@ const SearchResultsHeader = () => {
             <div className='flex flex-wrap gap-1'>
                 {sidePanelCollapsed ?
                     <FormatButton onClick={() => setSidePanelCollapsed(false)}>
-                        <ChevronRightIcon className="w-4 h-4" />
+                        <ChevronRightIcon className="w-5 h-5" />
                     </FormatButton>
                     :
                     <FormatButton onClick={() => setSidePanelCollapsed(true)}>
-                        <ChevronLeftIcon className="w-4 h-4" />
+                        <ChevronLeftIcon className="w-5 h-5" />
                     </FormatButton>}
-                {/* <FormatButton onClick={() => toggleArticlesSelectable()}><PencilSquareIcon className='w-4 h-4'/></FormatButton> */}
-                <FormatButton onClick={handleOrderByDateAsc}><ChevronUpIcon className='w-4 h-4'/></FormatButton>
-                <FormatButton onClick={handleOrderByDateDesc}><ChevronDownIcon className='w-4 h-4'/></FormatButton>
+                {/* <FormatButton onClick={() => toggleArticlesSelectable()}><PencilSquareIcon className="w-5 h-5"/></FormatButton> */}
+                <FormatButton onClick={handleOrderByDateAsc}><ChevronUpIcon className="w-5 h-5"/></FormatButton>
+                <FormatButton onClick={handleOrderByDateDesc}><ChevronDownIcon className="w-5 h-5"/></FormatButton>
             </div>
             {/* center */}
             <div>
@@ -52,15 +52,15 @@ const SearchResultsHeader = () => {
             </div>
             {/* right */}
             <div className='flex flex-wrap gap-1'>
-                <FormatButton onClick={handleAddRandomTab}><BoltIcon className="w-4 h-4" /></FormatButton>
-                <FormatButton onClick={() => setAddArticleModalOpen(true)}><PlusIcon className="w-4 h-4" /></FormatButton>
+                <FormatButton onClick={handleAddRandomTab}><BoltIcon className="w-5 h-5" /></FormatButton>
+                <FormatButton onClick={() => setAddArticleModalOpen(true)}><PlusIcon className="w-5 h-5" /></FormatButton>
                 {fullScreen ?
                     <FormatButton onClick={() => setFullScreen(false)}>
-                        <ArrowsPointingInIcon className="w-4 h-4" />
+                        <ArrowsPointingInIcon className="w-5 h-5" />
                     </FormatButton>
                     :
                     <FormatButton onClick={() => setFullScreen(true)}>
-                        <ArrowsPointingOutIcon className="w-4 h-4" />
+                        <ArrowsPointingOutIcon className="w-5 h-5" />
                     </FormatButton>}
             </div>
             <AddArticleModal isOpen={isAddArticleModalOpen} onRequestClose={() => setAddArticleModalOpen(false)} />

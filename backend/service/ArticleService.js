@@ -31,6 +31,7 @@ function initService() {
     ipcMain.handle('article/removeRelatedArticle', (event, id, relatedArticleId) => removeRelatedArticle(id, relatedArticleId));
     ipcMain.handle('article/addTag', (event, id, tagName) => addTagToArticle(id, tagName));
     ipcMain.handle('article/removeTag', (event, id, tagName) => removeTagFromArticle(id, tagName));
+    ipcMain.handle('article/setIsStarred', (event, id, isStarred) => setIsStarred(id, isStarred));
 }
 
 async function createArticle(article) { // Now transactional
@@ -434,26 +435,19 @@ async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
     return entities.map(entity => articleEntity2Json(entity));
 }
 
-// async function getAllArticles() {
-//     let entities = await sequelize.models.article.findAll({
-//         include: [
-//             { model: sequelize.models.comment },
-//             { model: sequelize.models.tag },
-//             { model: sequelize.models.image },
-//             { model: sequelize.models.annotation },
-//             { model: sequelize.models.group },
-//             {
-//                 model: sequelize.models.article,
-//                 as: 'relatedArticles',
-//                 attributes: ['id', 'title']
-//             },
-//         ],
-//         order: [['date', 'ASC']]
-//     });
+async function setIsStarred(id, isStarred) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
 
-//     return entities.map(entity => articleEntity2Json(entity));
-// }
+        if (!article)
+            throw ('no article found with id: ' + id);
 
+        await article.update({ isStarred });
+    } catch (error) {
+        console.error('Error in setIsStarred', error);
+        throw error;
+    }
+}
 
 async function openDialogToAddImages(articleId) {
 

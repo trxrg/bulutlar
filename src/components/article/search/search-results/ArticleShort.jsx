@@ -4,12 +4,15 @@ import React, { useContext, useState, useEffect } from 'react';
 import { DBContext } from '../../../../store/db-context';
 import { AppContext } from '../../../../store/app-context';
 import { SearchContext } from '../../../../store/search-context';
+import { articleApi } from '../../../../backend-adapter/BackendAdapter';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
 import ArticleInfo from '../../ArticleInfo';
 
 export default function ArticleShort({ article, keywords, handleClick }) {
 
     const [isSelected, setIsSelected] = useState(false);
-    const { getCategoryById, getTagById } = useContext(DBContext);
+    const { getCategoryById, getTagById, fetchArticleById } = useContext(DBContext);
     const { translate: t, normalizeText, htmlToText } = useContext(AppContext);
     const { areArticlesSelectable, allOrNoneSelected, selectAllOrNoneClicks } = useContext(SearchContext);
 
@@ -52,26 +55,26 @@ export default function ArticleShort({ article, keywords, handleClick }) {
 
         return highlightedText;
     };
-    
+
     const getToBeHighlightedParts = (text, keywords, contextLength = 50) => {
         const normalizedKeywords = keywords.map(keyword => normalizeText(keyword));
         const normalizedText = normalizeText(text);
         const regex = new RegExp(`(${normalizedKeywords.join('|')})`, 'gi');
         const matches = [];
         let match;
-    
+
         // Find all matches in the normalized text
         while ((match = regex.exec(normalizedText)) !== null) {
             matches.push({ start: match.index, end: regex.lastIndex });
         }
-    
+
         const highlightedParts = [];
         let lastIndex = 0;
-    
+
         matches.forEach(({ start, end }) => {
             const originalStart = start;
             const originalEnd = end;
-    
+
             // Extract context before the match
             let contextBefore = text.slice(Math.max(0, originalStart - contextLength), originalStart);
             // Ensure contextBefore ends at a word boundary
@@ -81,7 +84,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                     contextBefore = contextBefore.slice(lastSpaceBefore + 1);
                 }
             }
-    
+
             // Extract context after the match
             let contextAfter = text.slice(originalEnd, Math.min(text.length, originalEnd + contextLength));
             // Ensure contextAfter ends at a word boundary
@@ -91,7 +94,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                     contextAfter = contextAfter.slice(0, firstSpaceAfter);
                 }
             }
-    
+
             highlightedParts.push(`${contextBefore}${text.slice(originalStart, originalEnd)}${contextAfter}`);
             lastIndex = originalEnd;
 
@@ -122,9 +125,15 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         return nextPeriodIndex !== -1 ? text.slice(0, nextPeriodIndex + 1) : text;
     };
 
+    const handleStarClick = async (e) => {
+        e.stopPropagation();
+        await articleApi.setIsStarred(article.id, !article.isStarred);
+        fetchArticleById(article.id);
+    }
+
     return (
-        <div className="rounded-md bg-gray-100 hover:bg-white border-4
-        active:bg-gray-300 active:shadow-none shadow-xl cursor-pointer flex flex-row w-full overflow-hidden"
+        <div className="rounded-md bg-stone-50 hover:bg-white border-4
+         shadow-xl cursor-pointer flex flex-row w-full overflow-hidden"
             style={{ borderColor: category && category.color }}
         >
             {areArticlesSelectable && <div className='min-h-full flex items-center pl-5 cursor-normal' onClick={handleCheckboxChange}>
@@ -136,7 +145,16 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                 />
             </div>}
             <div className='flex flex-1 flex-col overflow-hidden px-10 py-6 text-xl' onClick={(e) => handleClick(e, article.id)} >
-                <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{keywords ? parse(highlightedTitle) : article.title}</h2>
+                <div className='flex justify-between'>
+                    <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{keywords ? parse(highlightedTitle) : article.title}</h2>
+                    <div onClick={handleStarClick} className='cursor-default'>
+                        {article.isStarred ? (
+                            <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="text-yellow-500 text-xl hover:text-yellow-600 hover:scale-125" />
+                        ) : (
+                            <StarBorderIcon style={{ fontSize: '2rem', color: '#B0B0B0' }} className="text-gray-400 text-xl hover:text-gray-500 hover:scale-125" />
+                        )}
+                    </div>
+                </div>
                 <ArticleInfo article={article} isEditable={false} />
                 {keywords &&
                     <article className='my-2'>

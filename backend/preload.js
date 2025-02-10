@@ -28,7 +28,8 @@ contextBridge.exposeInMainWorld('api', {
     addRelatedArticle: (id, relatedArticleId) => ipcRenderer.invoke('article/addRelatedArticle', id, relatedArticleId),
     removeRelatedArticle: (id, relatedArticleId) => ipcRenderer.invoke('article/removeRelatedArticle', id, relatedArticleId),
     addTag:           (id, tagName)           => ipcRenderer.invoke('article/addTag', id, tagName),
-    removeTag:        (id, tagName)           => ipcRenderer.invoke('article/removeTag', id, tagName)
+    removeTag:        (id, tagName)           => ipcRenderer.invoke('article/removeTag', id, tagName),
+    setIsStarred:     (id, isStarred)         => ipcRenderer.invoke('article/setIsStarred', id, isStarred),
   },
   owner: {
     create:      (owner)        => ipcRenderer.invoke('owner/create', owner),

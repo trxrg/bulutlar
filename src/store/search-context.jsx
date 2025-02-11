@@ -1,12 +1,13 @@
 import React, { createContext, useState, useContext, useEffect, use } from 'react';
 import { DBContext } from './db-context';
 import { AppContext } from './app-context';
+import toastr from 'toastr';
 
 export const SearchContext = createContext();
 
 export default function SearchContextProvider({ children }) {
     const { allArticles } = useContext(DBContext);
-    const { fullScreen } = useContext(AppContext);
+    const { fullScreen, translate: t } = useContext(AppContext);
 
     const [filtering, setFiltering] = useState({});
     const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
@@ -48,8 +49,8 @@ export default function SearchContextProvider({ children }) {
     }, [filteredArticles]);
 
     const generatePDFOfSelectedArticles = () => {
-        console.log('generatePDFOfSelectedArticles');
-        console.log(selectedArticles.length);
+        console.log('generatePDFOfSelectedArticles not implemented yet');
+        toastr.warning(t('pdf not implemented yet'));
     }
 
     const selectArticle = (articleId) => {

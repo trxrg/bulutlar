@@ -10,6 +10,8 @@ import Link from './Link';
 import Image from './Image';
 import '../../../../styles.css'
 import 'draft-js/dist/Draft.css'; // necessary for list item styling etc.
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const styleMap = {
     'HIGHLIGHT': {
@@ -267,6 +269,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         resetContent,
         toggleInlineStyle,
         toggleBlockType,
+        generatePDF,
     }));
 
     const handleEditorChange = (newEditorState) => {
@@ -280,7 +283,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         //     ? EditorState.moveSelectionToEnd(newEditorState)
         //     : newEditorState
         // );
-        
+
         setEditorState(newEditorState);
         // setEditorState(EditorState.forceSelection(newEditorState, editorState.getSelection()));
     };
@@ -316,7 +319,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
     };
 
     const keyBindingFn = (e) => {
-        
+
         if (!editable && !((e.metaKey || e.ctrlKey) && e.key === 'c')) return 'handled';
 
         if (e.keyCode === 9 /* Tab */) {
@@ -371,6 +374,34 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         }
 
         return getDefaultKeyBinding(e);
+    };
+
+    const generatePDF = () => {
+        const contentState = this.state.editorState.getCurrentContent();
+        const options = {
+            blockRenderers: {
+                atomic: (block) => {
+                    const entity = contentState.getEntity(block.getEntityAt(0));
+                    const { src } = entity.getData();
+                    return `<img src="${src}" alt="Image" />`;
+                },
+            },
+        };
+        const html = stateToHTML(contentState, options);
+
+        const pdf = new jsPDF('p', 'pt', 'a4');
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+
+        html2canvas(document.body, {
+            onclone: (clonedDoc) => {
+                clonedDoc.body.innerHTML = html;
+            },
+        }).then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+            pdf.addImage(imgData, 'PNG', 0, 0);
+            pdf.save('document.pdf');
+        });
     };
 
     return (

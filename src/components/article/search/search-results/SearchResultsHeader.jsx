@@ -1,7 +1,9 @@
 import React, { useState, useContext } from 'react';
-import { PlusIcon, ChevronLeftIcon, ChevronRightIcon, 
-    ChevronUpIcon, ChevronDownIcon, ArrowsPointingOutIcon, 
-    ArrowsPointingInIcon, PencilSquareIcon, BoltIcon } from '@heroicons/react/24/outline';
+import {
+    PlusIcon, ChevronLeftIcon, ChevronRightIcon,
+    ChevronUpIcon, ChevronDownIcon, ArrowsPointingOutIcon,
+    ArrowsPointingInIcon, PencilSquareIcon, BoltIcon, DocumentArrowDownIcon
+} from '@heroicons/react/24/outline';
 import { SearchContext } from '../../../../store/search-context.jsx';
 import FormatButton from '../../../common/FormatButton.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
@@ -12,7 +14,9 @@ import ActionButton from '../../../common/ActionButton.jsx';
 const SearchResultsHeader = () => {
 
     const [isAddArticleModalOpen, setAddArticleModalOpen] = useState(false);
-    const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed, areArticlesSelectable, toggleArticlesSelectable, selectAllOrNone } = useContext(SearchContext);
+    const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed,
+        areArticlesSelectable, toggleArticlesSelectable,
+        selectAllOrNone, generatePDFOfSelectedArticles, selectedArticles } = useContext(SearchContext);
     const { fullScreen, setFullScreen, handleAddRandomTab, translate: t } = useContext(AppContext);
     const { setArticleOrder } = useContext(DBContext);
 
@@ -36,22 +40,23 @@ const SearchResultsHeader = () => {
                     <FormatButton onClick={() => setSidePanelCollapsed(true)}>
                         <ChevronLeftIcon className="w-5 h-5" />
                     </FormatButton>}
-                {/* <FormatButton onClick={() => toggleArticlesSelectable()}><PencilSquareIcon className="w-5 h-5"/></FormatButton> */}
-                <FormatButton onClick={handleOrderByDateAsc}><ChevronUpIcon className="w-5 h-5"/></FormatButton>
-                <FormatButton onClick={handleOrderByDateDesc}><ChevronDownIcon className="w-5 h-5"/></FormatButton>
+                <FormatButton onClick={() => toggleArticlesSelectable()}><PencilSquareIcon className="w-5 h-5" /></FormatButton>
+                <FormatButton onClick={handleOrderByDateAsc}><ChevronUpIcon className="w-5 h-5" /></FormatButton>
+                <FormatButton onClick={handleOrderByDateDesc}><ChevronDownIcon className="w-5 h-5" /></FormatButton>
             </div>
             {/* center */}
             <div>
                 {areArticlesSelectable &&
                     <div className='flex flex-wrap gap-1'>
-                        <ActionButton onClick={()=>selectAllOrNone(true)} color='blue'>{t('selectAll')}</ActionButton>
-                        <ActionButton onClick={()=>selectAllOrNone(false)} color='blue'>{t('selectNone')}</ActionButton>
+                        <ActionButton onClick={() => selectAllOrNone(true)} color='blue'>{t('selectAll')}</ActionButton>
+                        <ActionButton onClick={() => selectAllOrNone(false)} color='blue'>{t('selectNone')}</ActionButton>
                     </div>
                 }
-                <h3 className='text-xl text-gray-700 py-2 flex justify-center'>{filteredArticles.length + ' ' + t('articlesTR')}</h3>
+                <h3 className='text-xl text-gray-700 py-2 flex justify-center'>{(areArticlesSelectable ? selectedArticles.length + '/' : '') + filteredArticles.length + ' ' + t('articlesTR')}</h3>
             </div>
             {/* right */}
             <div className='flex flex-wrap gap-1'>
+                <FormatButton onClick={generatePDFOfSelectedArticles}><DocumentArrowDownIcon className="w-5 h-5" /></FormatButton>
                 <FormatButton onClick={handleAddRandomTab}><BoltIcon className="w-5 h-5" /></FormatButton>
                 <FormatButton onClick={() => setAddArticleModalOpen(true)}><PlusIcon className="w-5 h-5" /></FormatButton>
                 {fullScreen ?

@@ -14,7 +14,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     const [isSelected, setIsSelected] = useState(false);
     const { getCategoryById, getTagById, fetchArticleById } = useContext(DBContext);
     const { translate: t, normalizeText, htmlToText } = useContext(AppContext);
-    const { areArticlesSelectable, allOrNoneSelected, selectAllOrNoneClicks } = useContext(SearchContext);
+    const { areArticlesSelectable, allOrNoneSelected, selectAllOrNoneClicks, selectArticle, deselectArticle } = useContext(SearchContext);
 
     const numberOfTags = 3;
     const numberOfCharsForText = 400;
@@ -102,8 +102,10 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         return highlightedParts;
     };
 
-    const handleCheckboxChange = () => {
-        setIsSelected(!isSelected);
+    const handleCheckboxChange = (e) => {
+        const checked = e.target.checked;
+        setIsSelected(checked);
+        checked ? selectArticle(article.id) : deselectArticle(article.id);
     };
 
     let highlightedTitle;

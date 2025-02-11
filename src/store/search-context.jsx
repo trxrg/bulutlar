@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, use } from 'react';
 import { DBContext } from './db-context';
 import { AppContext } from './app-context';
 
@@ -11,6 +11,7 @@ export default function SearchContextProvider({ children }) {
     const [filtering, setFiltering] = useState({});
     const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
     const [filteredArticles, setFilteredArticles] = useState([...allArticles]);
+    const [selectedArticles, setSelectedArticles] = useState([]);
 
     const [selectedOwnerNames, setSelectedOwnerNames] = useState([]);
     const [selectedTagNames, setSelectedTagNames] = useState([]);
@@ -39,7 +40,27 @@ export default function SearchContextProvider({ children }) {
     const selectAllOrNone = (selectAll) => {
         setSelectAllOrNoneClicks(currentClicks => currentClicks + 1);
         setAllOrNoneSelected(selectAll);
-    };
+        setSelectedArticles(selectAll ? filteredArticles.map(art => art.id) : []);
+    };    
+
+    useEffect(() => {
+        selectAllOrNone(false);
+    }, [filteredArticles]);
+
+    const generatePDFOfSelectedArticles = () => {
+        console.log('generatePDFOfSelectedArticles');
+        console.log(selectedArticles.length);
+    }
+
+    const selectArticle = (articleId) => {
+        if (!selectedArticles.includes(articleId)) {
+            setSelectedArticles([...selectedArticles, articleId]);
+        }
+    }
+
+    const deselectArticle = (articleId) => {
+        setSelectedArticles(selectedArticles.filter(id => id !== articleId));
+    }
 
     useEffect(() => {
         if (fullScreen) {
@@ -111,6 +132,10 @@ export default function SearchContextProvider({ children }) {
         setSearchInComments,
         filterStarred,
         setFilterStarred,
+        generatePDFOfSelectedArticles,
+        selectArticle,
+        deselectArticle,
+        selectedArticles,
     };
 
     return (

@@ -62,51 +62,55 @@ const TagScreen = () => {
     };
 
     return (
-        <div className="container h-full overflow-y-auto mx-auto p-4">
-            <div className="mb-2">
-                <input
-                    type="text"
-                    placeholder={t('filter by name')}
-                    value={filterTerm}
-                    onChange={(e) => setFilterTerm(e.target.value)}
-                    className="border p-2 rounded w-full"
-                />
+        <div className="container flex flex-col h-full mx-auto p-4 bg-white">
+            <div className='flex-shrink-0 flex flex-col gap-4 mb-2 p-2'>
+                <div>
+                    <input
+                        type="text"
+                        placeholder={t('filter by name')}
+                        value={filterTerm}
+                        onChange={(e) => setFilterTerm(e.target.value)}
+                        className="border p-2 rounded w-full"
+                    />
+                </div>
             </div>
-            <table className="min-w-full bg-white">
-                <thead>
-                    <tr>
-                        <th className="py-2 px-4 border-b"></th>
-                        <th className="py-2 px-4 border-b cursor-pointer select-none hover:underline" onClick={() => requestSort('name')}>
-                            {t('name')}
-                            <span className="inline-block w-4">{getSortIndicator('name')}</span>
-                        </th>
-                        <th className="py-2 px-4 border-b cursor-pointer select-none hover:underline" onClick={() => requestSort('articleCount')}>
-                            {t('article count')}
-                            <span className="inline-block w-4">{getSortIndicator('articleCount')}</span>
-                        </th>
-                        <th className="py-2 px-4 border-b"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {sortedTags.map((tag, index) => (
-                        <tr key={tag.id} className="hover:bg-gray-100 group">
-                            <td className='border-b text-center'>
-                                <h2>{index + 1}</h2>
-                            </td>
-                            <td className='border-b text-center'>
-                                <RichInput initialText={tag.name} handleSave={(newName) => handleNameChange(tag.id, newName)}></RichInput>
-                            </td>
-                            <td className="py-2 px-4 border-b text-center">{tag.articleCount}</td>
-                            <td className="py-2 px-4 border-b text-center">
-                                <div className="flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    {/* <button className="bg-blue-500 text-white px-2 py-1 rounded">{t('go to articles')}</button> */}
-                                    {tag.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteTag(tag.id)}>{t('delete')}</ActionButton>}
-                                </div>
-                            </td>
+            <div className='flex-1 overflow-y-auto'>
+                <table className="min-w-full">
+                    <thead>
+                        <tr>
+                            <th className="py-2 px-4 border-b"></th>
+                            <th className="py-2 px-4 border-b cursor-pointer select-none hover:underline" onClick={() => requestSort('name')}>
+                                {t('name')}
+                                <span className="inline-block w-4">{getSortIndicator('name')}</span>
+                            </th>
+                            <th className="py-2 px-4 border-b cursor-pointer select-none hover:underline" onClick={() => requestSort('articleCount')}>
+                                {t('article count')}
+                                <span className="inline-block w-4">{getSortIndicator('articleCount')}</span>
+                            </th>
+                            <th className="py-2 px-4 border-b"></th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {sortedTags.map((tag, index) => (
+                            <tr key={tag.id} className="hover:bg-gray-100 group">
+                                <td className='border-b text-center'>
+                                    <h2>{index + 1}</h2>
+                                </td>
+                                <td className='border-b text-center'>
+                                    <RichInput initialText={tag.name} handleSave={(newName) => handleNameChange(tag.id, newName)}></RichInput>
+                                </td>
+                                <td className="py-2 px-4 border-b text-center">{tag.articleCount}</td>
+                                <td className="py-2 px-4 border-b text-center">
+                                    <div className="flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        {/* <button className="bg-blue-500 text-white px-2 py-1 rounded">{t('go to articles')}</button> */}
+                                        {tag.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteTag(tag.id)}>{t('delete')}</ActionButton>}
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

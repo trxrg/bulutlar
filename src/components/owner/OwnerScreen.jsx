@@ -63,15 +63,13 @@ const OwnerScreen = () => {
     };
 
     return (
-        <div className="container flex flex-col h-full mx-auto p-4">
-            <div className='flex-shrink-0'>
-                <div className='mb-2 p-2 bg-white'>
+        <div className="container flex flex-col h-full mx-auto p-4 bg-white">
+            <div className='flex-shrink-0 flex flex-col gap-4 mb-2 p-2'>
+                <div>
                     <h2 className='mb-1'>{t('add new owner')}</h2>
                     <AddOwner onClose={() => { }}></AddOwner>
                 </div>
-            </div>
-            <div className='flex-1 overflow-y-auto'>
-                <div className="mb-2">
+                <div>
                     <input
                         type="text"
                         placeholder={t('filter by name')}
@@ -80,7 +78,9 @@ const OwnerScreen = () => {
                         className="border p-2 rounded w-full"
                     />
                 </div>
-                <table className="min-w-full bg-white">
+            </div>
+            <div className='flex-1 overflow-y-auto'>                
+                <table className="min-w-full ">
                     <thead>
                         <tr>
                             <th className="py-2 px-4 border-b"></th>

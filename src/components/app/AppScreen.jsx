@@ -21,7 +21,7 @@ const AppScreen = () => {
             {/* <div className={'flex flex-shrink-0 overflow-hidden w-full'}>
                 <CustomTitleBar />
             </div> */}
-            <div className={fullScreen | activeScreen === 'home' ? 'hidden' : 'flex flex-shrink-0 overflow-hidden'}>
+            <div className={fullScreen | activeScreen === 'home' | activeScreen === 'tabs' ? 'hidden' : 'flex flex-shrink-0 overflow-hidden'}>
                 <AppHeader />
             </div>
             <div className='flex flex-1 overflow-hidden h-full'>

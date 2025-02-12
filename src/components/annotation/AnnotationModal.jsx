@@ -10,7 +10,7 @@ import { articleApi, annotationApi } from '../../backend-adapter/BackendAdapter.
 const AnnotationModal = ({ isOpen, onRequestClose, annotation, articleId }) => {
 
     const { translate: t } = useContext(AppContext);
-    const { fontSize } = useContext(ReadContext);
+    // const { fontSize } = useContext(ReadContext);
     
     const { fetchArticleById, fetchAnnotationById, fetchAllAnnotations, getArticleById } = useContext(DBContext);
 
@@ -68,7 +68,7 @@ const AnnotationModal = ({ isOpen, onRequestClose, annotation, articleId }) => {
 
     return (
         <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={t('note')}>
-            <div className={'flex flex-col gap-2 overflow-y-auto ' + fontSize}>
+            <div className={'flex flex-col gap-2 overflow-y-auto text-xl'}>
                 {msg && <span className="text-red-400">{msg}</span>}
                 <textarea
                     placeholder={t('write your note here')}

@@ -52,7 +52,7 @@ const SearchResultsHeader = () => {
                         <ActionButton onClick={() => selectAllOrNone(false)} color='blue'>{t('selectNone')}</ActionButton>
                     </div>
                 }
-                <h3 className='text-xl text-gray-700 py-2 flex justify-center'>{(areArticlesSelectable ? selectedArticles.length + '/' : '') + filteredArticles.length + ' ' + t('articlesTR')}</h3>
+                <h3 className='text-xl text-gray-700 flex justify-center'>{(areArticlesSelectable ? selectedArticles.length + '/' : '') + filteredArticles.length + ' ' + t('articlesTR')}</h3>
             </div>
             {/* right */}
             <div className='flex flex-wrap gap-1'>

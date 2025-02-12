@@ -24,7 +24,7 @@ const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, afterViewIn
             {viewedArticle && <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose}>
                 <div className='flex-shrink-0 shadow-lg p-2'>
                     <h2 className={fontSize + " font-bold"}>{viewedArticle.title}</h2>
-                    <ArticleInfo article={viewedArticle} fontSize={fontSize} isEditable={false}></ArticleInfo>
+                    <ArticleInfo article={viewedArticle} isEditable={false}></ArticleInfo>
                 </div>
                 <div className={'flex-1 overflow-y-auto p-2 border leading-loose ' + fontSize}>
                     <article dangerouslySetInnerHTML={{ __html: viewedArticle.text }} />

@@ -58,7 +58,7 @@ const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true }) => {
     const category = getCategoryById(article.categoryId);
 
     return (
-        <div className={"text-gray-700 py-2 " + fontSize} >
+        <div className={"text-gray-700 " + fontSize} >
             <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setOwnerModalIsOpen(true) : undefined}>{owner && owner.name + " | "}</span>
             <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category && category.name}</span>
             {!article.isDateUncertain && <>

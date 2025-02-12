@@ -6,7 +6,7 @@ import { AppContext } from '../../store/app-context.jsx';
 import { ReadContext } from '../../store/read-context.jsx';
 import ActionButton from '../common/ActionButton.jsx';
 
-const TagList2 = () => {
+const TagList2 = ({ showInput = true }) => {
 
     const { allTags, fetchAllTags, fetchArticleById, getTagById } = useContext(DBContext);
     const { article } = useContext(ReadContext);
@@ -37,7 +37,7 @@ const TagList2 = () => {
 
     return (
         <div className='p-2 w-full'>
-            <div className='flex gap-2'>
+            {showInput && <div className='flex gap-2'>
                 <input
                     type="text"
                     value={inputValue}
@@ -46,7 +46,7 @@ const TagList2 = () => {
                     className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <ActionButton onClick={() => handleAddTag(inputValue)} color='blue'>{t('add')}</ActionButton>
-            </div>
+            </div>}
             {inputValue.length > 0 &&
                 <div>
                     <span>{t('suggested tags')}: </span>

@@ -9,6 +9,7 @@ import ConfirmModal from '../../common/ConfirmModal.jsx';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import { Fullscreen } from '@mui/icons-material';
 
 const ReadControls = () => {
 
@@ -72,13 +73,13 @@ const ReadControls = () => {
             </div>
             {/* right */}
             <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
-                <div onClick={handleStarClick} className='flex items-center px-1'>
+                {fullScreen && <div onClick={handleStarClick} className='flex items-center px-1'>
                     {article.isStarred ? (
                         <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="hover:scale-125" />
                     ) : (
                         <StarBorderIcon style={{ fontSize: '2rem', color: '#B0B0B0' }} className="hover:scale-125" />
                     )}
-                </div>
+                </div>}
                 {!editable &&
                     <FormatButton
                         onClick={() => setEditable(true)}

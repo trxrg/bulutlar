@@ -30,9 +30,9 @@ const ReadControls = () => {
     }
 
     return (
-        <div className='flex flex-wrap justify-between p-2 shadow-lg bg-white'>
+        <div className='flex justify-between p-2 shadow-lg bg-white'>
             {/* left */}
-            <div className='flex flex-wrap gap-1'>
+            <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
                 {leftPanelCollapsed ?
                     <FormatButton onClick={() => setLeftPanelCollapsed(false)}>
                         <ChevronRightIcon className="w-5 h-5" />
@@ -45,7 +45,7 @@ const ReadControls = () => {
                 <FormatButton onClick={increaseFontSize}>A+</FormatButton>
             </div>
             {/* center */}
-            <div className='flex flex-wrap gap-1'>
+            <div className='gap-1'>
                 {editable ?
                     <div className='flex flex-wrap gap-1'>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
@@ -65,12 +65,13 @@ const ReadControls = () => {
                     </div>
                     :
                     (fullScreen &&
-                        <div className='flex flex-row items-center text-xl'>
-                            <h2>{`${article.title} (${new Date(article.date).toLocaleDateString('tr')})`}</h2>
-                        </div>)}
+                        <div className='flex items-center h-full'>
+                            <h2 className='text-xl whitespace-normal break-words mx-10'>{`${article.title} (${new Date(article.date).toLocaleDateString('tr')})`}</h2>
+                        </div>
+                    )}
             </div>
             {/* right */}
-            <div className='flex flex-wrap gap-1'>
+            <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
                 <div onClick={handleStarClick} className='flex items-center px-1'>
                     {article.isStarred ? (
                         <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="hover:scale-125" />

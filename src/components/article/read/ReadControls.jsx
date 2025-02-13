@@ -75,9 +75,9 @@ const ReadControls = () => {
             <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
                 {fullScreen && <div onClick={handleStarClick} className='flex items-center px-1'>
                     {article.isStarred ? (
-                        <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="hover:scale-125" />
+                        <StarIcon style={{ fontSize: '1.7rem', color: '#FFD700' }} className="hover:scale-125" />
                     ) : (
-                        <StarBorderIcon style={{ fontSize: '2rem', color: '#B0B0B0' }} className="hover:scale-125" />
+                        <StarBorderIcon style={{ fontSize: '1.7rem', color: '#B0B0B0' }} className="hover:scale-125" />
                     )}
                 </div>}
                 {!editable &&

@@ -27,19 +27,19 @@ const HomeScreen = () => {
     useEffect(() => { fetchImageData(); }, []);
 
     return (
-        <div className='relative flex w-full h-full'>
+        <div className='relative flex w-full h-full' style={{ fontFamily: '"Trebuchet MS", sans-serif' }}>
             {imageLoaded && <div className='absolute inset-0' style={{ backgroundImage: `url(${imageData})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>}
             <div className='relative flex w-full h-full'>
                 <div className='w-3/4'></div>
                 <div className='flex flex-col flex-shrink-0 items-center justify-center gap-5 bg-stone-100 bg-opacity-80 px-20 py-10'>
-                    <h1 className='text-6xl text-[#0C3B2E] pb-10 select-none'>HAZİNE</h1>
+                    <h1 className='text-6xl text-[#0C3B2E] pb-10 select-none'>bulutlar</h1>
                     <div className='flex flex-col gap-3'>
-                        <Button size="large" onClick={() => setActiveScreen('tabs')} variant="contained" color="success" style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('articles')}</Button>                
-                        <Button size="large" onClick={() => setActiveScreen('categories')} variant="outlined" color='success' style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('categories')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('owners')} variant="outlined" color='success' style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('owners')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('tags')} variant="outlined" color='success' style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('tags')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('annotations')} variant="outlined" color='success' style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('annotations')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('settings')} variant="outlined" color='success' style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{t('settings')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('tabs')} variant="contained" color="success" style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('articles')}</Button>                
+                        <Button size="large" onClick={() => setActiveScreen('categories')} variant="outlined" color='success' style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('categories')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('owners')} variant="outlined" color='success' style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('owners')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('tags')} variant="outlined" color='success' style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('tags')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('annotations')} variant="outlined" color='success' style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('annotations')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('settings')} variant="outlined" color='success' style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('settings')}</Button>
                     </div>
                     {/* <div className='cursor-pointer' onClick={() => setStreakModalOpen(true)}>
                         <span className='text-5xl text-green-600 font-bold'>⚡{streak}</span>
@@ -48,7 +48,7 @@ const HomeScreen = () => {
                         <h2 className='text-l'>db version: {dbVersion}</h2>
                     </div>
                     <div>
-                        <h2 className='text-l'>app version: beta-1.0.0</h2>
+                        <h2 className='text-l'>app version: 1.0.0</h2>
                     </div>
                 </div>
             </div>

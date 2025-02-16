@@ -15,6 +15,7 @@ export default function ReadContextProvider({ children, article }) {
     const [isAddLinkModalOpen, setAddLinkModalOpen] = useState(false);
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
+    const [searchTerm, setSearchTerm] = useState('');
     const articleId = article.id;
 
     const readContentRef = useRef();
@@ -123,6 +124,8 @@ export default function ReadContextProvider({ children, article }) {
         setContextMenuIsOpen,
         contextMenuPosition,
         setContextMenuPosition,
+        searchTerm,
+        setSearchTerm
     };
 
     return <ReadContext.Provider value={ctxValue}>

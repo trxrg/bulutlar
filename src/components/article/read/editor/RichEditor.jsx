@@ -1,9 +1,10 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { Editor, EditorState, RichUtils, AtomicBlockUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw, getDefaultKeyBinding } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
 import { imageApi } from '../../../../backend-adapter/BackendAdapter';
 import { ReadContext } from '../../../../store/read-context';
+import { AppContext } from '../../../../store/app-context';
 import ContextMenu from '../../../common/ContextMenu';
 import InlineToolbar from './InlineToolbar';
 import Link from './Link';
@@ -34,12 +35,33 @@ const createEditorStateFromHTMLAndDecorator = (html, decorator) => {
     return EditorState.createWithContent(stateFromHTML(html), decorator);
 };
 
+const Highlight = (props) => {
+    return (
+        <span style={{ backgroundColor: 'yellow' }}>
+            {props.children}
+        </span>
+    );
+};
+
 const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleContentChange, editable }, ref) => {
+    
+    const { setContextMenuIsOpen, setContextMenuPosition, searchTerm } = useContext(ReadContext);
+    const { normalizeText } = useContext(AppContext);
 
     const decorator = new CompositeDecorator([
         {
             strategy: findLinkEntities,
             component: withCustomProps(Link, { onDelete: handleRemoveLink }),
+        },
+        {
+            strategy: (contentBlock, callback, contentState) => {
+                if (searchTerm) {
+                    const normalizedSearchTerm = normalizeText(searchTerm);
+                    const regex = new RegExp(normalizedSearchTerm, 'gi');
+                    findWithRegex(regex, contentBlock, callback);
+                }
+            },
+            component: Highlight
         },
     ]);
 
@@ -55,11 +77,25 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
     const editorStateRef = useRef(editorState);
     const editorRef = useRef();
 
-    const { setContextMenuIsOpen, setContextMenuPosition } = useContext(ReadContext);
 
     const persist = (newEditorState) => {
         handleContentChange(stateToHTML(newEditorState.getCurrentContent()), convertToRaw(newEditorState.getCurrentContent()));
     };
+
+    function findWithRegex(regex, contentBlock, callback) {
+        const text = normalizeText(contentBlock.getText());
+        let matchArr, start;
+        while ((matchArr = regex.exec(text)) !== null) {
+            start = matchArr.index;
+            callback(start, start + matchArr[0].length);
+        }
+    }
+
+    useEffect(() => {
+        const contentState = editorState.getCurrentContent();
+        const newEditorState = EditorState.createWithContent(contentState, decorator);
+        setEditorState(newEditorState);
+    }, [searchTerm]);
 
     // ================================ LINKS ================================
     const addLink = (url) => {

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { PencilIcon, PhotoIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
@@ -13,11 +13,13 @@ import { Fullscreen } from '@mui/icons-material';
 
 const ReadControls = () => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm } = useContext(ReadContext);
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
     const { fetchArticleById } = useContext(DBContext);
 
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
+    const [searchBarOpen, setSearchBarOpen] = useState(false);
+    const [localSearchTerm, setLocalSearchTerm] = useState('');
 
     const handleToggleBlockType = (event, blockType) => {
         event.preventDefault();
@@ -28,6 +30,18 @@ const ReadControls = () => {
         e.stopPropagation();
         await articleApi.setIsStarred(article.id, !article.isStarred);
         fetchArticleById(article.id);
+    }
+
+    const handleSearchClick = () => {
+        if (searchBarOpen)
+            setSearchTerm(localSearchTerm);
+        else
+            setSearchBarOpen(true);
+    }
+
+    const handleCloseSearchBar = () => {
+        setSearchBarOpen(false);
+        setSearchTerm('');
     }
 
     return (
@@ -43,7 +57,26 @@ const ReadControls = () => {
                         <ChevronLeftIcon className="w-5 h-5" />
                     </FormatButton>}
                 <FormatButton onClick={decreaseFontSize}>A-</FormatButton>
-                <FormatButton onClick={increaseFontSize}>A+</FormatButton>
+                <FormatButton onClick={increaseFontSize}>A+</FormatButton>                
+                {searchBarOpen && (
+                    <>
+                        <input
+                            type="text"
+                            className="border rounded p-1"
+                            placeholder={t('search')}
+                            onChange={(e) => setLocalSearchTerm(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    handleSearchClick();
+                                }
+                            }}
+                        />
+                        <FormatButton onClick={handleCloseSearchBar}>
+                            <XMarkIcon className="w-5 h-5" />
+                        </FormatButton>
+                    </>
+                )}
+                <FormatButton onClick={handleSearchClick}><MagnifyingGlassIcon className="w-5 h-5" /></FormatButton>
             </div>
             {/* center */}
             <div className='gap-1'>

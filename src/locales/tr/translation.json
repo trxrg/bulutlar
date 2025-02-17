@@ -47,6 +47,7 @@
     "add owner": "Kişi Ekle",
     "no such owner": "Böyle bir kişi yok",
     "owner could not be changed": "Kişi değiştirilemedi",
+    "no owner": "Kişi Yok",
         
     "tag": "Etiket",
     "tags": "Etiketler",

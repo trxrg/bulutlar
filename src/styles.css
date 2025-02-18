@@ -35,7 +35,7 @@
 
 
   .link {
-    color: #ca5425; /* Dark gray text color */
+    color: #978800; /* Dark gray text color */
     text-decoration: none; /* Remove underline */
     font-weight: 500; /* Medium font weight */
     position: relative; /*Positioning for pseudo-elements*/
@@ -48,7 +48,7 @@
 
   /* Hover effect */
   .link:hover {
-    color: #7c7001; /* Darker gray on hover */
+    color: #a89704; /* Darker gray on hover */
   }
   
   /* Underline pseudo-element */
@@ -70,6 +70,21 @@
     transform: scaleX(1); /* Scale to full width */
   }
   
+  .quote {
+    color: #ff5722; /* Distinctive orange text color */
+    text-decoration: none; /* Remove underline */
+    font-weight: 500; /* Medium font weight */
+    position: relative; /* Positioning for pseudo-elements */
+    padding-bottom: 1px; /* Add a bottom padding for a subtle underline effect */
+    transition: color 0.3s ease; /* Smooth color transition */
+    cursor: pointer;
+  }
+
+  /* Hover effect */
+  .quote:hover {
+    color: #e64a19; /* Darker orange on hover */
+  }
+    
   .editor-container {
     position: relative;
   }

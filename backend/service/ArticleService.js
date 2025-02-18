@@ -12,26 +12,26 @@ import imageService from './ImageService.js';
 import annotationService from './AnnotationService.js';
 
 function initService() {
-    ipcMain.handle('article/create', (event, article) => createArticle(article));
-    ipcMain.handle('article/updateMainText', (event, id, newMainText) => updateArticleMainText(id, newMainText));
-    ipcMain.handle('article/updateExplanation', (event, id, newExplanation) => updateArticleExplanation(id, newExplanation));
-    ipcMain.handle('article/updateComment', (event, id, newComment) => updateFirstCommentText(id, newComment));
-    ipcMain.handle('article/updateOwner', (event, id, newOwnerName) => updateArticleOwner(id, newOwnerName));
-    ipcMain.handle('article/updateCategory', (event, id, newCategoryName) => updateArticleCategory(id, newCategoryName));
-    ipcMain.handle('article/updateTitle', (event, id, newTitle) => updateArticleTitle(id, newTitle));
-    ipcMain.handle('article/updateDate', (event, id, newDate) => updateArticleDate(id, newDate));
-    ipcMain.handle('article/updateDate2', (event, id, newDate) => updateArticleDate2(id, newDate));
-    ipcMain.handle('article/addImage', (event, id, image) => addImageToArticle(id, image));
-    ipcMain.handle('article/openDialogToAddImages', (event, id) => openDialogToAddImages(id));
-    ipcMain.handle('article/addAnnotation', (event, id, annotation) => addAnnotationToArticle(id, annotation));
-    ipcMain.handle('article/getAll', (event, order) => getAllArticles(order));
-    ipcMain.handle('article/getById', (event, id) => getArticleById(id));
-    ipcMain.handle('article/deleteById', (event, id) => deleteArticleById(id));
-    ipcMain.handle('article/addRelatedArticle', (event, id, relatedArticleId) => addRelatedArticle(id, relatedArticleId));
-    ipcMain.handle('article/removeRelatedArticle', (event, id, relatedArticleId) => removeRelatedArticle(id, relatedArticleId));
-    ipcMain.handle('article/addTag', (event, id, tagName) => addTagToArticle(id, tagName));
-    ipcMain.handle('article/removeTag', (event, id, tagName) => removeTagFromArticle(id, tagName));
-    ipcMain.handle('article/setIsStarred', (event, id, isStarred) => setIsStarred(id, isStarred));
+    ipcMain.handle('article/create', async (event, article) => await createArticle(article));
+    ipcMain.handle('article/updateMainText', async (event, id, newMainText) => await updateArticleMainText(id, newMainText));
+    ipcMain.handle('article/updateExplanation', async (event, id, newExplanation) => await updateArticleExplanation(id, newExplanation));
+    ipcMain.handle('article/updateComment', async (event, id, newComment) => await updateFirstCommentText(id, newComment));
+    ipcMain.handle('article/updateOwner', async (event, id, newOwnerName) => await updateArticleOwner(id, newOwnerName));
+    ipcMain.handle('article/updateCategory', async (event, id, newCategoryName) => await updateArticleCategory(id, newCategoryName));
+    ipcMain.handle('article/updateTitle', async (event, id, newTitle) => await updateArticleTitle(id, newTitle));
+    ipcMain.handle('article/updateDate', async (event, id, newDate) => await updateArticleDate(id, newDate));
+    ipcMain.handle('article/updateDate2', async (event, id, newDate) => await updateArticleDate2(id, newDate));
+    ipcMain.handle('article/addImage', async (event, id, image) => await addImageToArticle(id, image));
+    ipcMain.handle('article/openDialogToAddImages', async (event, id) => await openDialogToAddImages(id));
+    ipcMain.handle('article/addAnnotation', async (event, id, annotation) => await addAnnotationToArticle(id, annotation));
+    ipcMain.handle('article/getAll', async (event, order) => await getAllArticles(order));
+    ipcMain.handle('article/getById', async (event, id) => await getArticleById(id));
+    ipcMain.handle('article/deleteById', async (event, id) => await deleteArticleById(id));
+    ipcMain.handle('article/addRelatedArticle', async (event, id, relatedArticleId) => await addRelatedArticle(id, relatedArticleId));
+    ipcMain.handle('article/removeRelatedArticle', async (event, id, relatedArticleId) => await removeRelatedArticle(id, relatedArticleId));
+    ipcMain.handle('article/addTag', async (event, id, tagName) => await addTagToArticle(id, tagName));
+    ipcMain.handle('article/removeTag', async (event, id, tagName) => await removeTagFromArticle(id, tagName));
+    ipcMain.handle('article/setIsStarred', async (event, id, isStarred) => await setIsStarred(id, isStarred));
 }
 
 async function createArticle(article) { // Now transactional
@@ -310,9 +310,10 @@ async function addAnnotationToArticle(id, annotation) {
         if (!article)
             throw ('no article found with id: ' + id);
 
-        await article.addAnnotation(await annotationService.createAnnotation(annotation));
+        const annotationEntity = await annotationService.createAnnotation(annotation)
+        await article.addAnnotation(annotationEntity);
 
-        return await getArticleById(id);
+        return annotationEntity.dataValues;
 
     } catch (error) {
         console.error('Error in addAnnotationToArticle', error);

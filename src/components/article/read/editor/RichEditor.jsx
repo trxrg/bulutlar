@@ -1,14 +1,19 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
-import { Editor, EditorState, RichUtils, AtomicBlockUtils, CompositeDecorator, Modifier, SelectionState, convertToRaw, convertFromRaw, getDefaultKeyBinding } from 'draft-js';
+import {
+    Editor, EditorState, RichUtils, AtomicBlockUtils,
+    CompositeDecorator, Modifier, SelectionState, convertToRaw,
+    convertFromRaw, getDefaultKeyBinding
+} from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
-import { imageApi } from '../../../../backend-adapter/BackendAdapter';
+import { imageApi, articleApi } from '../../../../backend-adapter/BackendAdapter';
 import { ReadContext } from '../../../../store/read-context';
 import { AppContext } from '../../../../store/app-context';
-import ContextMenu from '../../../common/ContextMenu';
-import InlineToolbar from './InlineToolbar';
+import { DBContext } from '../../../../store/db-context';
 import Link from './Link';
+import Quote from './Quote';
 import Image from './Image';
+import toastr from 'toastr';
 import '../../../../styles.css'
 import 'draft-js/dist/Draft.css'; // necessary for list item styling etc.
 
@@ -26,9 +31,9 @@ const styleMap = {
     },
 };
 
-const withCustomProps = (Component, customProps) => (props) => (
+const withCustomProps = (Component, customProps) => (props) => (customProps && props) ? (
     <Component {...props} {...customProps} />
-);
+) : '';
 
 const createEditorStateFromHTMLAndDecorator = (html, decorator) => {
     if (!html) return EditorState.createEmpty();
@@ -44,14 +49,19 @@ const Highlight = (props) => {
 };
 
 const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleContentChange, editable }, ref) => {
-    
-    const { setContextMenuIsOpen, setContextMenuPosition, searchTerm } = useContext(ReadContext);
-    const { normalizeText } = useContext(AppContext);
+
+    const { setContextMenuIsOpen, setContextMenuPosition, searchTerm, articleId } = useContext(ReadContext);
+    const { normalizeText, translate: t } = useContext(AppContext);
+    const { fetchAllAnnotations, fetchArticleById } = useContext(DBContext);
 
     const decorator = new CompositeDecorator([
         {
             strategy: findLinkEntities,
             component: withCustomProps(Link, { onDelete: handleRemoveLink }),
+        },
+        {
+            strategy: findQuoteEntities,
+            component: withCustomProps(Quote, { onDelete: handleRemoveQuote }),
         },
         {
             strategy: (contentBlock, callback, contentState) => {
@@ -153,6 +163,85 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
     };
 
     // ================================ END OF LINKS ================================
+
+    // ================================ QUOTES ================================
+    const addQuote = async () => {
+        if (editorState.getSelection().isCollapsed())
+            return;
+
+        let annotation = {
+            note: '', quote: editorState.getCurrentContent()
+                .getPlainText().slice(editorState.getSelection()
+                    .getStartOffset(), editorState.getSelection().getEndOffset())
+        };
+
+        try {
+            annotation = await articleApi.addAnnotation(articleId, annotation)
+
+            await fetchAllAnnotations();
+            await fetchArticleById(articleId);
+
+        } catch (e) {
+            toastr.error(e.message, t('error adding quote'));
+            return;
+        };
+
+        if (!annotation || !annotation.id ) {
+            toastr.error(t('error adding quote'));
+            return;
+        }
+
+        const contentState = editorState.getCurrentContent();
+        const contentStateWithEntity = contentState.createEntity('MYQUOTE', 'MUTABLE', { annotationId: annotation.id });
+        const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+
+        // Apply entity to the selected text
+        const newEditorState = RichUtils.toggleLink(
+            editorState,
+            editorState.getSelection(),
+            entityKey
+        );
+
+        setEditorState(newEditorState);
+        persist(newEditorState);
+    };
+
+    function findQuoteEntities(contentBlock, callback, contentState) {
+        contentBlock.findEntityRanges((character) => {
+            const entityKey = character.getEntity();
+            return (
+                entityKey !== null &&
+                contentState.getEntity(entityKey).getType() === 'MYQUOTE'
+            );
+        }, callback);
+    }
+
+    function handleRemoveQuote(blockKey, entityRange) {
+        const contentState = editorStateRef.current.getCurrentContent();
+
+        if (entityRange) {
+            // Create selection state for the entity range
+            const selection = SelectionState.createEmpty(blockKey).merge({
+                anchorOffset: entityRange.start,
+                focusOffset: entityRange.end,
+            });
+
+            // Remove the link entity from the content state
+            const newContentState = Modifier.applyEntity(contentState, selection, null);
+
+            // Update editor state with the new content state
+            const newEditorState = EditorState.push(
+                editorStateRef.current,
+                newContentState,
+                'apply-entity'
+            );
+
+            setEditorState(newEditorState);
+            persist(newEditorState);
+        }
+    };
+
+    // ================================ END OF QUOTES ================================
 
     // ================================ IMAGES ================================
 
@@ -298,6 +387,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
 
     React.useImperativeHandle(ref, () => ({
         addLink,
+        addQuote,
         addImage,
         getContent,
         resetContent,

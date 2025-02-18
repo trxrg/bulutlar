@@ -9,6 +9,7 @@ import { AppContext } from '../../store/app-context';
 import AnnotationScreen from '../annotation/AnnotationScreen';
 import SettingsScreen from '../settings/SettingsScreen';
 import TagScreen from '../tag/TagScreen';
+import QuoteScreen from '../annotation/QuoteScreen';
 
 
 const AppBody = () => {
@@ -37,6 +38,9 @@ const AppBody = () => {
                 : undefined}
             {activeScreen === 'annotations' ?
                 <AnnotationScreen />
+                : undefined}
+            {activeScreen === 'quotes' ?
+                <QuoteScreen />
                 : undefined}
             {activeScreen === 'settings' ?
                 <SettingsScreen />

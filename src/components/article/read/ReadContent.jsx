@@ -3,6 +3,7 @@ import { articleApi, commentApi } from '../../../backend-adapter/BackendAdapter.
 import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
 import AddLinkModal from "../modals/AddLinkModal.jsx";
+import AnnotationModal from "../../annotation/AnnotationModal.jsx";
 import RichEditor from "./editor/RichEditor.jsx";
 import ContextMenu from "../../common/ContextMenu.jsx";
 import InlineToolbar from "./editor/InlineToolbar.jsx";
@@ -15,7 +16,11 @@ const ReadContent = () => {
     const commentEditorRef = useRef(null);
 
     const [activeEditorRef, setActiveEditorRef] = useState(mainTextEditorRef);
-    const { article, readContentRef, fontSize, editable, syncArticleFromBE, isAddLinkModalOpen, setAddLinkModalOpen, contextMenuIsOpen, contextMenuPosition, setContextMenuIsOpen } = useContext(ReadContext);
+    const { article, readContentRef, fontSize, editable, syncArticleFromBE, 
+        isAddLinkModalOpen, setAddLinkModalOpen, contextMenuIsOpen,
+         contextMenuPosition, setContextMenuIsOpen, 
+         isAnnotationModalOpen, setAnnotationModalOpen, annotationIdForModal } = useContext(ReadContext);
+
     const { translate: t } = useContext(AppContext);
 
     const updateMainText = async (html, json) => {
@@ -55,6 +60,7 @@ const ReadContent = () => {
     }
 
     const addLink = (url) => activeEditorRef && activeEditorRef.current.addLink(url);
+    const addQuote = () => activeEditorRef && activeEditorRef.current.addQuote();
     const toggleStyle = (style) => activeEditorRef && activeEditorRef.current.toggleInlineStyle(style);
     const toggleBlockType = (blockType) => activeEditorRef && activeEditorRef.current.toggleBlockType(blockType);
 
@@ -81,6 +87,7 @@ const ReadContent = () => {
 
     React.useImperativeHandle(readContentRef, () => ({
         addLink,
+        addQuote,
         saveContent,
         resetContent,
         toggleStyle,
@@ -131,6 +138,7 @@ const ReadContent = () => {
                     </div>}
             </div>
             <AddLinkModal isOpen={isAddLinkModalOpen} onRequestClose={() => setAddLinkModalOpen(false)} handleAdd={handleAddLink} />
+            <AnnotationModal isOpen={isAnnotationModalOpen} onRequestClose={() => setAnnotationModalOpen(false)} annotationId={annotationIdForModal} articleId={article.id} />
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>
                 <InlineToolbar />
             </ContextMenu>

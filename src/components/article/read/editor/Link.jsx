@@ -65,16 +65,16 @@ const Link = (props) => {
         }
     }, []);
 
-    const handleMouseEnter = () => {
-        calculateContextMenuPosition();
+    const handleMouseEnter = (e) => {
+        calculateContextMenuPosition(e);
         setInfoMenuIsOpen(true);
     };
 
-    const handleMouseLeave = () => {
+    const handleMouseLeave = (e) => {
         setInfoMenuIsOpen(false);
     };
 
-    const calculateContextMenuPosition = () => {
+    const calculateContextMenuPosition = (e) => {
         if (linkRef.current) {
             const rect = linkRef.current.getBoundingClientRect();
             const rectParent = linkRef.current.parentElement.getBoundingClientRect();
@@ -91,14 +91,13 @@ const Link = (props) => {
                 </span>
                 <ContextMenu isOpen={contextMenuIsOpen}
                     onClose={() => setContextMenuIsOpen(false)}
-                    position={{ top: contextMenuPosition.y, left: 0 }}>
+                    position={{ top: 20, left: 0 }}>
                     <div className='flex flex-col'>
                         <ActionButton color={'red'} onClick={handleRemoveLink}
                             className='hover:bg-red-300'>{t('remove link')}
                         </ActionButton>
                     </div>
                 </ContextMenu>
-            </div>
             <ContextMenu isOpen={infoMenuIsOpen}
                 onClose={() => setInfoMenuIsOpen(false)}
                 position={{ top: contextMenuPosition.y, left: 0 }}>
@@ -108,6 +107,7 @@ const Link = (props) => {
                         <ArticleInfo article={article} isEditable={false}></ArticleInfo>
                     </div>}
             </ContextMenu>
+            </div>
         </>
     );
 };

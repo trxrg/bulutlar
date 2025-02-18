@@ -63,7 +63,12 @@
     "error deleting note": "Not silerken hata oluştu",
     "no notes": "Not eklemek için artı simgesine tıklayın",
     "annotations": "Notlar",
+    
     "quote": "Alıntı",
+    "quotes": "Alıntılar",
+    "filter quotes": "Alıntıları filtrele",
+    "remove quote": "Alıntıyı Kaldır",
+    "error removing quote": "Alıntı kaldırılırken hata oluştu",
 
     "filters": "Filtreler",
     "selectAll": "Hepsini Seç",

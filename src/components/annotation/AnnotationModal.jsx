@@ -7,13 +7,14 @@ import { ReadContext } from '../../store/read-context.jsx';
 import { DBContext } from '../../store/db-context.jsx';
 import { articleApi, annotationApi } from '../../backend-adapter/BackendAdapter.js';
 
-const AnnotationModal = ({ isOpen, onRequestClose, annotation, articleId }) => {
+const AnnotationModal = ({ isOpen, onRequestClose, annotationId, articleId }) => {
 
     const { translate: t } = useContext(AppContext);
     // const { fontSize } = useContext(ReadContext);
     
-    const { fetchArticleById, fetchAnnotationById, fetchAllAnnotations, getArticleById } = useContext(DBContext);
+    const { fetchArticleById, fetchAnnotationById, fetchAllAnnotations, getAnnotationById } = useContext(DBContext);
 
+    const annotation = getAnnotationById(annotationId);
     const [note, setNote] = useState(annotation?.note || '');
     const [msg, setMsg] = useState('');
     

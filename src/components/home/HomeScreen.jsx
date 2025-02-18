@@ -39,6 +39,7 @@ const HomeScreen = () => {
                         <Button size="large" onClick={() => setActiveScreen('owners')} variant="outlined" color='primary' style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('owners')}</Button>
                         <Button size="large" onClick={() => setActiveScreen('tags')} variant="outlined" color='primary' style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('tags')}</Button>
                         <Button size="large" onClick={() => setActiveScreen('annotations')} variant="outlined" color='primary' style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('annotations')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('quotes')} variant="outlined" color='primary' style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('quotes')}</Button>
                         <Button size="large" onClick={() => setActiveScreen('settings')} variant="outlined" color='primary' style={{ fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 'bold', fontSize: '1.2rem' }}>{t('settings')}</Button>
                     </div>
                     {/* <div className='cursor-pointer' onClick={() => setStreakModalOpen(true)}>
@@ -48,7 +49,7 @@ const HomeScreen = () => {
                         <h2 className='text-l'>db version: {dbVersion}</h2>
                     </div>
                     <div>
-                        <h2 className='text-l'>app version: 1.0.0</h2>
+                        <h2 className='text-l'>app version: 1.1.0</h2>
                     </div>
                 </div>
             </div>

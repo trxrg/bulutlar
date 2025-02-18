@@ -16,6 +16,8 @@ export default function ReadContextProvider({ children, article }) {
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
     const [searchTerm, setSearchTerm] = useState('');
+    const [isAnnotationModalOpen, setAnnotationModalOpen] = useState(false);
+    const [annotationIdForModal, setAnnotationIdForModal] = useState(null);
     const articleId = article.id;
 
     const readContentRef = useRef();
@@ -53,6 +55,11 @@ export default function ReadContextProvider({ children, article }) {
     const toggleStyle = (style) => {
         if (readContentRef && readContentRef.current)
             readContentRef.current.toggleStyle(style);
+    }
+
+    const addQuote = () => {
+        if (readContentRef && readContentRef.current)
+            readContentRef.current.addQuote();
     }
 
     const toggleBlockType = (blockType) => {
@@ -101,6 +108,7 @@ export default function ReadContextProvider({ children, article }) {
         articleId,
         readContentRef,
         toggleStyle,
+        addQuote,
         toggleBlockType,
         handleInsertImageClicked,
         saveContent,
@@ -125,7 +133,11 @@ export default function ReadContextProvider({ children, article }) {
         contextMenuPosition,
         setContextMenuPosition,
         searchTerm,
-        setSearchTerm
+        setSearchTerm,
+        isAnnotationModalOpen,
+        setAnnotationModalOpen,
+        annotationIdForModal,
+        setAnnotationIdForModal
     };
 
     return <ReadContext.Provider value={ctxValue}>

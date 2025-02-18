@@ -119,6 +119,8 @@ export default function AppContextProvider({ children }) {
             result = 'tags';
         } else if (activeScreen === 'annotations') {
             result = 'annotations';
+        } else if (activeScreen === 'quotes') {
+            result = 'quotes';
         } else if (activeScreen === 'settings') {
             result = 'settings';
         }

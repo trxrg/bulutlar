@@ -10,7 +10,7 @@ import AnnotationCard from '../../annotation/AnnotationCard';
 const ReadLeftPanel = () => {
 
     const { translate: t, setActiveScreen } = useContext(AppContext);
-    const { getAnnotationById, allAnnotations } = useContext(DBContext);
+    const { getAnnotationById } = useContext(DBContext);
     const { article, setAnnotationModalOpen, setAnnotationIdForModal } = useContext(ReadContext);
     const [filteredAnnotations, setFilteredAnnotations] = useState([]);
 
@@ -29,8 +29,8 @@ const ReadLeftPanel = () => {
     }
 
     useEffect(() => {
-        setFilteredAnnotations(allAnnotations.filter(ann => {const annotation=getAnnotationById(ann.id); return annotation.note && annotation.note.length > 0}));
-    }, [allAnnotations]);
+        setFilteredAnnotations(article.annotations.filter(ann => {const annotation=getAnnotationById(ann.id); return annotation && annotation.note && annotation.note.length > 0}));
+    }, [article]);
 
     return (
         <div className='h-full'>

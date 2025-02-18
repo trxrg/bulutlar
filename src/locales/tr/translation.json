@@ -70,6 +70,9 @@
     "remove quote": "Alıntıyı Kaldır",
     "error removing quote": "Alıntı kaldırılırken hata oluştu",
 
+    "created_at": "Oluşturulma Tarihi",
+    "updated_at": "Güncelleme Tarihi",
+
     "filters": "Filtreler",
     "selectAll": "Hepsini Seç",
     "selectNone": "Hiçbirini Seçme",

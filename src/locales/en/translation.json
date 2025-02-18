@@ -70,6 +70,9 @@
     "remove quote": "Remove Quote",
     "error removing quote": "Error removing quote",
 
+    "created_at": "Created At",
+    "updated_at": "Updated At",
+
     "filters": "Filters",
     "selectAll": "Select All",
     "selectNone": "Select None",

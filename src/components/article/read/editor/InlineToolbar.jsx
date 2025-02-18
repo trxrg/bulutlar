@@ -23,13 +23,13 @@ const InlineToolbar = () => {
         <>
             <div className='flex flex-wrap gap-1 p-2'>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'BOLD')}><BoldIcon className='w-4 h-4' /></FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-600 w-4 h-4'></span></FormatButton>
+                <FormatButton onClick={(e) => setAddLinkModalOpen(true)}><LinkIcon className="w-6 h-6" /></FormatButton>
+                <FormatButton onMouseDown={handleAddQuote}><BookmarkIcon className="w-6 h-6" /></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'ITALIC')}><ItalicIcon className='w-4 h-4' /></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'UNDERLINE')}><UnderlineIcon className='w-4 h-4' /></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'SUPERSCRIPT')}><ArrowUpIcon className='w-4 h-4' /></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'SUBSCRIPT')}><ArrowDownIcon className='w-4 h-4' /></FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT')}><span className='bg-yellow-600 w-4 h-4'></span></FormatButton>
-                <FormatButton onClick={(e) => setAddLinkModalOpen(true)}><LinkIcon className="w-6 h-6" /></FormatButton>
-                <FormatButton onMouseDown={handleAddQuote}><BookmarkIcon className="w-6 h-6" /></FormatButton>
             </div>           
         </>
     );

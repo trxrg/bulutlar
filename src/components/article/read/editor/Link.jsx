@@ -98,6 +98,7 @@ const Link = (props) => {
                         </ActionButton>
                     </div>
                 </ContextMenu>
+            </div>
             <ContextMenu isOpen={infoMenuIsOpen}
                 onClose={() => setInfoMenuIsOpen(false)}
                 position={{ top: contextMenuPosition.y, left: 0 }}>
@@ -107,7 +108,6 @@ const Link = (props) => {
                         <ArticleInfo article={article} isEditable={false}></ArticleInfo>
                     </div>}
             </ContextMenu>
-            </div>
         </>
     );
 };

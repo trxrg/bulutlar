@@ -64,8 +64,8 @@ const Quote = (props) => {
                     onClose={() => setContextMenuIsOpen(false)}
                     position={{ top: contextMenuPosition.y, left: 0 }}>
                     <div className='flex flex-col'>
-                        <ActionButton color={'red'} onClick={handleRemoveQuote}
-                            className='hover:bg-red-300'>{t('remove quote')}
+                        <ActionButton color={'red'} onClick={handleRemoveQuote}>
+                            {t('remove quote')}
                         </ActionButton>
                     </div>
                 </ContextMenu>

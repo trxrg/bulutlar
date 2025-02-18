@@ -93,8 +93,8 @@ const Link = (props) => {
                     onClose={() => setContextMenuIsOpen(false)}
                     position={{ top: 20, left: 0 }}>
                     <div className='flex flex-col'>
-                        <ActionButton color={'red'} onClick={handleRemoveLink}
-                            className='hover:bg-red-300'>{t('remove link')}
+                        <ActionButton color={'red'} onClick={handleRemoveLink}>
+                            {t('remove link')}
                         </ActionButton>
                     </div>
                 </ContextMenu>

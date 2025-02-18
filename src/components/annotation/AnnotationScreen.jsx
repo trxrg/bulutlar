@@ -10,7 +10,7 @@ const AnnotationScreen = () => {
     const [annotationModalOpen, setAnnotationModalOpen] = useState(false);
     const [annotationForModal, setAnnotationForModal] = useState(null);
     const { allAnnotations, getArticleById } = useContext(DBContext);
-    const { translate: t, handleAddTab, setActiveScreen } = useContext(AppContext);
+    const { translate: t, handleAddTab, setActiveScreen, normalizeText } = useContext(AppContext);
 
     const handleOpenArticle = (article) => {
         handleAddTab(null, article.id);
@@ -25,21 +25,6 @@ const AnnotationScreen = () => {
     const filteredAnnotations = React.useMemo(() => {
         return allAnnotations.filter(ann => ann.note && ann.note.length > 0).filter(annotation => normalizeText(annotation.note).includes(normalizeText(filterTerm)));
     }, [allAnnotations, filterTerm]);
-
-    function normalizeText(text) {
-        if (!text) return '';
-        if (typeof text !== 'string') return text;
-        const turkishMap = { 
-            'ç': 'c', 'Ç': 'C', 
-            'ğ': 'g', 'Ğ': 'G', 
-            'ı': 'i', 'İ': 'I', 
-            'ö': 'o', 'Ö': 'O', 
-            'ş': 's', 'Ş': 'S', 
-            'ü': 'u', 'Ü': 'U' 
-        };
-        const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
-        return result;
-    };
 
     return (
         <div className="container h-full overflow-y-auto mx-auto p-4">

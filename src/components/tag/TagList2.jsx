@@ -43,6 +43,11 @@ const TagList2 = ({ showInput = true }) => {
                     value={inputValue}
                     onChange={handleInputChange}
                     placeholder={t('type a tag') + '...'}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleAddTag(inputValue);
+                        }
+                    }}
                     className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <ActionButton onClick={() => handleAddTag(inputValue)} color='blue'>{t('add')}</ActionButton>

@@ -194,8 +194,12 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         if (editorState.getSelection().isCollapsed())
             return;
 
+        const selectedText = getSelectedText();
+
+        if (!selectedText || !selectedText.trim()) return;
+
         let annotation = {
-            note: '', quote: getSelectedText()
+            note: '', quote: selectedText
         };
 
         try {

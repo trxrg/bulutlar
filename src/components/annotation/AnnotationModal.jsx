@@ -19,7 +19,7 @@ const AnnotationModal = ({ isOpen, onRequestClose, annotationId, articleId }) =>
     const [msg, setMsg] = useState('');
     
     const handleAdd = () => {
-        if (note.trim() === '') {
+        if (!note || note.trim() === '') {
             setMsg(t('note') + t('cannot be empty'));
             return;
         }

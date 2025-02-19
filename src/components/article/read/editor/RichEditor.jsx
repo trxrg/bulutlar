@@ -165,14 +165,37 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
     // ================================ END OF LINKS ================================
 
     // ================================ QUOTES ================================
+    const getSelectedText = () => {
+        const contentState = editorState.getCurrentContent();
+        const selectionState = editorState.getSelection();
+        const startKey = selectionState.getStartKey();
+        const endKey = selectionState.getEndKey();
+        const startOffset = selectionState.getStartOffset();
+        const endOffset = selectionState.getEndOffset();
+        const rawContent = convertToRaw(contentState);
+        let selectedText = '';
+    
+        rawContent.blocks.forEach(block => {
+            if (block.key === startKey && block.key === endKey) {
+                selectedText = block.text.slice(startOffset, endOffset);
+            } else if (block.key === startKey) {
+                selectedText = block.text.slice(startOffset) + '\n';
+            } else if (block.key === endKey) {
+                selectedText += block.text.slice(0, endOffset);
+            } else if (selectionState.hasEdgeWithin(block.key, 0, block.text.length)) {
+                selectedText += block.text + '\n';
+            }
+        });
+    
+        return selectedText;
+    };
+
     const addQuote = async () => {
         if (editorState.getSelection().isCollapsed())
             return;
 
         let annotation = {
-            note: '', quote: editorState.getCurrentContent()
-                .getPlainText().slice(editorState.getSelection()
-                    .getStartOffset(), editorState.getSelection().getEndOffset())
+            note: '', quote: getSelectedText()
         };
 
         try {

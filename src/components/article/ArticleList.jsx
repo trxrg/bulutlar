@@ -72,7 +72,8 @@ const ArticleList = ({ onArticleChange, excludedArticleIds, onViewClicked }) => 
                 title: title,
                 ownerName: ownerName,
                 dateStr: dateStr,
-                label: normalizeText((ownerName ? ownerName + ' | ' : '') + title),
+                label: (ownerName ? ownerName + ' | ' : '') + title,
+                value: normalizeText((ownerName ? ownerName + ' | ' : '') + title),
             }
         })
     ];

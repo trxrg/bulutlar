@@ -30,8 +30,7 @@ export default function DBContextProvider({ children }) {
         try {
             const updatedCategory = await categoryApi.getById(id);
 
-            console.log('updated category')
-            console.log(updatedCategory)
+            console.log('category updated id: ' + id)
 
             const updatedCategories = allCategories.map(category => category.id === id ? updatedCategory : category);
             setAllCategories(updatedCategories);
@@ -44,8 +43,7 @@ export default function DBContextProvider({ children }) {
         try {
             const updatedOwner = await ownerApi.getById(id);
 
-            console.log('updated owner')
-            console.log(updatedOwner)
+            console.log('owner updated id: ' + id)
 
             const updatedOwners = allOwners.map(owner => owner.id === id ? updatedOwner : owner);
             setAllOwners(updatedOwners);
@@ -58,8 +56,7 @@ export default function DBContextProvider({ children }) {
         try {
             const updatedTag = await tagApi.getById(id);
 
-            console.log('updated tag')
-            console.log(updatedTag)
+            console.log('updated tag id: ' + id)
 
             const updatedTags = allTags.map(tag => tag.id === id ? updatedTag : tag);
             setAllTags(updatedTags);
@@ -72,8 +69,7 @@ export default function DBContextProvider({ children }) {
         try {
             const updatedAnnotation = await annotationApi.getById(id);
 
-            console.log('updated annotation')
-            console.log(updatedAnnotation)
+            console.log('annotation updated id: ' + id)
 
             const updatedAnnotations = allAnnotations.map(annotation => annotation.id === id ? updatedAnnotation : annotation);
             setAllAnnotations(updatedAnnotations);

@@ -62,6 +62,13 @@ const AnnotationScreen = () => {
         return sorted;
     }, [filteredAnnotations, sortOrder, sortBy, getArticleById]);
 
+    const getSortIndicator = (key) => {
+        if (sortBy === key) {
+            return sortOrder === 'asc' ? ' ▲' : ' ▼';
+        }
+        return '';
+    };
+
     return (
         <div className="container h-full overflow-y-auto mx-auto p-4">
             <div className="mb-2">
@@ -79,13 +86,13 @@ const AnnotationScreen = () => {
                         <th className="py-2 px-4 border-b"></th>
                         <th className="py-2 px-4 border-b">{t('note')}</th>
                         <th className="py-2 px-4 border-b cursor-pointer" onClick={() => handleSort('title')}>
-                            {t('article')} {sortBy === 'title' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            {t('article')} {getSortIndicator('title')}
                         </th>
                         <th className="py-2 px-4 border-b cursor-pointer" onClick={() => handleSort('createdAt')}>
-                            {t('created_at')} {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            {t('created_at')} {getSortIndicator('createdAt')}
                         </th>
                         <th className="py-2 px-4 border-b cursor-pointer" onClick={() => handleSort('updatedAt')}>
-                            {t('updated_at')} {sortBy === 'updatedAt' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            {t('updated_at')} {getSortIndicator('updatedAt')}
                         </th>
                     </tr>
                 </thead>

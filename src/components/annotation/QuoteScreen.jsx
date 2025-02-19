@@ -61,6 +61,13 @@ const QuoteScreen = () => {
         fetchAllAnnotations();
     }
 
+    const getSortIndicator = (key) => {
+        if (sortBy === key) {
+            return sortOrder === 'asc' ? ' ▲' : ' ▼';
+        }
+        return '';
+    };
+
     return (
         <div className="container h-full overflow-y-auto mx-auto p-4">
             <div className="mb-2">
@@ -78,10 +85,10 @@ const QuoteScreen = () => {
                         <th className="py-2 px-4 border-b"></th>
                         <th className="py-2 px-4 border-b">{t('quote')}</th>
                         <th className="py-2 px-4 border-b cursor-pointer" onClick={() => handleSort('title')}>
-                            {t('article')} {sortBy === 'title' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            {t('article')} {getSortIndicator('title')}
                         </th>
                         <th className="py-2 px-4 border-b cursor-pointer" onClick={() => handleSort('date')}>
-                            {t('date')} {sortBy === 'date' && (sortOrder === 'asc' ? '↑' : '↓')}
+                            {t('date')} {getSortIndicator('date')}
                         </th>
                         <th className="py-2 px-4 border-b"></th>
                     </tr>

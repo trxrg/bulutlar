@@ -207,6 +207,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
 
             await fetchAllAnnotations();
             await fetchArticleById(articleId);
+            toastr.success(t('quote added'));
 
         } catch (e) {
             toastr.error(e.message, t('error adding quote'));

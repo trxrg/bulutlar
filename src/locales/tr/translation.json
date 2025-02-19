@@ -69,6 +69,7 @@
     "filter quotes": "Alıntıları filtrele",
     "remove quote": "Alıntıyı Kaldır",
     "error removing quote": "Alıntı kaldırılırken hata oluştu",
+    "quote added": "Alıntı kaydedildi",
 
     "created_at": "Oluşturulma Tarihi",
     "updated_at": "Güncelleme Tarihi",

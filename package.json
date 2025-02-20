@@ -21,7 +21,7 @@
     "package-win": "npm run build-react  && electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --out=release-builds",
     "package-win-asar": "npm run build-react  && electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --asar --out=release-builds",
     "package-win-new": "npm run build-react && npx @electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --out=release-builds",
-    "package-win-new-asar": "npm run build-react && npx @electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --asar --out=release-builds",
+    "package-win-new-asar": "npm run build-react && npx electron-packager . Bulutlar --overwrite --platform=win32 --arch=x64 --icon=./public/cloud.ico --prune=true --asar --out=release-builds",
     "package-linux": "npm run build-react  && electron-packager . AppName --overwrite --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --asar --out=release-builds",
     "migrate": "npx sequelize-cli db:migrate"
   },

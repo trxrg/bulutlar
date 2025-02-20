@@ -9,7 +9,7 @@ const GeneralModal = ({ isOpen, onRequestClose, title, children }) => {
             className="fixed inset-0 flex items-center justify-center p-4 z-50"
             overlayClassName="fixed inset-0 bg-black bg-opacity-75 z-50"
         >
-            <div className="relative flex flex-col bg-white p-5 rounded-sm shadow-lg min-w-[50%] max-w-6xl max-h-[60%] z-50">
+            <div className="relative flex flex-col bg-white p-5 rounded-xl shadow-lg min-w-[50%] max-w-6xl max-h-[60%] z-50">
                 <div className={'flex justify-between ' + (title && ' mb-8')}>
                     <h2 className='text-2xl text-gray-600 select-none'>{title}</h2>
                     <button

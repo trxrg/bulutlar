@@ -77,7 +77,6 @@
     position: relative; /* Positioning for pseudo-elements */
     padding-bottom: 1px; /* Add a bottom padding for a subtle underline effect */
     transition: color 0.3s ease; /* Smooth color transition */
-    cursor: pointer;
   }
 
   /* Hover effect */

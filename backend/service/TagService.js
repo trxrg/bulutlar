@@ -45,25 +45,23 @@ async function getTagWithName(tagName, transaction = null) {
     return await sequelize.models.tag.findOne({ where: { name: tagName }, transaction });
 }
 
-async function getTagDataWithName(tagName) {
-    const result = await sequelize.models.tag.findOne({ where: { name: tagName } });
-    return result.dataValues; 
-}
-
 async function getTagWithId(id) {
-    const result = await sequelize.models.tag.findByPk(id);
-    return result.dataValues;
-}
-
-async function getTagWithNameLike(nameLike) {
-    const result = await sequelize.models.tag.findAll({
-        where: {
-            name: {
-                [Op.like]: '%' + nameLike + '%'
-            }
-        }
+    const result = await sequelize.models.tag.findByPk(id, {
+        attributes: {
+            include: [
+                [sequelize.fn('COUNT', sequelize.col('articles.id')), 'articleCount'],
+            ]
+        },
+        include: [
+            {
+                model: sequelize.models.article,
+                as: 'articles',
+                attributes: [], // We don't need any attributes from Article
+            },
+        ],
+        group: ['Tag.id'], // Group by Category ID
     });
-    return result.map(item => item.dataValues);
+    return result.dataValues;
 }
 
 async function getAllTags() {
@@ -81,27 +79,6 @@ async function getAllTags() {
             },
         ],
         group: ['Tag.id'], // Group by Category ID
-    });
-    return result.map(item => item.dataValues);
-}
-
-
-
-async function getAllCategories() {
-    const result = await sequelize.models.category.findAll({
-        attributes: {
-            include: [
-                [sequelize.fn('COUNT', sequelize.col('articles.id')), 'articleCount'],
-            ]
-        },
-        include: [
-            {
-                model: sequelize.models.article,
-                as: 'articles',
-                attributes: [], // We don't need any attributes from Article
-            },
-        ],
-        group: ['Category.id'], // Group by Category ID
     });
     return result.map(item => item.dataValues);
 }

@@ -10,6 +10,7 @@ import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { Fullscreen } from '@mui/icons-material';
+import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
 
 const ReadControls = () => {
 
@@ -57,7 +58,7 @@ const ReadControls = () => {
                         <ChevronLeftIcon className="w-5 h-5" />
                     </FormatButton>}
                 <FormatButton onClick={decreaseFontSize} title={t('decrease font')}>A-</FormatButton>
-                <FormatButton onClick={increaseFontSize} title={t('increase font')}>A+</FormatButton>                
+                <FormatButton onClick={increaseFontSize} title={t('increase font')}>A+</FormatButton>
                 {searchBarOpen && (
                     <>
                         <input
@@ -82,10 +83,10 @@ const ReadControls = () => {
             <div className='gap-1'>
                 {editable ?
                     <div className='flex flex-wrap gap-1'>
+                        <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')} title={t('unordered list')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
                         <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')} title={t('ordered list')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
-                        <FormatButton onClick={handleInsertImageClicked} title={('add image')}><PhotoIcon className="w-5 h-5" /></FormatButton>
-                        <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
+                        <FormatButton onClick={handleInsertImageClicked} title={t('add image')}><PhotoIcon className="w-5 h-5" /></FormatButton>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}
                             color={'blue'}>
@@ -113,11 +114,17 @@ const ReadControls = () => {
                         <StarBorderIcon style={{ fontSize: '1.7rem', color: '#B0B0B0' }} className="hover:scale-125" />
                     )}
                 </div>}
+                <FormatButton
+                    onClick={() => console.log('not implemented yet')}
+                    title={t('preferences')}>
+                    <EllipsisHorizontalIcon className="w-5 h-5" />
+                </FormatButton>
                 {!editable &&
                     <FormatButton
                         onClick={() => setEditable(true)}
-                        title={t('edit article')}
-                    ><PencilIcon className="w-5 h-5" /></FormatButton>
+                        title={t('edit article')}>
+                        <PencilIcon className="w-5 h-5" />
+                    </FormatButton>
                 }
                 {fullScreen ?
                     <FormatButton onClick={() => setFullScreen(false)} title={t('exit full screen')}>

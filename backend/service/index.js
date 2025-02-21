@@ -3,6 +3,7 @@ const servicePromises = [
     import('./ArticleService.js'),
     import('./TagService.js'),
     import('./CategoryService.js'),
+    import('./GroupService.js'),
     import('./CommentService.js'),
     import('./ImageService.js'),
     import('./AnnotationService.js'),

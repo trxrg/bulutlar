@@ -1,5 +1,4 @@
 import { ipcMain } from 'electron';
-import { Op } from 'sequelize';
 import { sequelize } from '../sequelize/index.js';
 
 function initService() {
@@ -46,41 +45,23 @@ async function getTagWithName(tagName, transaction = null) {
 }
 
 async function getTagWithId(id) {
-    const result = await sequelize.models.tag.findByPk(id, {
-        attributes: {
-            include: [
-                [sequelize.fn('COUNT', sequelize.col('articles.id')), 'articleCount'],
-            ]
-        },
-        include: [
-            {
-                model: sequelize.models.article,
-                as: 'articles',
-                attributes: [], // We don't need any attributes from Article
-            },
-        ],
-        group: ['Tag.id'], // Group by Category ID
-    });
+    const result = await sequelize.models.tag.findByPk(id);
+    if (!result)
+        return { error: 'Tag not found' };
+    result.dataValues.articleCount = await result.countArticles();
     return result.dataValues;
 }
 
 async function getAllTags() {
-    const result = await sequelize.models.tag.findAll({
-        attributes: {
-            include: [
-                [sequelize.fn('COUNT', sequelize.col('articles.id')), 'articleCount'],
-            ]
-        },
-        include: [
-            {
-                model: sequelize.models.article,
-                as: 'articles',
-                attributes: [], // We don't need any attributes from Article
-            },
-        ],
-        group: ['Tag.id'], // Group by Category ID
-    });
-    return result.map(item => item.dataValues);
+    const result = await sequelize.models.tag.findAll();
+    if (!result)
+        return { error: 'No tags found' };
+
+    return await Promise.all(result.map(async item => {
+        const data = item.dataValues;
+        data.articleCount = await item.countArticles();
+        return data;
+    }));
 }
 
 async function deleteTagById(id) {

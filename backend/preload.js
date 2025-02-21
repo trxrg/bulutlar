@@ -46,6 +46,13 @@ contextBridge.exposeInMainWorld('api', {
     getById:     (id)           => ipcRenderer.invoke('category/getById', id),
     deleteById:  (id)           => ipcRenderer.invoke('category/deleteById', id),
   },
+  group: {
+    create:      (id)           => ipcRenderer.invoke('group/create', id),
+    updateName:  (id, newName)  => ipcRenderer.invoke('group/updateName', id, newName),
+    getAll:      ()             => ipcRenderer.invoke('group/getAll'),
+    getById:     (id)           => ipcRenderer.invoke('group/getById', id),
+    deleteById:  (id)           => ipcRenderer.invoke('group/deleteById', id),
+  },
   comment: {
     updateText: (id, newText) => ipcRenderer.invoke('comment/updateText', id, newText),
     getById:    (id)          => ipcRenderer.invoke('comment/getById', id),

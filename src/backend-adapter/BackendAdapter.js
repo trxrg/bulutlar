@@ -41,6 +41,14 @@ export const categoryApi = {
     deleteById:         async (id)                  => window.api.category.deleteById(id)
 };
 
+export const groupApi = {
+    create:             async (group)               => window.api.group.create(group),
+    updateName:         async (id, newName)         => window.api.group.updateName(id, newName),
+    getAll:             async ()                    => window.api.group.getAll(),
+    getById:            async (id)                  => window.api.group.getById(id),
+    deleteById:         async (id)                  => window.api.group.deleteById(id)
+};
+
 export const commentApi = {
     updateText:         async (id, newText)         => window.api.comment.updateText(id, newText),
     getById:            async (id)                  => window.api.comment.getById(id),

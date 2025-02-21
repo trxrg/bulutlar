@@ -41,9 +41,9 @@ const AppHeader = () => {
                         <span className='text-xl text-green-600 font-bold'>⚡{streak}</span>
                     </div> */}
                     {activeScreen != 'tabs' && <ActionButton onClick={() => setActiveScreen('tabs')}>{t('articles')}</ActionButton>}
-                    <FormatButton onClick={handleRefresh}><ArrowPathIcon className='w-5 h-5' /></FormatButton>
+                    <FormatButton onClick={handleRefresh} title={t('refresh')}><ArrowPathIcon className='w-5 h-5' /></FormatButton>
                     <FormatButton onClick={() => changeLanguage()}><GlobeAltIcon className='w-5 h-5' /></FormatButton>
-                    <FormatButton onClick={() => setActiveScreen('home')}><HomeIcon className='w-5 h-5' /></FormatButton>
+                    <FormatButton onClick={() => setActiveScreen('home')} title={t('homescreen')}><HomeIcon className='w-5 h-5' /></FormatButton>
                     {/* <ActionButton color='red' onClick={handleLoadArticlesFromTxt}>Load Articles From Txt</ActionButton> */}
                     {/* <ActionButton color='blue' onClick={handleLoadArticles}>Load Articles</ActionButton> */}
                     {/* <ActionButton color='blue' onClick={handleRefresh}>Refresh</ActionButton> */}

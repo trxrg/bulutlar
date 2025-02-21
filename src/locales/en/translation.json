@@ -195,5 +195,11 @@
 
     "select articles": "Select Articles",
     "download as pdf": "Download as PDF",
-    "open random article": "Open Random Article"
+    "open random article": "Open Random Article",
+
+    "add note": "Add Note",
+    "add tag": "Add Tag",
+
+    "homescreen": "Home Screen",
+    "refresh": "Refresh"
   }

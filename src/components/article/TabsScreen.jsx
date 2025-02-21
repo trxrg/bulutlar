@@ -79,8 +79,8 @@ const TabsScreen = () => {
           ))}
         </div>
         <div className='flex flex-shrink-0 flex-row items-center px-2 gap-1'>
-          <FormatButton onClick={handleRefresh}><ArrowPathIcon className='w-5 h-5' /></FormatButton>
-          <FormatButton onClick={() => setActiveScreen('home')}><HomeIcon className='w-5 h-5' /></FormatButton>
+          <FormatButton onClick={handleRefresh} title={t('refresh')}><ArrowPathIcon className='w-5 h-5' /></FormatButton>
+          <FormatButton onClick={() => setActiveScreen('home')} title={t('homescreen')}><HomeIcon className='w-5 h-5' /></FormatButton>
         </div>
       </div>
 

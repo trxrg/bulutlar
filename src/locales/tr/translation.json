@@ -179,8 +179,8 @@
 
     "show left panel": "Sol Paneli Göster",
     "hide left panel": "Sol Paneli Gizle",
-    "decrease font": "Yazı Tipini Küçült",
-    "increase font": "Yazı Tipini Büyüt",
+    "decrease font": "Yazıyı Küçült",
+    "increase font": "Yazıyı Büyüt",
     "close search bar": "Arama Çubuğunu Kapat",
     "search in the article": "Yazıda Ara",
     "unordered list": "Sırasız Liste",
@@ -199,5 +199,11 @@
 
     "select articles": "Yazıları Seç",
     "download as pdf": "PDF olarak indir",
-    "open random article": "Rastgele Yazı Aç"
+    "open random article": "Rastgele Yazı Aç",
+
+    "add note": "Not Ekle",
+    "add tag": "Etiket Ekle",
+
+    "homescreen": "Ana Sayfa",
+    "refresh": "Yenile"
 }

@@ -33,14 +33,14 @@ const SearchResultsHeader = () => {
             {/* left */}
             <div className='flex flex-wrap gap-1'>
                 {sidePanelCollapsed ?
-                    <FormatButton onClick={() => setSidePanelCollapsed(false)}>
+                    <FormatButton onClick={() => setSidePanelCollapsed(false)} title={t('show left panel')}>
                         <ChevronRightIcon className="w-5 h-5" />
                     </FormatButton>
                     :
-                    <FormatButton onClick={() => setSidePanelCollapsed(true)}>
+                    <FormatButton onClick={() => setSidePanelCollapsed(true)} title={t('hide left panel')}>
                         <ChevronLeftIcon className="w-5 h-5" />
                     </FormatButton>}
-                <FormatButton onClick={() => toggleArticlesSelectable()}><PencilSquareIcon className="w-5 h-5" /></FormatButton>
+                <FormatButton onClick={() => toggleArticlesSelectable()} title={t('select articles')}><PencilSquareIcon className="w-5 h-5" /></FormatButton>
                 <FormatButton onClick={handleOrderByDateAsc}><ChevronUpIcon className="w-5 h-5" /></FormatButton>
                 <FormatButton onClick={handleOrderByDateDesc}><ChevronDownIcon className="w-5 h-5" /></FormatButton>
             </div>
@@ -56,15 +56,15 @@ const SearchResultsHeader = () => {
             </div>
             {/* right */}
             <div className='flex flex-wrap gap-1'>
-                <FormatButton onClick={generatePDFOfSelectedArticles}><DocumentArrowDownIcon className="w-5 h-5" /></FormatButton>
-                <FormatButton onClick={handleAddRandomTab}><BoltIcon className="w-5 h-5" /></FormatButton>
-                <FormatButton onClick={() => setAddArticleModalOpen(true)}><PlusIcon className="w-5 h-5" /></FormatButton>
+                <FormatButton onClick={generatePDFOfSelectedArticles} title={t('download as pdf')}><DocumentArrowDownIcon className="w-5 h-5" /></FormatButton>
+                <FormatButton onClick={handleAddRandomTab} title={t('open random article')}><BoltIcon className="w-5 h-5" /></FormatButton>
+                <FormatButton onClick={() => setAddArticleModalOpen(true)} title={t('add article')}><PlusIcon className="w-5 h-5" /></FormatButton>
                 {fullScreen ?
-                    <FormatButton onClick={() => setFullScreen(false)}>
+                    <FormatButton onClick={() => setFullScreen(false)} title={t('exit full screen')}>
                         <ArrowsPointingInIcon className="w-5 h-5" />
                     </FormatButton>
                     :
-                    <FormatButton onClick={() => setFullScreen(true)}>
+                    <FormatButton onClick={() => setFullScreen(true)} title={t('full screen')}>
                         <ArrowsPointingOutIcon className="w-5 h-5" />
                     </FormatButton>}
             </div>

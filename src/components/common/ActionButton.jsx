@@ -1,4 +1,4 @@
-const ActionButton = ({ onClick, color='', size='', children }) => {
+const ActionButton = ({ onClick, color='', size='', title='', children }) => {
     let colorStyle = "bg-gray-200 hover:bg-gray-300 text-gray-700";
 
     if (color === 'green')
@@ -21,6 +21,7 @@ const ActionButton = ({ onClick, color='', size='', children }) => {
         <button
             className= {colorStyle + " rounded-md shadow-sm select-none " + sizeStyle}
             onClick={onClick}
+            title={title || children}
         >
             {children}
         </button>

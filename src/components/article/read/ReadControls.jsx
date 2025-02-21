@@ -49,15 +49,15 @@ const ReadControls = () => {
             {/* left */}
             <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
                 {leftPanelCollapsed ?
-                    <FormatButton onClick={() => setLeftPanelCollapsed(false)}>
+                    <FormatButton onClick={() => setLeftPanelCollapsed(false)} title={t('show left panel')}>
                         <ChevronRightIcon className="w-5 h-5" />
                     </FormatButton>
                     :
-                    <FormatButton onClick={() => setLeftPanelCollapsed(true)}>
+                    <FormatButton onClick={() => setLeftPanelCollapsed(true)} title={t('hide left panel')}>
                         <ChevronLeftIcon className="w-5 h-5" />
                     </FormatButton>}
-                <FormatButton onClick={decreaseFontSize}>A-</FormatButton>
-                <FormatButton onClick={increaseFontSize}>A+</FormatButton>                
+                <FormatButton onClick={decreaseFontSize} title={t('decrease font')}>A-</FormatButton>
+                <FormatButton onClick={increaseFontSize} title={t('increase font')}>A+</FormatButton>                
                 {searchBarOpen && (
                     <>
                         <input
@@ -71,20 +71,20 @@ const ReadControls = () => {
                                 }
                             }}
                         />
-                        <FormatButton onClick={handleCloseSearchBar}>
+                        <FormatButton onClick={handleCloseSearchBar} title={t('close search bar')}>
                             <XMarkIcon className="w-5 h-5" />
                         </FormatButton>
                     </>
                 )}
-                <FormatButton onClick={handleSearchClick}><MagnifyingGlassIcon className="w-5 h-5" /></FormatButton>
+                <FormatButton onClick={handleSearchClick} title={t('search in the article')}><MagnifyingGlassIcon className="w-5 h-5" /></FormatButton>
             </div>
             {/* center */}
             <div className='gap-1'>
                 {editable ?
                     <div className='flex flex-wrap gap-1'>
-                        <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
-                        <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
-                        <FormatButton onClick={handleInsertImageClicked}><PhotoIcon className="w-5 h-5" /></FormatButton>
+                        <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')} title={t('unordered list')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
+                        <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')} title={t('ordered list')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
+                        <FormatButton onClick={handleInsertImageClicked} title={('add image')}><PhotoIcon className="w-5 h-5" /></FormatButton>
                         <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}
@@ -116,22 +116,23 @@ const ReadControls = () => {
                 {!editable &&
                     <FormatButton
                         onClick={() => setEditable(true)}
+                        title={t('edit article')}
                     ><PencilIcon className="w-5 h-5" /></FormatButton>
                 }
                 {fullScreen ?
-                    <FormatButton onClick={() => setFullScreen(false)}>
+                    <FormatButton onClick={() => setFullScreen(false)} title={t('exit full screen')}>
                         <ArrowsPointingInIcon className="w-5 h-5" />
                     </FormatButton>
                     :
-                    <FormatButton onClick={() => setFullScreen(true)}>
+                    <FormatButton onClick={() => setFullScreen(true)} title={t('full screen')}>
                         <ArrowsPointingOutIcon className="w-5 h-5" />
                     </FormatButton>}
                 {rightPanelCollapsed ?
-                    <FormatButton onClick={() => setRightPanelCollapsed(false)}>
+                    <FormatButton onClick={() => setRightPanelCollapsed(false)} title={t('show right panel')}>
                         <ChevronLeftIcon className="w-5 h-5" />
                     </FormatButton>
                     :
-                    <FormatButton onClick={() => setRightPanelCollapsed(true)}>
+                    <FormatButton onClick={() => setRightPanelCollapsed(true)} title={t('hide right panel')}>
                         <ChevronRightIcon className="w-5 h-5" />
                     </FormatButton>}
             </div>

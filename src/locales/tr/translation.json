@@ -175,5 +175,29 @@
     "thursday": "Perşembe",
     "friday": "Cuma",
     "saturday": "Cumartesi",
-    "sunday": "Pazar"
+    "sunday": "Pazar",
+
+    "show left panel": "Sol Paneli Göster",
+    "hide left panel": "Sol Paneli Gizle",
+    "decrease font": "Yazı Tipini Küçült",
+    "increase font": "Yazı Tipini Büyüt",
+    "close search bar": "Arama Çubuğunu Kapat",
+    "search in the article": "Yazıda Ara",
+    "unordered list": "Sırasız Liste",
+    "ordered list": "Sıralı Liste",
+    "add image": "Resim Ekle",
+    "edit article": "Yazıyı Düzenle",
+    "exit full screen": "Tam Ekrandan Çık",
+    "full screen": "Tam Ekran",
+    "show right panel": "Sağ Paneli Göster",
+    "hide right panel": "Sağ Paneli Gizle",
+
+    "highlight": "Vurgula",
+    "add quote": "Alıntı Ekle",
+    "superscript": "Üst Simge",
+    "subscript": "Alt Simge",
+
+    "select articles": "Yazıları Seç",
+    "download as pdf": "PDF olarak indir",
+    "open random article": "Rastgele Yazı Aç"
 }

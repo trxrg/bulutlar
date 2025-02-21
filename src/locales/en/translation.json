@@ -171,5 +171,29 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
-    "sunday": "Sunday"
+    "sunday": "Sunday",
+
+    "show left panel": "Show Left Panel",
+    "hide left panel": "Hide Left Panel",
+    "decrease font": "Decrease Font",
+    "increase font": "Increase Font",
+    "close search bar": "Close Search Bar",
+    "search in the article": "Search in the Article",
+    "unordered list": "Unordered List",
+    "ordered list": "Ordered List",
+    "add image": "Add Image",
+    "edit article": "Edit Article",
+    "exit full screen": "Exit Full Screen",
+    "full screen": "Full Screen",
+    "show right panel": "Show Right Panel",
+    "hide right panel": "Hide Right Panel",
+    
+    "highlight": "Highlight",
+    "add quote": "Add Quote",
+    "superscript": "Superscript",
+    "subscript": "Subscript",
+
+    "select articles": "Select Articles",
+    "download as pdf": "Download as PDF",
+    "open random article": "Open Random Article"
   }

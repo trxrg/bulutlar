@@ -8,7 +8,7 @@ import StreakModal from './StreakModal';
 
 const AppScreen = () => {
 
-    const { fullScreen, activeScreen, streakModalOpen, setStreakModalOpen } = useContext(AppContext);
+    const { activeScreen, streakModalOpen, setStreakModalOpen } = useContext(AppContext);
     const { streak } = useContext(DBContext);
 
     // useEffect(() => {
@@ -21,7 +21,7 @@ const AppScreen = () => {
             {/* <div className={'flex flex-shrink-0 overflow-hidden w-full'}>
                 <CustomTitleBar />
             </div> */}
-            <div className={fullScreen | activeScreen === 'home' | activeScreen === 'tabs' ? 'hidden' : 'flex flex-shrink-0 overflow-hidden'}>
+            <div className={activeScreen === 'tabs' || activeScreen === 'home'  ? 'hidden' : 'flex flex-shrink-0 overflow-hidden'}>
                 <AppHeader />
             </div>
             <div className='flex flex-1 overflow-hidden h-full'>

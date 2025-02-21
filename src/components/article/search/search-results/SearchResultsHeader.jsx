@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
 import {
     PlusIcon, ChevronLeftIcon, ChevronRightIcon,
-    ChevronUpIcon, ChevronDownIcon, ArrowsPointingOutIcon,
-    ArrowsPointingInIcon, PencilSquareIcon, BoltIcon, DocumentArrowDownIcon
+    ChevronUpIcon, ChevronDownIcon, PencilSquareIcon,
+    BoltIcon, DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
 import { SearchContext } from '../../../../store/search-context.jsx';
 import FormatButton from '../../../common/FormatButton.jsx';
@@ -17,7 +17,7 @@ const SearchResultsHeader = () => {
     const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed,
         areArticlesSelectable, toggleArticlesSelectable,
         selectAllOrNone, generatePDFOfSelectedArticles, selectedArticles } = useContext(SearchContext);
-    const { fullScreen, setFullScreen, handleAddRandomTab, translate: t } = useContext(AppContext);
+    const { handleAddRandomTab, translate: t } = useContext(AppContext);
     const { setArticleOrder } = useContext(DBContext);
 
     const handleOrderByDateAsc = () => {
@@ -59,14 +59,6 @@ const SearchResultsHeader = () => {
                 <FormatButton onClick={generatePDFOfSelectedArticles} title={t('download as pdf')}><DocumentArrowDownIcon className="w-5 h-5" /></FormatButton>
                 <FormatButton onClick={handleAddRandomTab} title={t('open random article')}><BoltIcon className="w-5 h-5" /></FormatButton>
                 <FormatButton onClick={() => setAddArticleModalOpen(true)} title={t('add article')}><PlusIcon className="w-5 h-5" /></FormatButton>
-                {fullScreen ?
-                    <FormatButton onClick={() => setFullScreen(false)} title={t('exit full screen')}>
-                        <ArrowsPointingInIcon className="w-5 h-5" />
-                    </FormatButton>
-                    :
-                    <FormatButton onClick={() => setFullScreen(true)} title={t('full screen')}>
-                        <ArrowsPointingOutIcon className="w-5 h-5" />
-                    </FormatButton>}
             </div>
             <AddArticleModal isOpen={isAddArticleModalOpen} onRequestClose={() => setAddArticleModalOpen(false)} />
         </div>

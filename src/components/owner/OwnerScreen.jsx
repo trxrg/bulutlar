@@ -65,7 +65,7 @@ const OwnerScreen = () => {
     return (
         <div className="container flex flex-col h-full mx-auto p-4 bg-white">
             <div className='flex-shrink-0 flex flex-col gap-4 mb-2 p-2'>
-                <div>
+                <div className='border-b border-gray-700 pb-4'>
                     <h2 className='mb-1'>{t('add new owner')}</h2>
                     <AddOwner onClose={() => { }}></AddOwner>
                 </div>

@@ -33,7 +33,7 @@ const CategoryScreen = () => {
     return (
         <div className="container flex flex-col h-full mx-auto p-4">
             <div className='flex-shrink-0'>
-                <div className='mb-2 p-2 bg-white'>
+                <div className='border-b border-gray-700 pb-4'>
                     <h2 className='mb-1'>{t('add new category')}</h2>
                     <AddCategory onClose={() => { }}></AddCategory>
                 </div>

@@ -4,11 +4,12 @@ import { groupApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
+import AddGroup from './AddGroup';
 
 const GroupScreen = () => {
     const { translate: t, normalizeText } = useContext(AppContext);
     const { allGroups, fetchGroupById, fetchAllGroups } = useContext(DBContext);
-    
+
     const [filterTerm, setFilterTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
@@ -64,6 +65,10 @@ const GroupScreen = () => {
     return (
         <div className="container flex flex-col h-full mx-auto p-4 bg-white">
             <div className='flex-shrink-0 flex flex-col gap-4 mb-2 p-2'>
+                <div className='border-b border-gray-700 pb-4'>
+                    <h2 className='mb-1'>{t('add new group')}</h2>
+                    <AddGroup onClose={() => {}}></AddGroup>
+                </div>
                 <div>
                     <input
                         type="text"

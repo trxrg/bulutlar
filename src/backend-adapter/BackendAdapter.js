@@ -21,7 +21,7 @@ export const articleApi = {
     removeRelatedArticle: async (id, relatedArticleId) => window.api.article.removeRelatedArticle(id, relatedArticleId),
     addTag:             async (id, tagName)           => window.api.article.addTag(id, tagName),
     removeTag:          async (id, tagName)           => window.api.article.removeTag(id, tagName),
-    addToGroup:         async (id, groupId)           => window.api.article.addToGroup(id, groupId),
+    addToGroup:         async (id, groupName)           => window.api.article.addToGroup(id, groupName),
     removeFromGroup:    async (id, groupId)           => window.api.article.removeFromGroup(id, groupId),
     setIsStarred:       async (id, isStarred)         => window.api.article.setIsStarred(id, isStarred),
 };
@@ -48,6 +48,7 @@ export const groupApi = {
     updateName:         async (id, newName)         => window.api.group.updateName(id, newName),
     getAll:             async ()                    => window.api.group.getAll(),
     getById:            async (id)                  => window.api.group.getById(id),
+    addArticles:        async (groupName, articleIds) => window.api.group.addArticles(groupName, articleIds),
     deleteById:         async (id)                  => window.api.group.deleteById(id)
 };
 

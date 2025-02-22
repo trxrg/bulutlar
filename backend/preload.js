@@ -29,7 +29,7 @@ contextBridge.exposeInMainWorld('api', {
     removeRelatedArticle: (id, relatedArticleId) => ipcRenderer.invoke('article/removeRelatedArticle', id, relatedArticleId),
     addTag:           (id, tagName)           => ipcRenderer.invoke('article/addTag', id, tagName),
     removeTag:        (id, tagName)           => ipcRenderer.invoke('article/removeTag', id, tagName),
-    addToGroup:       (id, groupId)           => ipcRenderer.invoke('article/addToGroup', id, groupId),
+    addToGroup:       (id, groupName)         => ipcRenderer.invoke('article/addToGroup', id, groupName),
     removeFromGroup:  (id, groupId)           => ipcRenderer.invoke('article/removeFromGroup', id, groupId),
     setIsStarred:     (id, isStarred)         => ipcRenderer.invoke('article/setIsStarred', id, isStarred),
   },
@@ -53,6 +53,7 @@ contextBridge.exposeInMainWorld('api', {
     updateName:  (id, newName)  => ipcRenderer.invoke('group/updateName', id, newName),
     getAll:      ()             => ipcRenderer.invoke('group/getAll'),
     getById:     (id)           => ipcRenderer.invoke('group/getById', id),
+    addArticles: (groupName, articleIds) => ipcRenderer.invoke('group/addArticles', groupName, articleIds),
     deleteById:  (id)           => ipcRenderer.invoke('group/deleteById', id),
   },
   comment: {

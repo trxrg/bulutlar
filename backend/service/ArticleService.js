@@ -9,6 +9,7 @@ import categoryService from './CategoryService.js';
 import commentService from './CommentService.js';
 import imageService from './ImageService.js';
 import annotationService from './AnnotationService.js';
+import groupService from './GroupService.js';
 
 function initService() {
     ipcMain.handle('article/create', async (event, article) => await createArticle(article));
@@ -30,7 +31,7 @@ function initService() {
     ipcMain.handle('article/removeRelatedArticle', async (event, id, relatedArticleId) => await removeRelatedArticle(id, relatedArticleId));
     ipcMain.handle('article/addTag', async (event, id, tagName) => await addTagToArticle(id, tagName));
     ipcMain.handle('article/removeTag', async (event, id, tagName) => await removeTagFromArticle(id, tagName));
-    ipcMain.handle('article/addToGroup', async (event, id, groupId) => await addArticleToGroup(id, groupId));
+    ipcMain.handle('article/addToGroup', async (event, id, groupName) => await addArticleToGroup(id, groupName));
     ipcMain.handle('article/removeFromGroup', async (event, id, groupId) => await removeArticleFromGroup(id, groupId));
     ipcMain.handle('article/setIsStarred', async (event, id, isStarred) => await setIsStarred(id, isStarred));
 }
@@ -400,13 +401,13 @@ async function removeTagFromArticle(id, tagName) {
     }
 }
 
-async function addArticleToGroup(articleId, groupId) {
+async function addArticleToGroup(articleId, groupName) {
     try {
         const article = await sequelize.models.article.findByPk(articleId);
-        const group = await sequelize.models.group.findByPk(groupId);
+        const group = await groupService.getGroupWithNameAddIfNotPresent(groupName);
 
         if (!article || !group)
-            throw ('no article found with id: ' + articleId + ' or ' + groupId);
+            throw ('no article found with id: ' + articleId + ' or ' + groupName);
 
         await article.addGroup(group);
 

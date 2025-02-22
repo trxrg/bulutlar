@@ -4,7 +4,7 @@ import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
 import GeneralModal from "../common/GeneralModal";
-import AddOwner from './AddOwner';
+import AddGroup from './AddGroup';
 
 const CustomOption = (props) => {
     return (
@@ -42,25 +42,25 @@ const customStyles = {
     }),
 };
 
-const OwnerList = ({ initialValue, onOwnerChange }) => {
+const GroupList = ({ onGroupChange }) => {
 
-    const { allOwners } = useContext(DBContext);
+    const { allGroups } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const ownerOptions = [
-        { value: null, label: t('select owner') },
-        ...allOwners.map(owner => ({
-            value: owner.name,
-            label: owner.name
+    const groupOptions = [
+        { value: null, label: t('select group') },
+        ...allGroups.map(group => ({
+            value: group.name,
+            label: group.name
         }))
     ];
 
-    const [selectedOwner, setSelectedOwner] = useState(ownerOptions.find(option => option.label === initialValue));
+    const [selectedGroup, setSelectedGroup] = useState();
 
     const handleChange = (selectedOption) => {
-        setSelectedOwner(selectedOption);
-        onOwnerChange(selectedOption.value);
+        setSelectedGroup(selectedOption);
+        onGroupChange(selectedOption.value);
     };
 
     const handleNewClicked = (event) => {
@@ -72,24 +72,24 @@ const OwnerList = ({ initialValue, onOwnerChange }) => {
         <div>
             <div className="flex gap-2 w-full">
                 <Select
-                    value={selectedOwner}
-                    options={ownerOptions}
+                    value={selectedGroup}
+                    options={groupOptions}
                     onChange={handleChange}
                     components={{ Option: CustomOption }} // Use the custom option
                     className="react-select flex-1"
                     classNamePrefix="select"
                     styles={customStyles}
-                    placeholder={t('select owner')}
-                    noOptionsMessage={() => t('no such owner')}
+                    placeholder={t('select group')}
+                    noOptionsMessage={() => t('no such group')}
                 />
                 <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>
-            <GeneralModal title={t('Add New Owner')} isOpen={isModalOpen} onRequestClose={()=>setIsModalOpen(false)}>
-                <AddOwner onClose={()=>setIsModalOpen(false)}></AddOwner>
+            <GeneralModal title={t('Add New Group')} isOpen={isModalOpen} onRequestClose={()=>setIsModalOpen(false)}>
+                <AddGroup onClose={()=>setIsModalOpen(false)} />
             </GeneralModal>
         </div>
     );
 };
 
-export default OwnerList;
+export default GroupList;
 

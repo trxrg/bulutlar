@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import {
     PlusIcon, ChevronLeftIcon, ChevronRightIcon,
     ChevronUpIcon, ChevronDownIcon, PencilSquareIcon,
-    BoltIcon, DocumentArrowDownIcon
+    BoltIcon, DocumentArrowDownIcon, FolderPlusIcon
 } from '@heroicons/react/24/outline';
 import { SearchContext } from '../../../../store/search-context.jsx';
 import FormatButton from '../../../common/FormatButton.jsx';
@@ -10,10 +10,14 @@ import { AppContext } from '../../../../store/app-context.jsx';
 import { DBContext } from '../../../../store/db-context.jsx';
 import AddArticleModal from '../../modals/AddArticleModal.jsx';
 import ActionButton from '../../../common/ActionButton.jsx';
+import { groupApi } from '../../../../backend-adapter/BackendAdapter.js';
+import GroupModal from '../../../group/GroupModal.jsx';
+import toastr from 'toastr';
 
 const SearchResultsHeader = () => {
 
     const [isAddArticleModalOpen, setAddArticleModalOpen] = useState(false);
+    const [isGroupModalOpen, setGroupModalOpen] = useState(false);
     const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed,
         areArticlesSelectable, toggleArticlesSelectable,
         selectAllOrNone, generatePDFOfSelectedArticles, selectedArticles } = useContext(SearchContext);
@@ -26,6 +30,27 @@ const SearchResultsHeader = () => {
 
     const handleOrderByDateDesc = () => {
         setArticleOrder({ field: 'date', direction: 'desc' });
+    }
+
+    const handleAddToGroupClick = () => {
+        if (!areArticlesSelectable)
+            toggleArticlesSelectable();
+        else
+            setGroupModalOpen(true);
+    }
+
+    const addSelectedArticlesToGroup = async (groupName) => {
+        if (!selectedArticles || selectedArticles.length === 0)
+            return;
+
+        try {
+            await groupApi.addArticles(groupName, selectedArticles);
+            setGroupModalOpen(false);
+            toastr.success(t('articles added to group'));
+        } catch (error) {
+            console.error('addArticles returned an error', error);
+            toastr.error(t('error adding article to group'));
+        }            
     }
 
     return (
@@ -56,11 +81,13 @@ const SearchResultsHeader = () => {
             </div>
             {/* right */}
             <div className='flex flex-wrap gap-1'>
+                <FormatButton onClick={handleAddToGroupClick} title={t('add selected articles to collection')}><FolderPlusIcon className="w-5 h-5" /></FormatButton>
                 <FormatButton onClick={generatePDFOfSelectedArticles} title={t('download as pdf')}><DocumentArrowDownIcon className="w-5 h-5" /></FormatButton>
                 <FormatButton onClick={handleAddRandomTab} title={t('open random article')}><BoltIcon className="w-5 h-5" /></FormatButton>
                 <FormatButton onClick={() => setAddArticleModalOpen(true)} title={t('add article')}><PlusIcon className="w-5 h-5" /></FormatButton>
             </div>
             <AddArticleModal isOpen={isAddArticleModalOpen} onRequestClose={() => setAddArticleModalOpen(false)} />
+            <GroupModal isOpen={isGroupModalOpen} onRequestClose={() => setGroupModalOpen(false)} onConfirm={addSelectedArticlesToGroup} />
         </div>
     );
 };

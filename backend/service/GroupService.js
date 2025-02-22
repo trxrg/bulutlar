@@ -6,6 +6,7 @@ function initService() {
     ipcMain.handle('group/updateName', (event, id, newName) => updateGroupName(id, newName));
     ipcMain.handle('group/getAll', getAllGroups);
     ipcMain.handle('group/getById', (event, id) => getGroupById(id));
+    ipcMain.handle('group/addArticles', (event, groupName, articleIds) => addArticlesToGroup(groupName, articleIds));
     ipcMain.handle('group/deleteById', (event, id) => deleteGroupById(id));
 }
 
@@ -81,6 +82,16 @@ async function getAllGroups() {
     }));
     return d;
 }
+
+async function addArticlesToGroup(groupName, articleIds) {
+    try {
+        const group = await getGroupWithNameAddIfNotPresent(groupName);
+        await group.addArticles(articleIds);
+    } catch (e) {
+        console.error('Error adding articles to group:', e);
+        throw e;
+    }
+} 
 
 const GroupService = {
     addGroup: createGroup,

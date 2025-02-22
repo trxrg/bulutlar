@@ -46,6 +46,11 @@ const AddGroup = ({ onClose }) => {
                     value={name}
                     onChange={handleTextChange}
                     placeholder={t('group name')}
+                    onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                            handleAddGroup(e);
+                        }
+                    }}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <ActionButton color='blue' onClick={handleAddGroup}>{t('add')}</ActionButton>

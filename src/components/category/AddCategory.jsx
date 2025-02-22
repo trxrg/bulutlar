@@ -48,6 +48,12 @@ const AddCategory = ({ onClose }) => {
         setName(e.target.value)
     }
 
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleAddCategory(e);
+        }
+    };
+
     return (
         <div>
             {msg && <span className="text-red-400">{msg}</span>}
@@ -57,6 +63,7 @@ const AddCategory = ({ onClose }) => {
                     value={name}
                     placeholder={t('category name')}
                     onChange={handleTextChange}
+                    onKeyPress={handleKeyPress}
                     className="shadow appearance-none border rounded flex-1 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <input

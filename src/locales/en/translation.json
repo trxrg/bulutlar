@@ -203,5 +203,7 @@
     "homescreen": "Home Screen",
     "refresh": "Refresh",
 
-    "preferences": "Preferences"
+    "preferences": "Preferences",
+
+    "Name cannot be empty": "Name cannot be empty"
   }

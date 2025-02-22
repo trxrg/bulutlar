@@ -16,7 +16,7 @@ const AddOwner = ({ onClose }) => {
         event.preventDefault();
 
         if (!name) {
-            setMsg('Name cannot be empty');
+            setMsg(t('Name cannot be empty'));
             return;
         }
 

@@ -207,5 +207,7 @@
     "homescreen": "Ana Sayfa",
     "refresh": "Yenile",
 
-    "preferences": "Tercihler"
+    "preferences": "Tercihler",
+
+    "Name cannot be empty": "Ad boş olamaz"
 }

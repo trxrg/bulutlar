@@ -1,5 +1,4 @@
 import { ipcMain, dialog } from 'electron';
-import { Op } from 'sequelize';
 import fs from 'fs/promises';
 import path from 'path';
 import hijriSafe from 'hijri-date/lib/safe.js';
@@ -31,6 +30,8 @@ function initService() {
     ipcMain.handle('article/removeRelatedArticle', async (event, id, relatedArticleId) => await removeRelatedArticle(id, relatedArticleId));
     ipcMain.handle('article/addTag', async (event, id, tagName) => await addTagToArticle(id, tagName));
     ipcMain.handle('article/removeTag', async (event, id, tagName) => await removeTagFromArticle(id, tagName));
+    ipcMain.handle('article/addToGroup', async (event, id, groupId) => await addArticleToGroup(id, groupId));
+    ipcMain.handle('article/removeFromGroup', async (event, id, groupId) => await removeArticleFromGroup(id, groupId));
     ipcMain.handle('article/setIsStarred', async (event, id, isStarred) => await setIsStarred(id, isStarred));
 }
 
@@ -395,6 +396,42 @@ async function removeTagFromArticle(id, tagName) {
 
     } catch (error) {
         console.error('Error in removeTagFromArticle', error);
+        throw error;
+    }
+}
+
+async function addArticleToGroup(articleId, groupId) {
+    try {
+        const article = await sequelize.models.article.findByPk(articleId);
+        const group = await sequelize.models.group.findByPk(groupId);
+
+        if (!article || !group)
+            throw ('no article found with id: ' + articleId + ' or ' + groupId);
+
+        await article.addGroup(group);
+
+        return await getArticleById(articleId);
+
+    } catch (error) {
+        console.error('Error in addArticleToGroup', error);
+        throw error;
+    }
+}
+
+async function removeArticleFromGroup(articleId, groupId) {
+    try {
+        const article = await sequelize.models.article.findByPk(articleId);
+        const group = await sequelize.models.group.findByPk(groupId);
+
+        if (!article || !group)
+            throw ('no article found with id: ' + articleId + ' or ' + groupId);
+
+        await article.removeGroup(group);
+
+        return await getArticleById(articleId);
+
+    } catch (error) {
+        console.error('Error in removeArticleFromGroup', error);
         throw error;
     }
 }

@@ -29,6 +29,8 @@ contextBridge.exposeInMainWorld('api', {
     removeRelatedArticle: (id, relatedArticleId) => ipcRenderer.invoke('article/removeRelatedArticle', id, relatedArticleId),
     addTag:           (id, tagName)           => ipcRenderer.invoke('article/addTag', id, tagName),
     removeTag:        (id, tagName)           => ipcRenderer.invoke('article/removeTag', id, tagName),
+    addToGroup:       (id, groupId)           => ipcRenderer.invoke('article/addToGroup', id, groupId),
+    removeFromGroup:  (id, groupId)           => ipcRenderer.invoke('article/removeFromGroup', id, groupId),
     setIsStarred:     (id, isStarred)         => ipcRenderer.invoke('article/setIsStarred', id, isStarred),
   },
   owner: {

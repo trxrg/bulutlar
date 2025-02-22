@@ -21,6 +21,8 @@ export const articleApi = {
     removeRelatedArticle: async (id, relatedArticleId) => window.api.article.removeRelatedArticle(id, relatedArticleId),
     addTag:             async (id, tagName)           => window.api.article.addTag(id, tagName),
     removeTag:          async (id, tagName)           => window.api.article.removeTag(id, tagName),
+    addToGroup:         async (id, groupId)           => window.api.article.addToGroup(id, groupId),
+    removeFromGroup:    async (id, groupId)           => window.api.article.removeFromGroup(id, groupId),
     setIsStarred:       async (id, isStarred)         => window.api.article.setIsStarred(id, isStarred),
 };
 

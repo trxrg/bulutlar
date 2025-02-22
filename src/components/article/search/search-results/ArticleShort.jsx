@@ -172,10 +172,10 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                         {highlightedCommentParts.map(part => parse('<p>' + part + '</p><p>...</p>'))}
                     </article>
                 }
-                <div>
+                <div className='flex flex-shrink-0'>
                     {article.tags.slice(0, numberOfTags).map(tag => {
                         const tagEntity = getTagById(tag.id);
-                        <TagButton key={tag.id} isCloseable={false} label={tagEntity.name}>{tagEntity.name}</TagButton>
+                        return <TagButton key={tag.id} isCloseable={false} label={tagEntity.name} />
                     })}
                     {article.tags.length > numberOfTags ? <h4 className='inline-block'>...</h4> : undefined}
                 </div>

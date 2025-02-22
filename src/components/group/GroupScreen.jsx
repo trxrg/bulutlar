@@ -10,7 +10,7 @@ import toastr from 'toastr';
 
 const GroupScreen = () => {
     const { translate: t, normalizeText } = useContext(AppContext);
-    const { allGroups, fetchGroupById, fetchAllGroups } = useContext(DBContext);
+    const { allGroups, fetchGroupById, fetchAllGroups, fetchAllData } = useContext(DBContext);
 
     const [filterTerm, setFilterTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
@@ -37,7 +37,7 @@ const GroupScreen = () => {
             toastr.success(t('group deleted'));
             setIsDeleteModalOpen(false);
             setSelectedGroup(null);
-            fetchAllGroups();
+            fetchAllData();
         } catch (error) {
             console.error('deleteGroup returned an error', error);
             toastr.error(t('error deleting group'));

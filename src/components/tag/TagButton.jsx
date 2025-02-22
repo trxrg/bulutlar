@@ -1,6 +1,6 @@
 export default function TagButton({ handleClose, isCloseable, label }) {
     return (
-        <div className="inline-block inline-flex items-center cursor-pointer bg-[#E7ECD8] hover:bg-[#F8FDE9] text-stone-700 font-bold py-2 px-3 m-1 rounded-xl shadow-md transition duration-300 ease-in-out group">
+        <div className="inline-block inline-flex items-center cursor-pointer bg-[#E7ECD8] hover:bg-[#F8FDE9] text-stone-700 text-md font-bold py-2 px-3 m-1 rounded-xl shadow-md transition duration-300 ease-in-out group">
             <div>
                 <h2>
                     {label}

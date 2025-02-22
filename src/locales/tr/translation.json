@@ -54,6 +54,9 @@
     "type tags": "Etiketleri yazın",
     "type a tag": "Bir etiket yazın",
     "suggested tags": "Önerilen etiketler",
+    "tag delete confirmation question": "Bu etiketi silmek istediğinizden emin misiniz?",
+    "error deleting tag": "Etiket silinirken hata oluştu",
+    "tag deleted": "Etiket silindi",
 
     "group": "Koleksiyon",
     "groups": "Koleksiyonlar",

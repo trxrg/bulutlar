@@ -10,7 +10,7 @@ import toastr from 'toastr';
 const TagScreen = () => {
 
     const { translate: t, normalizeText } = useContext(AppContext);
-    const { allTags, fetchTagById, fetchAllTags } = useContext(DBContext);
+    const { allTags, fetchTagById, fetchAllTags, fetchAllData } = useContext(DBContext);
 
     const [filterTerm, setFilterTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
@@ -37,7 +37,7 @@ const TagScreen = () => {
             toastr.success(t('tag deleted'));
             setIsDeleteModalOpen(false);
             setSelectedTag(null);
-            fetchAllTags();
+            fetchAllData();
         } catch (error) {
             console.error('deleteTag returned an error', error);
             toastr.error(t('error deleting tag'));

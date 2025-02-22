@@ -4,17 +4,18 @@ import { tagApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
+import ConfirmModal from '../common/ConfirmModal';
+import toastr from 'toastr';
 
 const TagScreen = () => {
 
-    console.log('TagScreen rendered');
     const { translate: t, normalizeText } = useContext(AppContext);
     const { allTags, fetchTagById, fetchAllTags } = useContext(DBContext);
 
     const [filterTerm, setFilterTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
-
-    console.log(allTags);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedTag, setSelectedTag] = useState();
 
     useEffect(() => {
         fetchAllTags();
@@ -25,9 +26,22 @@ const TagScreen = () => {
         fetchTagById(id);
     };
 
-    const handleDeleteTag = async (id) => {
-        await tagApi.deleteById(id);
-        fetchAllTags();
+    const handleDeleteClick = async (tag) => {
+        setSelectedTag(tag);
+        setIsDeleteModalOpen(true);
+    };
+
+    const deleteTag = async (id) => {
+        try {
+            await tagApi.deleteById(id);        
+            toastr.success(t('tag deleted'));
+            setIsDeleteModalOpen(false);
+            setSelectedTag(null);
+            fetchAllTags();
+        } catch (error) {
+            console.error('deleteTag returned an error', error);
+            toastr.error(t('error deleting tag'));
+        }
     };
 
     const filteredTags = React.useMemo(() => {
@@ -107,7 +121,7 @@ const TagScreen = () => {
                                 <td className="py-2 px-4 border-b text-center">
                                     <div className="flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                         {/* <button className="bg-blue-500 text-white px-2 py-1 rounded">{t('go to articles')}</button> */}
-                                        {tag.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteTag(tag.id)}>{t('delete')}</ActionButton>}
+                                        <ActionButton color='red' onClick={() => handleDeleteClick(tag)}>{t('delete')}</ActionButton>
                                     </div>
                                 </td>
                             </tr>
@@ -115,6 +129,12 @@ const TagScreen = () => {
                     </tbody>
                 </table>
             </div>
+            <ConfirmModal
+                message={`${t('tag delete confirmation question')}\n\n${selectedTag?.name}`}
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={() => deleteTag(selectedTag.id)}
+            />
         </div>
     );
 };

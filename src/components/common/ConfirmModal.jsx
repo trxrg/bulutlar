@@ -18,7 +18,7 @@ const ConfirmModal = ({ message, isOpen, onClose, onConfirm }) => {
             overlayClassName="fixed top-0 left-0 z-50 w-full h-full bg-black bg-opacity-75"
             shouldCloseOnOverlayClick={true}
         >
-            <div className="relative rounded-lg shadow-lg bg-white p-4">
+            <div className="relative rounded-lg shadow-lg bg-white p-4 whitespace-pre-line">
                 <div className="text-lg">{message}</div>
                 <div className='flex justify-end gap-2 mt-4'>
                     <ActionButton onClick={onConfirm} color='blue'>{t('yes')}</ActionButton>

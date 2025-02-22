@@ -5,6 +5,8 @@ import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
 import AddGroup from './AddGroup';
+import ConfirmModal from '../common/ConfirmModal';
+import toastr from 'toastr';
 
 const GroupScreen = () => {
     const { translate: t, normalizeText } = useContext(AppContext);
@@ -12,6 +14,8 @@ const GroupScreen = () => {
 
     const [filterTerm, setFilterTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedGroup, setSelectedGroup] = useState();
 
     useEffect(() => {
         fetchAllGroups();
@@ -22,9 +26,22 @@ const GroupScreen = () => {
         fetchGroupById(id);
     };
 
-    const handleDeleteGroup = async (id) => {
-        await groupApi.deleteById(id);
-        fetchAllGroups();
+    const handleDeleteClick = (group) => {
+        setSelectedGroup(group);
+        setIsDeleteModalOpen(true);
+    };
+
+    const deleteGroup = async (id) => {
+        try {
+            await groupApi.deleteById(id);
+            toastr.success(t('group deleted'));
+            setIsDeleteModalOpen(false);
+            setSelectedGroup(null);
+            fetchAllGroups();
+        } catch (error) {
+            console.error('deleteGroup returned an error', error);
+            toastr.error(t('error deleting group'));
+        }
     };
 
     const filteredGroups = React.useMemo(() => {
@@ -67,7 +84,7 @@ const GroupScreen = () => {
             <div className='flex-shrink-0 flex flex-col gap-4 mb-2 p-2'>
                 <div className='border-b border-gray-700 pb-4'>
                     <h2 className='mb-1'>{t('add new group')}</h2>
-                    <AddGroup onClose={() => {}}></AddGroup>
+                    <AddGroup onClose={() => { }}></AddGroup>
                 </div>
                 <div>
                     <input
@@ -107,7 +124,7 @@ const GroupScreen = () => {
                                 <td className="py-2 px-4 border-b text-center">{group.articleCount}</td>
                                 <td className="py-2 px-4 border-b text-center">
                                     <div className="flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        {group.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteGroup(group.id)}>{t('delete')}</ActionButton>}
+                                        <ActionButton color='red' onClick={() => handleDeleteClick(group)}>{t('delete')}</ActionButton>
                                     </div>
                                 </td>
                             </tr>
@@ -115,6 +132,12 @@ const GroupScreen = () => {
                     </tbody>
                 </table>
             </div>
+            <ConfirmModal
+                message={`${t('group delete confirmation question')}\n\n${selectedGroup?.name}`}
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={() => deleteGroup(selectedGroup.id)}
+            />
         </div>
     );
 };

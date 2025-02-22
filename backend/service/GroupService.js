@@ -42,10 +42,6 @@ async function getGroupById(id) {
 async function deleteGroupById(id) {
     try {
         const group = await sequelize.models.group.findByPk(id);
-        const articleCount = await group.countArticles();
-        
-        if (articleCount > 0)
-            throw ('Cannot delete group with articles');
         
         if (!group)
             throw ('no group found with id: ' + id);
@@ -54,6 +50,7 @@ async function deleteGroupById(id) {
 
     } catch (err) {
         console.error('Error in deleteGroup', err);
+        throw err;
     }
 }
 

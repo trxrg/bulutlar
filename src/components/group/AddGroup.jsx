@@ -20,13 +20,20 @@ const AddGroup = ({ onClose }) => {
             return;
         }
 
-        const result = await groupApi.create({ name: name });
-        if (result.error) {
-            console.log('createGroup returned an error');
-            console.log(result);
-            setMsg(result.error.message || 'validation error');
+        try {
+            const result = await groupApi.create({ name: name });
+            if (result.error) {
+                console.log('createGroup returned an error');
+                console.log(result);
+                setMsg(result.error.message || 'validation error');
+                return;
+            }
+        } catch (error) {
+            console.error('createGroup returned an error', error);
+            toastr.error(t('error creating group'));
             return;
         }
+        toastr.success(t('group created'));
         setName('');
         fetchAllGroups();
         onClose();

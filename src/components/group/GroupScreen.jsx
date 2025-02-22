@@ -1,43 +1,39 @@
 import React, { useContext, useState, useEffect } from 'react';
 import RichInput from '../common/RichInput';
-import { tagApi } from '../../backend-adapter/BackendAdapter';
+import { groupApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
 
-const TagScreen = () => {
-
-    console.log('TagScreen rendered');
+const GroupScreen = () => {
     const { translate: t, normalizeText } = useContext(AppContext);
-    const { allTags, fetchTagById, fetchAllTags } = useContext(DBContext);
-
+    const { allGroups, fetchGroupById, fetchAllGroups } = useContext(DBContext);
+    
     const [filterTerm, setFilterTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
-    console.log(allTags);
-
     useEffect(() => {
-        fetchAllTags();
+        fetchAllGroups();
     }, []);
 
     const handleNameChange = async (id, newName) => {
-        await tagApi.updateName(id, newName);
-        fetchTagById(id);
+        await groupApi.updateName(id, newName);
+        fetchGroupById(id);
     };
 
-    const handleDeleteTag = async (id) => {
-        await tagApi.deleteById(id);
-        fetchAllTags();
+    const handleDeleteGroup = async (id) => {
+        await groupApi.deleteById(id);
+        fetchAllGroups();
     };
 
-    const filteredTags = React.useMemo(() => {
-        return allTags.filter(tag => normalizeText(tag.name).includes(normalizeText(filterTerm)));
-    }, [allTags, filterTerm]);
+    const filteredGroups = React.useMemo(() => {
+        return allGroups.filter(group => normalizeText(group.name).includes(normalizeText(filterTerm)));
+    }, [allGroups, filterTerm, normalizeText]);
 
-    const sortedTags = React.useMemo(() => {
-        let sortableTags = [...filteredTags];
+    const sortedGroups = React.useMemo(() => {
+        let sortableGroups = [...filteredGroups];
         if (sortConfig.key !== null) {
-            sortableTags.sort((a, b) => {
+            sortableGroups.sort((a, b) => {
                 if (normalizeText(a[sortConfig.key]) < normalizeText(b[sortConfig.key])) {
                     return sortConfig.direction === 'ascending' ? -1 : 1;
                 }
@@ -47,8 +43,8 @@ const TagScreen = () => {
                 return 0;
             });
         }
-        return sortableTags;
-    }, [filteredTags, sortConfig]);
+        return sortableGroups;
+    }, [filteredGroups, sortConfig, normalizeText]);
 
     const requestSort = (key) => {
         let direction = 'ascending';
@@ -95,19 +91,18 @@ const TagScreen = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {sortedTags.map((tag, index) => (
-                            <tr key={tag.id} className="hover:bg-gray-100 group">
+                        {sortedGroups.map((group, index) => (
+                            <tr key={group.id} className="hover:bg-gray-100 group">
                                 <td className='border-b text-center'>
                                     <h2>{index + 1}</h2>
                                 </td>
                                 <td className='border-b text-center'>
-                                    <RichInput initialText={tag.name} handleSave={(newName) => handleNameChange(tag.id, newName)}></RichInput>
+                                    <RichInput initialText={group.name} handleSave={(newName) => handleNameChange(group.id, newName)}></RichInput>
                                 </td>
-                                <td className="py-2 px-4 border-b text-center">{tag.articleCount}</td>
+                                <td className="py-2 px-4 border-b text-center">{group.articleCount}</td>
                                 <td className="py-2 px-4 border-b text-center">
                                     <div className="flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        {/* <button className="bg-blue-500 text-white px-2 py-1 rounded">{t('go to articles')}</button> */}
-                                        {tag.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteTag(tag.id)}>{t('delete')}</ActionButton>}
+                                        {group.articleCount <= 0 && <ActionButton color='red' onClick={() => handleDeleteGroup(group.id)}>{t('delete')}</ActionButton>}
                                     </div>
                                 </td>
                             </tr>
@@ -119,4 +114,4 @@ const TagScreen = () => {
     );
 };
 
-export default TagScreen;
+export default GroupScreen;

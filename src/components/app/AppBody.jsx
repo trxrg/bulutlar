@@ -10,6 +10,7 @@ import AnnotationScreen from '../annotation/AnnotationScreen';
 import SettingsScreen from '../settings/SettingsScreen';
 import TagScreen from '../tag/TagScreen';
 import QuoteScreen from '../annotation/QuoteScreen';
+import GroupScreen from '../group/GroupScreen';
 
 
 const AppBody = () => {
@@ -29,6 +30,9 @@ const AppBody = () => {
                 : undefined}
             {activeScreen === 'categories' ?
                 <CategoryScreen />
+                : undefined}
+            {activeScreen === 'groups' ?
+                <GroupScreen />
                 : undefined}
             {activeScreen === 'owners' ?
                 <OwnerScreen />

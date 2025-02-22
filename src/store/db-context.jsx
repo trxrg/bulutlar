@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { ownerApi, categoryApi, articleApi, tagApi, annotationApi, lookupApi } from '../backend-adapter/BackendAdapter';
+import { ownerApi, categoryApi, articleApi, tagApi, annotationApi, lookupApi, groupApi } from '../backend-adapter/BackendAdapter';
 
 export const DBContext = createContext();
 
@@ -8,6 +8,7 @@ export default function DBContextProvider({ children }) {
     const [allOwners, setAllOwners] = useState([]);
     const [allTags, setAllTags] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
+    const [allGroups, setAllGroups] = useState([]);
     const [allAnnotations, setAllAnnotations] = useState([]);
     const [streak, setStreak] = useState(0);
     const [dbVersion, setDbVersion] = useState('');
@@ -38,6 +39,20 @@ export default function DBContextProvider({ children }) {
             console.error(err);
         }
     }, [allCategories]);
+
+    const fetchGroupById = useCallback(async (id) => {
+        try {
+            const updatedGroup = await groupApi.getById(id);
+
+            console.log('group updated id: ' + id)
+            console.log(updatedGroup)
+
+            const updatedGroups = allGroups.map(group => group.id === id ? updatedGroup : group);
+            setAllGroups(updatedGroups);
+        } catch (err) {
+            console.error(err);
+        }
+    }, [allGroups]);
 
     const fetchOwnerById = useCallback(async (id) => {
         try {
@@ -101,8 +116,6 @@ export default function DBContextProvider({ children }) {
     const fetchAllArticles = useCallback(async () => {
         try {
             const response = await articleApi.getAll(articleOrder);
-            // console.log('allArticles')
-            // console.log(response)
             setAllArticles(response);
         } catch (err) {
             console.error(err);
@@ -135,6 +148,15 @@ export default function DBContextProvider({ children }) {
             console.error(err);
         }
     }, []);
+    
+    const fetchAllGroups = useCallback(async () => {
+        try {
+            const response = await groupApi.getAll();
+            setAllGroups(response);
+        } catch (err) {
+            console.error(err);
+        }
+    }, []);
 
     const fetchAllAnnotations = useCallback(async () => {
         try {
@@ -150,6 +172,7 @@ export default function DBContextProvider({ children }) {
         try {
             await fetchAllOwners();
             await fetchAllCategories();
+            await fetchAllGroups();
             await fetchAllTags();
             await fetchAllArticles();
             await fetchAllAnnotations();
@@ -163,6 +186,10 @@ export default function DBContextProvider({ children }) {
     const getCategoryById = useCallback((id) => {
         return allCategories.find(category => category.id === id);
     }, [allCategories]);
+    
+    const getGroupById = useCallback((id) => {
+        return allGroups.find(group => group.id === id);
+    }, [allGroups]);
 
     const getCategoryByArticleId = useCallback((articleId) => {
         const article = allArticles.find(article => article.id === articleId);
@@ -207,29 +234,33 @@ export default function DBContextProvider({ children }) {
         allOwners,
         allTags,
         allCategories,
+        allGroups,
         allAnnotations,
         setArticleOrder,
         fetchAllData,
         fetchAllArticles,
         fetchAllOwners,
         fetchAllCategories,
+        fetchAllGroups,
         fetchAllTags,
         fetchAllAnnotations,
         fetchArticleById,
         fetchOwnerById,
         fetchCategoryById,
+        fetchGroupById,
         fetchTagById,
         fetchAnnotationById,
         getArticleById,
         getRelatedArticlesByArticleId,
         getOwnerById,
         getCategoryById,
+        getGroupById,
         getCategoryByArticleId,
         getTagById,
         getAnnotationById,
         streak,
         dbVersion,
-    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak, dbVersion, articleOrder]);
+    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak, dbVersion, articleOrder, allGroups]);
 
     return <DBContext.Provider value={ctxValue}>
         {children}

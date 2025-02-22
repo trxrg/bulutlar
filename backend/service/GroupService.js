@@ -69,22 +69,17 @@ async function getGroupWithNameAddIfNotPresent(groupName, transaction = null) {
 }
 
 async function getAllGroups() {
-    const result = await sequelize.models.group.findAll({
-        attributes: {
-            include: [
-                [sequelize.fn('COUNT', sequelize.col('articles.id')), 'articleCount'],
-            ]
-        },
-        include: [
-            {
-                model: sequelize.models.article,
-                as: 'articles',
-                attributes: [], // We don't need any attributes from Article
-            },
-        ],
-        group: ['Group.id'], // Group by Group ID
-    });
-    return result.map(item => item.dataValues);
+    const result = await sequelize.models.group.findAll();
+
+    if (!result)
+        return { error: 'No groups found' };
+
+    const d = await Promise.all(result.map(async item => {
+        const data = item.dataValues;
+        data.articleCount = await item.countArticles();
+        return data;
+    }));
+    return d;
 }
 
 const GroupService = {

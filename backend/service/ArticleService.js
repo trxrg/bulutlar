@@ -491,6 +491,8 @@ async function openDialogToAddImages(articleId) {
 function articleEntity2Json(entity) {
     if (entity.dataValues.tags)
         entity.dataValues.tags = entity.dataValues.tags.map(tag => ({ id: tag.id }));
+    if (entity.dataValues.groups)
+        entity.dataValues.groups = entity.dataValues.groups.map(group => ({ id: group.id }));
     if (entity.dataValues.images)
         entity.dataValues.images = entity.dataValues.images.map(image => imageEntity2Json(image));
     if (entity.dataValues.annotations)

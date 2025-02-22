@@ -64,7 +64,7 @@ const CategoryScreen = () => {
                                         type="color"
                                         value={category.color}
                                         onChange={(e) => handleColorChange(category.id, e.target.value)}
-                                        className='cursor-pointer w-8 h-8'
+                                        className='cursor-pointer w-8 h-8 rounded-full bg-white'
                                     />
                                 </td>
                                 <td className="py-2 px-4 border-b text-center">

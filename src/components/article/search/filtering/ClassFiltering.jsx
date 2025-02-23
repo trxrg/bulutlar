@@ -18,7 +18,7 @@ const ClassFiltering = ({ allNames, selectedNames, setSelectedNames }) => {
         setFilterText(event.target.value);
     };
 
-    const filteredNames = allNames.filter(name => normalizeText(name).includes(normalizeText(filterText)));
+    const filteredNames = allNames?.filter(name => normalizeText(name)?.includes(normalizeText(filterText)));
 
     return (
         <div className='flex flex-col'>
@@ -41,7 +41,7 @@ const ClassFiltering = ({ allNames, selectedNames, setSelectedNames }) => {
                             <input
                                 type="checkbox"
                                 value={name}
-                                checked={selectedNames.includes(name)}
+                                checked={selectedNames?.includes(name)}
                                 onChange={handleChange}
                             />
                             <span className="ml-2">{name}</span>

@@ -17,6 +17,7 @@ export default function SearchContextProvider({ children }) {
     const [selectedOwnerNames, setSelectedOwnerNames] = useState([]);
     const [selectedTagNames, setSelectedTagNames] = useState([]);
     const [selectedCategoryNames, setSelectedCategoryNames] = useState([]);
+    const [selectedGroupNames, setSelectedGroupNames] = useState([]);
     const [selectedNumbers1, setSelectedNumbers1] = useState([]);
     const [selectedNumbers2, setSelectedNumbers2] = useState([]);
     const [keywords, setKeywords] = useState([]);
@@ -76,6 +77,7 @@ export default function SearchContextProvider({ children }) {
             ownerNames: selectedOwnerNames,
             tagNames: selectedTagNames,
             categoryNames: selectedCategoryNames,
+            groupNames: selectedGroupNames,
             keywords: keywords,
             startDate: startDate,
             endDate: endDate,
@@ -86,7 +88,7 @@ export default function SearchContextProvider({ children }) {
             filterStarred: filterStarred,
         });
     }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames,
-        selectedNumbers1, selectedNumbers2, keywords, startDate,
+        selectedGroupNames, selectedNumbers1, selectedNumbers2, keywords, startDate,
         endDate, startDate2, endDate2, filterStarred,
         searchInTitle, searchInExplanation, searchInMainText, searchInComments]);
 
@@ -103,6 +105,8 @@ export default function SearchContextProvider({ children }) {
         setSelectedTagNames,
         selectedCategoryNames,
         setSelectedCategoryNames,
+        selectedGroupNames,
+        setSelectedGroupNames,
         keywords,
         setKeywords,
         areArticlesSelectable,

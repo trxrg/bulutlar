@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import OwnerFiltering from './OwnerFiltering.jsx';
 import TagFiltering from './TagFiltering.jsx';
 import CategoryFiltering from './CategoryFiltering.jsx';
+import GroupFiltering from './GroupFiltering.jsx';
 import KeywordFiltering from './KeywordFiltering.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
 import { SearchContext } from '../../../../store/search-context.jsx';
@@ -17,6 +18,7 @@ const SearchFilterings = () => {
     const { translate: t } = useContext(AppContext);
     const { keywords, setKeywords,
         selectedCategoryNames, setSelectedCategoryNames,
+        selectedGroupNames, setSelectedGroupNames,
         selectedOwnerNames, setSelectedOwnerNames,
         selectedTagNames, setSelectedTagNames,
         startDate, setStartDate,
@@ -54,6 +56,9 @@ const SearchFilterings = () => {
             </FilterAccordion>
             <FilterAccordion title={t('category')} isFilterActive={selectedCategoryNames && selectedCategoryNames.length > 0} clearFilter={() => setSelectedCategoryNames([])}>
                 <CategoryFiltering />
+            </FilterAccordion>
+            <FilterAccordion title={t('group')} isFilterActive={selectedGroupNames && selectedGroupNames.length > 0} clearFilter={() => setSelectedGroupNames([])}>
+                <GroupFiltering />
             </FilterAccordion>
             <FilterAccordion title={t('owner')} isFilterActive={selectedOwnerNames && selectedOwnerNames.length > 0} clearFilter={() => setSelectedOwnerNames([])}>
                 <OwnerFiltering />

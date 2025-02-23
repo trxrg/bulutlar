@@ -8,7 +8,7 @@ import toastr from 'toastr';
 
 const SearchResultsBody = () => {
     const { handleAddTab, translate: t, normalizeText, htmlToText } = useContext(AppContext);
-    const { allArticles, getOwnerById, getTagById, getCategoryById } = useContext(DBContext);
+    const { allArticles, getOwnerById, getTagById, getCategoryById, getGroupById } = useContext(DBContext);
     const { filtering, filteredArticles, setFilteredArticles,
         searchInTitle, searchInExplanation,
         searchInMainText, searchInComments } = useContext(SearchContext);
@@ -32,10 +32,13 @@ const SearchResultsBody = () => {
 
         if (filtering.tagNames && filtering.tagNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => filtering.tagNames.some(filterTagName => art.tags.map(artTag => getTagById(artTag.id).name).includes(filterTagName)));
+        
+        if (filtering.groupNames && filtering.groupNames.length)
+            localFilteredArticles = localFilteredArticles.filter(art => filtering.groupNames.some(filterGroupName => art.groups.map(artGroup => getGroupById(artGroup.id).name).includes(filterGroupName)));
 
         if (filtering.categoryNames && filtering.categoryNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => art.categoryId && filtering.categoryNames.includes(getCategoryById(art.categoryId).name));
-
+        
         if (filtering.startDate || filtering.endDate)
             localFilteredArticles = applyDateFiltering(localFilteredArticles, 'date', filtering.startDate, filtering.endDate);
 

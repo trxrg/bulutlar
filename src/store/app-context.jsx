@@ -137,6 +137,10 @@ export default function AppContextProvider({ children }) {
             i18n.changeLanguage('tr');
     }
 
+    const getLanguage = () => {
+        return i18n.language;
+    }
+
     const resetTabs = () => {
         setTabs([
             { id: 'search', title: 'Search' }
@@ -189,6 +193,7 @@ export default function AppContextProvider({ children }) {
         setFullScreen,
         getActiveScreenTitle,
         changeLanguage,
+        getLanguage,
         translate: t,
         streakModalOpen,
         setStreakModalOpen,

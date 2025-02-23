@@ -225,5 +225,10 @@
 
     "preferences": "Preferences",
 
-    "Name cannot be empty": "Name cannot be empty"
+    "Name cannot be empty": "Name cannot be empty",
+
+    "language": "Language",
+    "english": "English",
+    "turkish": "Türkçe",
+    "general settings": "General Settings"
   }

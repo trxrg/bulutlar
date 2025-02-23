@@ -229,5 +229,10 @@
 
     "preferences": "Tercihler",
 
-    "Name cannot be empty": "Ad boş olamaz"
+    "Name cannot be empty": "Ad boş olamaz",
+
+    "language": "Dil",
+    "english": "English",
+    "turkish": "Türkçe",
+    "general settings": "Genel Ayarlar"
 }

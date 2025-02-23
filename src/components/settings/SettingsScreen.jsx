@@ -3,15 +3,18 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { Button, Typography, AccordionDetails, AccordionSummary, Accordion } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { AppContext } from '../../store/app-context';
 import { DBContext } from '../../store/db-context';
 import { dbApi } from '../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
 
 const SettingsScreen = () => {
-    const { translate: t, resetTabs } = useContext(AppContext);
+    const { translate: t, resetTabs, changeLanguage, getLanguage } = useContext(AppContext);
     const { fetchAllData } = useContext(DBContext);
     const [backupDir, setBackupDir] = useState('');
+
+    const language = getLanguage();
 
     useEffect(() => {
         const fetchBackupDir = async () => {
@@ -91,6 +94,24 @@ const SettingsScreen = () => {
         <div className='max-w-6xl w-full'>
             <Accordion defaultExpanded>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant='h5'>{t('general settings')}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <FormControl variant="outlined" fullWidth>
+                        <InputLabel>{t('language')}</InputLabel>
+                        <Select
+                            value={language}
+                            onChange={changeLanguage}
+                            label={t('language')}
+                        >
+                            <MenuItem value="en">{t('english')}</MenuItem>
+                            <MenuItem value="tr">{t('turkish')}</MenuItem>                            
+                        </Select>
+                    </FormControl>
+                </AccordionDetails>
+            </Accordion>
+            <Accordion defaultExpanded>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                     <Typography variant='h5'>{t('database')}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -115,18 +136,7 @@ const SettingsScreen = () => {
                         </div>
                     </div>
                 </AccordionDetails>
-            </Accordion>
-            {/* <Accordion defaultExpanded>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography>{t('appearance')}</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Typography>
-                        Manage your appearance settings here.
-                    </Typography>
-                </AccordionDetails>
-            </Accordion> */}
-            {/* Add more Accordion components for other settings categories */}
+            </Accordion>            
         </div>
     );
 };

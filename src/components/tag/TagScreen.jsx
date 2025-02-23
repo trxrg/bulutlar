@@ -3,14 +3,16 @@ import RichInput from '../common/RichInput';
 import { tagApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
+import { SearchContext } from '../../store/search-context';
 import ActionButton from '../common/ActionButton';
 import ConfirmModal from '../common/ConfirmModal';
 import toastr from 'toastr';
 
 const TagScreen = () => {
 
-    const { translate: t, normalizeText } = useContext(AppContext);
+    const { translate: t, normalizeText, setActiveScreen, setActiveTabId } = useContext(AppContext);
     const { allTags, fetchTagById, fetchAllTags, fetchAllData } = useContext(DBContext);
+    const { selectOnlyATag } = useContext(SearchContext);
 
     const [filterTerm, setFilterTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
@@ -79,6 +81,12 @@ const TagScreen = () => {
         return '';
     };
 
+    const handleSelectTag = (tagName) => {
+        selectOnlyATag(tagName);
+        setActiveScreen('tabs');
+        setActiveTabId('search');
+    }
+
     return (
         <div className="container flex flex-col h-full mx-auto p-4 bg-white">
             <div className='flex-shrink-0 flex flex-col gap-4 mb-2 p-2'>
@@ -115,7 +123,7 @@ const TagScreen = () => {
                                     <h2>{index + 1}</h2>
                                 </td>
                                 <td className='border-b text-center'>
-                                    <RichInput initialText={tag.name} handleSave={(newName) => handleNameChange(tag.id, newName)}></RichInput>
+                                    <RichInput initialText={tag.name} hasEditButton={true} onClick={()=>handleSelectTag(tag.name)} handleSave={(newName) => handleNameChange(tag.id, newName)}></RichInput>
                                 </td>
                                 <td className="py-2 px-4 border-b text-center">{tag.articleCount}</td>
                                 <td className="py-2 px-4 border-b text-center">

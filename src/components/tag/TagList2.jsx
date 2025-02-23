@@ -48,7 +48,7 @@ const TagList2 = ({ showInput = true }) => {
                             handleAddTag(inputValue);
                         }
                     }}
-                    className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 mb-1 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <ActionButton onClick={() => handleAddTag(inputValue)} color='blue'>{t('add')}</ActionButton>
             </div>}
@@ -67,7 +67,7 @@ const TagList2 = ({ showInput = true }) => {
                             </span>
                         ))}
                 </div>}
-            <div className='my-2'>
+            <div>
                 {tags.map(tag => (
                     <TagButton key={tag.id} isCloseable={true} handleClose={handleRemoveTag} label={tag.name}></TagButton>
                 ))}

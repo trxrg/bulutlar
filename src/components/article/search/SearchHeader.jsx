@@ -6,7 +6,7 @@ const SearchHeader = () => {
 
     return (
         <div className={'overflow-auto px-2 py-3 bg-white border-b-4 border-[#809671]'}>
-            <h1 className='text-3xl text-gray-600'>{t('articles')}</h1>
+            <h1 className='text-3xl text-gray-600'>{t('search screen')}</h1>
         </div>
     );
 };

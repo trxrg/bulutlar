@@ -25,7 +25,7 @@ const TabsScreen = () => {
 
   const getTitle = (articleId) => {
     if (articleId === 'search')
-      return t('articles');
+      return t('search screen');
 
     const result = allArticles.find(article => article.id == articleId);
 

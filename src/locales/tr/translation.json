@@ -58,6 +58,8 @@
     "tag delete confirmation question": "Bu etiketi silmek istediğinizden emin misiniz?",
     "error deleting tag": "Etiket silinirken hata oluştu",
     "tag deleted": "Etiket silindi",
+    "tag name cannot be empty": "Etiket adı boş olamaz",
+    "this article already have this tag": "Bu yazı zaten bu etikete sahip",
 
     "group": "Koleksiyon",
     "groups": "Koleksiyonlar",

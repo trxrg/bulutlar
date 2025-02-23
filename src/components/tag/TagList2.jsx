@@ -5,6 +5,7 @@ import { DBContext } from '../../store/db-context.jsx';
 import { AppContext } from '../../store/app-context.jsx';
 import { ReadContext } from '../../store/read-context.jsx';
 import ActionButton from '../common/ActionButton.jsx';
+import toastr from 'toastr';
 
 const TagList2 = ({ showInput = true }) => {
 
@@ -23,10 +24,18 @@ const TagList2 = ({ showInput = true }) => {
 
     const handleAddTag = async (tagNameToAdd) => {
         setInputValue('');
-        if (tagNameToAdd.length > 0 && !tags.map(tag => tag.name).includes(tagNameToAdd)) {
+        tagNameToAdd = tagNameToAdd?.trim();
+        if (!tagNameToAdd || tagNameToAdd.length <= 0) {
+            toastr.error(t('tag name cannot be empty'));
+            return;
+        }
+
+        if (!tags.map(tag => tag.name).includes(tagNameToAdd)) {
             await articleApi.addTag(article.id, tagNameToAdd);
             await fetchAllTags();
             await fetchArticleById(article.id);
+        } else {
+            toastr.info(t('this article already have this tag'));
         }
     };
 

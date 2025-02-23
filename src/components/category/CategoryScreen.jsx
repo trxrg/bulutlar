@@ -6,11 +6,13 @@ import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
 import AddCategory from './AddCategory';
+import { SearchContext } from '../../store/search-context';
 
 const CategoryScreen = () => {
 
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, setActiveScreen, setActiveTabId } = useContext(AppContext);
     const { allCategories, fetchCategoryById, fetchAllCategories } = useContext(DBContext);
+    const { selectOnlyACategory } = useContext(SearchContext);
 
     const handleColorChange = useCallback(
         debounce(async (id, newColor) => {
@@ -28,6 +30,12 @@ const CategoryScreen = () => {
     const handleDeleteCategory = async (id) => {
         await categoryApi.deleteById(id);
         fetchAllCategories();
+    }
+
+    const handleSelectCategory = (categoryName) => {
+        selectOnlyACategory(categoryName);
+        setActiveScreen('tabs');
+        setActiveTabId('search');
     }
 
     return (
@@ -56,7 +64,7 @@ const CategoryScreen = () => {
                                     <h2>{index+1}</h2>
                                 </td>
                                 <td className='border-b text-center'>
-                                    <RichInput initialText={category.name} handleSave={(newName) => handleNameChange(category.id, newName)}></RichInput>
+                                    <RichInput initialText={category.name} hasEditButton={true} onClick={()=>handleSelectCategory(category.name)} handleSave={(newName) => handleNameChange(category.id, newName)}></RichInput>
                                 </td>
                                 <td className="py-2 px-4 border-b text-center">{category.articleCount}</td>
                                 <td className="py-2 px-4 border-b text-center">

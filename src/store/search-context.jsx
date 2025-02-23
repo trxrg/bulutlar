@@ -35,6 +35,41 @@ export default function SearchContextProvider({ children }) {
     const [allOrNoneSelected, setAllOrNoneSelected] = useState(false);
     const [selectAllOrNoneClicks, setSelectAllOrNoneClicks] = useState(0);
 
+    const selectOnlyATag = (tagName) => {
+        resetFilters();
+        setSelectedTagNames([tagName]);
+    }
+
+    const selectOnlyAnOwner = (ownerName) => {
+        resetFilters();
+        setSelectedOwnerNames([ownerName]);
+    }
+
+    const selectOnlyACategory = (categoryName) => {
+        resetFilters();
+        setSelectedCategoryNames([categoryName]);
+    };
+
+    const selectOnlyAGroup = (groupName) => {
+        resetFilters();
+        setSelectedGroupNames([groupName]);
+    };
+
+    const resetFilters = () => {
+        setSelectedGroupNames([]);
+        setSelectedCategoryNames([]);
+        setSelectedTagNames([]);
+        setSelectedOwnerNames([]);
+        setSelectedNumbers1([]);
+        setSelectedNumbers2([]);
+        setKeywords([]);
+        setStartDate({ day: '', month: '', year: '' });
+        setEndDate({ day: '', month: '', year: '' });
+        setStartDate2({ day: '', month: '', year: '' });
+        setEndDate2({ day: '', month: '', year: '' });
+        setFilterStarred(false);
+    };
+
     const toggleArticlesSelectable = () => {
         setArticlesSelectable(currentState => !currentState);
     };
@@ -141,6 +176,10 @@ export default function SearchContextProvider({ children }) {
         selectArticle,
         deselectArticle,
         selectedArticles,
+        selectOnlyATag,
+        selectOnlyAnOwner,
+        selectOnlyACategory,
+        selectOnlyAGroup,
     };
 
     return (

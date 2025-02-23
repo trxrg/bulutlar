@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, PencilIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import FormatButton from './FormatButton';
 
-const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) => {
+const RichInput = ({ initialText, handleSave, inputType = 'text', hasEditButton = false, onClick=undefined, ...props }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [inputValue, setInputValue] = useState(inputType === 'date' ? convertDateFormat(initialText) : initialText);
     const [inputWidth, setInputWidth] = useState('auto');
@@ -63,6 +63,12 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
         }
     };
 
+    const handleClick = () => {
+        if (onClick) {
+            onClick();
+        }
+    }
+
     useEffect(() => {
         if (isEditing) {
             inputRef.current.addEventListener('keydown', handleKeyDown);
@@ -79,7 +85,7 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
         <div {...props}>
             <div className="relative group inline-flex items-center">
                 <div className='flex'>
-                    {isEditing ? (
+                    {isEditing ?
                         <div className={'flex flex-wrap ml-1 gap-1 w-full'}>
                             <input
                                 ref={inputRef}
@@ -90,22 +96,31 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', ...props }) =>
                                 style={{ minWidth: inputWidth }}
                             />
                             <FormatButton onClick={handleConfirmClick}>
-                                <CheckIcon className="w-4 h-4" />
+                                <CheckIcon className="w-5 h-5" />
                             </FormatButton>
                             <FormatButton onClick={handleCancelClick}>
-                                <XMarkIcon className="w-4 h-4" />
+                                <XMarkIcon className="w-5 h-5" />
                             </FormatButton>
                         </div>
-                    )
                         :
-                        (<div className=''
-                            onClick={handleEditClick}
-                            ref={textRef} >{initialText}</div>
-                        )}
-
+                        hasEditButton ?
+                            <div className={'flex flex-wrap ml-1 gap-1 w-full'}>
+                                <p className='flex items-center cursor-pointer hover:underline' onClick={handleClick}>                                    
+                                    {initialText}
+                                </p>
+                                <FormatButton onClick={handleEditClick} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <PencilIcon className="w-5 h-5" />
+                                </FormatButton>
+                            </div>
+                            : <div className=''
+                                onClick={handleEditClick}
+                                ref={textRef} >
+                                {initialText}
+                            </div>
+                    }
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 

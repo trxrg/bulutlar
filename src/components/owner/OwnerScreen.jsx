@@ -3,13 +3,15 @@ import RichInput from '../common/RichInput';
 import { ownerApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
+import { SearchContext } from '../../store/search-context';
 import AddOwner from './AddOwner';
 import ActionButton from '../common/ActionButton';
 
 const OwnerScreen = () => {
-    const { translate: t, normalizeText } = useContext(AppContext);
+    const { translate: t, normalizeText, setActiveScreen, setActiveTabId } = useContext(AppContext);
     const { allOwners, fetchOwnerById, fetchAllOwners } = useContext(DBContext);
-
+    const { selectOnlyAnOwner } = useContext(SearchContext);
+    
     const [filterTerm, setFilterTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
@@ -62,6 +64,12 @@ const OwnerScreen = () => {
         return '';
     };
 
+    const handleSelectOwner = (ownerName) => {
+        selectOnlyAnOwner(ownerName);
+        setActiveScreen('tabs');
+        setActiveTabId('search');
+    }
+
     return (
         <div className="container flex flex-col h-full mx-auto p-4 bg-white">
             <div className='flex-shrink-0 flex flex-col gap-4 mb-2 p-2'>
@@ -102,7 +110,7 @@ const OwnerScreen = () => {
                                     <h2>{index + 1}</h2>
                                 </td>
                                 <td className='border-b text-center'>
-                                    <RichInput initialText={owner.name} handleSave={(newName) => handleNameChange(owner.id, newName)}></RichInput>
+                                    <RichInput initialText={owner.name} hasEditButton={true} onClick={()=>handleSelectOwner(owner.name)} handleSave={(newName) => handleNameChange(owner.id, newName)}></RichInput>
                                 </td>
                                 <td className="py-2 px-4 border-b text-center">{owner.articleCount}</td>
                                 <td className="py-2 px-4 border-b text-center">

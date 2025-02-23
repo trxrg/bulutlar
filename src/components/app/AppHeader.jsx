@@ -34,15 +34,15 @@ const AppHeader = () => {
 
     return (
         <div className={'flex justify-between items-center py-2 px-2 border-b-4 border-[#809671] bg-[#E7ECD8] w-full h-full'}>
-            <h1 className='text-3xl text-gray-600'>{getActiveScreenTitle()}</h1>
+            <h1 className='text-3xl text-gray-600 ml-2'>{getActiveScreenTitle()}</h1>
             <div className="flex justify-end items-center">
                 <div className='flex gap-1'>
                     {/* <div className='flex items-center gap-2 mx-2 cursor-pointer' onClick={() => setStreakModalOpen(true)}>
                         <span className='text-xl text-green-600 font-bold'>⚡{streak}</span>
                     </div> */}
-                    {activeScreen != 'tabs' && <ActionButton onClick={() => setActiveScreen('tabs')}>{t('articles')}</ActionButton>}
+                    {activeScreen != 'tabs' && <ActionButton onClick={() => setActiveScreen('tabs')}>{t('all articles')}</ActionButton>}
                     <FormatButton onClick={handleRefresh} title={t('refresh')}><ArrowPathIcon className='w-5 h-5' /></FormatButton>
-                    <FormatButton onClick={() => changeLanguage()}><GlobeAltIcon className='w-5 h-5' /></FormatButton>
+                    {/* <FormatButton onClick={() => changeLanguage()}><GlobeAltIcon className='w-5 h-5' /></FormatButton> */}
                     <FormatButton onClick={() => setActiveScreen('home')} title={t('homescreen')}><HomeIcon className='w-5 h-5' /></FormatButton>
                     {/* <ActionButton color='red' onClick={handleLoadArticlesFromTxt}>Load Articles From Txt</ActionButton> */}
                     {/* <ActionButton color='blue' onClick={handleLoadArticles}>Load Articles</ActionButton> */}

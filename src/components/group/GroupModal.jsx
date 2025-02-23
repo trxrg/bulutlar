@@ -3,6 +3,7 @@ import GeneralModal from '../common/GeneralModal';
 import GroupList from './GroupList';
 import ActionButton from '../common/ActionButton';
 import { AppContext } from '../../store/app-context';
+import toastr from 'toastr';
 
 const GroupModal = ({ isOpen, onRequestClose, onConfirm }) => {
 
@@ -11,15 +12,19 @@ const GroupModal = ({ isOpen, onRequestClose, onConfirm }) => {
     const [selectedGroupName, setSelectedGroupName] = useState('');
 
     const handleConfirm = () => {
-        onConfirm(selectedGroupName);
-        onRequestClose();
+        if (!selectedGroupName) {
+            toastr.error(t('select a group'));
+        } else {
+            onConfirm(selectedGroupName);
+            onRequestClose();
+        }
     }
 
     return (
         <GeneralModal
             isOpen={isOpen}
             onRequestClose={onRequestClose}
-            title={t('select group')}
+            title={t('add to group')}
         >
             <GroupList onGroupChange={setSelectedGroupName} />
             <div className='flex justify-end gap-2 mt-4'>

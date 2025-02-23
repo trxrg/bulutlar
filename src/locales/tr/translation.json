@@ -62,8 +62,9 @@
     "group": "Koleksiyon",
     "groups": "Koleksiyonlar",
     "add group": "Koleksiyon Ekle",
+    "add to group": "Koleksiyona Ekle",
     "add new group": "Yeni Koleksiyon Ekle",
-    "no groups": "Koleksiyon eklemek için artı simgesine tıklayın",
+    "no groups": "Bu yazıyı bir koleksiyona eklemek için artı simgesine tıklayın",
     "no such group": "Böyle bir koleksiyon yok",
     "delete group": "Koleksiyonu Sil",
     "group delete confirmation question": "Bu koleksiyonu silmek istediğinizden emin misiniz?",
@@ -75,6 +76,7 @@
     "select group": "Koleksiyon Seç",
     "group name": "Koleksiyon Adı",
     "articles added to group": "Yazılar koleksiyona eklendi",
+    "select a group": "Bir koleksiyon seçin",
 
     "note": "Not",
     "notes": "Notlar",

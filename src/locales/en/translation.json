@@ -62,8 +62,9 @@
     "group": "Collection",
     "groups": "Collections",
     "add group": "Add Collection",
+    "add to group": "Add to Collection",
     "add new group": "Add New Collection",
-    "no groups": "Click to plus icon to add a collection",
+    "no groups": "Click to plus icon to add this article a collection",
     "no such group": "No such collection",
     "delete group": "Delete Collection",
     "group delete confirmation question": "Are you sure you want to delete this collection?",
@@ -75,6 +76,7 @@
     "select group": "Select Collection",
     "group name": "Collection Name",
     "articles added to group": "Articles added to collection",
+    "select a group": "Select a collection",
 
     "note": "Note",
     "notes": "Notes",

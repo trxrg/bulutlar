@@ -95,3 +95,8 @@ export const annotationApi = {
     getById:            async (id)                  => window.api.annotation.getById(id),    
     deleteById:         async (id)                  => window.api.annotation.deleteById(id),
 };
+
+export const storeApi = {
+    set: async (key, value) => window.api.store.set(key, value),
+    get: async (key) => window.api.store.get(key),
+};

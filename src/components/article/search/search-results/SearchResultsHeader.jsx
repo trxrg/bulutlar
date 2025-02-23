@@ -22,7 +22,7 @@ const SearchResultsHeader = () => {
         areArticlesSelectable, toggleArticlesSelectable,
         selectAllOrNone, generatePDFOfSelectedArticles, selectedArticles } = useContext(SearchContext);
     const { handleAddRandomTab, translate: t } = useContext(AppContext);
-    const { setArticleOrder } = useContext(DBContext);
+    const { setArticleOrder, fetchAllArticles } = useContext(DBContext);
 
     const handleOrderByDateAsc = () => {
         setArticleOrder({ field: 'date', direction: 'asc' });
@@ -46,6 +46,8 @@ const SearchResultsHeader = () => {
         try {
             await groupApi.addArticles(groupName, selectedArticles);
             setGroupModalOpen(false);
+            fetchAllArticles();
+            toggleArticlesSelectable();
             toastr.success(t('articles added to group'));
         } catch (error) {
             console.error('addArticles returned an error', error);

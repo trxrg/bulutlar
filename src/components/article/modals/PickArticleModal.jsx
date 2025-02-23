@@ -6,6 +6,7 @@ import { DBContext } from '../../../store/db-context.jsx';
 import ActionButton from '../../common/ActionButton.jsx';
 import ArticleList from '../ArticleList.jsx';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
+import toastr from 'toastr';
 
 const PickArticleModal = ({ isOpen, onRequestClose, articleId, onViewClicked }) => {
     const [selectedArticleId, setSelectedArticleId] = useState(null);
@@ -13,6 +14,10 @@ const PickArticleModal = ({ isOpen, onRequestClose, articleId, onViewClicked }) 
     const { fetchArticleById, getRelatedArticlesByArticleId } = useContext(DBContext);
 
     const handleAdd = async () => {
+        if (!selectedArticleId) {
+            toastr.warning(t('select an article'));
+            return;
+        }
         await articleApi.addRelatedArticle(articleId, selectedArticleId);
         fetchArticleById(articleId);
         onRequestClose();

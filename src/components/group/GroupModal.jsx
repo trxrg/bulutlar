@@ -13,7 +13,8 @@ const GroupModal = ({ isOpen, onRequestClose, onConfirm }) => {
 
     const handleConfirm = () => {
         if (!selectedGroupName) {
-            toastr.error(t('select a group'));
+            toastr.warning(t('select a group'));
+            return;
         } else {
             onConfirm(selectedGroupName);
             onRequestClose();

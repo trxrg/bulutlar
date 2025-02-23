@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import AppHeader from './AppHeader';
 import AppBody from './AppBody';
 import { AppContext } from '../../store/app-context';
-import { DBContext  } from '../../store/db-context';
+import { DBContext } from '../../store/db-context';
 import CustomTitleBar from './custom-title-bar/CustomTitleBar';
 import StreakModal from './StreakModal';
 

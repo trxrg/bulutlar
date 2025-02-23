@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
 import log from 'electron-log/renderer.js';
+import SearchContextProvider from './store/search-context.jsx';
 Object.assign(console, log.functions);
 
 // Optional: Configure Toastr options
@@ -53,7 +54,9 @@ function App() {
       <ErrorBoundary>
         <DBContextProvider>
           <AppContextProvider>
-            <AppScreen />
+            <SearchContextProvider>
+              <AppScreen />
+            </SearchContextProvider>
           </AppContextProvider>
         </DBContextProvider>
       </ErrorBoundary>

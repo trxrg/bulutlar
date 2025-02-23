@@ -45,13 +45,19 @@ const HomeScreen = () => {
                 <div className='flex flex-col flex-shrink-0 items-center justify-center gap-5 bg-stone-100 bg-opacity-80 px-20 py-10'>
                     <h1 className='text-6xl text-blue-900 pb-10 select-none'>bulutlar</h1>
                     <div className='flex flex-col gap-3'>
-                        <Button size="large" onClick={() => setActiveScreen('tabs')} {...primaryButtonProps}>{t('articles')}</Button>                
-                        <Button size="large" onClick={() => setActiveScreen('categories')} {...secondaryButtonProps}>{t('categories')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('groups')} {...secondaryButtonProps}>{t('groups')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('owners')} {...secondaryButtonProps}>{t('owners')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('tags')} {...secondaryButtonProps}>{t('tags')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('annotations')} {...secondaryButtonProps}>{t('annotations')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('quotes')} {...secondaryButtonProps}>{t('quotes')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('tabs')} {...primaryButtonProps}>{t('all articles')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('categories')} {...primaryButtonProps}>{t('categories')}</Button>
+                        <Button size="large" onClick={() => setActiveScreen('groups')} {...primaryButtonProps}>{t('groups')}</Button>
+                        <div className='flex flex-row gap-3 min-w-full'>
+                            <div className='flex flex-col gap-3'>
+                                <Button size="large" onClick={() => setActiveScreen('owners')} {...secondaryButtonProps}>{t('owners')}</Button>
+                                <Button size="large" onClick={() => setActiveScreen('tags')} {...secondaryButtonProps}>{t('tags')}</Button>
+                            </div>
+                            <div className='flex flex-col gap-3'>
+                                <Button size="large" onClick={() => setActiveScreen('annotations')} {...secondaryButtonProps}>{t('annotations')}</Button>
+                                <Button size="large" onClick={() => setActiveScreen('quotes')} {...secondaryButtonProps}>{t('quotes')}</Button>
+                            </div>
+                        </div>
                         <Button size="large" onClick={() => setActiveScreen('settings')} {...secondaryButtonProps}>{t('settings')}</Button>
                     </div>
                     {/* <div className='cursor-pointer' onClick={() => setStreakModalOpen(true)}>

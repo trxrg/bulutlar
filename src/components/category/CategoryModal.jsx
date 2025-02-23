@@ -17,8 +17,8 @@ const CategoryModal = ({ isOpen, onRequestClose, initialCategoryName, onConfirm 
         >
             <CategoryList initialValue={initialCategoryName} onCategoryChange={setSelectedCategory} />
             <div className='flex justify-end gap-2 mt-4'>
-                <ActionButton onClick={() => onConfirm(selectedCategory)} color='blue'>{t('change')}</ActionButton>
                 <ActionButton onClick={onRequestClose} color='red'>{t('cancel')}</ActionButton>
+                <ActionButton onClick={() => onConfirm(selectedCategory)} color='blue'>{t('change')}</ActionButton>
             </div>
         </GeneralModal>
     );

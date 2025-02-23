@@ -34,6 +34,7 @@ const PickArticleModal = ({ isOpen, onRequestClose, articleId, onViewClicked }) 
 
             <ArticleList onArticleChange={setSelectedArticleId} excludedArticleIds={[articleId, ...relatedArticles.map(art => art.id)]} onViewClicked={handleViewClicked}/>
             <div className='flex justify-end gap-2 mt-4'>
+                <ActionButton color={'red'} onClick={onRequestClose}>{t('cancel')}</ActionButton>
                 <ActionButton color={'blue'} onClick={handleAdd}>{t('add')}</ActionButton>
             </div>
 

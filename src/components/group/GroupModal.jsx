@@ -29,8 +29,8 @@ const GroupModal = ({ isOpen, onRequestClose, onConfirm }) => {
         >
             <GroupList onGroupChange={setSelectedGroupName} />
             <div className='flex justify-end gap-2 mt-4'>
-                <ActionButton onClick={handleConfirm} color='blue'>{t('add')}</ActionButton>
                 <ActionButton onClick={onRequestClose} color='red'>{t('cancel')}</ActionButton>
+                <ActionButton onClick={handleConfirm} color='blue'>{t('add')}</ActionButton>
             </div>
         </GeneralModal>
     );

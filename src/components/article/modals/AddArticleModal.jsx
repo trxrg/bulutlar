@@ -118,8 +118,8 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                     <TagList selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
                 </div> */}
                 <div className='flex justify-end gap-2 mt-4'>
-                    <ActionButton color={'blue'} onClick={handleSubmit}>{t('add')}</ActionButton>
                     <ActionButton color={'red'} onClick={onRequestClose}>{t('cancel')}</ActionButton>
+                    <ActionButton color={'blue'} onClick={handleSubmit}>{t('add')}</ActionButton>
                 </div>
             </div>
         </GeneralModal>

@@ -84,7 +84,7 @@ const GroupList = ({ onGroupChange }) => {
                 />
                 <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>
-            <GeneralModal title={t('Add New Group')} isOpen={isModalOpen} onRequestClose={()=>setIsModalOpen(false)}>
+            <GeneralModal title={t('add new group')} isOpen={isModalOpen} onRequestClose={()=>setIsModalOpen(false)}>
                 <AddGroup onClose={()=>setIsModalOpen(false)} />
             </GeneralModal>
         </div>

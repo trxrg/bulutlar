@@ -42,7 +42,7 @@ const createEditorStateFromHTMLAndDecorator = (html, decorator) => {
 
 const Highlight = (props) => {
     return (
-        <span style={{ backgroundColor: 'yellow' }}>
+        <span style={{ backgroundColor: '#809671' }}>
             {props.children}
         </span>
     );

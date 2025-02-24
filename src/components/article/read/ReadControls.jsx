@@ -46,103 +46,110 @@ const ReadControls = () => {
     }
 
     return (
-        <div className='flex justify-between p-2 shadow-lg bg-white'>
-            {/* left */}
-            <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
-                {leftPanelCollapsed ?
-                    <FormatButton onClick={() => setLeftPanelCollapsed(false)} title={t('show left panel')}>
-                        <ChevronRightIcon className="w-5 h-5" />
-                    </FormatButton>
-                    :
-                    <FormatButton onClick={() => setLeftPanelCollapsed(true)} title={t('hide left panel')}>
-                        <ChevronLeftIcon className="w-5 h-5" />
-                    </FormatButton>}
-                <FormatButton onClick={decreaseFontSize} title={t('decrease font')}>A-</FormatButton>
-                <FormatButton onClick={increaseFontSize} title={t('increase font')}>A+</FormatButton>
-                {searchBarOpen && (
-                    <>
-                        <input
-                            type="text"
-                            className="border rounded p-1"
-                            placeholder={t('search')}
-                            onChange={(e) => setLocalSearchTerm(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    handleSearchClick();
-                                }
-                            }}
-                        />
-                        <FormatButton onClick={handleCloseSearchBar} title={t('close search bar')}>
-                            <XMarkIcon className="w-5 h-5" />
+        <div className='flex flex-col gap-2 shadow-lg bg-white p-2 items-center'>
+            <div className='flex justify-between w-full'>
+                {/* left */}
+                <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
+                    {leftPanelCollapsed ?
+                        <FormatButton onClick={() => setLeftPanelCollapsed(false)} title={t('show left panel')}>
+                            <ChevronRightIcon className="w-5 h-5" />
                         </FormatButton>
-                    </>
-                )}
-                <FormatButton onClick={handleSearchClick} title={t('search in the article')}><MagnifyingGlassIcon className="w-5 h-5" /></FormatButton>
+                        :
+                        <FormatButton onClick={() => setLeftPanelCollapsed(true)} title={t('hide left panel')}>
+                            <ChevronLeftIcon className="w-5 h-5" />
+                        </FormatButton>}
+                    <FormatButton onClick={decreaseFontSize} title={t('decrease font')}>A-</FormatButton>
+                    <FormatButton onClick={increaseFontSize} title={t('increase font')}>A+</FormatButton>
+                    {searchBarOpen && (
+                        <>
+                            <input
+                                type="text"
+                                className="border rounded p-1"
+                                placeholder={t('search')}
+                                onChange={(e) => setLocalSearchTerm(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        handleSearchClick();
+                                    }
+                                }}
+                            />
+                            <FormatButton onClick={handleCloseSearchBar} title={t('close search bar')}>
+                                <XMarkIcon className="w-5 h-5" />
+                            </FormatButton>
+                        </>
+                    )}
+                    <FormatButton onClick={handleSearchClick} title={t('search in the article')}><MagnifyingGlassIcon className="w-5 h-5" /></FormatButton>
+                </div>
+                {/* center */}
+                <div className='gap-1'>
+                    {editable ?
+                        <div className='flex flex-wrap gap-1'>
+                            <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')} title={t('unordered list')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
+                            <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')} title={t('ordered list')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
+                            <FormatButton onClick={handleInsertImageClicked} title={t('add image')}><PhotoIcon className="w-5 h-5" /></FormatButton>
+                        </div>
+                        :
+                        (fullScreen &&
+                            <div className='flex items-center h-full'>
+                                <h2 className='text-xl whitespace-normal break-words mx-10'>{`${article.title} (${new Date(article.date).toLocaleDateString('tr')})`}</h2>
+                            </div>
+                        )}
+                </div>
+                {/* right */}
+                <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
+                    {fullScreen && <div onClick={handleStarClick} className='flex items-center px-1'>
+                        {article.isStarred ? (
+                            <StarIcon style={{ fontSize: '1.7rem', color: '#FFD700' }} className="hover:scale-125" />
+                        ) : (
+                            <StarBorderIcon style={{ fontSize: '1.7rem', color: '#B0B0B0' }} className="hover:scale-125" />
+                        )}
+                    </div>}
+                    <FormatButton
+                        onClick={() => console.log('not implemented yet')}
+                        title={t('preferences')}>
+                        <EllipsisHorizontalIcon className="w-5 h-5" />
+                    </FormatButton>
+                    {!editable &&
+                        <FormatButton
+                            onClick={() => setEditable(true)}
+                            title={t('edit article')}>
+                            <PencilIcon className="w-5 h-5" />
+                        </FormatButton>
+                    }
+                    {fullScreen ?
+                        <FormatButton onClick={() => setFullScreen(false)} title={t('exit full screen')}>
+                            <ArrowsPointingInIcon className="w-5 h-5" />
+                        </FormatButton>
+                        :
+                        <FormatButton onClick={() => setFullScreen(true)} title={t('full screen')}>
+                            <ArrowsPointingOutIcon className="w-5 h-5" />
+                        </FormatButton>}
+                    {rightPanelCollapsed ?
+                        <FormatButton onClick={() => setRightPanelCollapsed(false)} title={t('show right panel')}>
+                            <ChevronLeftIcon className="w-5 h-5" />
+                        </FormatButton>
+                        :
+                        <FormatButton onClick={() => setRightPanelCollapsed(true)} title={t('hide right panel')}>
+                            <ChevronRightIcon className="w-5 h-5" />
+                        </FormatButton>}
+                </div>
             </div>
-            {/* center */}
-            <div className='gap-1'>
-                {editable ?
-                    <div className='flex flex-wrap gap-1'>
-                        <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
-                        <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')} title={t('unordered list')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
-                        <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')} title={t('ordered list')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
-                        <FormatButton onClick={handleInsertImageClicked} title={t('add image')}><PhotoIcon className="w-5 h-5" /></FormatButton>
+            {editable &&
+                <div className='flex gap-1 justify-between w-full'>
+                    <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
+                    <div className='flex gap-1'>
+                        <ActionButton
+                            onClick={() => { resetContent(); setEditable(false); }}
+                            color={'red'}>
+                            {t('cancel')}
+                        </ActionButton>
                         <ActionButton
                             onClick={() => { saveContent(); setEditable(false); }}
                             color={'blue'}>
                             {t('save')}
                         </ActionButton>
-                        <ActionButton
-                            onClick={() => { resetContent(); setEditable(false); }}
-                            color={'blue'}>
-                            {t('cancel')}
-                        </ActionButton>
                     </div>
-                    :
-                    (fullScreen &&
-                        <div className='flex items-center h-full'>
-                            <h2 className='text-xl whitespace-normal break-words mx-10'>{`${article.title} (${new Date(article.date).toLocaleDateString('tr')})`}</h2>
-                        </div>
-                    )}
-            </div>
-            {/* right */}
-            <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
-                {fullScreen && <div onClick={handleStarClick} className='flex items-center px-1'>
-                    {article.isStarred ? (
-                        <StarIcon style={{ fontSize: '1.7rem', color: '#FFD700' }} className="hover:scale-125" />
-                    ) : (
-                        <StarBorderIcon style={{ fontSize: '1.7rem', color: '#B0B0B0' }} className="hover:scale-125" />
-                    )}
                 </div>}
-                <FormatButton
-                    onClick={() => console.log('not implemented yet')}
-                    title={t('preferences')}>
-                    <EllipsisHorizontalIcon className="w-5 h-5" />
-                </FormatButton>
-                {!editable &&
-                    <FormatButton
-                        onClick={() => setEditable(true)}
-                        title={t('edit article')}>
-                        <PencilIcon className="w-5 h-5" />
-                    </FormatButton>
-                }
-                {fullScreen ?
-                    <FormatButton onClick={() => setFullScreen(false)} title={t('exit full screen')}>
-                        <ArrowsPointingInIcon className="w-5 h-5" />
-                    </FormatButton>
-                    :
-                    <FormatButton onClick={() => setFullScreen(true)} title={t('full screen')}>
-                        <ArrowsPointingOutIcon className="w-5 h-5" />
-                    </FormatButton>}
-                {rightPanelCollapsed ?
-                    <FormatButton onClick={() => setRightPanelCollapsed(false)} title={t('show right panel')}>
-                        <ChevronLeftIcon className="w-5 h-5" />
-                    </FormatButton>
-                    :
-                    <FormatButton onClick={() => setRightPanelCollapsed(true)} title={t('hide right panel')}>
-                        <ChevronRightIcon className="w-5 h-5" />
-                    </FormatButton>}
-            </div>
             <ConfirmModal message={t('article delete confirmation question')}
                 onClose={() => setDeleteConfirmModalOpen(false)}
                 onConfirm={async () => {

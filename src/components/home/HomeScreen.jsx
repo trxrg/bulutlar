@@ -8,23 +8,28 @@ import '../../styles.css';
 const HomeScreen = () => {
 
     const [imageLoaded, setImageLoaded] = useState(false);
-    const [imageData, setImageData] = useState(null);
-    const { setActiveScreen, setStreakModalOpen, translate: t } = useContext(AppContext);
+    const { setActiveScreen, setStreakModalOpen, translate: t, bgImageData, setBgImageData } = useContext(AppContext);
     const { streak, dbVersion } = useContext(DBContext);
 
     const fetchImageData = async () => {
+        console.log('fetchImageData called');
         const path = 'bg-image.jpg';
         const type = 'image/jpeg';
         try {
             const data = await imageApi.getDataByAnyPath(path, type);
-            setImageData(data);
+            setBgImageData(data);
             setImageLoaded(true);
         } catch (err) {
             console.error('error in fetchImageData', err);
         }
     }
 
-    useEffect(() => { fetchImageData(); }, []);
+    // useEffect(() => { 
+    //     if (!bgImageData)
+    //         fetchImageData(); 
+    //     else
+    //         setImageLoaded(true);
+    // }, [bgImageData]);
 
     const primaryButtonProps = {
         variant: 'contained',
@@ -39,7 +44,7 @@ const HomeScreen = () => {
 
     return (
         <div className='relative flex w-full h-full' style={{ fontFamily: '"Trebuchet MS", sans-serif' }}>
-            {imageLoaded && <div className='absolute inset-0' style={{ backgroundImage: `url(${imageData})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>}
+            {/* {imageLoaded && <div className='absolute inset-0' style={{ backgroundImage: `url(${bgImageData})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>} */}
             <div className='relative flex w-full h-full'>
                 <div className='w-3/4'></div>
                 <div className='flex flex-col flex-shrink-0 items-center justify-center gap-5 bg-stone-100 bg-opacity-80 px-20 py-10'>

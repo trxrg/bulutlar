@@ -9,8 +9,8 @@ import ConfirmModal from '../../common/ConfirmModal.jsx';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
-import { Fullscreen } from '@mui/icons-material';
 import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
+import ArticlePreferencesModal from '../modals/ArticlePreferencesModal.jsx';
 
 const ReadControls = () => {
 
@@ -19,6 +19,7 @@ const ReadControls = () => {
     const { fetchArticleById } = useContext(DBContext);
 
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
+    const [isPreferencesModalOpen, setPreferencesModalOpen] = useState(false);
     const [searchBarOpen, setSearchBarOpen] = useState(false);
     const [localSearchTerm, setLocalSearchTerm] = useState('');
 
@@ -43,6 +44,13 @@ const ReadControls = () => {
     const handleCloseSearchBar = () => {
         setSearchBarOpen(false);
         setSearchTerm('');
+    }
+
+    const handleSavePreferences = async ({ isDateUncertain, selectedOwnerName }) => {
+        await articleApi.updateOwner(article.id, selectedOwnerName);
+        await articleApi.setIsDateUncertain(article.id, isDateUncertain);
+        fetchArticleById(article.id);
+        setPreferencesModalOpen(false);
     }
 
     return (
@@ -105,7 +113,7 @@ const ReadControls = () => {
                         )}
                     </div>}
                     <FormatButton
-                        onClick={() => console.log('not implemented yet')}
+                        onClick={() => setPreferencesModalOpen(true)}
                         title={t('preferences')}>
                         <EllipsisHorizontalIcon className="w-5 h-5" />
                     </FormatButton>
@@ -160,6 +168,7 @@ const ReadControls = () => {
                 }}
                 isOpen={isDeleteConfirmModalOpen}
             />
+            <ArticlePreferencesModal isOpen={isPreferencesModalOpen} onRequestClose={() => setPreferencesModalOpen(false)} onConfirm={handleSavePreferences} />
         </div>
     );
 };

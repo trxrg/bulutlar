@@ -240,5 +240,7 @@
     "language": "Dil",
     "english": "English",
     "turkish": "Türkçe",
-    "general settings": "Genel Ayarlar"
+    "general settings": "Genel Ayarlar",
+
+    "date is uncertain": "Tarih Kesin Değil"
 }

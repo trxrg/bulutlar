@@ -32,6 +32,7 @@ contextBridge.exposeInMainWorld('api', {
     addToGroup:       (id, groupName)         => ipcRenderer.invoke('article/addToGroup', id, groupName),
     removeFromGroup:  (id, groupId)           => ipcRenderer.invoke('article/removeFromGroup', id, groupId),
     setIsStarred:     (id, isStarred)         => ipcRenderer.invoke('article/setIsStarred', id, isStarred),
+    setIsDateUncertain:     (id, isDateUncertain)         => ipcRenderer.invoke('article/setIsDateUncertain', id, isDateUncertain),
   },
   owner: {
     create:      (owner)        => ipcRenderer.invoke('owner/create', owner),

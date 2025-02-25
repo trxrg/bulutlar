@@ -236,5 +236,7 @@
     "language": "Language",
     "english": "English",
     "turkish": "Türkçe",
-    "general settings": "General Settings"
+    "general settings": "General Settings",
+
+    "date is uncertain": "Date is Uncertain"
   }

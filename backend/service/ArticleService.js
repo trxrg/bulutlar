@@ -34,6 +34,7 @@ function initService() {
     ipcMain.handle('article/addToGroup', async (event, id, groupName) => await addArticleToGroup(id, groupName));
     ipcMain.handle('article/removeFromGroup', async (event, id, groupId) => await removeArticleFromGroup(id, groupId));
     ipcMain.handle('article/setIsStarred', async (event, id, isStarred) => await setIsStarred(id, isStarred));
+    ipcMain.handle('article/setIsDateUncertain', async (event, id, isDateUncertain) => await setIsDateUncertain(id, isDateUncertain));    
 }
 
 async function createArticle(article) { // Now transactional
@@ -494,6 +495,20 @@ async function setIsStarred(id, isStarred) {
         await article.update({ isStarred });
     } catch (error) {
         console.error('Error in setIsStarred', error);
+        throw error;
+    }
+}
+
+async function setIsDateUncertain(id, isDateUncertain) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+
+        if (!article)
+            throw ('no article found with id: ' + id);
+
+        await article.update({ isDateUncertain: isDateUncertain });
+    } catch (error) {
+        console.error('Error in setIsDateUncertain', error);
         throw error;
     }
 }

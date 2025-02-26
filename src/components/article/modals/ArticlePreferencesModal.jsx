@@ -17,9 +17,6 @@ const ArticlePreferencesModal = ({ isOpen, onRequestClose, onConfirm }) => {
     const [isDateUncertain, setDateUncertain] = useState(false);
     const [ordering, setOrdering] = useState(article.ordering || article.id);
 
-    console.log('article ordering: ', article.ordering);
-
-
     return (
         <GeneralModal
             isOpen={isOpen}

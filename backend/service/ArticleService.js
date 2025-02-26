@@ -84,6 +84,9 @@ async function createArticle(article) { // Now transactional
             }
         }
 
+        if (!article.ordering)
+            await entity.update({ ordering: entity.id }, { transaction });
+
         await transaction.commit();
         return await getArticleById(entity.dataValues.id);
     } catch (e) {

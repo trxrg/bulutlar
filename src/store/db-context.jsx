@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { ownerApi, categoryApi, articleApi, tagApi, annotationApi, lookupApi, groupApi } from '../backend-adapter/BackendAdapter';
+import { set } from 'date-fns';
 
 export const DBContext = createContext();
 
@@ -13,6 +14,7 @@ export default function DBContextProvider({ children }) {
     const [streak, setStreak] = useState(0);
     const [dbVersion, setDbVersion] = useState('');
     const [articleOrder, setArticleOrder] = useState({field: 'date', direction: 'desc'});
+    const [allDataFetched, setAllDataFetched] = useState(false);
 
     const fetchArticleById = useCallback(async (id) => {
         try {
@@ -177,6 +179,7 @@ export default function DBContextProvider({ children }) {
             await fetchAllArticles();
             await fetchAllAnnotations();
             await setLookupValues();
+            setAllDataFetched(true);
             // lookupApi.setLastActiveDateToToday();
         } catch (err) {
             console.error(err);
@@ -261,7 +264,8 @@ export default function DBContextProvider({ children }) {
         getAnnotationById,
         streak,
         dbVersion,
-    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak, dbVersion, articleOrder, allGroups]);
+        allDataFetched,
+    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak, dbVersion, articleOrder, allGroups, allDataFetched]);
 
     return <DBContext.Provider value={ctxValue}>
         {children}

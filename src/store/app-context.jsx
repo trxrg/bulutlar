@@ -7,14 +7,12 @@ import { usePersistentState } from '../hooks/usePersistenceState';
 export const AppContext = createContext();
 
 export default function AppContextProvider({ children }) {
-    const [activeScreen, setActiveScreen] = useState('home');
+    const [activeScreen, setActiveScreen] = usePersistentState('activeScreen', 'home');
     const [fullScreen, setFullScreen] = usePersistentState('fullscreen', false);
-    const [activeTabId, setActiveTabId] = useState('search');
-    const [tabs, setTabs] = useState([
-        { id: 'search', title: 'Search' }
-    ]);
+    const [activeTabId, setActiveTabId] = usePersistentState('activeTabId', 'search');
+    const [tabs, setTabs] = usePersistentState('tabs', [{ id: 'search', title: 'Search' }]);
 
-    const { allArticles, fetchAllData } = useContext(DBContext);
+    const { allArticles, fetchAllData, allDataFetched } = useContext(DBContext);
 
     const { t } = useTranslation();
 
@@ -200,6 +198,6 @@ export default function AppContextProvider({ children }) {
     };
 
     return <AppContext.Provider value={ctxValue}>
-        {children}
+        {allDataFetched ? children : <div className='text-3xl bg-white'>{t('loading')}...</div>}
     </AppContext.Provider>
 }

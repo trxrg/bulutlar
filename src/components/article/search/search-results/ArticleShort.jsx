@@ -175,7 +175,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                 <div className='flex flex-shrink-0'>
                     {article.tags.slice(0, numberOfTags).map(tag => {
                         const tagEntity = getTagById(tag.id);
-                        return <TagButton key={tag.id} isCloseable={false} label={tagEntity.name} />
+                        return <TagButton key={tag.id} isCloseable={false} label={tagEntity?.name} />
                     })}
                     {article.tags.length > numberOfTags ? <h4 className='inline-block'>...</h4> : undefined}
                 </div>

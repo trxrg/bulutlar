@@ -11,8 +11,6 @@ const OrderBySelect = ({ onOrderChange, initialSelection }) => {
         { field: 'ordering', direction: 'desc', label: t('order by number descending') }
     ];
 
-    console.log('initialSelection', initialSelection);
-
     const getLabelByValue = (value) => {
         const option = options.find(
             (option) => option.field === value.field && option.direction === value.direction

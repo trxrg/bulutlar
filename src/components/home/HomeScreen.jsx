@@ -1,35 +1,13 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '../../store/app-context.jsx';
 import { DBContext } from '../../store/db-context.jsx';
-import { imageApi } from '../../backend-adapter/BackendAdapter.js';
 import Button from '@mui/material/Button';
 import '../../styles.css';
 
 const HomeScreen = () => {
 
-    const [imageLoaded, setImageLoaded] = useState(false);
-    const { setActiveScreen, setStreakModalOpen, translate: t, bgImageData, setBgImageData } = useContext(AppContext);
-    const { streak, dbVersion } = useContext(DBContext);
-
-    const fetchImageData = async () => {
-        console.log('fetchImageData called');
-        const path = 'bg-image.jpg';
-        const type = 'image/jpeg';
-        try {
-            const data = await imageApi.getDataByAnyPath(path, type);
-            setBgImageData(data);
-            setImageLoaded(true);
-        } catch (err) {
-            console.error('error in fetchImageData', err);
-        }
-    }
-
-    // useEffect(() => { 
-    //     if (!bgImageData)
-    //         fetchImageData(); 
-    //     else
-    //         setImageLoaded(true);
-    // }, [bgImageData]);
+    const { setActiveScreen, translate: t } = useContext(AppContext);
+    const { dbVersion } = useContext(DBContext);
 
     const primaryButtonProps = {
         variant: 'contained',
@@ -65,9 +43,6 @@ const HomeScreen = () => {
                         </div>
                         <Button size="large" onClick={() => setActiveScreen('settings')} {...secondaryButtonProps}>{t('settings')}</Button>
                     </div>
-                    {/* <div className='cursor-pointer' onClick={() => setStreakModalOpen(true)}>
-                        <span className='text-5xl text-green-600 font-bold'>⚡{streak}</span>
-                    </div> */}
                     <div>
                         <h2 className='text-l'>db version: {dbVersion}</h2>
                     </div>

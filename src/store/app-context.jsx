@@ -2,14 +2,14 @@ import { createContext, useState, useContext } from 'react';
 import i18n from '../i18n';
 import { useTranslation } from 'react-i18next';
 import { DBContext } from './db-context';
+import { usePersistentState } from '../hooks/usePersistenceState';
 
 export const AppContext = createContext();
 
 export default function AppContextProvider({ children }) {
     const [activeScreen, setActiveScreen] = useState('home');
-    const [fullScreen, setFullScreen] = useState(false);
+    const [fullScreen, setFullScreen] = usePersistentState('fullscreen', false);
     const [activeTabId, setActiveTabId] = useState('search');
-    const [streakModalOpen, setStreakModalOpen] = useState(false);
     const [tabs, setTabs] = useState([
         { id: 'search', title: 'Search' }
     ]);
@@ -195,8 +195,6 @@ export default function AppContextProvider({ children }) {
         changeLanguage,
         getLanguage,
         translate: t,
-        streakModalOpen,
-        setStreakModalOpen,
         normalizeText,
         htmlToText,
     };

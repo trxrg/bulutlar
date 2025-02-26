@@ -1,18 +1,19 @@
 import { ipcMain } from 'electron';
 import Store from 'electron-store';
 
+let store;
+
 function initService() {
-    ipcMain.handle('store/set', (key, value) => setState(key, value));
-    ipcMain.handle('store/get', (key) => getState(key));
+    ipcMain.handle('store/set', (event, key, value) => setState(key, value));
+    ipcMain.handle('store/get', (event, key) => getState(key));
+    store = new Store();
 }
 
 function setState(key, value) {
-    const store = new Store();
     store.set(key, value);
 }
 
 function getState(key) {
-    const store = new Store();
     return store.get(key);
 }
 

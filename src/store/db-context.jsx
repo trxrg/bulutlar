@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { ownerApi, categoryApi, articleApi, tagApi, annotationApi, lookupApi, groupApi } from '../backend-adapter/BackendAdapter';
-import { set } from 'date-fns';
+import { usePersistentState } from '../hooks/usePersistenceState';
 
 export const DBContext = createContext();
 
@@ -11,9 +11,9 @@ export default function DBContextProvider({ children }) {
     const [allCategories, setAllCategories] = useState([]);
     const [allGroups, setAllGroups] = useState([]);
     const [allAnnotations, setAllAnnotations] = useState([]);
-    const [streak, setStreak] = useState(0);
+    // const [streak, setStreak] = useState(0);
     const [dbVersion, setDbVersion] = useState('');
-    const [articleOrder, setArticleOrder] = useState({field: 'date', direction: 'desc'});
+    const [articleOrder, setArticleOrder] = usePersistentState('articleOrder', {field: 'date', direction: 'desc'});
     const [allDataFetched, setAllDataFetched] = useState(false);
 
     const fetchArticleById = useCallback(async (id) => {
@@ -106,8 +106,8 @@ export default function DBContextProvider({ children }) {
 
     const setLookupValues = async () => {
         try {
-            const str = await fetchFromLookup('streak');
-            setStreak(str);
+            // const str = await fetchFromLookup('streak');
+            // setStreak(str);
             const dbV = await fetchFromLookup('dbVersion');
             setDbVersion(dbV);
         } catch (err) {
@@ -262,10 +262,9 @@ export default function DBContextProvider({ children }) {
         getCategoryByArticleId,
         getTagById,
         getAnnotationById,
-        streak,
         dbVersion,
         allDataFetched,
-    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, streak, dbVersion, articleOrder, allGroups, allDataFetched]);
+    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, dbVersion, articleOrder, allGroups, allDataFetched]);
 
     return <DBContext.Provider value={ctxValue}>
         {children}

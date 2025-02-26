@@ -113,11 +113,6 @@ const ReadControls = () => {
                             <StarBorderIcon style={{ fontSize: '1.7rem', color: '#B0B0B0' }} className="hover:scale-125" />
                         )}
                     </div>}
-                    <FormatButton
-                        onClick={() => setPreferencesModalOpen(true)}
-                        title={t('preferences')}>
-                        <EllipsisHorizontalIcon className="w-5 h-5" />
-                    </FormatButton>
                     {!editable &&
                         <FormatButton
                             onClick={() => setEditable(true)}
@@ -125,6 +120,11 @@ const ReadControls = () => {
                             <PencilIcon className="w-5 h-5" />
                         </FormatButton>
                     }
+                    <FormatButton
+                        onClick={() => setPreferencesModalOpen(true)}
+                        title={t('preferences')}>
+                        <EllipsisHorizontalIcon className="w-5 h-5" />
+                    </FormatButton>
                     {fullScreen ?
                         <FormatButton onClick={() => setFullScreen(false)} title={t('exit full screen')}>
                             <ArrowsPointingInIcon className="w-5 h-5" />

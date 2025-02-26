@@ -14,8 +14,6 @@ const TabsScreen = () => {
   const { activeTabId, setActiveTabId, closeTab, tabs, translate: t, setActiveScreen } = useContext(AppContext);
   const { allArticles, fetchAllData } = useContext(DBContext);
 
-  console.log('tabs in tabs screen:', tabs);
-
   const handleTabClick = (tabId) => {
     setActiveTabId(tabId);
   };

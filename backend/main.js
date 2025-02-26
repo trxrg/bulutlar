@@ -59,25 +59,25 @@ const createWindow = () => {
   // }
 }
 
-const handleStreak = async () => {
-  await lookupService.getOrCreateLookup('streak', 1);
-  const today = lookupService.removeTimeFromDate(new Date());
-  const lastActiveDateLookup = await lookupService.getOrCreateLookup('lastActiveDate', today);
-  const streakStartDateLookup = await lookupService.getOrCreateLookup('streakStartDate', today);
+// const handleStreak = async () => {
+//   await lookupService.getOrCreateLookup('streak', 1);
+//   const today = lookupService.removeTimeFromDate(new Date());
+//   const lastActiveDateLookup = await lookupService.getOrCreateLookup('lastActiveDate', today);
+//   const streakStartDateLookup = await lookupService.getOrCreateLookup('streakStartDate', today);
 
-  const lastActiveDate = lookupService.removeTimeFromDate(new Date(lastActiveDateLookup.value));
-  const streakStartDate = lookupService.removeTimeFromDate(new Date(streakStartDateLookup.value));
+//   const lastActiveDate = lookupService.removeTimeFromDate(new Date(lastActiveDateLookup.value));
+//   const streakStartDate = lookupService.removeTimeFromDate(new Date(streakStartDateLookup.value));
 
-  const differenceToLastActiveDateInDays = Math.floor((today - lastActiveDate) / (1000 * 3600 * 24));
-  const differenceToStreakStartDateInDays = Math.floor((today - streakStartDate) / (1000 * 3600 * 24));
+//   const differenceToLastActiveDateInDays = Math.floor((today - lastActiveDate) / (1000 * 3600 * 24));
+//   const differenceToStreakStartDateInDays = Math.floor((today - streakStartDate) / (1000 * 3600 * 24));
 
-  if (differenceToLastActiveDateInDays > 1) {
-    lookupService.updateValue('streak', 1);
-    lookupService.updateValue('streakStartDate', today);
-  } else {
-    lookupService.updateValue('streak', differenceToStreakStartDateInDays + 1);
-  }
-};
+//   if (differenceToLastActiveDateInDays > 1) {
+//     lookupService.updateValue('streak', 1);
+//     lookupService.updateValue('streakStartDate', today);
+//   } else {
+//     lookupService.updateValue('streak', differenceToStreakStartDateInDays + 1);
+//   }
+// };
 
 const handleDBVersion = async () => {
   const dbVersion = await lookupService.getOrCreateLookup('dbVersion', '1.0.0');
@@ -92,7 +92,7 @@ app.whenReady().then(async () => {
   await startSequelize();
   // await initDB();
   initServices();
-  handleStreak();
+  // handleStreak();
   handleDBVersion();
 
   // require('./scripts/dateConverter'); // TODO DELETE

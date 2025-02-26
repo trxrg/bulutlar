@@ -1,35 +1,36 @@
-import React, { createContext, useState, useContext, useEffect, use } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { DBContext } from './db-context';
 import { AppContext } from './app-context';
+import { usePersistentState } from '../hooks/usePersistenceState';
 import toastr from 'toastr';
 
 export const SearchContext = createContext();
 
 export default function SearchContextProvider({ children }) {
     const { allArticles } = useContext(DBContext);
-    const { fullScreen, translate: t } = useContext(AppContext);
+    const { translate: t } = useContext(AppContext);
 
     const [filtering, setFiltering] = useState({});
-    const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
+    const [sidePanelCollapsed, setSidePanelCollapsed] = usePersistentState('sidePanelCollapsed', false);
     const [filteredArticles, setFilteredArticles] = useState([...allArticles]);
     const [selectedArticles, setSelectedArticles] = useState([]);
 
-    const [selectedOwnerNames, setSelectedOwnerNames] = useState([]);
-    const [selectedTagNames, setSelectedTagNames] = useState([]);
-    const [selectedCategoryNames, setSelectedCategoryNames] = useState([]);
-    const [selectedGroupNames, setSelectedGroupNames] = useState([]);
-    const [selectedNumbers1, setSelectedNumbers1] = useState([]);
-    const [selectedNumbers2, setSelectedNumbers2] = useState([]);
-    const [keywords, setKeywords] = useState([]);
-    const [searchInTitle, setSearchInTitle] = useState(true);
-    const [searchInExplanation, setSearchInExplanation] = useState(true);
-    const [searchInMainText, setSearchInMainText] = useState(true);
-    const [searchInComments, setSearchInComments] = useState(true);
-    const [startDate, setStartDate] = useState({ day: '', month: '', year: '' });
-    const [endDate, setEndDate] = useState({ day: '', month: '', year: '' });
-    const [startDate2, setStartDate2] = useState({ day: '', month: '', year: '' });
-    const [endDate2, setEndDate2] = useState({ day: '', month: '', year: '' });
-    const [filterStarred, setFilterStarred] = useState(false);
+    const [selectedOwnerNames, setSelectedOwnerNames] = usePersistentState('selectedOwnerNames', []);
+    const [selectedTagNames, setSelectedTagNames] = usePersistentState('selectedTagNames', []);
+    const [selectedCategoryNames, setSelectedCategoryNames] = usePersistentState('selectedCategoryNames', []);
+    const [selectedGroupNames, setSelectedGroupNames] = usePersistentState('selectedGroupNames', []);
+    const [selectedNumbers1, setSelectedNumbers1] = usePersistentState('selectedNumbers1', []);
+    const [selectedNumbers2, setSelectedNumbers2] = usePersistentState('selectedNumbers2', []);
+    const [keywords, setKeywords] = usePersistentState('keywords', []);
+    const [searchInTitle, setSearchInTitle] = usePersistentState('searchInTitle', true);
+    const [searchInExplanation, setSearchInExplanation] = usePersistentState('searchInExplanation', true);
+    const [searchInMainText, setSearchInMainText] = usePersistentState('searchInMainText', true);
+    const [searchInComments, setSearchInComments] = usePersistentState('searchInComments', true);
+    const [startDate, setStartDate] = usePersistentState('startDate', { day: '', month: '', year: '' });
+    const [endDate, setEndDate] = usePersistentState('endDate', { day: '', month: '', year: '' });
+    const [startDate2, setStartDate2] = usePersistentState('startDate2', { day: '', month: '', year: '' });
+    const [endDate2, setEndDate2] = usePersistentState('endDate2', { day: '', month: '', year: '' });
+    const [filterStarred, setFilterStarred] = usePersistentState('filterStarred', false);
 
     const [areArticlesSelectable, setArticlesSelectable] = useState(false);
     const [allOrNoneSelected, setAllOrNoneSelected] = useState(false);

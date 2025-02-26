@@ -50,7 +50,7 @@ const SearchResultsHeader = () => {
         } catch (error) {
             console.error('addArticles returned an error', error);
             toastr.error(t('error adding article to group'));
-        }            
+        }
     }
 
     return (
@@ -66,7 +66,7 @@ const SearchResultsHeader = () => {
                         <ChevronLeftIcon className="w-5 h-5" />
                     </FormatButton>}
                 <FormatButton onClick={() => toggleArticlesSelectable()} title={t('select articles')}><PencilSquareIcon className="w-5 h-5" /></FormatButton>
-                <OrderBySelect onOrderChange={handleOrderChange} initialSelection={articleOrder} />
+                <FormatButton onClick={handleAddToGroupClick} title={t('add selected articles to group')}><FolderPlusIcon className="w-5 h-5" /></FormatButton>
             </div>
             {/* center */}
             <div className='flex flex-col gap-2 items-center'>
@@ -80,7 +80,7 @@ const SearchResultsHeader = () => {
             </div>
             {/* right */}
             <div className='flex flex-wrap gap-1'>
-                <FormatButton onClick={handleAddToGroupClick} title={t('add selected articles to group')}><FolderPlusIcon className="w-5 h-5" /></FormatButton>
+                <OrderBySelect onOrderChange={handleOrderChange} initialSelection={articleOrder} />
                 {/* <FormatButton onClick={generatePDFOfSelectedArticles} title={t('download as pdf')}><DocumentArrowDownIcon className="w-5 h-5" /></FormatButton> */}
                 <FormatButton onClick={handleAddRandomTab} title={t('open random article')}><BoltIcon className="w-5 h-5" /></FormatButton>
                 <FormatButton onClick={() => setAddArticleModalOpen(true)} title={t('add article')}><PlusIcon className="w-5 h-5" /></FormatButton>

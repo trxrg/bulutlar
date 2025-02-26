@@ -181,6 +181,7 @@ export default function DBContextProvider({ children }) {
             await fetchAllAnnotations();
             await setLookupValues();
             setAllDataFetched(true);
+            console.info('syncing with DB done');
             // lookupApi.setLastActiveDateToToday();
         } catch (err) {
             console.error(err);

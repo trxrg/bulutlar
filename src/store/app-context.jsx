@@ -3,6 +3,7 @@ import i18n from '../i18n';
 import { useTranslation } from 'react-i18next';
 import { DBContext } from './db-context';
 import { usePersistentState } from '../hooks/usePersistenceState';
+import { useEffect } from 'react';
 
 export const AppContext = createContext();
 
@@ -13,14 +14,29 @@ export default function AppContextProvider({ children }) {
     const [fullScreen, setFullScreen] = usePersistentState('fullscreen', false, startWithLastState);
     const [activeTabId, setActiveTabId] = usePersistentState('activeTabId', 'search', startWithLastState);
     const [tabs, setTabs] = usePersistentState('tabs', [{ id: 'search', title: 'Search' }], startWithLastState);
+    const [dataIsCleaned, setDataIsCleaned] = useState(false);
 
 
     const { t } = useTranslation();
 
+    useEffect(() => {
+        if (allDataFetched) {
+            cleanTabs();
+            setDataIsCleaned(true);
+        }
+    }, [allDataFetched]);
+
+    const cleanTabs = () => {
+        const validTabs = tabs.filter(tab => allArticles.some(article => article.id === tab.id));
+        setTabs([{ id: 'search', title: 'Search' }, ...validTabs]);
+        if (!validTabs.map(tab => tab.id).includes(activeTabId))
+            setActiveTabId('search');
+    }
+
     const handleAddTab = (e, articleId) => {
         if (!allArticles.map(article => article.id).includes(articleId))
             return;
-        
+
         if (tabs.map(tab => tab.id).includes(articleId)) {
             if (!e || !e.ctrlKey && !e.metaKey)
                 setActiveTabId(articleId);
@@ -50,7 +66,7 @@ export default function AppContextProvider({ children }) {
         setActiveTabId(newTabId);
     };
 
-    const handleAddRandomTab = (e) => { 
+    const handleAddRandomTab = (e) => {
         const randomIndex = Math.floor(Math.random() * allArticles.length);
         const randomArticle = allArticles[randomIndex];
         handleAddTab(e, randomArticle.id);
@@ -126,7 +142,7 @@ export default function AppContextProvider({ children }) {
             result = 'settings';
         }
 
-        return t(result); 
+        return t(result);
     }
 
     const changeLanguage = () => {
@@ -151,13 +167,13 @@ export default function AppContextProvider({ children }) {
         if (!text)
             return '';
         if (typeof text !== 'string') return text;
-        const turkishMap = { 
-            'ç': 'c', 'Ç': 'C', 
-            'ğ': 'g', 'Ğ': 'G', 
+        const turkishMap = {
+            'ç': 'c', 'Ç': 'C',
+            'ğ': 'g', 'Ğ': 'G',
             'ı': 'i', 'İ': 'I',
-            'ö': 'o', 'Ö': 'O', 
-            'ş': 's', 'Ş': 'S', 
-            'ü': 'u', 'Ü': 'U' 
+            'ö': 'o', 'Ö': 'O',
+            'ş': 's', 'Ş': 'S',
+            'ü': 'u', 'Ü': 'U'
         };
         const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
         return result;
@@ -199,6 +215,6 @@ export default function AppContextProvider({ children }) {
     };
 
     return <AppContext.Provider value={ctxValue}>
-        {allDataFetched ? children : <div className='text-3xl bg-white'>{t('loading')}...</div>}
+        {allDataFetched && dataIsCleaned ? children : <div className='text-3xl bg-white'>{t('loading')}...</div>}
     </AppContext.Provider>
 }

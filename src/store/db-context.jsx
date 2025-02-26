@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { ownerApi, categoryApi, articleApi, tagApi, annotationApi, lookupApi, groupApi } from '../backend-adapter/BackendAdapter';
-import { usePersistentState } from '../hooks/usePersistenceState';
+import { usePersistentState } from '../hooks/usePersistentState';
 
 export const DBContext = createContext();
 

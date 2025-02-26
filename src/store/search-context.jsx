@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { DBContext } from './db-context';
 import { AppContext } from './app-context';
-import { usePersistentState } from '../hooks/usePersistenceState';
+import { usePersistentState } from '../hooks/usePersistentState';
 import toastr from 'toastr';
 
 export const SearchContext = createContext();

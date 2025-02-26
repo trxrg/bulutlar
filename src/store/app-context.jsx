@@ -2,7 +2,7 @@ import { createContext, useState, useContext } from 'react';
 import i18n from '../i18n';
 import { useTranslation } from 'react-i18next';
 import { DBContext } from './db-context';
-import { usePersistentState } from '../hooks/usePersistenceState';
+import { usePersistentState } from '../hooks/usePersistentState';
 import { useEffect } from 'react';
 
 export const AppContext = createContext();

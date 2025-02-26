@@ -80,6 +80,7 @@
     "group name": "Collection Name",
     "articles added to group": "Articles added to collection",
     "select a group": "Select a collection",
+    "add selected articles to group": "Add selected articles to collection",
 
     "note": "Note",
     "notes": "Notes",
@@ -239,5 +240,9 @@
     "general settings": "General Settings",
 
     "date is uncertain": "Date is Uncertain",
-    "ordering": "Order"
+    "ordering": "Order",
+    "order by date descending": "Date descending",
+    "order by date ascending": "Date ascending",
+    "order by number descending": "Number descending",
+    "order by number ascending": "Number ascending"
   }

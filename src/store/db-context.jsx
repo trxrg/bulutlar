@@ -177,7 +177,7 @@ export default function DBContextProvider({ children }) {
             await fetchAllArticles();
             await fetchAllAnnotations();
             await setLookupValues();
-            lookupApi.setLastActiveDateToToday();
+            // lookupApi.setLastActiveDateToToday();
         } catch (err) {
             console.error(err);
         }
@@ -236,6 +236,7 @@ export default function DBContextProvider({ children }) {
         allCategories,
         allGroups,
         allAnnotations,
+        articleOrder,
         setArticleOrder,
         fetchAllData,
         fetchAllArticles,

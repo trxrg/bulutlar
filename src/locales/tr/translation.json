@@ -80,6 +80,7 @@
     "group name": "Koleksiyon Adı",
     "articles added to group": "Yazılar koleksiyona eklendi",
     "select a group": "Bir koleksiyon seçin",
+    "add selected articles to group": "Seçili yazıları koleksiyona ekle",
 
     "note": "Not",
     "notes": "Notlar",
@@ -243,5 +244,9 @@
     "general settings": "Genel Ayarlar",
 
     "date is uncertain": "Tarih Kesin Değil",
-    "ordering": "Sıra"
+    "ordering": "Sıra",
+    "order by date descending": "Tarihe göre azalan",
+    "order by date ascending": "Tarihe göre artan",
+    "order by number descending": "Numaraya göre azalan",
+    "order by number ascending": "Numaraya göre artan"
 }

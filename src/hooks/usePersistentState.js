@@ -15,16 +15,16 @@ export const usePersistentState = (key, defaultValue, shouldPersist = true) => {
             if (storedValue !== undefined) {
                 setState(storedValue);
             }
-            setIsInitialized(true);
         };
-
+        
+        setIsInitialized(true);
         if (shouldPersist) {
             fetchStoredValue();
         }
     }, [key, shouldPersist]);
 
     useEffect(() => {
-        if (isInitialized && shouldPersist) {
+        if (isInitialized) {
             storeApi.set(key, state);
             // console.log('set usePersistentState: key:', key, 'state: ', state);
         }

@@ -242,11 +242,14 @@
     "english": "English",
     "turkish": "Türkçe",
     "general settings": "Genel Ayarlar",
+    "general": "Genel",
 
     "date is uncertain": "Tarih Kesin Değil",
     "ordering": "Sıra",
     "order by date descending": "Tarihe göre azalan",
     "order by date ascending": "Tarihe göre artan",
     "order by number descending": "Numaraya göre azalan",
-    "order by number ascending": "Numaraya göre artan"
+    "order by number ascending": "Numaraya göre artan",
+
+    "start with last state": "Uygulamayı kapatıldığı haliyle aç"
 }

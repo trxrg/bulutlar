@@ -7,12 +7,13 @@ import { usePersistentState } from '../hooks/usePersistenceState';
 export const AppContext = createContext();
 
 export default function AppContextProvider({ children }) {
-    const [activeScreen, setActiveScreen] = usePersistentState('activeScreen', 'home');
-    const [fullScreen, setFullScreen] = usePersistentState('fullscreen', false);
-    const [activeTabId, setActiveTabId] = usePersistentState('activeTabId', 'search');
-    const [tabs, setTabs] = usePersistentState('tabs', [{ id: 'search', title: 'Search' }]);
+    const { allArticles, fetchAllData, allDataFetched, startWithLastState } = useContext(DBContext);
 
-    const { allArticles, fetchAllData, allDataFetched } = useContext(DBContext);
+    const [activeScreen, setActiveScreen] = usePersistentState('activeScreen', 'home', startWithLastState);
+    const [fullScreen, setFullScreen] = usePersistentState('fullscreen', false, startWithLastState);
+    const [activeTabId, setActiveTabId] = usePersistentState('activeTabId', 'search', startWithLastState);
+    const [tabs, setTabs] = usePersistentState('tabs', [{ id: 'search', title: 'Search' }], startWithLastState);
+
 
     const { t } = useTranslation();
 
@@ -194,7 +195,7 @@ export default function AppContextProvider({ children }) {
         getLanguage,
         translate: t,
         normalizeText,
-        htmlToText,
+        htmlToText
     };
 
     return <AppContext.Provider value={ctxValue}>

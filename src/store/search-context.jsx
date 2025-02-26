@@ -7,30 +7,30 @@ import toastr from 'toastr';
 export const SearchContext = createContext();
 
 export default function SearchContextProvider({ children }) {
-    const { allArticles } = useContext(DBContext);
+    const { allArticles, startWithLastState } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);
 
     const [filtering, setFiltering] = useState({});
-    const [sidePanelCollapsed, setSidePanelCollapsed] = usePersistentState('sidePanelCollapsed', false);
+    const [sidePanelCollapsed, setSidePanelCollapsed] = usePersistentState('sidePanelCollapsed', false, startWithLastState);
     const [filteredArticles, setFilteredArticles] = useState([...allArticles]);
     const [selectedArticles, setSelectedArticles] = useState([]);
 
-    const [selectedOwnerNames, setSelectedOwnerNames] = usePersistentState('selectedOwnerNames', []);
-    const [selectedTagNames, setSelectedTagNames] = usePersistentState('selectedTagNames', []);
-    const [selectedCategoryNames, setSelectedCategoryNames] = usePersistentState('selectedCategoryNames', []);
-    const [selectedGroupNames, setSelectedGroupNames] = usePersistentState('selectedGroupNames', []);
-    const [selectedNumbers1, setSelectedNumbers1] = usePersistentState('selectedNumbers1', []);
-    const [selectedNumbers2, setSelectedNumbers2] = usePersistentState('selectedNumbers2', []);
-    const [keywords, setKeywords] = usePersistentState('keywords', []);
-    const [searchInTitle, setSearchInTitle] = usePersistentState('searchInTitle', true);
-    const [searchInExplanation, setSearchInExplanation] = usePersistentState('searchInExplanation', true);
-    const [searchInMainText, setSearchInMainText] = usePersistentState('searchInMainText', true);
-    const [searchInComments, setSearchInComments] = usePersistentState('searchInComments', true);
-    const [startDate, setStartDate] = usePersistentState('startDate', { day: '', month: '', year: '' });
-    const [endDate, setEndDate] = usePersistentState('endDate', { day: '', month: '', year: '' });
-    const [startDate2, setStartDate2] = usePersistentState('startDate2', { day: '', month: '', year: '' });
-    const [endDate2, setEndDate2] = usePersistentState('endDate2', { day: '', month: '', year: '' });
-    const [filterStarred, setFilterStarred] = usePersistentState('filterStarred', false);
+    const [selectedOwnerNames, setSelectedOwnerNames] = usePersistentState('selectedOwnerNames', [], startWithLastState);
+    const [selectedTagNames, setSelectedTagNames] = usePersistentState('selectedTagNames', [], startWithLastState);
+    const [selectedCategoryNames, setSelectedCategoryNames] = usePersistentState('selectedCategoryNames', [], startWithLastState);
+    const [selectedGroupNames, setSelectedGroupNames] = usePersistentState('selectedGroupNames', [], startWithLastState);
+    const [selectedNumbers1, setSelectedNumbers1] = usePersistentState('selectedNumbers1', [], startWithLastState);
+    const [selectedNumbers2, setSelectedNumbers2] = usePersistentState('selectedNumbers2', [], startWithLastState);
+    const [keywords, setKeywords] = usePersistentState('keywords', [], startWithLastState);
+    const [searchInTitle, setSearchInTitle] = usePersistentState('searchInTitle', true, startWithLastState);
+    const [searchInExplanation, setSearchInExplanation] = usePersistentState('searchInExplanation', true, startWithLastState);
+    const [searchInMainText, setSearchInMainText] = usePersistentState('searchInMainText', true, startWithLastState);
+    const [searchInComments, setSearchInComments] = usePersistentState('searchInComments', true, startWithLastState);
+    const [startDate, setStartDate] = usePersistentState('startDate', { day: '', month: '', year: '' }, startWithLastState);
+    const [endDate, setEndDate] = usePersistentState('endDate', { day: '', month: '', year: '' }, startWithLastState);
+    const [startDate2, setStartDate2] = usePersistentState('startDate2', { day: '', month: '', year: '' }, startWithLastState);
+    const [endDate2, setEndDate2] = usePersistentState('endDate2', { day: '', month: '', year: '' }, startWithLastState);
+    const [filterStarred, setFilterStarred] = usePersistentState('filterStarred', false, startWithLastState);
 
     const [areArticlesSelectable, setArticlesSelectable] = useState(false);
     const [allOrNoneSelected, setAllOrNoneSelected] = useState(false);

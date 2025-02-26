@@ -238,11 +238,14 @@
     "english": "English",
     "turkish": "Türkçe",
     "general settings": "General Settings",
+    "general": "General",
 
     "date is uncertain": "Date is Uncertain",
     "ordering": "Order",
     "order by date descending": "Date descending",
     "order by date ascending": "Date ascending",
     "order by number descending": "Number descending",
-    "order by number ascending": "Number ascending"
+    "order by number ascending": "Number ascending",
+
+    "start with last state": "Start with last state"
   }

@@ -251,5 +251,9 @@
     "order by number descending": "Numaraya göre azalan",
     "order by number ascending": "Numaraya göre artan",
 
-    "start with last state": "Uygulamayı kapatıldığı haliyle aç"
+    "start with last state": "Uygulamayı kapatıldığı haliyle aç",
+
+    "error occured": "Bir hata oluştu",
+    "error occured while saving": "Kaydederken bir hata oluştu",
+    "changes saved": "Değişiklikler kaydedildi"
 }

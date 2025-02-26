@@ -11,6 +11,7 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
 import ArticlePreferencesModal from '../modals/ArticlePreferencesModal.jsx';
+import toastr from 'toastr';
 
 const ReadControls = () => {
 
@@ -47,11 +48,17 @@ const ReadControls = () => {
     }
 
     const handleSavePreferences = async ({ isDateUncertain, ordering, selectedOwnerName }) => {
-        await articleApi.updateOwner(article.id, selectedOwnerName);
-        await articleApi.setOrdering(article.id, ordering);
-        await articleApi.setIsDateUncertain(article.id, isDateUncertain);
-        fetchArticleById(article.id);
-        setPreferencesModalOpen(false);
+        try {
+            await articleApi.updateOwner(article.id, selectedOwnerName);
+            await articleApi.setOrdering(article.id, ordering);
+            await articleApi.setIsDateUncertain(article.id, isDateUncertain);
+            fetchArticleById(article.id);
+            setPreferencesModalOpen(false);
+            toastr.success(t('changes saved'));
+        } catch (error) {
+            console.error(error);
+            toastr.error(t('error occurred'));
+        }
     }
 
     return (

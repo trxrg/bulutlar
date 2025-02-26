@@ -247,5 +247,9 @@
     "order by number descending": "Number descending",
     "order by number ascending": "Number ascending",
 
-    "start with last state": "Start with last state"
+    "start with last state": "Start with last state",
+
+    "error occured": "An error occured",
+    "error occured while saving": "An error occured while saving",
+    "changes saved": "Changes saved"
   }

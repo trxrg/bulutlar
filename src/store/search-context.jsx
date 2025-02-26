@@ -100,14 +100,6 @@ export default function SearchContextProvider({ children }) {
     }
 
     useEffect(() => {
-        if (fullScreen) {
-            setSidePanelCollapsed(true);
-        } else {
-            setSidePanelCollapsed(false);
-        }
-    }, [fullScreen]);
-
-    useEffect(() => {
         setFiltering({
             ownerNames: selectedOwnerNames,
             tagNames: selectedTagNames,

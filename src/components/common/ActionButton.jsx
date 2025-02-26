@@ -19,7 +19,7 @@ const ActionButton = ({ onClick, color='', size='', title='', children }) => {
 
     return (
         <button
-            className= {colorStyle + " rounded-md shadow-sm select-none h-10 " + sizeStyle}
+            className= {colorStyle + " rounded-md shadow-sm select-none " + sizeStyle}
             onClick={onClick}
             title={title || children}
         >

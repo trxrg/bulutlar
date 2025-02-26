@@ -25,6 +25,7 @@ export const articleApi = {
     removeFromGroup:    async (id, groupId)           => window.api.article.removeFromGroup(id, groupId),
     setIsStarred:       async (id, isStarred)         => window.api.article.setIsStarred(id, isStarred),
     setIsDateUncertain:       async (id, isDateUncertain)         => window.api.article.setIsDateUncertain(id, isDateUncertain),
+    setOrdering:       async (id, ordering)         => window.api.article.setOrdering(id, ordering),
 };
 
 export const ownerApi = {

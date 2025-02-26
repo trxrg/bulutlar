@@ -46,8 +46,9 @@ const ReadControls = () => {
         setSearchTerm('');
     }
 
-    const handleSavePreferences = async ({ isDateUncertain, selectedOwnerName }) => {
+    const handleSavePreferences = async ({ isDateUncertain, ordering, selectedOwnerName }) => {
         await articleApi.updateOwner(article.id, selectedOwnerName);
+        await articleApi.setOrdering(article.id, ordering);
         await articleApi.setIsDateUncertain(article.id, isDateUncertain);
         fetchArticleById(article.id);
         setPreferencesModalOpen(false);

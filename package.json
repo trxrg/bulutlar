@@ -104,6 +104,13 @@
     ],
     "directories": {
       "buildResources": "assets"
+    },
+    "icon": "public/cloud.ico",
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "include": "installer.nsh",
+      "installerIcon": "public/cloud.ico"
     }
   }
 }

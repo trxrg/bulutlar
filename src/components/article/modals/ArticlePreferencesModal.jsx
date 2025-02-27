@@ -14,7 +14,7 @@ const ArticlePreferencesModal = ({ isOpen, onRequestClose, onConfirm }) => {
     const { getOwnerById } = useContext(DBContext);
     // const initialOwnerName = article && article.ownerId && getOwnerById(article.ownerId);
     const [selectedOwnerName, setSelectedOwnerName] = useState(article && article.ownerId && getOwnerById(article.ownerId).name);
-    const [isDateUncertain, setDateUncertain] = useState(false);
+    const [isDateUncertain, setDateUncertain] = useState(article.isDateUncertain || false);
     const [ordering, setOrdering] = useState(article.ordering || article.id);
 
     return (

@@ -11,6 +11,8 @@
     "directories": {
       "buildResources": "assets"
     },
+    "icon": "public/cloud.ico",
+    "installerIcon": "public/cloud.ico",
     "win": {
       "icon": "public/cloud.ico",
       "target": [
@@ -21,7 +23,8 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "include": "installer.nsh"
+      "include": "installer.nsh",
+      "installerIcon": "public/cloud.ico"
     },
     "mac": {
       "icon": "public/cloud.icns",

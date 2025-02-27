@@ -88,6 +88,7 @@ const handleDBVersion = async () => {
 }
 
 app.whenReady().then(async () => {
+  console.info('main.js in when ready')
   initConfig();
   await startSequelize();
   // await initDB();
@@ -99,7 +100,7 @@ app.whenReady().then(async () => {
 
   createWindow();
   
-  console.info('App started');
+  console.info('App started main.js');
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

@@ -7,28 +7,28 @@ export const usePersistentState = (key, defaultValue, shouldPersist = true) => {
 
     // console.log('key:', key, 'shouldPersist:', shouldPersist);
 
+    // get from store
+    // called only at initialization
     useEffect(() => {
         const fetchStoredValue = async () => {
-            // console.log('fetchStoredValue usePersistentState: key:', key);
             const storedValue = await storeApi.get(key);
             // console.log('get usePersistentState: key:', key, 'storedValue: ', storedValue);
             if (storedValue !== undefined) {
                 setState(storedValue);
             }
+            setIsInitialized(true);
         };
-        
-        setIsInitialized(true);
-        if (shouldPersist) {
-            fetchStoredValue();
-        }
-    }, [key, shouldPersist]);
 
+        fetchStoredValue();
+    }, [key]);
+
+    // set to store
     useEffect(() => {
         if (isInitialized) {
             storeApi.set(key, state);
             // console.log('set usePersistentState: key:', key, 'state: ', state);
         }
-    }, [key, state, isInitialized, shouldPersist]);
+    }, [key, state, isInitialized]);
 
     return [state, setState];
 };

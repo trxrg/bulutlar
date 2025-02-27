@@ -8,12 +8,12 @@ import { useEffect } from 'react';
 export const AppContext = createContext();
 
 export default function AppContextProvider({ children }) {
-    const { allArticles, fetchAllData, allDataFetched, startWithLastState } = useContext(DBContext);
+    const { allArticles, fetchAllData, allDataFetched } = useContext(DBContext);
 
-    const [activeScreen, setActiveScreen] = usePersistentState('activeScreen', 'home', startWithLastState);
-    const [fullScreen, setFullScreen] = usePersistentState('fullscreen', false, startWithLastState);
-    const [activeTabId, setActiveTabId] = usePersistentState('activeTabId', 'search', startWithLastState);
-    const [tabs, setTabs] = usePersistentState('tabs', [{ id: 'search', title: 'Search' }], startWithLastState);
+    const [activeScreen, setActiveScreen] = usePersistentState('activeScreen', 'home');
+    const [fullScreen, setFullScreen] = usePersistentState('fullscreen', false);
+    const [activeTabId, setActiveTabId] = usePersistentState('activeTabId', 'search');
+    const [tabs, setTabs] = usePersistentState('tabs', [{ id: 'search', title: 'Search' }]);
     const [dataIsCleaned, setDataIsCleaned] = useState(false);
 
 

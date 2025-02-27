@@ -5,7 +5,6 @@ import { usePersistentState } from '../hooks/usePersistentState';
 export const DBContext = createContext();
 
 export default function DBContextProvider({ children }) {
-    const [startWithLastState, setStartWithLastState] = usePersistentState('startWithLastState', false, true);
     const [allArticles, setAllArticles] = useState([]);
     const [allOwners, setAllOwners] = useState([]);
     const [allTags, setAllTags] = useState([]);
@@ -265,10 +264,8 @@ export default function DBContextProvider({ children }) {
         getTagById,
         getAnnotationById,
         dbVersion,
-        allDataFetched,
-        startWithLastState,
-        setStartWithLastState
-    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, dbVersion, articleOrder, allGroups, allDataFetched, startWithLastState]);
+        allDataFetched
+    }), [allArticles, allOwners, allTags, allCategories, allAnnotations, dbVersion, articleOrder, allGroups, allDataFetched]);
 
     return <DBContext.Provider value={ctxValue}>
         {children}

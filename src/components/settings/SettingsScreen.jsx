@@ -4,7 +4,6 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { Button, Typography, AccordionDetails, AccordionSummary, Accordion } from '@mui/material';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { Radio, RadioGroup, FormControlLabel } from '@mui/material';
 import { AppContext } from '../../store/app-context';
 import { DBContext } from '../../store/db-context';
 import { dbApi } from '../../backend-adapter/BackendAdapter';
@@ -12,7 +11,7 @@ import toastr from 'toastr';
 
 const SettingsScreen = () => {
     const { translate: t, resetTabs, changeLanguage, getLanguage } = useContext(AppContext);
-    const { fetchAllData, startWithLastState, setStartWithLastState } = useContext(DBContext);
+    const { fetchAllData } = useContext(DBContext);
     const [backupDir, setBackupDir] = useState('');
 
     const language = getLanguage();
@@ -99,16 +98,6 @@ const SettingsScreen = () => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <div className='flex flex-col gap-5'>
-                        <FormControl component="fieldset">
-                            <Typography variant="body1">{t('start with last state')}</Typography>
-                            <RadioGroup
-                                value={startWithLastState ? 'yes' : 'no'}
-                                onChange={(e) => setStartWithLastState(e.target.value === 'yes')}
-                            >
-                                <FormControlLabel value="yes" control={<Radio />} label={t('yes')} />
-                                <FormControlLabel value="no" control={<Radio />} label={t('no')} />
-                            </RadioGroup>
-                        </FormControl>
                         <FormControl variant="outlined" fullWidth>
                             <InputLabel>{t('language')}</InputLabel>
                             <Select

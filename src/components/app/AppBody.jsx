@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 
 import TabsScreen from '../article/TabsScreen';
-import AddArticle from '../article/AddArticle';
 import CategoryScreen from '../category/CategoryScreen';
 import OwnerScreen from '../owner/OwnerScreen';
 import HomeScreen from '../home/HomeScreen';
@@ -24,9 +23,6 @@ const AppBody = () => {
                 : undefined}
             {activeScreen === 'tabs' ?
                 <TabsScreen />
-                : undefined}
-            {activeScreen === 'addArticle' ?
-                <AddArticle />
                 : undefined}
             {activeScreen === 'categories' ?
                 <CategoryScreen />

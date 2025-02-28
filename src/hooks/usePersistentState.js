@@ -12,7 +12,8 @@ export const usePersistentState = (key, defaultValue, shouldPersist = true) => {
     useEffect(() => {
         const fetchStoredValue = async () => {
             const storedValue = await storeApi.get(key);
-            // console.log('get usePersistentState: key:', key, 'storedValue: ', storedValue);
+            // if (key === 'articleOrder')
+            //     console.log('get usePersistentState: key:', key, 'storedValue: ', storedValue);
             if (storedValue !== undefined) {
                 setState(storedValue);
             }
@@ -24,9 +25,10 @@ export const usePersistentState = (key, defaultValue, shouldPersist = true) => {
 
     // set to store
     useEffect(() => {
-        if (isInitialized) {
+        if (isInitialized) { // to protect the store from setting the default value
             storeApi.set(key, state);
-            // console.log('set usePersistentState: key:', key, 'state: ', state);
+            // if (key === 'articleOrder')
+            //     console.log('set usePersistentState: key:', key, 'state: ', state);
         }
     }, [key, state, isInitialized]);
 

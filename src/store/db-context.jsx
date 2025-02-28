@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { createContext, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ownerApi, categoryApi, articleApi, tagApi, annotationApi, lookupApi, groupApi } from '../backend-adapter/BackendAdapter';
 import { usePersistentState } from '../hooks/usePersistentState';
 
@@ -15,6 +15,12 @@ export default function DBContextProvider({ children }) {
     const [dbVersion, setDbVersion] = useState('');
     const [articleOrder, setArticleOrder] = usePersistentState('articleOrder', {field: 'date', direction: 'desc'});
     const [allDataFetched, setAllDataFetched] = useState(false);
+    
+    
+    const articleOrderRef = useRef(articleOrder);
+    useEffect(() => {
+        articleOrderRef.current = articleOrder;
+    }, [articleOrder]);
 
     const fetchArticleById = useCallback(async (id) => {
         try {
@@ -117,12 +123,12 @@ export default function DBContextProvider({ children }) {
 
     const fetchAllArticles = useCallback(async () => {
         try {
-            const response = await articleApi.getAll(articleOrder);
+            const response = await articleApi.getAll(articleOrderRef.current);
             setAllArticles(response);
         } catch (err) {
             console.error(err);
         }
-    }, [articleOrder]);
+    }, [articleOrderRef]);
 
     const fetchAllTags = useCallback(async () => {
         try {

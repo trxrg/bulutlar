@@ -7,6 +7,8 @@ import Store from 'electron-store';
 
 const store = new Store();
 
+const userDataPath = app.getPath('userData');
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -26,12 +28,12 @@ const development = {
 
 const production = {
     env: 'production',
-    logFilePath: path.resolve(__dirname, "../../../logs/app.log"),
-    contentDbPath: path.resolve(__dirname, "../../../data/active/content.db"),
-    storeFolderPath: path.resolve(__dirname, "../../../data/active/"),
-    dbBackupFolderPath: storedDbBackupFolderPath || path.resolve(__dirname, "../../../data/backup"),
-    imagesFolderPath: path.resolve(__dirname, "../../../data/active/images"),
-    publicFolderPath: path.resolve(__dirname, '../../../public'),
+    logFilePath: path.resolve(userDataPath, "/logs/app.log"),
+    contentDbPath: path.join(userDataPath, "/data/active/content.db"),
+    storeFolderPath: path.join(userDataPath, "/data/active/"),
+    dbBackupFolderPath: storedDbBackupFolderPath || path.join(userDataPath, "/data/backup"),
+    imagesFolderPath: path.resolve(userDataPath, "/data/active/images"),
+    publicFolderPath: path.resolve(__dirname, '../public'),
 };
 
 const changeDbBackupFolderPath = (newPath) => {
@@ -60,6 +62,7 @@ const initConfig = () => {
     Object.assign(console, log.functions);
 
     console.info('Config initialized');
+    console.info('userDataPath:', userDataPath);
 }
 
 const config = isDevMode ? development : production;

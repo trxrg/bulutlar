@@ -28,11 +28,11 @@ const development = {
 
 const production = {
     env: 'production',
-    logFilePath: path.resolve(userDataPath, "/logs/app.log"),
+    logFilePath: path.join(userDataPath, "/logs/app.log"),
     contentDbPath: path.join(userDataPath, "/data/active/content.db"),
     storeFolderPath: path.join(userDataPath, "/data/active/"),
     dbBackupFolderPath: storedDbBackupFolderPath || path.join(userDataPath, "/data/backup"),
-    imagesFolderPath: path.resolve(userDataPath, "/data/active/images"),
+    imagesFolderPath: path.join(userDataPath, "/data/active/images"),
     publicFolderPath: path.resolve(__dirname, '../public'),
 };
 

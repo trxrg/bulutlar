@@ -13,7 +13,7 @@ Bulutlar enables users to write, read and edit articles. It offers
 Tech Stack:
 - React
 - Draft.js
-- Tailwinds
+- Tailwind
 - Node.js
 - Electron.js
 - Sequelize

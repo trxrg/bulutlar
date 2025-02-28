@@ -14,6 +14,7 @@ const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, afterViewIn
     const viewedArticle = getArticleById(viewedArticleId);
 
     const handleViewInNewTab = (e) => {
+        console.log('view in new tab clicked');
         handleAddTab(e, viewedArticleId);
         afterViewInNewTab && afterViewInNewTab();
         onRequestClose();
@@ -27,11 +28,15 @@ const ViewArticleModal = ({ isOpen, onRequestClose, viewedArticleId, afterViewIn
                     <ArticleInfo article={viewedArticle} isEditable={false}></ArticleInfo>
                 </div>
                 <div className={'flex-1 overflow-y-auto p-2 border leading-loose ' + fontSize}>
-                    <article dangerouslySetInnerHTML={{ __html: viewedArticle.text }} />
-                    {viewedArticle.comments && viewedArticle.comments[0] &&  htmlToText(viewedArticle.comments[0].text) &&
+                    <article>
+                        {htmlToText(viewedArticle.text)}
+                    </article>
+                    {viewedArticle.comments && viewedArticle.comments[0] && htmlToText(viewedArticle.comments[0].text) &&
                         <>
-                            <h3>{t('comment')}</h3>
-                            <article dangerouslySetInnerHTML={{ __html: viewedArticle.comments[0].text }} />
+                            <h3 className='text-center font-bold py-3'>{t('comment')}</h3>
+                            <article>
+                                {htmlToText(viewedArticle.comments[0].text)}
+                            </article>
                         </>}
                 </div>
                 <div className='flex-shrink-0'>

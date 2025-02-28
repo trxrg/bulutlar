@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { format } from 'date-fns';
 
-import TagList from '../tag/TagList.jsx';
+import TagList from '../components/tag/TagList.jsx';
 import RichText from './read/editor/RichText.jsx';
-import CategoryList from '../category/CategoryList.jsx';
-import OwnerList from '../owner/OwnerList.jsx';
-import ImageUpload from '../image/ImageUpdload.jsx';
+import CategoryList from '../components/category/CategoryList.jsx';
+import OwnerList from '../components/owner/OwnerList.jsx';
+import ImageUpload from '../components/image/ImageUpdload.jsx';
 
-import { AppContext } from '../../store/app-context.jsx'
-import { DBContext } from '../../store/db-context.jsx';
-import { articleApi, categoryApi } from '../../backend-adapter/BackendAdapter.js';
+import { AppContext } from '../store/app-context.jsx'
+import { DBContext } from '../store/db-context.jsx';
+import { articleApi, categoryApi } from '../backend-adapter/BackendAdapter.js';
 
 const AddArticle = () => {
 

@@ -255,5 +255,7 @@
 
     "error occured": "Bir hata oluştu",
     "error occured while saving": "Kaydederken bir hata oluştu",
-    "changes saved": "Değişiklikler kaydedildi"
+    "changes saved": "Değişiklikler kaydedildi",
+
+    "enter at least 2 characters": "En az 2 karakter giriniz"
 }

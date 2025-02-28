@@ -3,6 +3,7 @@ import FormatButton from '../../../common/FormatButton';
 import { SearchContext } from '../../../../store/search-context';
 import { useTranslation } from 'react-i18next';
 import Checkbox from '@mui/material/Checkbox';
+import toastr from 'toastr';
 
 import { XMarkIcon, PlusIcon } from '@heroicons/react/24/solid';
 
@@ -15,9 +16,15 @@ const KeywordFiltering = () => {
     const [inputValue, setInputValue] = useState('');
 
     const handleAddKeyword = () => {
-        if (inputValue.trim() !== '') {
-            setKeywords([...keywords, inputValue]);
+        if (!inputValue) return;
+
+        const trimmed = inputValue.trim();
+
+        if (trimmed.length >= 2) {
+            setKeywords([...keywords, trimmed]);
             setInputValue('');
+        } else {
+            toastr.warning(t('enter at least 2 characters'));
         }
     };
 

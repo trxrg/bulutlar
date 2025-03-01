@@ -7,7 +7,10 @@ export default (sequelize, DataTypes) => {
             // validate: {
             //     is: /^\w{1,}$/
             // }
-        }
+        },
+        ordering: { type: DataTypes.INTEGER },
+        field1: { type: DataTypes.STRING },
+        field2: { type: DataTypes.STRING }
     });
 
     return Tag;

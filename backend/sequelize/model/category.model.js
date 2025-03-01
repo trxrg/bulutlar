@@ -23,7 +23,10 @@ export default (sequelize) => {
                 },
             }
         },
-        color: { type: DataTypes.STRING }
+        color: { type: DataTypes.STRING },
+        ordering: { type: DataTypes.INTEGER },
+        field1: { type: DataTypes.STRING },
+        field2: { type: DataTypes.STRING }
     });
 
     return Category;

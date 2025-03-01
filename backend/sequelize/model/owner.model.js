@@ -26,7 +26,10 @@ const Owner = (sequelize, DataTypes) => {
                 //     }
                 // }
             }
-        }
+        },
+        ordering: { type: DataTypes.INTEGER },
+        field1: { type: DataTypes.STRING },
+        field2: { type: DataTypes.STRING }
     });
 };
 

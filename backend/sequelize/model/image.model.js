@@ -4,7 +4,10 @@ export default (sequelize, DataTypes) => {
         type: { allowNull: false, type: DataTypes.STRING },
         path: { allowNull: false, type: DataTypes.STRING },
         size: { type: DataTypes.INTEGER },
-        description: { type: DataTypes.STRING }
+        description: { type: DataTypes.STRING },
+        ordering: { type: DataTypes.INTEGER },
+        field1: { type: DataTypes.STRING },
+        field2: { type: DataTypes.STRING }
     });
 
     return Image;

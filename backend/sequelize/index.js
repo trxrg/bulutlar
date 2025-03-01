@@ -35,8 +35,6 @@ const startSequelize = async () => {
     });
 
     await initDB();
-
-    setRelations(sequelize);
 };
 
 const stopSequelize = async () => {
@@ -59,6 +57,7 @@ const initDB = async () => {
     for (const modelDefiner of modelDefiners) {
         modelDefiner(sequelize, DataTypes);
     }
+    setRelations(sequelize);
     await sequelize.sync();
 };
 

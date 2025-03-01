@@ -3,6 +3,7 @@ import { AppContext } from '../../store/app-context.jsx';
 import { DBContext } from '../../store/db-context.jsx';
 import Button from '@mui/material/Button';
 import '../../styles.css';
+import packageJson from '../../../package.json';
 
 const HomeScreen = () => {
 
@@ -47,7 +48,7 @@ const HomeScreen = () => {
                         <h2 className='text-l'>db version: {dbVersion}</h2>
                     </div>
                     <div>
-                        <h2 className='text-l'>app version: 1.3.0</h2>
+                        <h2 className='text-l'>app version: {packageJson.version}</h2>
                     </div>
                 </div>
             </div>

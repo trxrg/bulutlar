@@ -11,6 +11,9 @@ function setRelations(sequelize) {
     article.hasMany(comment);
     comment.belongsTo(article);
 
+    owner.hasMany(comment);
+    comment.belongsTo(owner);
+
     article.hasMany(image);
     image.belongsTo(article);
 

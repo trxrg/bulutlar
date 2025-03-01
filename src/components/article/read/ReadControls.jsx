@@ -107,7 +107,7 @@ const ReadControls = () => {
                         :
                         (fullScreen &&
                             <div className='flex items-center h-full'>
-                                <h2 className='text-xl whitespace-normal break-words mx-10'>{`${article.title} (${new Date(article.date).toLocaleDateString('tr')})`}</h2>
+                                <h2 className='text-xl whitespace-normal break-words mx-10'>{article.title + (article.isDateUncertain ? '' : ` (${new Date(article.date).toLocaleDateString('tr')})`)}</h2>
                             </div>
                         )}
                 </div>

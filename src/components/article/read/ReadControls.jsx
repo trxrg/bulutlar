@@ -49,8 +49,9 @@ const ReadControls = () => {
 
     const handleSavePreferences = async ({ isDateUncertain, ordering, selectedOwnerName }) => {
         try {
+            const orderingToSet = ordering ? ordering : null;
             await articleApi.updateOwner(article.id, selectedOwnerName);
-            await articleApi.setOrdering(article.id, ordering);
+            await articleApi.setOrdering(article.id, orderingToSet);
             await articleApi.setIsDateUncertain(article.id, isDateUncertain);
             fetchArticleById(article.id);
             setPreferencesModalOpen(false);

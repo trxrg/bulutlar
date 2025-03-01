@@ -15,7 +15,7 @@ const ArticlePreferencesModal = ({ isOpen, onRequestClose, onConfirm }) => {
     // const initialOwnerName = article && article.ownerId && getOwnerById(article.ownerId);
     const [selectedOwnerName, setSelectedOwnerName] = useState(article && article.ownerId && getOwnerById(article.ownerId).name);
     const [isDateUncertain, setDateUncertain] = useState(article.isDateUncertain || false);
-    const [ordering, setOrdering] = useState(article.ordering || article.id);
+    const [ordering, setOrdering] = useState(article.ordering);
 
     return (
         <GeneralModal
@@ -28,7 +28,7 @@ const ArticlePreferencesModal = ({ isOpen, onRequestClose, onConfirm }) => {
                     <h2 className='text-xl'>{t('ordering') + ':'}</h2>
                     <input
                         type={'number'}
-                        value={ordering}
+                        value={ordering || ''}
                         onChange={(e) => setOrdering(e.target.value)}
                         className="rounded-md, p-1"
                     />

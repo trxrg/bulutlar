@@ -28,7 +28,7 @@ const GroupsPanel = () => {
     return (
         <div className='border-t-4 border-[#809671] h-full'>
             <BodyWithFixedHeader>
-                <div className='flex flex-wrap justify-between p-2 shadow-lg bg-white'>
+                <div className='flex flex-wrap justify-between p-2 shadow-lg bg-white items-center'>
                     <h2 className='ml-2 text-xl font-semibold text-gray-800 cursor-pointer hover:underline' onClick={handleTitleClick}>{t('groups')}</h2>
                     <FormatButton onClick={() => setIsModalOpen(true)} title={t('add to group')}><PlusIcon className="w-5 h-5" /></FormatButton>
                 </div>

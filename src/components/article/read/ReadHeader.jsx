@@ -27,7 +27,7 @@ const ReadHeader = () => {
 
   return (
     <div className={fullScreen ? 'hidden' : 'bg-white pt-2 pb-1 flex justify-between border-b-4 border-[#809671]'}>
-      <div className='px-6'>
+      <div className='px-4'>
         <RichInput initialText={article.title} handleSave={(newName) => handleChangeTitle(newName)} className="text-2xl font-semibold text-gray-800 mb-1"></RichInput>
         <ArticleInfo article={article}></ArticleInfo>
       </div>

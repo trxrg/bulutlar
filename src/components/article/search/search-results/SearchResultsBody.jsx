@@ -74,8 +74,9 @@ const SearchResultsBody = () => {
                 const dayPresent = startDate.day !== '';
                 // date comparison
                 if (yearPresent && monthPresent) {
-                    const startDateObj = new Date();
-                    startDateObj.setFullYear(startDate.year || 0, (startDate.month || 1) - 1, startDate.day || 1);
+                    const startDateObj = new Date(Date.UTC(
+                        startDate.year || 0, (startDate.month || 1) - 1, startDate.day || 1, 0, 0, 0, 0
+                    ));
                     localFilteredArticles = localFilteredArticles.filter(art => {
                         const articleDate = new Date(art[field]);
                         return !art.isDateUncertain && articleDate >= startDateObj;
@@ -99,10 +100,10 @@ const SearchResultsBody = () => {
                     localFilteredArticles = localFilteredArticles.filter(art => {
                         if (art.isDateUncertain) return false;
                         const articleDate = new Date(art[field]);
-                        const articleMonth = articleDate.getMonth() + 1;
+                        const articleMonth = articleDate.getMonth() +1;
                         const articleDay = articleDate.getDate();
                         
-                        if (articleMonth === startDate.month) {
+                        if (articleMonth == startDate.month) {
                             return articleDay >= startDate.day;
                         } else {
                             return articleMonth >= startDate.month;
@@ -117,8 +118,9 @@ const SearchResultsBody = () => {
                 const dayPresent = endDate.day !== '';
                 // date comparison
                 if (yearPresent && monthPresent) {
-                    const endDateObj = new Date();
-                    endDateObj.setFullYear(endDate.year || 0, (endDate.month || 1) - 1, endDate.day || 1);
+                    const endDateObj = new Date(Date.UTC(
+                        endDate.year || 9999, (endDate.month || 12) - 1, endDate.day || 31, 23, 59, 59, 999
+                    ));
                     localFilteredArticles = localFilteredArticles.filter(art => {
                         const articleDate = new Date(art[field]);
                         return !art.isDateUncertain && articleDate <= endDateObj;
@@ -143,10 +145,10 @@ const SearchResultsBody = () => {
                         if (art.isDateUncertain) return false;
                         
                         const articleDate = new Date(art[field]);
-                        const articleMonth = articleDate.getMonth() + 1;
+                        const articleMonth = articleDate.getMonth() +1;
                         const articleDay = articleDate.getDate();
                                                 
-                        if (articleMonth === endDate.month) {
+                        if (articleMonth == endDate.month) {
                             return articleDay <= endDate.day;
                         } else {
                             return articleMonth <= endDate.month;

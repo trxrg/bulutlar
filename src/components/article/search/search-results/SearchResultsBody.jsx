@@ -32,13 +32,13 @@ const SearchResultsBody = () => {
 
         if (filtering.tagNames && filtering.tagNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => filtering.tagNames.some(filterTagName => art.tags.map(artTag => getTagById(artTag.id).name).includes(filterTagName)));
-        
+
         if (filtering.groupNames && filtering.groupNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => filtering.groupNames.some(filterGroupName => art.groups.map(artGroup => getGroupById(artGroup.id).name).includes(filterGroupName)));
 
         if (filtering.categoryNames && filtering.categoryNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => art.categoryId && filtering.categoryNames.includes(getCategoryById(art.categoryId).name));
-        
+
         if (filtering.startDate || filtering.endDate)
             localFilteredArticles = applyDateFiltering(localFilteredArticles, 'date', filtering.startDate, filtering.endDate);
 
@@ -68,22 +68,91 @@ const SearchResultsBody = () => {
         let localFilteredArticles = filteredArticles;
 
         try {
-            if (startDate && (startDate.year || startDate.month || startDate.day)) {
-                const startDateObj = new Date();
-                startDateObj.setFullYear(startDate.year || 0, (startDate.month || 1) - 1, startDate.day || 1);
-                localFilteredArticles = localFilteredArticles.filter(art => {
-                    const articleDate = new Date(art[field]);
-                    return !art.isDateUncertain && articleDate >= startDateObj;
-                });
+            if (startDate) {
+                const yearPresent = startDate.year !== '';
+                const monthPresent = startDate.month !== '';
+                const dayPresent = startDate.day !== '';
+                // date comparison
+                if (yearPresent && monthPresent) {
+                    const startDateObj = new Date();
+                    startDateObj.setFullYear(startDate.year || 0, (startDate.month || 1) - 1, startDate.day || 1);
+                    localFilteredArticles = localFilteredArticles.filter(art => {
+                        const articleDate = new Date(art[field]);
+                        return !art.isDateUncertain && articleDate >= startDateObj;
+                    });
+                // compare field by field
+                } else if ((yearPresent || monthPresent || dayPresent) && !(monthPresent && dayPresent)) {
+                    localFilteredArticles = localFilteredArticles.filter(art => {
+                        if (art.isDateUncertain) return false;
+                        const articleDate = new Date(art[field]);
+                        let result = true;
+                        if (yearPresent)
+                            result &&= articleDate.getFullYear() >= startDate.year;
+                        if (monthPresent)
+                            result &&= articleDate.getMonth() + 1 >= startDate.month;
+                        if (dayPresent)
+                            result &&= articleDate.getDate() >= startDate.day;
+                        return result;
+                    });
+                // a specific solution for the case of only month and day present
+                } else if (monthPresent && dayPresent) {
+                    localFilteredArticles = localFilteredArticles.filter(art => {
+                        if (art.isDateUncertain) return false;
+                        const articleDate = new Date(art[field]);
+                        const articleMonth = articleDate.getMonth() + 1;
+                        const articleDay = articleDate.getDate();
+                        
+                        if (articleMonth === startDate.month) {
+                            return articleDay >= startDate.day;
+                        } else {
+                            return articleMonth >= startDate.month;
+                        }
+                    });
+                }
             }
 
-            if (endDate && (endDate.year || endDate.month || endDate.day)) {
-                const endDateObj = new Date();
-                endDateObj.setFullYear(endDate.year || 9999, (endDate.month || 12) - 1, endDate.day || 31);
-                localFilteredArticles = localFilteredArticles.filter(art => {
-                    const articleDate = new Date(art[field]);
-                    return !art.isDateUncertain && articleDate <= endDateObj;
-                });
+            if (endDate) {
+                const yearPresent = endDate.year !== '';
+                const monthPresent = endDate.month !== '';
+                const dayPresent = endDate.day !== '';
+                // date comparison
+                if (yearPresent && monthPresent) {
+                    const endDateObj = new Date();
+                    endDateObj.setFullYear(endDate.year || 0, (endDate.month || 1) - 1, endDate.day || 1);
+                    localFilteredArticles = localFilteredArticles.filter(art => {
+                        const articleDate = new Date(art[field]);
+                        return !art.isDateUncertain && articleDate <= endDateObj;
+                    });
+                // compare field by field
+                } else if ((yearPresent || monthPresent || dayPresent) && !(monthPresent && dayPresent)) {
+                    localFilteredArticles = localFilteredArticles.filter(art => {
+                        if (art.isDateUncertain) return false;
+                        const articleDate = new Date(art[field]);
+                        let result = true;
+                        if (yearPresent)
+                            result &&= articleDate.getFullYear() <= endDate.year;
+                        if (monthPresent)
+                            result &&= articleDate.getMonth() + 1 <= endDate.month;
+                        if (dayPresent)
+                            result &&= articleDate.getDate() <= endDate.day;
+                        return result;
+                    });
+                // a specific solution for the case of only month and day present
+                } else if (monthPresent && dayPresent) {
+                    localFilteredArticles = localFilteredArticles.filter(art => {
+                        if (art.isDateUncertain) return false;
+                        
+                        const articleDate = new Date(art[field]);
+                        const articleMonth = articleDate.getMonth() + 1;
+                        const articleDay = articleDate.getDate();
+                                                
+                        if (articleMonth === endDate.month) {
+                            return articleDay <= endDate.day;
+                        } else {
+                            return articleMonth <= endDate.month;
+                        }
+                    });
+                }
             }
 
             return localFilteredArticles;

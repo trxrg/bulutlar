@@ -68,7 +68,7 @@ const SearchResultsBody = () => {
         let localFilteredArticles = filteredArticles;
 
         try {
-            if (startDate) {
+            if (startDate && (startDate.year || startDate.month || startDate.day)) {
                 const startDateObj = new Date();
                 startDateObj.setFullYear(startDate.year || 0, (startDate.month || 1) - 1, startDate.day || 1);
                 localFilteredArticles = localFilteredArticles.filter(art => {
@@ -77,7 +77,7 @@ const SearchResultsBody = () => {
                 });
             }
 
-            if (endDate) {
+            if (endDate && (endDate.year || endDate.month || endDate.day)) {
                 const endDateObj = new Date();
                 endDateObj.setFullYear(endDate.year || 9999, (endDate.month || 12) - 1, endDate.day || 31);
                 localFilteredArticles = localFilteredArticles.filter(art => {

@@ -69,21 +69,27 @@ const SearchResultsBody = () => {
 
         try {
             if (startDate) {
-                if (startDate.day)
-                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getDate()) >= startDate.day);
-                if (startDate.month)
-                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getMonth()) >= startDate.month - 1);
-                if (startDate.year)
-                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getFullYear()) >= startDate.year);
+                const startDateObj = new Date(
+                    startDate.year || 0,
+                    (startDate.month || 1) - 1,
+                    startDate.day || 1
+                );
+                localFilteredArticles = localFilteredArticles.filter(art => {
+                    const articleDate = new Date(art[field]);
+                    return !art.isDateUncertain && articleDate >= startDateObj;
+                });
             }
 
             if (endDate) {
-                if (endDate.day)
-                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getDate()) <= endDate.day);
-                if (endDate.month)
-                    localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && parseInt(new Date(art[field]).getMonth()) <= endDate.month - 1);
-                if (endDate.year)
-                    localFilteredArticles = localFilteredArticles.filter(art => parseInt(new Date(art[field]).getFullYear()) <= endDate.year);
+                const endDateObj = new Date(
+                    endDate.year || 9999,
+                    (endDate.month || 12) - 1,
+                    endDate.day || 31
+                );
+                localFilteredArticles = localFilteredArticles.filter(art => {
+                    const articleDate = new Date(art[field]);
+                    return !art.isDateUncertain && articleDate <= endDateObj;
+                });
             }
 
             return localFilteredArticles;

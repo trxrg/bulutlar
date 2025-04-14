@@ -69,11 +69,8 @@ const SearchResultsBody = () => {
 
         try {
             if (startDate) {
-                const startDateObj = new Date(
-                    startDate.year || 0,
-                    (startDate.month || 1) - 1,
-                    startDate.day || 1
-                );
+                const startDateObj = new Date();
+                startDateObj.setFullYear(startDate.year || 0, (startDate.month || 1) - 1, startDate.day || 1);
                 localFilteredArticles = localFilteredArticles.filter(art => {
                     const articleDate = new Date(art[field]);
                     return !art.isDateUncertain && articleDate >= startDateObj;
@@ -81,11 +78,8 @@ const SearchResultsBody = () => {
             }
 
             if (endDate) {
-                const endDateObj = new Date(
-                    endDate.year || 9999,
-                    (endDate.month || 12) - 1,
-                    endDate.day || 31
-                );
+                const endDateObj = new Date();
+                endDateObj.setFullYear(endDate.year || 9999, (endDate.month || 12) - 1, endDate.day || 31);
                 localFilteredArticles = localFilteredArticles.filter(art => {
                     const articleDate = new Date(art[field]);
                     return !art.isDateUncertain && articleDate <= endDateObj;

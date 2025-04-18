@@ -22,7 +22,7 @@ Tech Stack:
 ## How to run
 to install the node modules
 ``` bash
-npm install
+npm install --force
 ```
 to run react and electron concurrently
 ``` bash

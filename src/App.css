@@ -38,24 +38,26 @@
   }
 }
 
-/* Custom scrollbar for WebKit browsers */
+/*
+Custom scrollbar for WebKit browsers
 body.windows ::-webkit-scrollbar {
-  width: 8px; /* Width of the scrollbar */
-  height: 4px; /* Height of the scrollbar for horizontal scrolling */
+  width: 8px; 
+  height: 4px; 
 }
 
 body.windows ::-webkit-scrollbar-track {
-  background: transparent; /* Make the track transparent */
+  background: transparent; 
 }
 
 body.windows ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.4); /* Semi-transparent thumb */  
+  background: rgba(0, 0, 0, 0.4);   
 }
 
 body.windows ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.6); /* Darker on hover */
+  background: rgba(0, 0, 0, 0.6); 
 }
 
 body.windows ::-webkit-scrollbar-thumb:active {
-  background: rgba(0, 0, 0, 0.8); /* Even darker when active */
+  background: rgba(0, 0, 0, 0.8); 
 }
+*/

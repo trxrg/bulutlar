@@ -40,19 +40,47 @@ const createEditorStateFromHTMLAndDecorator = (html, decorator) => {
     return EditorState.createWithContent(stateFromHTML(html), decorator);
 };
 
-const Highlight = (props) => {
-    return (
-        <span style={{ backgroundColor: '#809671' }}>
-            {props.children}
-        </span>
-    );
-};
+const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleContentChange, editable, editorId = 'default' }, ref) => {
 
-const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleContentChange, editable }, ref) => {
-
-    const { setContextMenuIsOpen, setContextMenuPosition, searchTerm, articleId } = useContext(ReadContext);
+    const { setContextMenuIsOpen, setContextMenuPosition, searchTerm, articleId, updateAllHighlightRefs } = useContext(ReadContext);
     const { normalizeText, translate: t } = useContext(AppContext);
     const { fetchAllAnnotations, fetchArticleById } = useContext(DBContext);
+
+    // Local state for this editor's highlights
+    const [localHighlightRefs, setLocalHighlightRefs] = useState([]);
+
+    const Highlight = ({ children, offsetKey }) => {
+        const highlightRef = useRef(null);
+
+        useEffect(() => {
+            if (highlightRef.current && searchTerm) {
+                setLocalHighlightRefs(prev => {
+                    const newRefs = [...prev];
+                    const existingIndex = newRefs.findIndex(item => item.offsetKey === offsetKey);
+                    if (existingIndex >= 0) {
+                        newRefs[existingIndex] = { offsetKey, ref: highlightRef.current };
+                    } else {
+                        newRefs.push({ offsetKey, ref: highlightRef.current });
+                    }
+                    return newRefs;
+                });
+            }
+
+            return () => {
+                if (!searchTerm) {
+                    setLocalHighlightRefs([]);
+                }
+            };
+        }, [offsetKey, searchTerm]);
+
+        return (
+            <span
+                ref={highlightRef}
+                style={{ backgroundColor: '#a5d6a7' }}>
+                {children}
+            </span>
+        );
+    };
 
     const decorator = new CompositeDecorator([
         {
@@ -105,6 +133,18 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         const contentState = editorState.getCurrentContent();
         const newEditorState = EditorState.createWithContent(contentState, decorator);
         setEditorState(newEditorState);
+    }, [searchTerm]);
+
+    // Update context with local highlights whenever they change
+    useEffect(() => {
+        updateAllHighlightRefs(editorId, localHighlightRefs);
+    }, [localHighlightRefs, editorId]);
+
+    // Clear local highlights when search term changes
+    useEffect(() => {
+        if (!searchTerm) {
+            setLocalHighlightRefs([]);
+        }
     }, [searchTerm]);
 
     // ================================ LINKS ================================
@@ -174,7 +214,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         const endOffset = selectionState.getEndOffset();
         const rawContent = convertToRaw(contentState);
         let selectedText = '';
-    
+
         rawContent.blocks.forEach(block => {
             if (block.key === startKey && block.key === endKey) {
                 selectedText = block.text.slice(startOffset, endOffset);
@@ -186,7 +226,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
                 selectedText += block.text + '\n';
             }
         });
-    
+
         return selectedText;
     };
 
@@ -214,7 +254,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
             return;
         };
 
-        if (!annotation || !annotation.id ) {
+        if (!annotation || !annotation.id) {
             toastr.error(t('error adding quote'));
             return;
         }

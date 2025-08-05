@@ -18,6 +18,8 @@ export default function ReadContextProvider({ children, article }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [isAnnotationModalOpen, setAnnotationModalOpen] = useState(false);
     const [annotationIdForModal, setAnnotationIdForModal] = useState(null);
+    const [currentHighlightIndex, setCurrentHighlightIndex] = useState(-1);
+    const [allHighlightRefs, setAllHighlightRefs] = useState([]); // Combined refs from all editors
     const articleId = article.id;
 
     const readContentRef = useRef();
@@ -103,6 +105,79 @@ export default function ReadContextProvider({ children, article }) {
         }
     }, [fullScreen]);
 
+    useEffect(() => {
+        if (!searchTerm) {
+            setCurrentHighlightIndex(-1);
+            setAllHighlightRefs([]);
+        }
+    }, [searchTerm]);
+
+    // Navigation methods
+    const scrollToNextHighlight = () => {
+        if (allHighlightRefs.length === 0) return;
+        
+        const nextIndex = (currentHighlightIndex + 1) % allHighlightRefs.length;
+        scrollToHighlight(nextIndex);
+    };
+
+    const scrollToPreviousHighlight = () => {
+        if (allHighlightRefs.length === 0) return;
+        
+        const prevIndex = currentHighlightIndex <= 0 
+            ? allHighlightRefs.length - 1 
+            : currentHighlightIndex - 1;
+        scrollToHighlight(prevIndex);
+    };
+
+    const scrollToHighlight = (index) => {
+        if (index < 0 || index >= allHighlightRefs.length) return;
+        
+        const targetRef = allHighlightRefs[index]?.ref;
+        if (targetRef) {
+            // Remove previous highlight styling
+            allHighlightRefs.forEach((item, i) => {
+                if (item.ref) {
+                    item.ref.style.backgroundColor = i === index ? '#66bb6a' : '#a5d6a7';
+                    item.ref.style.outline = i === index ? '2px solid #4caf50' : 'none';
+                }
+            });
+            
+            setCurrentHighlightIndex(index);
+            
+            // Scroll to element
+            targetRef.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'nearest'
+            });
+        }
+    };
+
+    const getHighlightInfo = () => {
+        return {
+            total: allHighlightRefs.length,
+            current: currentHighlightIndex + 1,
+            hasMatches: allHighlightRefs.length > 0
+        };
+    };
+
+    const updateAllHighlightRefs = (editorId, refs) => {
+        setAllHighlightRefs(prev => {
+            // Remove existing refs from this editor
+            const filtered = prev.filter(item => item.editorId !== editorId);
+            // Add new refs with editor identifier
+            const newRefs = refs.map(ref => ({ ...ref, editorId }));
+            // Sort by DOM order (top to bottom)
+            const combined = [...filtered, ...newRefs].sort((a, b) => {
+                if (!a.ref || !b.ref) return 0;
+                const aRect = a.ref.getBoundingClientRect();
+                const bRect = b.ref.getBoundingClientRect();
+                return aRect.top - bRect.top;
+            });
+            return combined;
+        });
+    };
+
     const ctxValue = {
         article,
         articleId,
@@ -137,7 +212,15 @@ export default function ReadContextProvider({ children, article }) {
         isAnnotationModalOpen,
         setAnnotationModalOpen,
         annotationIdForModal,
-        setAnnotationIdForModal
+        setAnnotationIdForModal,
+        setCurrentHighlightIndex,
+        allHighlightRefs,
+        setAllHighlightRefs,
+        updateAllHighlightRefs,
+        scrollToNextHighlight,
+        scrollToPreviousHighlight,
+        scrollToHighlight,
+        getHighlightInfo
     };
 
     return <ReadContext.Provider value={ctxValue}>

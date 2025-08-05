@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon } from '@heroicons/react/24/outline';
+import React, { useState, useContext, useEffect } from 'react';
+import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
@@ -15,7 +15,7 @@ import toastr from 'toastr';
 
 const ReadControls = () => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, getHighlightInfo, searchTerm } = useContext(ReadContext);
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
     const { fetchArticleById } = useContext(DBContext);
 
@@ -36,6 +36,7 @@ const ReadControls = () => {
     }
 
     const handleSearchClick = () => {
+        setCurrentHighlightIndex(-1);
         if (searchBarOpen)
             setSearchTerm(localSearchTerm);
         else
@@ -45,7 +46,63 @@ const ReadControls = () => {
     const handleCloseSearchBar = () => {
         setSearchBarOpen(false);
         setSearchTerm('');
+        setLocalSearchTerm('');
+        setCurrentHighlightIndex(-1);
     }
+
+    const handleNextHighlight = () => {
+        scrollToNextHighlight();
+    }
+
+    const handlePreviousHighlight = () => {
+        scrollToPreviousHighlight();
+    }
+
+    // Keyboard event handler
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // Ctrl+F or Cmd+F to open search
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                if (!searchBarOpen) {
+                    setSearchBarOpen(true);
+                }
+                // Focus the search input after a brief delay to ensure it's rendered
+                setTimeout(() => {
+                    const searchInput = document.querySelector('input[placeholder*="' + t('search') + '"]');
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                }, 10);
+            }
+            
+            // Escape to close search
+            if (e.key === 'Escape' && searchBarOpen) {
+                handleCloseSearchBar();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [searchBarOpen, t]);
+
+    const handleSearchKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (searchBarOpen && localSearchTerm) {
+                // If search term is not set yet, set it first
+                if (localSearchTerm !== searchTerm) {
+                    setSearchTerm(localSearchTerm);
+                    setCurrentHighlightIndex(-1);
+                } else {
+                    // If search term is already set, go to next highlight
+                    handleNextHighlight();
+                }
+            }
+        }
+    };
 
     const handleSavePreferences = async ({ isDateUncertain, ordering, selectedOwnerName }) => {
         try {
@@ -83,12 +140,10 @@ const ReadControls = () => {
                                 type="text"
                                 className="border rounded p-1"
                                 placeholder={t('search')}
+                                value={localSearchTerm}
                                 onChange={(e) => setLocalSearchTerm(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        handleSearchClick();
-                                    }
-                                }}
+                                onKeyDown={handleSearchKeyDown}
+                                autoFocus
                             />
                             <FormatButton onClick={handleCloseSearchBar} title={t('close search bar')}>
                                 <XMarkIcon className="w-5 h-5" />
@@ -96,6 +151,19 @@ const ReadControls = () => {
                         </>
                     )}
                     <FormatButton onClick={handleSearchClick} title={t('search in the article')}><MagnifyingGlassIcon className="w-5 h-5" /></FormatButton>
+                    {searchBarOpen && getHighlightInfo && getHighlightInfo().hasMatches && (
+                        <>
+                            <FormatButton onClick={handlePreviousHighlight} title={t('previous match')}>
+                                <ChevronUpIcon className="w-5 h-5" />
+                            </FormatButton>
+                            <span className="text-sm px-2 py-1">
+                                {getHighlightInfo().current}/{getHighlightInfo().total}
+                            </span>
+                            <FormatButton onClick={handleNextHighlight} title={t('next match')}>
+                                <ChevronDownIcon className="w-5 h-5" />
+                            </FormatButton>
+                        </>
+                    )}
                 </div>
                 {/* center */}
                 <div className='gap-1'>

@@ -38,11 +38,11 @@
   }
 }
 
-/*
-Custom scrollbar for WebKit browsers
+
+/* Custom scrollbar for WebKit browsers */
 body.windows ::-webkit-scrollbar {
   width: 8px; 
-  height: 4px; 
+  height: 12px; 
 }
 
 body.windows ::-webkit-scrollbar-track {
@@ -60,4 +60,4 @@ body.windows ::-webkit-scrollbar-thumb:hover {
 body.windows ::-webkit-scrollbar-thumb:active {
   background: rgba(0, 0, 0, 0.8); 
 }
-*/
+

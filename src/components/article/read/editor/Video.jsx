@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
 import { videoApi } from '../../../../backend-adapter/BackendAdapter';
 import { AppContext } from '../../../../store/app-context';
 import { ReadContext } from '../../../../store/read-context';
@@ -23,12 +23,16 @@ const Video = (props) => {
     const videoEntity = contentState.getEntity(block.getEntityAt(0)).getData();
     const videoRef = useRef(null); // Reference to the video element
 
+    // Memoize the video URL to prevent recalculation on every render
+    const videoUrl = useMemo(() => {
+        if (!videoData) return null;
+        const normalizedPath = videoData.replace(/\\/g, '/');
+        return `media-file:///${normalizedPath}`;
+    }, [videoData]);
+
     const fetchVideoData = async () => {
-        console.warn('WARNING! fetching video data...');
         try {
             const data = await videoApi.getDataById(videoEntity.id);
-            console.log('Raw video data from backend:', data);
-            console.log('Type of video data:', typeof data);
             setVideoData(data);
         } catch (error) {
             console.error('Error fetching video data:', error);
@@ -94,39 +98,29 @@ const Video = (props) => {
                 className="select-none cursor-pointer inline-block w-full"
                 onContextMenu={handleRightClick}
             >
-                {videoData ? 
-                    (() => {
-                        // Convert Windows path to a URL-safe format
-                        // Ensure we have proper protocol format with three slashes
-                        const normalizedPath = videoData.replace(/\\/g, '/');
-                        const videoUrl = `media-file:///${normalizedPath}`;
-                        console.log('Generated video URL:', videoUrl);
-                        console.log('Original video data:', videoData);
-                        console.log('Normalized path:', normalizedPath);
-                        return (
-                            <video
-                                ref={videoRef}
-                                src={videoUrl}
-                                controls
-                                controlsList="nodownload"
-                                className="rounded w-full"
-                                onLoadStart={() => console.log('Video loadstart event')}
-                                onError={(e) => {
-                                    console.error('Video error:', e.target.error);
-                                    console.error('Video src:', e.target.src);
-                                }}
-                                onCanPlay={() => console.log('Video can play')}
-                                onClick={(e) => e.stopPropagation()}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onMouseUp={(e) => e.stopPropagation()}
-                                onFocus={(e) => e.stopPropagation()}
-                            >
-                                Your browser does not support the video tag.
-                            </video>
-                        );
-                    })()
-                    : t('loading') + '...'
-                }
+                {videoData && videoUrl ? (
+                    <video
+                        ref={videoRef}
+                        src={videoUrl}
+                        controls
+                        controlsList="nodownload"
+                        className="rounded w-full"
+                        onLoadStart={() => console.log('Video loadstart event')}
+                        onError={(e) => {
+                            console.error('Video error:', e.target.error);
+                            console.error('Video src:', e.target.src);
+                        }}
+                        onCanPlay={() => console.log('Video can play')}
+                        onClick={(e) => e.stopPropagation()}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onMouseUp={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                    >
+                        Your browser does not support the video tag.
+                    </video>
+                ) : (
+                    t('loading') + '...'
+                )}
             </div>
             <ContextMenu
                 isOpen={contextMenuIsOpen}

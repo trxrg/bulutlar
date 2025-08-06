@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
 import { audioApi } from '../../../../backend-adapter/BackendAdapter';
 import { AppContext } from '../../../../store/app-context';
 import { ReadContext } from '../../../../store/read-context';
@@ -23,8 +23,14 @@ const Audio = (props) => {
     const audioEntity = contentState.getEntity(block.getEntityAt(0)).getData();
     const audioRef = useRef(null); // Reference to the audio element
 
+    // Memoize the audio URL to prevent recalculation on every render
+    const audioUrl = useMemo(() => {
+        if (!audioData) return null;
+        const normalizedPath = audioData.replace(/\\/g, '/');
+        return `media-file:///${normalizedPath}`;
+    }, [audioData]);
+
     const fetchAudioData = async () => {
-        console.warn('WARNING! fetching audio data...');
         try {
             setAudioData(await audioApi.getDataById(audioEntity.id));
         } catch (error) {
@@ -88,28 +94,23 @@ const Audio = (props) => {
     return (
         <div className='relative'>
             <div className='select-none cursor-pointer inline-block w-full' onContextMenu={handleRightClick}>
-                {audioData ? 
-                    (() => {
-                        // Convert Windows path to a URL-safe format
-                        const normalizedPath = audioData.replace(/\\/g, '/');
-                        return (
-                            <audio 
-                                ref={audioRef}
-                                src={`media-file:///${normalizedPath}`} 
-                                controls
-                                controlsList="nodownload"
-                                className='rounded w-full'
-                                onClick={(e) => e.stopPropagation()}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onMouseUp={(e) => e.stopPropagation()}
-                                onFocus={(e) => e.stopPropagation()}
-                            >
-                                Your browser does not support the audio element.
-                            </audio>
-                        );
-                    })()
-                    : t('loading') + '...'
-                }
+                {audioData && audioUrl ? (
+                    <audio 
+                        ref={audioRef}
+                        src={audioUrl} 
+                        controls
+                        controlsList="nodownload"
+                        className='rounded w-full'
+                        onClick={(e) => e.stopPropagation()}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onMouseUp={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                    >
+                        Your browser does not support the audio element.
+                    </audio>
+                ) : (
+                    t('loading') + '...'
+                )}
             </div>
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                 <div className='flex flex-col gap-2'>

@@ -97,8 +97,8 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 app.whenReady().then(async () => {
-  // Register a simple file protocol for serving media files
-  protocol.registerFileProtocol('media-file', (request, callback) => {
+  // Register a modern file protocol handler using protocol.handle with streaming support
+  protocol.handle('media-file', async (request) => {
     try {
       console.log('🎵 Protocol handler received request:', request.url);
       
@@ -131,23 +131,81 @@ app.whenReady().then(async () => {
       // Security check - ensure the file path is absolute
       if (!path.isAbsolute(filePath)) {
         console.error('❌ File path is not absolute:', filePath);
-        callback({ error: -6 }); // FILE_NOT_FOUND
-        return;
+        return new Response('File not found', { status: 404 });
       }
       
-      // Check if file exists synchronously for callback-based API
+      // Check if file exists
       if (!fs.existsSync(filePath)) {
         console.error('❌ File does not exist:', filePath);
-        callback({ error: -6 }); // FILE_NOT_FOUND
-        return;
+        return new Response('File not found', { status: 404 });
       }
       
       console.log('✅ Serving media file:', filePath);
-      callback({ path: filePath });
+      
+      // Get file stats for size and streaming support
+      const stats = fs.statSync(filePath);
+      const fileSize = stats.size;
+      
+      // Get the MIME type based on file extension
+      const ext = path.extname(filePath).toLowerCase();
+      const mimeTypes = {
+        '.mp4': 'video/mp4',
+        '.webm': 'video/webm',
+        '.ogg': 'video/ogg',
+        '.mp3': 'audio/mpeg',
+        '.wav': 'audio/wav',
+        '.m4a': 'audio/mp4'
+      };
+      const mimeType = mimeTypes[ext] || 'application/octet-stream';
+      
+      // Handle range requests for video streaming
+      const range = request.headers.get('range');
+      
+      if (range) {
+        // Parse range header (e.g., "bytes=0-1023")
+        const ranges = range.replace('bytes=', '').split('-');
+        const start = parseInt(ranges[0], 10) || 0;
+        const end = parseInt(ranges[1], 10) || fileSize - 1;
+        const chunkSize = (end - start) + 1;
+        
+        console.log(`🎵 Range request: ${start}-${end}/${fileSize}`);
+        
+        // Create a read stream for the requested range
+        const stream = fs.createReadStream(filePath, { start, end });
+        const chunks = [];
+        
+        // Collect chunks from the stream
+        for await (const chunk of stream) {
+          chunks.push(chunk);
+        }
+        
+        const buffer = Buffer.concat(chunks);
+        
+        return new Response(buffer, {
+          status: 206, // Partial Content
+          headers: {
+            'Content-Type': mimeType,
+            'Content-Length': chunkSize.toString(),
+            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+            'Accept-Ranges': 'bytes',
+          }
+        });
+      } else {
+        // Serve the entire file
+        const fileBuffer = await readFile(filePath);
+        
+        return new Response(fileBuffer, {
+          headers: {
+            'Content-Type': mimeType,
+            'Content-Length': fileSize.toString(),
+            'Accept-Ranges': 'bytes',
+          }
+        });
+      }
       
     } catch (error) {
       console.error('❌ Error in protocol handler:', error.message);
-      callback({ error: -6 }); // FILE_NOT_FOUND
+      return new Response('Internal server error', { status: 500 });
     }
   });
 

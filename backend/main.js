@@ -1,5 +1,7 @@
 import path from 'node:path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, protocol } from 'electron';
+import { readFile } from 'fs/promises';
+import fs from 'fs';
 import isDev from 'electron-is-dev';
 import { initialize, enable} from '@electron/remote/main/index.js';
 import { startSequelize } from './sequelize/index.js';
@@ -30,16 +32,9 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js'),
       enableRemoteModule: true, // Enable remote module
       contextIsolation: true,
-      sandbox: true,
-      webSecurity: true,
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'"],
-          styleSrc: ["'self'"],
-          imgSrc: ["'self'"],
-        }
-      }
+      sandbox: true, // Re-enable sandbox for security
+      webSecurity: true, // Keep web security disabled
+      nodeIntegration: false,
     },
   })
 
@@ -87,7 +82,77 @@ const handleDBVersion = async () => {
     console.info('dbVersion not found');
 }
 
+// Register custom protocol scheme as privileged before app is ready
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'media-file',
+    privileges: {
+      secure: true,
+      standard: true,
+      stream: true,
+      supportsFetchAPI: true,
+      corsEnabled: false
+    }
+  }
+]);
+
 app.whenReady().then(async () => {
+  // Register a simple file protocol for serving media files
+  protocol.registerFileProtocol('media-file', (request, callback) => {
+    try {
+      console.log('🎵 Protocol handler received request:', request.url);
+      
+      const url = new URL(request.url);
+      let filePath = url.pathname;
+      
+      // Handle different URL formats
+      if (url.hostname && url.hostname.length === 1) {
+        // Format: media-file://c/Users/... -> c:/Users/...
+        filePath = url.hostname + ':' + url.pathname;
+      } else {
+        // Format: media-file:///C:/Users/... -> C:/Users/...
+        // Remove leading slash
+        if (filePath.startsWith('/')) {
+          filePath = filePath.substring(1);
+        }
+      }
+      
+      // Decode URL-encoded characters (spaces, special chars, etc.)
+      filePath = decodeURIComponent(filePath);
+      
+      // Convert forward slashes back to backslashes for Windows
+      if (process.platform === 'win32') {
+        filePath = filePath.replace(/\//g, '\\');
+      }
+      
+      console.log('🎵 Final file path:', filePath);
+      console.log('🎵 Is absolute path?', path.isAbsolute(filePath));
+      
+      // Security check - ensure the file path is absolute
+      if (!path.isAbsolute(filePath)) {
+        console.error('❌ File path is not absolute:', filePath);
+        callback({ error: -6 }); // FILE_NOT_FOUND
+        return;
+      }
+      
+      // Check if file exists synchronously for callback-based API
+      if (!fs.existsSync(filePath)) {
+        console.error('❌ File does not exist:', filePath);
+        callback({ error: -6 }); // FILE_NOT_FOUND
+        return;
+      }
+      
+      console.log('✅ Serving media file:', filePath);
+      callback({ path: filePath });
+      
+    } catch (error) {
+      console.error('❌ Error in protocol handler:', error.message);
+      callback({ error: -6 }); // FILE_NOT_FOUND
+    }
+  });
+
+  console.log('Custom media-file protocol registered successfully');
+  
   console.info('main.js in when ready')
   initConfig();
   await startSequelize();

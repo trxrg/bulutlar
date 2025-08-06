@@ -56,9 +56,8 @@ async function getAudioDataById(audioId) {
         if (!audio)
             throw ('no audio found with id: ' + audioId);
 
-        const fileData = await fs.readFile(getAudioAbsPath(audio.path), 'base64');
-
-        return `data:audio/${audio.type};base64,${fileData}`;
+        // Return the absolute file path for streaming instead of base64
+        return getAudioAbsPath(audio.path);
     } catch (err) {
         console.error('Error in getAudioData', err);
     }
@@ -66,9 +65,8 @@ async function getAudioDataById(audioId) {
 
 async function getAudioDataByPath(audio) {
     try {
-        const fileData = await fs.readFile(getAudioAbsPath(audio.path), 'base64');
-
-        return `data:audio/${audio.type};base64,${fileData}`;
+        // Return the absolute file path for streaming
+        return getAudioAbsPath(audio.path);
     } catch (err) {
         console.error('Error in getAudioDataByPath', err);
     }

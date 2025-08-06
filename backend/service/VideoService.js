@@ -58,9 +58,9 @@ async function getVideoDataById(videoId) {
         if (!video)
             throw ('no video found with id: ' + videoId);
 
-        const fileData = await fs.readFile(getVideoAbsPath(video.path), 'base64');
-
-        return `data:video/${video.type};base64,${fileData}`;
+        // Instead of loading the entire file into memory as base64,
+        // return the absolute file path so the frontend can stream it
+        return getVideoAbsPath(video.path);
     } catch (err) {
         console.error('Error in getVideoData', err);
     }
@@ -68,9 +68,8 @@ async function getVideoDataById(videoId) {
 
 async function getVideoDataByPath(video) {
     try {
-        const fileData = await fs.readFile(getVideoAbsPath(video.path), 'base64');
-
-        return `data:video/${video.type};base64,${fileData}`;
+        // Return the absolute file path for streaming
+        return getVideoAbsPath(video.path);
     } catch (err) {
         console.error('Error in getVideoDataByPath', err);
     }

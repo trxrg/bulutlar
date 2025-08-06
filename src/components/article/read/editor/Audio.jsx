@@ -89,14 +89,20 @@ const Audio = (props) => {
         <div className='relative'>
             <div className='select-none cursor-pointer inline-block w-full' onContextMenu={handleRightClick}>
                 {audioData ? 
-                    <audio 
-                        ref={audioRef}
-                        src={audioData} 
-                        controls 
-                        className='rounded w-full'
-                    >
-                        Your browser does not support the audio element.
-                    </audio> 
+                    (() => {
+                        // Convert Windows path to a URL-safe format
+                        const normalizedPath = audioData.replace(/\\/g, '/');
+                        return (
+                            <audio 
+                                ref={audioRef}
+                                src={`media-file:///${normalizedPath}`} 
+                                controls 
+                                className='rounded w-full'
+                            >
+                                Your browser does not support the audio element.
+                            </audio>
+                        );
+                    })()
                     : t('loading') + '...'
                 }
             </div>

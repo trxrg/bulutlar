@@ -26,7 +26,10 @@ const Video = (props) => {
     const fetchVideoData = async () => {
         console.warn('WARNING! fetching video data...');
         try {
-            setVideoData(await videoApi.getDataById(videoEntity.id));
+            const data = await videoApi.getDataById(videoEntity.id);
+            console.log('Raw video data from backend:', data);
+            console.log('Type of video data:', typeof data);
+            setVideoData(data);
         } catch (error) {
             console.error('Error fetching video data:', error);
         }
@@ -92,14 +95,31 @@ const Video = (props) => {
                 onContextMenu={handleRightClick}
             >
                 {videoData ? 
-                    <video
-                        ref={videoRef}
-                        src={videoData}
-                        controls
-                        className="rounded w-full"
-                    >
-                        Your browser does not support the video tag.
-                    </video>
+                    (() => {
+                        // Convert Windows path to a URL-safe format
+                        // Ensure we have proper protocol format with three slashes
+                        const normalizedPath = videoData.replace(/\\/g, '/');
+                        const videoUrl = `media-file:///${normalizedPath}`;
+                        console.log('Generated video URL:', videoUrl);
+                        console.log('Original video data:', videoData);
+                        console.log('Normalized path:', normalizedPath);
+                        return (
+                            <video
+                                ref={videoRef}
+                                src={videoUrl}
+                                controls
+                                className="rounded w-full"
+                                onLoadStart={() => console.log('Video loadstart event')}
+                                onError={(e) => {
+                                    console.error('Video error:', e.target.error);
+                                    console.error('Video src:', e.target.src);
+                                }}
+                                onCanPlay={() => console.log('Video can play')}
+                            >
+                                Your browser does not support the video tag.
+                            </video>
+                        );
+                    })()
                     : t('loading') + '...'
                 }
             </div>

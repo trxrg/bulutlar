@@ -97,6 +97,12 @@ const Video = (props) => {
             <div
                 className="select-none cursor-pointer inline-block w-full"
                 onContextMenu={handleRightClick}
+                onMouseDown={(e) => {
+                    // Only prevent propagation if clicking on the video container itself
+                    if (e.target === e.currentTarget) {
+                        e.stopPropagation();
+                    }
+                }}
             >
                 {videoData && videoUrl ? (
                     <video
@@ -115,6 +121,13 @@ const Video = (props) => {
                         onMouseDown={(e) => e.stopPropagation()}
                         onMouseUp={(e) => e.stopPropagation()}
                         onFocus={(e) => e.stopPropagation()}
+                        onBlur={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onKeyUp={(e) => e.stopPropagation()}
+                        onInput={(e) => e.stopPropagation()}
+                        onChange={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onPointerUp={(e) => e.stopPropagation()}
                     >
                         Your browser does not support the video tag.
                     </video>

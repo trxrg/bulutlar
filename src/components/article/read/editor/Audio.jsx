@@ -93,7 +93,16 @@ const Audio = (props) => {
 
     return (
         <div className='relative'>
-            <div className='select-none cursor-pointer inline-block w-full' onContextMenu={handleRightClick}>
+            <div 
+                className='select-none cursor-pointer inline-block w-full' 
+                onContextMenu={handleRightClick}
+                onMouseDown={(e) => {
+                    // Only prevent propagation if clicking on the audio container itself
+                    if (e.target === e.currentTarget) {
+                        e.stopPropagation();
+                    }
+                }}
+            >
                 {audioData && audioUrl ? (
                     <audio 
                         ref={audioRef}
@@ -105,6 +114,13 @@ const Audio = (props) => {
                         onMouseDown={(e) => e.stopPropagation()}
                         onMouseUp={(e) => e.stopPropagation()}
                         onFocus={(e) => e.stopPropagation()}
+                        onBlur={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onKeyUp={(e) => e.stopPropagation()}
+                        onInput={(e) => e.stopPropagation()}
+                        onChange={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onPointerUp={(e) => e.stopPropagation()}
                     >
                         Your browser does not support the audio element.
                     </audio>

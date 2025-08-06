@@ -27,6 +27,8 @@ const createWindow = () => {
     width: 1200,
     height: 900,
     title: 'Bulutlar',
+    backgroundColor: '#000000', // Set window background to black immediately
+    show: false, // Don't show window until ready
     // frame: false, // Hide the default title bar
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -42,6 +44,11 @@ const createWindow = () => {
 
 
   enable(mainWindow.webContents);
+
+  // Show window only when ready to prevent white flash
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
+  });
 
   mainWindow.loadURL(
     isDev

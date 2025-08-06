@@ -15,7 +15,8 @@ export default function AppContextProvider({ children }) {
     const [activeTabId, setActiveTabId] = usePersistentState('activeTabId', 'search');
     const [tabs, setTabs] = usePersistentState('tabs', [{ id: 'search', title: 'Search' }]);
     const [dataIsCleaned, setDataIsCleaned] = useState(false);
-
+    const [isReadyToShow, setIsReadyToShow] = useState(false);
+    const [loadingStartTime] = useState(Date.now());
 
     const { t } = useTranslation();
 
@@ -25,6 +26,26 @@ export default function AppContextProvider({ children }) {
             setDataIsCleaned(true);
         }
     }, [allDataFetched]);
+
+    useEffect(() => {
+        if (allDataFetched && dataIsCleaned) {
+            const elapsedTime = Date.now() - loadingStartTime;
+            const minDisplayTime = 3000; // 2 seconds minimum
+
+            if (elapsedTime >= minDisplayTime) {
+                // Enough time has passed, show immediately
+                setIsReadyToShow(true);
+            } else {
+                // Wait for the remaining time
+                const remainingTime = minDisplayTime - elapsedTime;
+                const timer = setTimeout(() => {
+                    setIsReadyToShow(true);
+                }, remainingTime);
+                
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [allDataFetched, dataIsCleaned, loadingStartTime]);
 
     const cleanTabs = () => {
         const validTabs = tabs.filter(tab => allArticles.some(article => article.id === tab.id));
@@ -214,7 +235,29 @@ export default function AppContextProvider({ children }) {
         htmlToText
     };
 
-    return <AppContext.Provider value={ctxValue}>
-        {allDataFetched && dataIsCleaned ? children : <div className='text-3xl bg-white'>{t('loading')}...</div>}
-    </AppContext.Provider>
+    return (
+        <AppContext.Provider value={ctxValue}>
+            {isReadyToShow ? (
+                (() => {
+                    // Hide initial HTML loader when React app is ready
+                    const initialLoader = document.getElementById('initial-loader');
+                    if (initialLoader) {
+                        initialLoader.style.transition = 'opacity 0.3s ease-out';
+                        initialLoader.style.opacity = '0';
+                        setTimeout(() => {
+                            initialLoader.style.display = 'none';
+                        }, 300);
+                    }
+                    return children;
+                })()
+            ) : (
+                <div className='flex flex-col items-center justify-center h-screen bg-black text-white'>
+                    <div className="flex flex-col items-center">
+                        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
+                        <div className="mt-6 text-xl">fadkl;sdsal;kf{t('loading')}...</div>
+                    </div>
+                </div>
+            )}
+        </AppContext.Provider>
+    );
 }

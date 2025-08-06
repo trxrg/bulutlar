@@ -22,6 +22,7 @@ function initService() {
 
     console.info('VideoService initialized');
     console.info('Resolved videosFolderPath:', videosFolderPath);
+    console.info('Config object:', JSON.stringify(config, null, 2));
 }
 
 async function createVideo(video, transaction = null) {
@@ -148,7 +149,12 @@ async function downloadVideoById(videoId) {
 }
 
 function getVideoAbsPath(videoPath) {
-    return path.join(videosFolderPath, videoPath);
+    const absolutePath = path.join(videosFolderPath, videoPath);
+    console.log('🎬 getVideoAbsPath:');
+    console.log('  - videosFolderPath:', videosFolderPath);
+    console.log('  - videoPath:', videoPath);
+    console.log('  - absolutePath:', absolutePath);
+    return absolutePath;
 }
 
 const VideoService = {

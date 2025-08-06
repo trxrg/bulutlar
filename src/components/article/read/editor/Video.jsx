@@ -26,8 +26,33 @@ const Video = (props) => {
     // Memoize the video URL to prevent recalculation on every render
     const videoUrl = useMemo(() => {
         if (!videoData) return null;
-        const normalizedPath = videoData.replace(/\\/g, '/');
-        return `media-file:///${normalizedPath}`;
+        
+        // Get platform information
+        const platform = window.versions?.platform() || 'unknown';
+        
+        console.log('🎬 Video URL generation:');
+        console.log('  - Platform:', platform);
+        console.log('  - Original path:', videoData);
+        
+        let finalUrl;
+        if (platform === 'win32') {
+            // Windows: Normalize path and handle drive letters
+            const normalizedPath = videoData.replace(/\\/g, '/');
+            if (normalizedPath.match(/^[a-zA-Z]:\//)) {
+                const driveLetter = normalizedPath[0].toLowerCase();
+                const pathWithoutDrive = normalizedPath.substring(2); // Remove "C:"
+                finalUrl = `media-file://${driveLetter}${pathWithoutDrive}`;
+            } else {
+                finalUrl = `media-file:///${normalizedPath}`;
+            }
+        } else {
+            // macOS/Linux: Use the absolute path as-is with proper URL format
+            // For macOS paths like /Users/..., we need media-file:///Users/...
+            finalUrl = `media-file://${videoData}`;
+        }
+        
+        console.log('  - Final URL:', finalUrl);
+        return finalUrl;
     }, [videoData]);
 
     const fetchVideoData = async () => {

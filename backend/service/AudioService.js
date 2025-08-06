@@ -145,7 +145,12 @@ async function downloadAudioById(audioId) {
 }
 
 function getAudioAbsPath(audioPath) {
-    return path.join(audiosFolderPath, audioPath);
+    const absolutePath = path.join(audiosFolderPath, audioPath);
+    console.log('🎵 getAudioAbsPath:');
+    console.log('  - audiosFolderPath:', audiosFolderPath);
+    console.log('  - audioPath:', audioPath);
+    console.log('  - absolutePath:', absolutePath);
+    return absolutePath;
 }
 
 const AudioService = {

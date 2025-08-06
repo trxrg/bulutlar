@@ -26,8 +26,36 @@ const Audio = (props) => {
     // Memoize the audio URL to prevent recalculation on every render
     const audioUrl = useMemo(() => {
         if (!audioData) return null;
+        
+        // Normalize path for cross-platform compatibility
         const normalizedPath = audioData.replace(/\\/g, '/');
-        return `media-file:///${normalizedPath}`;
+        
+        // For Windows, create URL with drive letter in hostname
+        // For macOS/Linux, use standard file:// approach with media-file:// protocol
+        const platform = window.versions?.platform() || 'unknown';
+        
+        console.log('🎵 Audio URL generation:');
+        console.log('  - Platform:', platform);
+        console.log('  - Original path:', audioData);
+        
+        let finalUrl;
+        if (platform === 'win32') {
+            // Windows: if path has drive letter, put it in hostname
+            if (normalizedPath.match(/^[a-zA-Z]:\//)) {
+                const driveLetter = normalizedPath[0].toLowerCase();
+                const pathWithoutDrive = normalizedPath.substring(2); // Remove "C:"
+                finalUrl = `media-file://${driveLetter}${pathWithoutDrive}`;
+            } else {
+                finalUrl = `media-file:///${normalizedPath}`;
+            }
+        } else {
+            // macOS/Linux: Use the absolute path as-is with proper URL format
+            // For macOS paths like /Users/..., we need media-file:///Users/...
+            finalUrl = `media-file://${audioData}`;
+        }
+        
+        console.log('  - Final URL:', finalUrl);
+        return finalUrl;
     }, [audioData]);
 
     const fetchAudioData = async () => {

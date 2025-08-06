@@ -112,25 +112,37 @@ app.whenReady().then(async () => {
       const url = new URL(request.url);
       let filePath = url.pathname;
       
-      // Handle different URL formats
-      if (url.hostname && url.hostname.length === 1) {
-        // Format: media-file://c/Users/... -> c:/Users/...
-        filePath = url.hostname + ':' + url.pathname;
-      } else {
-        // Format: media-file:///C:/Users/... -> C:/Users/...
-        // Remove leading slash
-        if (filePath.startsWith('/')) {
-          filePath = filePath.substring(1);
+      console.log('🎵 URL parts:');
+      console.log('  - hostname:', url.hostname);
+      console.log('  - pathname:', url.pathname);
+      
+      // Handle different URL formats based on platform
+      if (process.platform === 'win32') {
+        // Windows: Handle drive letters in URL
+        if (url.hostname && url.hostname.length === 1) {
+          // Format: media-file://c/Users/... -> c:/Users/...
+          filePath = url.hostname + ':' + url.pathname;
+        } else {
+          // Format: media-file:///C:/Users/... -> C:/Users/...
+          // Remove leading slash
+          if (filePath.startsWith('/')) {
+            filePath = filePath.substring(1);
+          }
         }
+        // Convert forward slashes back to backslashes for Windows
+        filePath = filePath.replace(/\//g, '\\');
+      } else {
+        // macOS/Linux: Handle different URL formats
+        if (url.hostname && url.hostname !== '') {
+          // Format: media-file://users/trxrg/Desktop/... -> /users/trxrg/Desktop/...
+          // Reconstruct the full path by combining hostname and pathname
+          filePath = '/' + url.hostname + url.pathname;
+        }
+        // else: Format: media-file:///absolute/path -> pathname already contains the absolute path
       }
       
       // Decode URL-encoded characters (spaces, special chars, etc.)
       filePath = decodeURIComponent(filePath);
-      
-      // Convert forward slashes back to backslashes for Windows
-      if (process.platform === 'win32') {
-        filePath = filePath.replace(/\//g, '\\');
-      }
       
       console.log('🎵 Final file path:', filePath);
       console.log('🎵 Is absolute path?', path.isAbsolute(filePath));

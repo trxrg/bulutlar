@@ -108,6 +108,7 @@ const Video = (props) => {
                                 ref={videoRef}
                                 src={videoUrl}
                                 controls
+                                controlsList="nodownload"
                                 className="rounded w-full"
                                 onLoadStart={() => console.log('Video loadstart event')}
                                 onError={(e) => {

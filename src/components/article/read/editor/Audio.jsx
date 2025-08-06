@@ -96,7 +96,8 @@ const Audio = (props) => {
                             <audio 
                                 ref={audioRef}
                                 src={`media-file:///${normalizedPath}`} 
-                                controls 
+                                controls
+                                controlsList="nodownload"
                                 className='rounded w-full'
                                 onClick={(e) => e.stopPropagation()}
                                 onMouseDown={(e) => e.stopPropagation()}

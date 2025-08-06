@@ -23,6 +23,8 @@ const development = {
     storeFolderPath: path.resolve(__dirname, "../data/active/"),
     dbBackupFolderPath: storedDbBackupFolderPath || path.resolve(__dirname, "../data/backup"),
     imagesFolderPath: path.resolve(__dirname, "../data/active/images"),
+    audiosFolderPath: path.resolve(__dirname, "../data/active/audios"),
+    videosFolderPath: path.resolve(__dirname, "../data/active/videos"),
     publicFolderPath: path.resolve(__dirname, "../public"),
 };
 
@@ -33,6 +35,8 @@ const production = {
     storeFolderPath: path.join(userDataPath, "/data/active/"),
     dbBackupFolderPath: storedDbBackupFolderPath || path.join(userDataPath, "/data/backup"),
     imagesFolderPath: path.join(userDataPath, "/data/active/images"),
+    audiosFolderPath: path.join(userDataPath, "/data/active/audios"),
+    videosFolderPath: path.join(userDataPath, "/data/active/videos"),
     publicFolderPath: path.resolve(__dirname, '../public'),
 };
 

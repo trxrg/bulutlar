@@ -85,6 +85,46 @@ const ReadContent = () => {
         syncArticleFromBE();
     };
 
+    const handleInsertAudioClicked = async () => {
+        try {
+            const audioEntities = await articleApi.openDialogToAddAudios(article.id);
+
+            if (!audioEntities)
+                return;
+
+            for (const audioEntity of audioEntities) {
+                if (activeEditorRef) {
+                    console.info('Inserting audio to article:', audioEntity);
+                    activeEditorRef.current.addAudio(audioEntity);
+                }
+            }
+        } catch (error) {
+            console.error('Error inserting audio:', error);
+            toastr.error(t('errorAddingAudio'));
+        }
+        syncArticleFromBE();
+    };
+
+    const handleInsertVideoClicked = async () => {
+        try {
+            const videoEntities = await articleApi.openDialogToAddVideos(article.id);
+
+            if (!videoEntities)
+                return;
+
+            for (const videoEntity of videoEntities) {
+                if (activeEditorRef) {
+                    console.info('Inserting video to article:', videoEntity);
+                    activeEditorRef.current.addVideo(videoEntity);
+                }
+            }
+        } catch (error) {
+            console.error('Error inserting video:', error);
+            toastr.error(t('errorAddingVideo'));
+        }
+        syncArticleFromBE();
+    };
+
     React.useImperativeHandle(readContentRef, () => ({
         addLink,
         addQuote,
@@ -93,6 +133,8 @@ const ReadContent = () => {
         toggleStyle,
         toggleBlockType,
         handleInsertImageClicked,
+        handleInsertAudioClicked,
+        handleInsertVideoClicked,
     }));
 
     const addRelatedArticleWhenLinkAdded = async (url) => {

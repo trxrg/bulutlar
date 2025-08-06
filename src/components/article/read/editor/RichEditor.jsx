@@ -6,13 +6,15 @@ import {
 } from 'draft-js';
 import { stateToHTML } from 'draft-js-export-html';
 import { stateFromHTML } from 'draft-js-import-html';
-import { imageApi, articleApi } from '../../../../backend-adapter/BackendAdapter';
+import { imageApi, audioApi, videoApi, articleApi } from '../../../../backend-adapter/BackendAdapter';
 import { ReadContext } from '../../../../store/read-context';
 import { AppContext } from '../../../../store/app-context';
 import { DBContext } from '../../../../store/db-context';
 import Link from './Link';
 import Quote from './Quote';
 import Image from './Image';
+import Audio from './Audio';
+import Video from './Video';
 import toastr from 'toastr';
 import '../../../../styles.css'
 import 'draft-js/dist/Draft.css'; // necessary for list item styling etc.
@@ -111,6 +113,10 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
 
     const [addedImageIdsWhileEditing, setAddedImageIdsWhileEditing] = useState([]);
     const [deletedImageIdsWhileEditing, setDeletedImageIdsWhileEditing] = useState([]);
+    const [addedAudioIdsWhileEditing, setAddedAudioIdsWhileEditing] = useState([]);
+    const [deletedAudioIdsWhileEditing, setDeletedAudioIdsWhileEditing] = useState([]);
+    const [addedVideoIdsWhileEditing, setAddedVideoIdsWhileEditing] = useState([]);
+    const [deletedVideoIdsWhileEditing, setDeletedVideoIdsWhileEditing] = useState([]);
 
     const editorStateRef = useRef(editorState);
     const editorRef = useRef();
@@ -324,6 +330,28 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         });
     };
 
+    const addAudio = (audio) => {
+        setEditorState(editorState => {
+            const contentState = editorState.getCurrentContent();
+            const contentStateWithEntity = contentState.createEntity('AUDIO', 'IMMUTABLE', audio);
+            const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+            const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
+            setAddedAudioIdsWhileEditing(addedAudioIdsWhileEditing => [...addedAudioIdsWhileEditing, audio.id]);
+            return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ');
+        });
+    };
+
+    const addVideo = (video) => {
+        setEditorState(editorState => {
+            const contentState = editorState.getCurrentContent();
+            const contentStateWithEntity = contentState.createEntity('VIDEO', 'IMMUTABLE', video);
+            const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+            const newEditorState = EditorState.set(editorState, { currentContent: contentStateWithEntity });
+            setAddedVideoIdsWhileEditing(addedVideoIdsWhileEditing => [...addedVideoIdsWhileEditing, video.id]);
+            return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ');
+        });
+    };
+
     const getImages = (editorState) => {
         const contentState = editorState.getCurrentContent();
         const blockMap = contentState.getBlockMap();
@@ -343,7 +371,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         return images;
     };
 
-    const deleteAtomicBlock = (blockKey, imageId) => {
+    const deleteAtomicBlock = (blockKey, mediaId, mediaType = 'IMAGE') => {
         const contentState = editorStateRef.current.getCurrentContent();
         const blockMap = contentState.getBlockMap();
         const block = contentState.getBlockForKey(blockKey);
@@ -379,7 +407,14 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
             currentSelection
         );
 
-        setDeletedImageIdsWhileEditing(deletedImageIdsWhileEditing => [...deletedImageIdsWhileEditing, imageId]);
+        // Track deleted media IDs based on type
+        if (mediaType === 'IMAGE') {
+            setDeletedImageIdsWhileEditing(deletedImageIdsWhileEditing => [...deletedImageIdsWhileEditing, mediaId]);
+        } else if (mediaType === 'AUDIO') {
+            setDeletedAudioIdsWhileEditing(deletedAudioIdsWhileEditing => [...deletedAudioIdsWhileEditing, mediaId]);
+        } else if (mediaType === 'VIDEO') {
+            setDeletedVideoIdsWhileEditing(deletedVideoIdsWhileEditing => [...deletedVideoIdsWhileEditing, mediaId]);
+        }
 
         // Update the editor state
         setEditorState(finalEditorState);
@@ -432,6 +467,16 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         setAddedImageIdsWhileEditing([]);
         setDeletedImageIdsWhileEditing([]);
 
+        // delete audios (from db) that are deleted while editing
+        deletedAudioIdsWhileEditing.forEach(audioId => audioApi.deleteById(audioId));
+        setAddedAudioIdsWhileEditing([]);
+        setDeletedAudioIdsWhileEditing([]);
+
+        // delete videos (from db) that are deleted while editing
+        deletedVideoIdsWhileEditing.forEach(videoId => videoApi.deleteById(videoId));
+        setAddedVideoIdsWhileEditing([]);
+        setDeletedVideoIdsWhileEditing([]);
+
         return { html: stateToHTML(editorState.getCurrentContent()), json: convertToRaw(editorState.getCurrentContent()) };
     }
 
@@ -450,6 +495,16 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         setAddedImageIdsWhileEditing([]);
         setDeletedImageIdsWhileEditing([]);
 
+        // delete audios (from db) that are added while editing
+        addedAudioIdsWhileEditing.forEach(audioId => audioApi.deleteById(audioId));
+        setAddedAudioIdsWhileEditing([]);
+        setDeletedAudioIdsWhileEditing([]);
+
+        // delete videos (from db) that are added while editing
+        addedVideoIdsWhileEditing.forEach(videoId => videoApi.deleteById(videoId));
+        setAddedVideoIdsWhileEditing([]);
+        setDeletedVideoIdsWhileEditing([]);
+
         setEditorState(originalEditorState);
     }
 
@@ -457,6 +512,8 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         addLink,
         addQuote,
         addImage,
+        addAudio,
+        addVideo,
         getContent,
         resetContent,
         toggleInlineStyle,
@@ -494,15 +551,29 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
                         props: {
                             block: contentBlock,
                             contentState,
-                            onDelete: (imageId) => deleteAtomicBlock(contentBlock.getKey(), imageId),
+                            onDelete: (imageId) => deleteAtomicBlock(contentBlock.getKey(), imageId, 'IMAGE'),
+                        }
+                    };
+                } else if (entityType === 'AUDIO') {
+                    return {
+                        component: Audio,
+                        editable: false,
+                        props: {
+                            block: contentBlock,
+                            contentState,
+                            onDelete: (audioId) => deleteAtomicBlock(contentBlock.getKey(), audioId, 'AUDIO'),
                         }
                     };
                 } else if (entityType === 'VIDEO') {
-                    // for future developments
-                    // return {
-                    //     component: VideoComponent,
-                    //     editable: false,
-                    // };
+                    return {
+                        component: Video,
+                        editable: false,
+                        props: {
+                            block: contentBlock,
+                            contentState,
+                            onDelete: (videoId) => deleteAtomicBlock(contentBlock.getKey(), videoId, 'VIDEO'),
+                        }
+                    };
                 }
             }
         }

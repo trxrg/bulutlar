@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
+import { videoApi } from '../../../../backend-adapter/BackendAdapter';
 import { AppContext } from '../../../../store/app-context';
 import { ReadContext } from '../../../../store/read-context';
 import ContextMenu from '../../../common/ContextMenu';
@@ -11,6 +12,7 @@ const Video = (props) => {
     const contentState = props.contentState;
     const onDelete = props.blockProps.onDelete;
 
+    const [videoData, setVideoData] = useState(null);
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
     const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] = useState(false);
@@ -20,6 +22,19 @@ const Video = (props) => {
 
     const videoEntity = contentState.getEntity(block.getEntityAt(0)).getData();
     const videoRef = useRef(null); // Reference to the video element
+
+    const fetchVideoData = async () => {
+        console.warn('WARNING! fetching video data...');
+        try {
+            setVideoData(await videoApi.getDataById(videoEntity.id));
+        } catch (error) {
+            console.error('Error fetching video data:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchVideoData();
+    }, [videoEntity]);
 
     const handleRightClick = (e) => {
         e.preventDefault();
@@ -64,14 +79,17 @@ const Video = (props) => {
                 className="select-none cursor-pointer inline-block w-full"
                 onContextMenu={handleRightClick}
             >
-                <video
-                    ref={videoRef}
-                    src={videoEntity.src}
-                    controls
-                    className="rounded w-full"
-                >
-                    Your browser does not support the video tag.
-                </video>
+                {videoData ? 
+                    <video
+                        ref={videoRef}
+                        src={videoData}
+                        controls
+                        className="rounded w-full"
+                    >
+                        Your browser does not support the video tag.
+                    </video>
+                    : t('loading') + '...'
+                }
             </div>
             <ContextMenu
                 isOpen={contextMenuIsOpen}

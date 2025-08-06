@@ -6,6 +6,8 @@ const servicePromises = [
     import('./GroupService.js'),
     import('./CommentService.js'),
     import('./ImageService.js'),
+    import('./AudioService.js'),
+    import('./VideoService.js'),
     import('./AnnotationService.js'),
     import('./LookupService.js'),
     import('./DBService.js'),

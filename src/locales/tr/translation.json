@@ -173,6 +173,18 @@
     "deleteImage": "Resmi Sil",
     "sureDeletingImage": "Bu resmi silmek istediğinizden emin misiniz?",
 
+    "audio": "Ses",
+    "errorAddingAudio": "Ses eklerken hata oluştu",
+    "errorDeletingAudio": "Sesi silerken hata oluştu",
+    "deleteAudio": "Sesi Sil",
+    "sureDeletingAudio": "Bu sesi silmek istediğinizden emin misiniz?",
+
+    "video": "Video",
+    "errorAddingVideo": "Video eklerken hata oluştu",
+    "errorDeletingVideo": "Videoyu silerken hata oluştu",
+    "deleteVideo": "Videoyu Sil",
+    "sureDeletingVideo": "Bu videoyu silmek istediğinizden emin misiniz?",
+
     "settings": "Ayarlar",
     "database": "Veritabanı",
     "appearance": "Görünüm",
@@ -213,6 +225,8 @@
     "unordered list": "Sırasız Liste",
     "ordered list": "Sıralı Liste",
     "add image": "Resim Ekle",
+    "add audio": "Ses Ekle",
+    "add video": "Video Ekle",
     "edit article": "Yazıyı Düzenle",
     "exit full screen": "Tam Ekrandan Çık",
     "full screen": "Tam Ekran",

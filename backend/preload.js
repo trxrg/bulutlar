@@ -21,6 +21,10 @@ contextBridge.exposeInMainWorld('api', {
     updateDate2:       (id, newDate)        => ipcRenderer.invoke('article/updateDate2', id, newDate),
     addImage:          (id, image)          => ipcRenderer.invoke('article/addImage', id, image),
     openDialogToAddImages: (id)              => ipcRenderer.invoke('article/openDialogToAddImages', id),
+    addAudio:          (id, audio)          => ipcRenderer.invoke('article/addAudio', id, audio),
+    openDialogToAddAudios: (id)              => ipcRenderer.invoke('article/openDialogToAddAudios', id),
+    addVideo:          (id, video)          => ipcRenderer.invoke('article/addVideo', id, video),
+    openDialogToAddVideos: (id)              => ipcRenderer.invoke('article/openDialogToAddVideos', id),
     addAnnotation:     (id, annotation)     => ipcRenderer.invoke('article/addAnnotation', id, annotation),
     getAll:            (order)              => ipcRenderer.invoke('article/getAll', order),
     getById:           (id)                 => ipcRenderer.invoke('article/getById', id),
@@ -67,6 +71,16 @@ contextBridge.exposeInMainWorld('api', {
     getDataByPath: (image)  => ipcRenderer.invoke('image/getDataByPath', image),
     getDataByAnyPath: (path, type) => ipcRenderer.invoke('image/getDataByAnyPath', path, type),
     deleteById:    (id)     => ipcRenderer.invoke('image/deleteById', id),
+  },
+  audio: {
+    getDataById:   (id)     => ipcRenderer.invoke('audio/getDataById', id),
+    getDataByPath: (path)   => ipcRenderer.invoke('audio/getDataByPath', path),
+    deleteById:    (id)     => ipcRenderer.invoke('audio/deleteById', id),
+  },
+  video: {
+    getDataById:   (id)     => ipcRenderer.invoke('video/getDataById', id),
+    getDataByPath: (path)   => ipcRenderer.invoke('video/getDataByPath', path),
+    deleteById:    (id)     => ipcRenderer.invoke('video/deleteById', id),
   },
   tag: {
     create:     (tag) => ipcRenderer.invoke('tag/create', tag),

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, SpeakerWaveIcon, FilmIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
@@ -15,7 +15,7 @@ import toastr from 'toastr';
 
 const ReadControls = () => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, getHighlightInfo, searchTerm } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, getHighlightInfo, searchTerm } = useContext(ReadContext);
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
     const { fetchArticleById } = useContext(DBContext);
 
@@ -172,6 +172,8 @@ const ReadControls = () => {
                             <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'unordered-list-item')} title={t('unordered list')}><ListBulletIcon className='w-6 h-6' /></FormatButton>
                             <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')} title={t('ordered list')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
                             <FormatButton onClick={handleInsertImageClicked} title={t('add image')}><PhotoIcon className="w-5 h-5" /></FormatButton>
+                            <FormatButton onClick={handleInsertAudioClicked} title={t('add audio')}><SpeakerWaveIcon className="w-5 h-5" /></FormatButton>
+                            <FormatButton onClick={handleInsertVideoClicked} title={t('add video')}><FilmIcon className="w-5 h-5" /></FormatButton>
                         </div>
                         :
                         (fullScreen &&

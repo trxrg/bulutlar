@@ -3,7 +3,7 @@ import { DataTypes } from 'sequelize';
 function setRelations(sequelize) {
     console.info('setting model relations');
 
-    const { owner, article, comment, image, annotation, tag, category, group } = sequelize.models;
+    const { owner, article, comment, image, audio, video, annotation, tag, category, group } = sequelize.models;
 
     owner.hasMany(article);
     article.belongsTo(owner);
@@ -16,6 +16,12 @@ function setRelations(sequelize) {
 
     article.hasMany(image);
     image.belongsTo(article);
+
+    article.hasMany(audio);
+    audio.belongsTo(article);
+
+    article.hasMany(video);
+    video.belongsTo(article);
 
     category.hasOne(image);
     group.hasOne(image);

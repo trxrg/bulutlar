@@ -8,6 +8,8 @@ import ownerService from './OwnerService.js';
 import categoryService from './CategoryService.js';
 import commentService from './CommentService.js';
 import imageService from './ImageService.js';
+import audioService from './AudioService.js';
+import videoService from './VideoService.js';
 import annotationService from './AnnotationService.js';
 import groupService from './GroupService.js';
 
@@ -23,6 +25,10 @@ function initService() {
     ipcMain.handle('article/updateDate2', async (event, id, newDate) => await updateArticleDate2(id, newDate));
     ipcMain.handle('article/addImage', async (event, id, image) => await addImageToArticle(id, image));
     ipcMain.handle('article/openDialogToAddImages', async (event, id) => await openDialogToAddImages(id));
+    ipcMain.handle('article/addAudio', async (event, id, audio) => await addAudioToArticle(id, audio));
+    ipcMain.handle('article/openDialogToAddAudios', async (event, id) => await openDialogToAddAudios(id));
+    ipcMain.handle('article/addVideo', async (event, id, video) => await addVideoToArticle(id, video));
+    ipcMain.handle('article/openDialogToAddVideos', async (event, id) => await openDialogToAddVideos(id));
     ipcMain.handle('article/addAnnotation', async (event, id, annotation) => await addAnnotationToArticle(id, annotation));
     ipcMain.handle('article/getAll', async (event, order) => await getAllArticles(order));
     ipcMain.handle('article/getById', async (event, id) => await getArticleById(id));
@@ -84,6 +90,20 @@ async function createArticle(article) { // Now transactional
             }
         }
 
+        if (article.audios) {
+            for (const audio of article.audios) {
+                const audioEntity = await audioService.createAudio(audio, transaction);
+                await entity.addAudio(audioEntity, { transaction });
+            }
+        }
+
+        if (article.videos) {
+            for (const video of article.videos) {
+                const videoEntity = await videoService.createVideo(video, transaction);
+                await entity.addVideo(videoEntity, { transaction });
+            }
+        }
+
         await transaction.commit();
         return await getArticleById(entity.dataValues.id);
     } catch (e) {
@@ -133,6 +153,8 @@ async function deleteArticleById(id) {
 
         await commentService.deleteCommentsByArticleId(id);
         await imageService.deleteImagesByArticleId(id);
+        await audioService.deleteAudiosByArticleId(id);
+        await videoService.deleteVideosByArticleId(id);
         await annotationService.deleteAnnotationsByArticleId(id);
 
         // await sequelize.models.article_article_rel.destroy({
@@ -303,6 +325,44 @@ async function addImageToArticle(id, image) {
 
     } catch (error) {
         console.error('Error in addImage', error);
+        throw error;
+    }
+}
+
+async function addAudioToArticle(id, audio) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+
+        if (!article)
+            throw ('no article found with id: ' + id);
+
+        const audioEntity = await audioService.createAudio(audio);
+
+        await article.addAudio(audioEntity);
+
+        return audioEntity.dataValues;
+
+    } catch (error) {
+        console.error('Error in addAudio', error);
+        throw error;
+    }
+}
+
+async function addVideoToArticle(id, video) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+
+        if (!article)
+            throw ('no article found with id: ' + id);
+
+        const videoEntity = await videoService.createVideo(video);
+
+        await article.addVideo(videoEntity);
+
+        return videoEntity.dataValues;
+
+    } catch (error) {
+        console.error('Error in addVideo', error);
         throw error;
     }
 }
@@ -556,6 +616,62 @@ async function openDialogToAddImages(articleId) {
     }
 }
 
+async function openDialogToAddAudios(articleId) {
+
+    try {
+        const result = await dialog.showOpenDialog({
+            properties: ['openFile', 'multiSelections'],
+            filters: [{ name: 'Audio', extensions: ['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac'] }]
+        })
+
+        if (!result.canceled) {
+            const audios = [];
+            for (const filePath of result.filePaths) {
+                const audio = {
+                    name: path.basename(filePath),
+                    type: path.extname(filePath).slice(1),
+                    path: filePath,
+                    size: (await fs.stat(filePath)).size,
+                };
+                console.log(`Adding audio to article ${articleId}:`, audio);
+                audios.push(await addAudioToArticle(articleId, audio));
+            }
+            return audios;
+        }
+
+    } catch (e) {
+        console.error('Error in openDialogToAddAudiosToArticle', e);
+    }
+}
+
+async function openDialogToAddVideos(articleId) {
+
+    try {
+        const result = await dialog.showOpenDialog({
+            properties: ['openFile', 'multiSelections'],
+            filters: [{ name: 'Video', extensions: ['mp4', 'webm', 'ogg', 'avi', 'mov', 'wmv', 'flv', 'mkv'] }]
+        })
+
+        if (!result.canceled) {
+            const videos = [];
+            for (const filePath of result.filePaths) {
+                const video = {
+                    name: path.basename(filePath),
+                    type: path.extname(filePath).slice(1),
+                    path: filePath,
+                    size: (await fs.stat(filePath)).size,
+                };
+                console.log(`Adding video to article ${articleId}:`, video);
+                videos.push(await addVideoToArticle(articleId, video));
+            }
+            return videos;
+        }
+
+    } catch (e) {
+        console.error('Error in openDialogToAddVideosToArticle', e);
+    }
+}
+
 function articleEntity2Json(entity) {
     if (entity.dataValues.tags)
         entity.dataValues.tags = entity.dataValues.tags.map(tag => ({ id: tag.id }));
@@ -565,6 +681,10 @@ function articleEntity2Json(entity) {
         entity.dataValues.groups = entity.dataValues.groups.map(group => ({ id: group.id }));
     if (entity.dataValues.images)
         entity.dataValues.images = entity.dataValues.images.map(image => imageEntity2Json(image));
+    if (entity.dataValues.audios)
+        entity.dataValues.audios = entity.dataValues.audios.map(audio => audioEntity2Json(audio));
+    if (entity.dataValues.videos)
+        entity.dataValues.videos = entity.dataValues.videos.map(video => videoEntity2Json(video));
     if (entity.dataValues.annotations)
         entity.dataValues.annotations = entity.dataValues.annotations.map(annotation => ({ id: annotation.id }));
     if (entity.dataValues.comments)
@@ -591,6 +711,32 @@ function imageEntity2Json(entity) {
         path: entity.dataValues.path,
         size: entity.dataValues.size,
         description: entity.dataValues.description,
+    };
+}
+
+function audioEntity2Json(entity) {
+    return {
+        id: entity.dataValues.id,
+        name: entity.dataValues.name,
+        type: entity.dataValues.type,
+        path: entity.dataValues.path,
+        size: entity.dataValues.size,
+        description: entity.dataValues.description,
+        duration: entity.dataValues.duration,
+    };
+}
+
+function videoEntity2Json(entity) {
+    return {
+        id: entity.dataValues.id,
+        name: entity.dataValues.name,
+        type: entity.dataValues.type,
+        path: entity.dataValues.path,
+        size: entity.dataValues.size,
+        description: entity.dataValues.description,
+        duration: entity.dataValues.duration,
+        width: entity.dataValues.width,
+        height: entity.dataValues.height,
     };
 }
 

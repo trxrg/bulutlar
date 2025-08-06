@@ -169,6 +169,18 @@
     "deleteImage": "Delete Image",
     "sureDeletingImage": "Are you sure you want to delete this image?",
 
+    "audio": "Audio",
+    "errorAddingAudio": "Error adding audio",
+    "errorDeletingAudio": "Error deleting audio",
+    "deleteAudio": "Delete Audio",
+    "sureDeletingAudio": "Are you sure you want to delete this audio?",
+
+    "video": "Video",
+    "errorAddingVideo": "Error adding video",
+    "errorDeletingVideo": "Error deleting video",
+    "deleteVideo": "Delete Video",
+    "sureDeletingVideo": "Are you sure you want to delete this video?",
+
     "settings": "Settings",
     "database": "Database",
     "appearance": "Appearance",
@@ -209,6 +221,8 @@
     "unordered list": "Unordered List",
     "ordered list": "Ordered List",
     "add image": "Add Image",
+    "add audio": "Add Audio",
+    "add video": "Add Video",
     "edit article": "Edit Article",
     "exit full screen": "Exit Full Screen",
     "full screen": "Full Screen",

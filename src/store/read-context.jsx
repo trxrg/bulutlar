@@ -74,6 +74,16 @@ export default function ReadContextProvider({ children, article }) {
             readContentRef.current.handleInsertImageClicked();
     }
 
+    const handleInsertAudioClicked = () => {
+        if (readContentRef && readContentRef.current)
+            readContentRef.current.handleInsertAudioClicked();
+    }
+
+    const handleInsertVideoClicked = () => {
+        if (readContentRef && readContentRef.current)
+            readContentRef.current.handleInsertVideoClicked();
+    }
+
     const getOwnerName = () => {
         if (article) {
             const owner = getOwnerById(article.ownerId);
@@ -186,6 +196,8 @@ export default function ReadContextProvider({ children, article }) {
         addQuote,
         toggleBlockType,
         handleInsertImageClicked,
+        handleInsertAudioClicked,
+        handleInsertVideoClicked,
         saveContent,
         resetContent,
         syncArticleFromBE,

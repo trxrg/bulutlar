@@ -13,6 +13,10 @@ export const articleApi = {
     updateDate2:        async (id, newDate)         => window.api.article.updateDate2(id, newDate),
     addImage:           async (id, image)           => window.api.article.addImage(id, image),
     openDialogToAddImages: async (id)               => window.api.article.openDialogToAddImages(id),
+    addAudio:           async (id, audio)           => window.api.article.addAudio(id, audio),
+    openDialogToAddAudios: async (id)               => window.api.article.openDialogToAddAudios(id),
+    addVideo:           async (id, video)           => window.api.article.addVideo(id, video),
+    openDialogToAddVideos: async (id)               => window.api.article.openDialogToAddVideos(id),
     addAnnotation:      async (id, annotation)      => window.api.article.addAnnotation(id, annotation),
     getAll:             async (order)               => window.api.article.getAll(order),
     getById:            async (id)                  => window.api.article.getById(id),
@@ -64,6 +68,20 @@ export const imageApi = {
     getDataByPath:      async (image)               => window.api.image.getDataByPath(image),
     getDataByAnyPath:   async (path, type)          => window.api.image.getDataByAnyPath(path, type),
     deleteById:         async (id)                  => window.api.image.deleteById(id),
+};
+
+export const audioApi = {
+    getDataById:        async (id)                  => window.api.audio.getDataById(id),
+    getDataByPath:      async (audio)               => window.api.audio.getDataByPath(audio),
+    getDataByAnyPath:   async (path, type)          => window.api.audio.getDataByAnyPath(path, type),
+    deleteById:         async (id)                  => window.api.audio.deleteById(id),
+};
+
+export const videoApi = {
+    getDataById:        async (id)                  => window.api.video.getDataById(id),
+    getDataByPath:      async (video)               => window.api.video.getDataByPath(video),
+    getDataByAnyPath:   async (path, type)          => window.api.video.getDataByAnyPath(path, type),
+    deleteById:         async (id)                  => window.api.video.deleteById(id),
 };
 
 export const tagApi = {

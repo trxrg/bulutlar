@@ -47,6 +47,27 @@ export default function AppContextProvider({ children }) {
         }
     }, [allDataFetched, dataIsCleaned, loadingStartTime]);
 
+    // Handle hiding the initial HTML loader with proper fade transition
+    useEffect(() => {
+        if (isReadyToShow) {
+            const initialLoader = document.getElementById('initial-loader');
+            if (initialLoader) {
+                // Apply transition first
+                initialLoader.style.transition = 'opacity 0.5s ease-out';
+                
+                // Small delay to ensure transition is applied
+                setTimeout(() => {
+                    initialLoader.style.opacity = '0';
+                }, 10);
+                
+                // Remove completely after fade completes
+                setTimeout(() => {
+                    initialLoader.style.display = 'none';
+                }, 510); // 500ms transition + 10ms delay
+            }
+        }
+    }, [isReadyToShow]);
+
     const cleanTabs = () => {
         const validTabs = tabs.filter(tab => allArticles.some(article => article.id === tab.id));
         setTabs([{ id: 'search', title: 'Search' }, ...validTabs]);
@@ -238,23 +259,12 @@ export default function AppContextProvider({ children }) {
     return (
         <AppContext.Provider value={ctxValue}>
             {isReadyToShow ? (
-                (() => {
-                    // Hide initial HTML loader when React app is ready
-                    const initialLoader = document.getElementById('initial-loader');
-                    if (initialLoader) {
-                        initialLoader.style.transition = 'opacity 0.3s ease-out';
-                        initialLoader.style.opacity = '0';
-                        setTimeout(() => {
-                            initialLoader.style.display = 'none';
-                        }, 300);
-                    }
-                    return children;
-                })()
+                children
             ) : (
                 <div className='flex flex-col items-center justify-center h-screen bg-black text-white'>
                     <div className="flex flex-col items-center">
                         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
-                        <div className="mt-6 text-xl">fadkl;sdsal;kf{t('loading')}...</div>
+                        <div className="mt-6 text-xl">{t('loading')}...</div>
                     </div>
                 </div>
             )}

@@ -1,9 +1,10 @@
-import { ipcMain } from 'electron';
+import { ipcMain, dialog } from 'electron';
 import { sequelize } from '../sequelize/index.js';
 import { ensureFolderExists } from '../fsOps.js';
 import path from 'path';
 import fs from 'fs/promises';
 import { config } from '../config.js';
+import { mainWindow } from '../main.js';
 
 let imagesFolderPath;
 let publicFolderPath;
@@ -13,6 +14,7 @@ function initService() {
     ipcMain.handle('image/getDataByPath', (event, path) => getImageDataByPath(path));
     ipcMain.handle('image/getDataByAnyPath', (event, path, type) => getImageDataFromPublic(path, type));
     ipcMain.handle('image/deleteById', (event, id) => deleteImageById(id));
+    ipcMain.handle('image/download', (event, id) => downloadImageById(id));
     
     publicFolderPath = config.publicFolderPath;
     imagesFolderPath = config.imagesFolderPath;
@@ -108,6 +110,38 @@ async function deleteImagesByArticleId(articleId) {
 
     } catch (err) {
         console.error('Error in deleteImagesByArticleId', err);
+    }
+}
+
+async function downloadImageById(imageId) {
+    try {
+        const image = await sequelize.models.image.findByPk(imageId);
+
+        if (!image)
+            throw new Error('No image found with id: ' + imageId);
+
+        // Show save dialog
+        const result = await dialog.showSaveDialog(mainWindow, {
+            title: 'Save Image',
+            defaultPath: image.name || 'image',
+            filters: [
+                { name: 'Image Files', extensions: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'] },
+                { name: 'All Files', extensions: ['*'] }
+            ]
+        });
+
+        if (!result.canceled && result.filePath) {
+            // Copy file to selected location
+            const sourcePath = getImageAbsPath(image.path);
+            await fs.copyFile(sourcePath, result.filePath);
+            return { success: true, filePath: result.filePath };
+        }
+
+        return { success: false, canceled: true };
+
+    } catch (err) {
+        console.error('Error in downloadImageById', err);
+        throw err;
     }
 }
 

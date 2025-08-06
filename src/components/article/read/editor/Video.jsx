@@ -39,8 +39,6 @@ const Video = (props) => {
     const handleRightClick = (e) => {
         e.preventDefault();
 
-        if (!editable) return;
-
         const grandParentRect = e.currentTarget.getBoundingClientRect();
 
         const posx = e.clientX - grandParentRect.left;
@@ -73,6 +71,20 @@ const Video = (props) => {
         }
     };
 
+    const handleDownload = async () => {
+        try {
+            const result = await videoApi.download(videoEntity.id);
+            if (result.success) {
+                toastr.success(t('videoDownloaded'));
+            } else if (result.canceled) {
+                // User canceled, no need to show error
+            }
+        } catch (error) {
+            console.error('Error downloading video:', error);
+            toastr.error(t('errorDownloadingVideo'));
+        }
+    };
+
     return (
         <div className="relative">
             <div
@@ -96,16 +108,21 @@ const Video = (props) => {
                 onClose={() => setContextMenuIsOpen(false)}
                 position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
             >
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-2">
                     <ActionButton onClick={handlePlay} color="green">
                         {t('play')}
                     </ActionButton>
                     <ActionButton onClick={handlePause} color="blue">
                         {t('pause')}
                     </ActionButton>
-                    <ActionButton onClick={() => setDeleteConfirmModalIsOpen(true)} color="red">
-                        {t('deleteVideo')}
+                    <ActionButton onClick={handleDownload} color="purple">
+                        {t('download')}
                     </ActionButton>
+                    {editable && (
+                        <ActionButton onClick={() => setDeleteConfirmModalIsOpen(true)} color="red">
+                            {t('deleteVideo')}
+                        </ActionButton>
+                    )}
                 </div>
             </ContextMenu>
             <ConfirmModal

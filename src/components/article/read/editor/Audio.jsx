@@ -39,8 +39,6 @@ const Audio = (props) => {
     const handleRightClick = (e) => {
         e.preventDefault();
 
-        if (!editable) return;
-
         const grandParentRect = e.currentTarget.getBoundingClientRect();
 
         const posx = e.clientX - grandParentRect.left;
@@ -73,6 +71,20 @@ const Audio = (props) => {
         }
     };
 
+    const handleDownload = async () => {
+        try {
+            const result = await audioApi.download(audioEntity.id);
+            if (result.success) {
+                toastr.success(t('audioDownloaded'));
+            } else if (result.canceled) {
+                // User canceled, no need to show error
+            }
+        } catch (error) {
+            console.error('Error downloading audio:', error);
+            toastr.error(t('errorDownloadingAudio'));
+        }
+    };
+
     return (
         <div className='relative'>
             <div className='select-none cursor-pointer inline-block w-full' onContextMenu={handleRightClick}>
@@ -89,10 +101,13 @@ const Audio = (props) => {
                 }
             </div>
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
-                <div className='flex flex-col'>
+                <div className='flex flex-col gap-2'>
                     <ActionButton onClick={handlePlay} color='green'>{t('play')}</ActionButton>
                     <ActionButton onClick={handlePause} color='blue'>{t('pause')}</ActionButton>
-                    <ActionButton onClick={() => setDeleteConfirmModalIsOpen(true)} color='red'>{t('deleteAudio')}</ActionButton>
+                    <ActionButton onClick={handleDownload} color='purple'>{t('download')}</ActionButton>
+                    {editable && (
+                        <ActionButton onClick={() => setDeleteConfirmModalIsOpen(true)} color='red'>{t('deleteAudio')}</ActionButton>
+                    )}
                 </div>
             </ContextMenu>
             <ConfirmModal message={t('sureDeletingAudio')} isOpen={deleteConfirmModalIsOpen} onClose={() => setDeleteConfirmModalIsOpen(false)} onConfirm={handleDeleteAudio} />

@@ -236,6 +236,16 @@
 
     "select articles": "Select Articles",
     "download as pdf": "Download as PDF",
+    "download": "Download",
+    "saveImage": "Save Image",
+    "saveAudio": "Save Audio", 
+    "saveVideo": "Save Video",
+    "imageDownloaded": "Image downloaded successfully",
+    "audioDownloaded": "Audio downloaded successfully",
+    "videoDownloaded": "Video downloaded successfully", 
+    "errorDownloadingImage": "Error downloading image",
+    "errorDownloadingAudio": "Error downloading audio",
+    "errorDownloadingVideo": "Error downloading video",
     "open random article": "Open Random Article",
 
     "add note": "Add Note",

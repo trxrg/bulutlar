@@ -40,8 +40,6 @@ const Image = (props) => {
     const handleRightClick = (e) => {
         e.preventDefault();
 
-        if (!editable) return;
-
         const grandParentRect = e.currentTarget.getBoundingClientRect();
 
         const posx = e.clientX - grandParentRect.left;
@@ -63,6 +61,20 @@ const Image = (props) => {
         }        
     }
 
+    const handleDownload = async () => {
+        try {
+            const result = await imageApi.download(imageEntity.id);
+            if (result.success) {
+                toastr.success(t('imageDownloaded'));
+            } else if (result.canceled) {
+                // User canceled, no need to show error
+            }
+        } catch (error) {
+            console.error('Error downloading image:', error);
+            toastr.error(t('errorDownloadingImage'));
+        }
+    };
+
     return (
         <div className='relative'>
             <div className='select-none cursor-pointer inline-block w-full' onClick={() => setImageModalIsOpen(true)} onContextMenu={handleRightClick}>
@@ -74,8 +86,11 @@ const Image = (props) => {
                 imageData={imageData}
             />
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
-                <div className='flex flex-col'>
-                    <ActionButton onClick={() => setDeleteConfirmModalIsOpen(true)} color='red'>{t('deleteImage')}</ActionButton>
+                <div className='flex flex-col gap-2'>
+                    <ActionButton onClick={handleDownload} color='purple'>{t('download')}</ActionButton>
+                    {editable && (
+                        <ActionButton onClick={() => setDeleteConfirmModalIsOpen(true)} color='red'>{t('deleteImage')}</ActionButton>
+                    )}
                 </div>
             </ContextMenu>
             <ConfirmModal message={t('sureDeletingImage')} isOpen={deleteConfirmModalIsOpen} onClose={() => setDeleteConfirmModalIsOpen(false)} onConfirm={handleDeleteImage} />

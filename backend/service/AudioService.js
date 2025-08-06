@@ -1,9 +1,10 @@
-import { ipcMain } from 'electron';
+import { ipcMain, dialog } from 'electron';
 import { sequelize } from '../sequelize/index.js';
 import { ensureFolderExists } from '../fsOps.js';
 import path from 'path';
 import fs from 'fs/promises';
 import { config } from '../config.js';
+import { mainWindow } from '../main.js';
 
 let audiosFolderPath;
 let publicFolderPath;
@@ -13,6 +14,7 @@ function initService() {
     ipcMain.handle('audio/getDataByPath', (event, path) => getAudioDataByPath(path));
     ipcMain.handle('audio/getDataByAnyPath', (event, path, type) => getAudioDataFromPublic(path, type));
     ipcMain.handle('audio/deleteById', (event, id) => deleteAudioById(id));
+    ipcMain.handle('audio/download', (event, id) => downloadAudioById(id));
     
     publicFolderPath = config.publicFolderPath;
     audiosFolderPath = config.audiosFolderPath;
@@ -109,6 +111,38 @@ async function deleteAudiosByArticleId(articleId) {
 
     } catch (err) {
         console.error('Error in deleteAudiosByArticleId', err);
+    }
+}
+
+async function downloadAudioById(audioId) {
+    try {
+        const audio = await sequelize.models.audio.findByPk(audioId);
+
+        if (!audio)
+            throw new Error('No audio found with id: ' + audioId);
+
+        // Show save dialog
+        const result = await dialog.showSaveDialog(mainWindow, {
+            title: 'Save Audio',
+            defaultPath: audio.name || 'audio',
+            filters: [
+                { name: 'Audio Files', extensions: ['mp3', 'wav', 'ogg', 'aac', 'flac', 'm4a', 'wma'] },
+                { name: 'All Files', extensions: ['*'] }
+            ]
+        });
+
+        if (!result.canceled && result.filePath) {
+            // Copy file to selected location
+            const sourcePath = getAudioAbsPath(audio.path);
+            await fs.copyFile(sourcePath, result.filePath);
+            return { success: true, filePath: result.filePath };
+        }
+
+        return { success: false, canceled: true };
+
+    } catch (err) {
+        console.error('Error in downloadAudioById', err);
+        throw err;
     }
 }
 

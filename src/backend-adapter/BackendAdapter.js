@@ -68,6 +68,7 @@ export const imageApi = {
     getDataByPath:      async (image)               => window.api.image.getDataByPath(image),
     getDataByAnyPath:   async (path, type)          => window.api.image.getDataByAnyPath(path, type),
     deleteById:         async (id)                  => window.api.image.deleteById(id),
+    download:           async (id)                  => window.api.image.download(id),
 };
 
 export const audioApi = {
@@ -75,6 +76,7 @@ export const audioApi = {
     getDataByPath:      async (audio)               => window.api.audio.getDataByPath(audio),
     getDataByAnyPath:   async (path, type)          => window.api.audio.getDataByAnyPath(path, type),
     deleteById:         async (id)                  => window.api.audio.deleteById(id),
+    download:           async (id)                  => window.api.audio.download(id),
 };
 
 export const videoApi = {
@@ -82,6 +84,7 @@ export const videoApi = {
     getDataByPath:      async (video)               => window.api.video.getDataByPath(video),
     getDataByAnyPath:   async (path, type)          => window.api.video.getDataByAnyPath(path, type),
     deleteById:         async (id)                  => window.api.video.deleteById(id),
+    download:           async (id)                  => window.api.video.download(id),
 };
 
 export const tagApi = {

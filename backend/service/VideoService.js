@@ -1,9 +1,10 @@
-import { ipcMain } from 'electron';
+import { ipcMain, dialog } from 'electron';
 import { sequelize } from '../sequelize/index.js';
 import { ensureFolderExists } from '../fsOps.js';
 import path from 'path';
 import fs from 'fs/promises';
 import { config } from '../config.js';
+import { mainWindow } from '../main.js';
 
 let videosFolderPath;
 let publicFolderPath;
@@ -13,6 +14,7 @@ function initService() {
     ipcMain.handle('video/getDataByPath', (event, path) => getVideoDataByPath(path));
     ipcMain.handle('video/getDataByAnyPath', (event, path, type) => getVideoDataFromPublic(path, type));
     ipcMain.handle('video/deleteById', (event, id) => deleteVideoById(id));
+    ipcMain.handle('video/download', (event, id) => downloadVideoById(id));
     
     publicFolderPath = config.publicFolderPath;
     videosFolderPath = config.videosFolderPath;
@@ -111,6 +113,38 @@ async function deleteVideosByArticleId(articleId) {
 
     } catch (err) {
         console.error('Error in deleteVideosByArticleId', err);
+    }
+}
+
+async function downloadVideoById(videoId) {
+    try {
+        const video = await sequelize.models.video.findByPk(videoId);
+
+        if (!video)
+            throw new Error('No video found with id: ' + videoId);
+
+        // Show save dialog
+        const result = await dialog.showSaveDialog(mainWindow, {
+            title: 'Save Video',
+            defaultPath: video.name || 'video',
+            filters: [
+                { name: 'Video Files', extensions: ['mp4', 'webm', 'ogg', 'avi', 'mov', 'wmv', 'flv', 'mkv'] },
+                { name: 'All Files', extensions: ['*'] }
+            ]
+        });
+
+        if (!result.canceled && result.filePath) {
+            // Copy file to selected location
+            const sourcePath = getVideoAbsPath(video.path);
+            await fs.copyFile(sourcePath, result.filePath);
+            return { success: true, filePath: result.filePath };
+        }
+
+        return { success: false, canceled: true };
+
+    } catch (err) {
+        console.error('Error in downloadVideoById', err);
+        throw err;
     }
 }
 

@@ -71,16 +71,19 @@ contextBridge.exposeInMainWorld('api', {
     getDataByPath: (image)  => ipcRenderer.invoke('image/getDataByPath', image),
     getDataByAnyPath: (path, type) => ipcRenderer.invoke('image/getDataByAnyPath', path, type),
     deleteById:    (id)     => ipcRenderer.invoke('image/deleteById', id),
+    download:      (id)     => ipcRenderer.invoke('image/download', id),
   },
   audio: {
     getDataById:   (id)     => ipcRenderer.invoke('audio/getDataById', id),
     getDataByPath: (path)   => ipcRenderer.invoke('audio/getDataByPath', path),
     deleteById:    (id)     => ipcRenderer.invoke('audio/deleteById', id),
+    download:      (id)     => ipcRenderer.invoke('audio/download', id),
   },
   video: {
     getDataById:   (id)     => ipcRenderer.invoke('video/getDataById', id),
     getDataByPath: (path)   => ipcRenderer.invoke('video/getDataByPath', path),
     deleteById:    (id)     => ipcRenderer.invoke('video/deleteById', id),
+    download:      (id)     => ipcRenderer.invoke('video/download', id),
   },
   tag: {
     create:     (tag) => ipcRenderer.invoke('tag/create', tag),

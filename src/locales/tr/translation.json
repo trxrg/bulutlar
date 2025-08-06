@@ -240,6 +240,16 @@
 
     "select articles": "Yazıları Seç",
     "download as pdf": "PDF olarak indir",
+    "download": "İndir",
+    "saveImage": "Resmi Kaydet",
+    "saveAudio": "Sesi Kaydet",
+    "saveVideo": "Videoyu Kaydet", 
+    "imageDownloaded": "Resim başarıyla indirildi",
+    "audioDownloaded": "Ses başarıyla indirildi",
+    "videoDownloaded": "Video başarıyla indirildi",
+    "errorDownloadingImage": "Resim indirme hatası",
+    "errorDownloadingAudio": "Ses indirme hatası", 
+    "errorDownloadingVideo": "Video indirme hatası",
     "open random article": "Rastgele Yazı Aç",
 
     "add note": "Not Ekle",
@@ -271,5 +281,8 @@
     "error occured while saving": "Kaydederken bir hata oluştu",
     "changes saved": "Değişiklikler kaydedildi",
 
-    "enter at least 2 characters": "En az 2 karakter giriniz"
+    "enter at least 2 characters": "En az 2 karakter giriniz",
+
+    "play": "Oynat",
+    "pause": "Duraklat"
 }

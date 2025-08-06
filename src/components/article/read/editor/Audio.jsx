@@ -98,6 +98,10 @@ const Audio = (props) => {
                                 src={`media-file:///${normalizedPath}`} 
                                 controls 
                                 className='rounded w-full'
+                                onClick={(e) => e.stopPropagation()}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onMouseUp={(e) => e.stopPropagation()}
+                                onFocus={(e) => e.stopPropagation()}
                             >
                                 Your browser does not support the audio element.
                             </audio>

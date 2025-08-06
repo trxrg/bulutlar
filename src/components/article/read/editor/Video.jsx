@@ -115,6 +115,10 @@ const Video = (props) => {
                                     console.error('Video src:', e.target.src);
                                 }}
                                 onCanPlay={() => console.log('Video can play')}
+                                onClick={(e) => e.stopPropagation()}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onMouseUp={(e) => e.stopPropagation()}
+                                onFocus={(e) => e.stopPropagation()}
                             >
                                 Your browser does not support the video tag.
                             </video>

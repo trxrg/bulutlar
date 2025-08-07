@@ -41,53 +41,72 @@
 
 /* Custom scrollbar for WebKit browsers */
 /* Force scrollbars to always show on Windows */
-body.windows,
-body.windows * {
+body.windows {
   scrollbar-width: thin; /* For Firefox */
   scrollbar-color: rgba(0, 0, 0, 0.6) rgba(240, 240, 240, 0.8); /* For Firefox - thumb track */
 }
 
+/* Universal scrollbar styling for all elements on Windows */
+body.windows,
+body.windows *,
+body.windows *::before,
+body.windows *::after {
+  scrollbar-width: thin !important; /* For Firefox */
+  scrollbar-color: rgba(0, 0, 0, 0.6) rgba(240, 240, 240, 0.8) !important; /* For Firefox - thumb track */
+}
+
+/* WebKit scrollbar styles for Windows - universal selectors */
 body.windows ::-webkit-scrollbar,
-body.windows *::-webkit-scrollbar {
+body.windows *::-webkit-scrollbar,
+body.windows *::before::-webkit-scrollbar,
+body.windows *::after::-webkit-scrollbar {
   width: 12px !important; 
   height: 12px !important; 
 }
 
 body.windows ::-webkit-scrollbar-track,
-body.windows *::-webkit-scrollbar-track {
+body.windows *::-webkit-scrollbar-track,
+body.windows *::before::-webkit-scrollbar-track,
+body.windows *::after::-webkit-scrollbar-track {
   background: rgba(240, 240, 240, 0.8) !important;
   border-radius: 6px !important;
 }
 
 body.windows ::-webkit-scrollbar-thumb,
-body.windows *::-webkit-scrollbar-thumb {
+body.windows *::-webkit-scrollbar-thumb,
+body.windows *::before::-webkit-scrollbar-thumb,
+body.windows *::after::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.6) !important;   
   border-radius: 6px !important;
   border: 2px solid rgba(240, 240, 240, 0.8) !important;
 }
 
 body.windows ::-webkit-scrollbar-thumb:hover,
-body.windows *::-webkit-scrollbar-thumb:hover {
+body.windows *::-webkit-scrollbar-thumb:hover,
+body.windows *::before::-webkit-scrollbar-thumb:hover,
+body.windows *::after::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.8) !important; 
 }
 
 body.windows ::-webkit-scrollbar-thumb:active,
-body.windows *::-webkit-scrollbar-thumb:active {
+body.windows *::-webkit-scrollbar-thumb:active,
+body.windows *::before::-webkit-scrollbar-thumb:active,
+body.windows *::after::-webkit-scrollbar-thumb:active {
   background: rgba(0, 0, 0, 0.9) !important; 
 }
 
-/* Ensure scrollable containers show scrollbars */
+/* Ensure scrollable containers show scrollbars on Windows */
 body.windows .overflow-y-auto,
 body.windows .overflow-x-auto,
-body.windows .overflow-auto {
-  scrollbar-width: thin !important;
-  scrollbar-color: rgba(0, 0, 0, 0.6) rgba(240, 240, 240, 0.8) !important; /* thumb track */
-}
-
-/* Additional CSS to ensure scrollbars work with common container patterns */
+body.windows .overflow-auto,
 body.windows .h-full.overflow-y-auto,
 body.windows .flex-1.overflow-y-auto,
-body.windows .container.overflow-y-auto {
-  overflow-y: scroll !important; /* Force scrollbar to always show */
+body.windows .container.overflow-y-auto,
+body.windows div[style*="overflow"],
+body.windows div[class*="scroll"],
+body.windows .ReactQuill,
+body.windows .ql-editor {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(0, 0, 0, 0.6) rgba(240, 240, 240, 0.8) !important;
 }
 

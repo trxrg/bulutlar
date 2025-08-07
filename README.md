@@ -45,3 +45,11 @@ to get executable for Linux
 ``` bash
 npm run package-linux
 ```
+
+## Versions
+1.4.0
+- in-article search
+- navigate-to-search
+- ctrl / cmd + f shortcut for searchbar
+- adding audio and video to articles
+- audio/video players inside article screen

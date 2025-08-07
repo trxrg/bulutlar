@@ -40,24 +40,54 @@
 
 
 /* Custom scrollbar for WebKit browsers */
-body.windows ::-webkit-scrollbar {
-  width: 8px; 
-  height: 12px; 
+/* Force scrollbars to always show on Windows */
+body.windows,
+body.windows * {
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: rgba(0, 0, 0, 0.6) rgba(240, 240, 240, 0.8); /* For Firefox - thumb track */
 }
 
-body.windows ::-webkit-scrollbar-track {
-  background: transparent; 
+body.windows ::-webkit-scrollbar,
+body.windows *::-webkit-scrollbar {
+  width: 12px !important; 
+  height: 12px !important; 
 }
 
-body.windows ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.4);   
+body.windows ::-webkit-scrollbar-track,
+body.windows *::-webkit-scrollbar-track {
+  background: rgba(240, 240, 240, 0.8) !important;
+  border-radius: 6px !important;
 }
 
-body.windows ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.6); 
+body.windows ::-webkit-scrollbar-thumb,
+body.windows *::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.6) !important;   
+  border-radius: 6px !important;
+  border: 2px solid rgba(240, 240, 240, 0.8) !important;
 }
 
-body.windows ::-webkit-scrollbar-thumb:active {
-  background: rgba(0, 0, 0, 0.8); 
+body.windows ::-webkit-scrollbar-thumb:hover,
+body.windows *::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.8) !important; 
+}
+
+body.windows ::-webkit-scrollbar-thumb:active,
+body.windows *::-webkit-scrollbar-thumb:active {
+  background: rgba(0, 0, 0, 0.9) !important; 
+}
+
+/* Ensure scrollable containers show scrollbars */
+body.windows .overflow-y-auto,
+body.windows .overflow-x-auto,
+body.windows .overflow-auto {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(0, 0, 0, 0.6) rgba(240, 240, 240, 0.8) !important; /* thumb track */
+}
+
+/* Additional CSS to ensure scrollbars work with common container patterns */
+body.windows .h-full.overflow-y-auto,
+body.windows .flex-1.overflow-y-auto,
+body.windows .container.overflow-y-auto {
+  overflow-y: scroll !important; /* Force scrollbar to always show */
 }
 

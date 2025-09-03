@@ -181,43 +181,46 @@ app.whenReady().then(async () => {
       const range = request.headers.get('range');
       
       if (range) {
-        // Parse range header (e.g., "bytes=0-1023")
-        const ranges = range.replace('bytes=', '').split('-');
-        const start = parseInt(ranges[0], 10) || 0;
-        const end = parseInt(ranges[1], 10) || fileSize - 1;
-        const chunkSize = (end - start) + 1;
-        
-        console.log(`🎵 Range request: ${start}-${end}/${fileSize}`);
-        
-        // Create a read stream for the requested range
-        const stream = fs.createReadStream(filePath, { start, end });
-        const chunks = [];
-        
-        // Collect chunks from the stream
-        for await (const chunk of stream) {
-          chunks.push(chunk);
+        // Parse range header (e.g., "bytes=0-1023" or "bytes=0-")
+        const ranges = range.replace(/bytes=/i, '').split('-');
+        let start = parseInt(ranges[0], 10);
+        let end = ranges[1] ? parseInt(ranges[1], 10) : undefined;
+
+        if (isNaN(start) || start < 0) start = 0;
+        if (start >= fileSize) {
+          return new Response('Requested range not satisfiable', {
+            status: 416,
+            headers: { 'Content-Range': `bytes */${fileSize}` }
+          });
         }
-        
-        const buffer = Buffer.concat(chunks);
-        
-        return new Response(buffer, {
-          status: 206, // Partial Content
+
+        // For open-ended ranges we now return the rest of the file (Chromium expects this and will stream properly)
+        if (end === undefined || isNaN(end) || end >= fileSize) {
+          end = fileSize - 1;
+        }
+        if (end < start) end = start; // minimal safeguard
+
+        const chunkSize = (end - start) + 1;
+        console.log(`🎵 Range request: ${start}-${end}/${fileSize}`);
+
+        const stream = fs.createReadStream(filePath, { start, end });
+        return new Response(stream, {
+          status: 206,
           headers: {
             'Content-Type': mimeType,
             'Content-Length': chunkSize.toString(),
             'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-            'Accept-Ranges': 'bytes',
+            'Accept-Ranges': 'bytes'
           }
         });
       } else {
-        // Serve the entire file
-        const fileBuffer = await readFile(filePath);
-        
-        return new Response(fileBuffer, {
+        // Stream entire file (avoid buffering whole file in memory)
+        const stream = fs.createReadStream(filePath);
+        return new Response(stream, {
           headers: {
             'Content-Type': mimeType,
             'Content-Length': fileSize.toString(),
-            'Accept-Ranges': 'bytes',
+            'Accept-Ranges': 'bytes'
           }
         });
       }

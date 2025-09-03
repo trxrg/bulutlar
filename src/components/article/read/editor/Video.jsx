@@ -26,34 +26,41 @@ const Video = (props) => {
     // Memoize the video URL to prevent recalculation on every render
     const videoUrl = useMemo(() => {
         if (!videoData) return null;
-        
-        // Get platform information
         const platform = window.versions?.platform() || 'unknown';
-        
-        console.log('🎬 Video URL generation:');
-        console.log('  - Platform:', platform);
-        console.log('  - Original path:', videoData);
-        
         let finalUrl;
         if (platform === 'win32') {
-            // Windows: Normalize path and handle drive letters
             const normalizedPath = videoData.replace(/\\/g, '/');
             if (normalizedPath.match(/^[a-zA-Z]:\//)) {
                 const driveLetter = normalizedPath[0].toLowerCase();
-                const pathWithoutDrive = normalizedPath.substring(2); // Remove "C:"
+                const pathWithoutDrive = normalizedPath.substring(2);
                 finalUrl = `media-file://${driveLetter}${pathWithoutDrive}`;
             } else {
                 finalUrl = `media-file:///${normalizedPath}`;
             }
         } else {
-            // macOS/Linux: Use the absolute path as-is with proper URL format
-            // For macOS paths like /Users/..., we need media-file:///Users/...
             finalUrl = `media-file://${videoData}`;
         }
-        
-        console.log('  - Final URL:', finalUrl);
         return finalUrl;
     }, [videoData]);
+
+    // Lazy loading: only set the actual src once the element is in view
+    const [isInView, setIsInView] = useState(false);
+    const intersectionRef = useRef(null);
+
+    useEffect(() => {
+        const el = intersectionRef.current;
+        if (!el) return;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setIsInView(true);
+                    observer.disconnect();
+                }
+            });
+        }, { root: null, rootMargin: '200px', threshold: 0.01 });
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
 
     const fetchVideoData = async () => {
         try {
@@ -129,36 +136,41 @@ const Video = (props) => {
                     }
                 }}
             >
-                {videoData && videoUrl ? (
-                    <video
-                        ref={videoRef}
-                        src={videoUrl}
-                        controls
-                        controlsList="nodownload"
-                        className="rounded w-full"
-                        onLoadStart={() => console.log('Video loadstart event')}
-                        onError={(e) => {
-                            console.error('Video error:', e.target.error);
-                            console.error('Video src:', e.target.src);
-                        }}
-                        onCanPlay={() => console.log('Video can play')}
-                        onClick={(e) => e.stopPropagation()}
-                        onMouseDown={(e) => e.stopPropagation()}
-                        onMouseUp={(e) => e.stopPropagation()}
-                        onFocus={(e) => e.stopPropagation()}
-                        onBlur={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => e.stopPropagation()}
-                        onKeyUp={(e) => e.stopPropagation()}
-                        onInput={(e) => e.stopPropagation()}
-                        onChange={(e) => e.stopPropagation()}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onPointerUp={(e) => e.stopPropagation()}
-                    >
-                        Your browser does not support the video tag.
-                    </video>
-                ) : (
-                    t('loading') + '...'
-                )}
+                <div ref={intersectionRef} className="w-full">
+                    {videoData && videoUrl && isInView ? (
+                        <video
+                            ref={videoRef}
+                            // Use data-src pattern to delay setting src until inView (already gated by isInView)
+                            src={videoUrl}
+                            preload="metadata"
+                            controls
+                            controlsList="nodownload"
+                            className="rounded w-full"
+                            onLoadStart={() => console.log('Video loadstart (metadata only)')}
+                            onError={(e) => {
+                                console.error('Video error:', e.target.error);
+                            }}
+                            onCanPlay={() => console.log('Video can play')}
+                            onClick={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onMouseUp={(e) => e.stopPropagation()}
+                            onFocus={(e) => e.stopPropagation()}
+                            onBlur={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => e.stopPropagation()}
+                            onKeyUp={(e) => e.stopPropagation()}
+                            onInput={(e) => e.stopPropagation()}
+                            onChange={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onPointerUp={(e) => e.stopPropagation()}
+                        >
+                            Your browser does not support the video tag.
+                        </video>
+                    ) : (
+                        <div className="w-full h-48 flex items-center justify-center bg-stone-800 text-stone-400 text-sm rounded">
+                            {t('loading')}...
+                        </div>
+                    )}
+                </div>
             </div>
             <ContextMenu
                 isOpen={contextMenuIsOpen}

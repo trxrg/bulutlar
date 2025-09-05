@@ -8,6 +8,9 @@ import ConfirmModal from '../../../common/ConfirmModal';
 import { MediaMetadataExtractor } from '../../../../utils/MediaMetadataExtractor';
 import toastr from 'toastr';
 
+// ✅ AUDIO DEBUG: Set to true to enable detailed audio event logging
+const DEBUG_AUDIO_EVENTS = false;
+
 const Audio = (props) => {
     const block = props.block;
     const contentState = props.contentState;
@@ -18,6 +21,8 @@ const Audio = (props) => {
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
     const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] = useState(false);
+    const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+    const [isAudioLoaded, setIsAudioLoaded] = useState(false);
     
     const { translate: t } = useContext(AppContext);
     const { editable } = useContext(ReadContext);
@@ -36,9 +41,11 @@ const Audio = (props) => {
         // For macOS/Linux, use standard file:// approach with media-file:// protocol
         const platform = window.versions?.platform() || 'unknown';
         
-        console.log('🎵 Audio URL generation:');
-        console.log('  - Platform:', platform);
-        console.log('  - Original path:', audioData);
+        if (DEBUG_AUDIO_EVENTS) {
+            console.log('🎵 Audio URL generation:');
+            console.log('  - Platform:', platform);
+            console.log('  - Original path:', audioData);
+        }
         
         let finalUrl;
         if (platform === 'win32') {
@@ -56,14 +63,14 @@ const Audio = (props) => {
             finalUrl = `media-file://${audioData}`;
         }
         
-        console.log('  - Final URL:', finalUrl);
+        if (DEBUG_AUDIO_EVENTS) console.log('  - Final URL:', finalUrl);
         return finalUrl;
     }, [audioData]);
 
     const fetchAudioData = async () => {
         try {
             const result = await audioApi.getDataById(audioEntity.id);
-            console.log('🎵 Audio fetch result:', result);
+            if (DEBUG_AUDIO_EVENTS) console.log('🎵 Audio fetch result:', result);
             // Handle both old format (string) and new format (object)
             if (typeof result === 'string') {
                 setAudioData(result);
@@ -71,7 +78,7 @@ const Audio = (props) => {
             } else {
                 setAudioData(result.path);
                 setAudioMetadata(result.metadata);
-                console.log('🎵 Audio metadata:', result.metadata);
+                if (DEBUG_AUDIO_EVENTS) console.log('🎵 Audio metadata:', result.metadata);
             }
         } catch (error) {
             console.error('Error fetching audio data:', error);
@@ -80,7 +87,7 @@ const Audio = (props) => {
     
     const extractAndUpdateMetadata = async (currentMetadata) => {
         try {
-            console.log('🎵 Extracting missing audio metadata...');
+            if (DEBUG_AUDIO_EVENTS) console.log('🎵 Extracting missing audio metadata...');
             const extractedMetadata = await MediaMetadataExtractor.extractAudioMetadata(audioUrl);
             
             // Update the database with the extracted metadata
@@ -92,7 +99,7 @@ const Audio = (props) => {
                 ...extractedMetadata
             });
             
-            console.log('✅ Audio metadata updated successfully');
+            if (DEBUG_AUDIO_EVENTS) console.log('✅ Audio metadata updated successfully');
         } catch (error) {
             console.error('❌ Failed to extract audio metadata:', error);
         }
@@ -179,6 +186,22 @@ const Audio = (props) => {
                             controlsList="nodownload"
                             className='rounded w-full'
                             preload="none" // ✅ CRITICAL: Prevent automatic preloading
+                            onLoadedData={() => {
+                                if (DEBUG_AUDIO_EVENTS) console.log('Audio loaded data');
+                                setIsAudioLoaded(true);
+                            }}
+                            onPlay={() => {
+                                if (DEBUG_AUDIO_EVENTS) console.log('Audio play event');
+                                setIsAudioPlaying(true);
+                            }}
+                            onPause={() => {
+                                if (DEBUG_AUDIO_EVENTS) console.log('Audio pause event');
+                                setIsAudioPlaying(false);
+                            }}
+                            onEnded={() => {
+                                if (DEBUG_AUDIO_EVENTS) console.log('Audio ended event');
+                                setIsAudioPlaying(false);
+                            }}
                             onClick={(e) => e.stopPropagation()}
                             onMouseDown={(e) => e.stopPropagation()}
                             onMouseUp={(e) => e.stopPropagation()}
@@ -193,8 +216,8 @@ const Audio = (props) => {
                         >
                             Your browser does not support the audio element.
                         </audio>
-                        {/* Duration overlay - shows metadata duration */}
-                        {audioMetadata?.duration && (
+                        {/* Duration overlay - shows metadata duration only when audio is not loaded */}
+                        {audioMetadata?.duration && !isAudioLoaded && (
                             <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded pointer-events-none">
                                 {Math.floor(audioMetadata.duration / 60)}:{String(Math.floor(audioMetadata.duration % 60)).padStart(2, '0')}
                             </div>

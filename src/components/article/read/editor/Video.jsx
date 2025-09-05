@@ -8,6 +8,9 @@ import ConfirmModal from '../../../common/ConfirmModal';
 import { MediaMetadataExtractor } from '../../../../utils/MediaMetadataExtractor';
 import toastr from 'toastr';
 
+// ✅ VIDEO DEBUG: Set to true to enable detailed video event logging
+const DEBUG_VIDEO_EVENTS = false;
+
 const Video = (props) => {
     const block = props.block;
     const contentState = props.contentState;
@@ -18,6 +21,8 @@ const Video = (props) => {
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
     const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] = useState(false);
+    const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
     const { translate: t } = useContext(AppContext);
     const { editable } = useContext(ReadContext);
@@ -182,7 +187,23 @@ const Video = (props) => {
                             className="rounded w-full"
                             preload="none" // ✅ CRITICAL: Prevent automatic preloading
                             loading="lazy" // ✅ Lazy load videos for better memory management
-                            onLoadStart={() => console.log('Video loadstart event')}
+                            onLoadStart={() => {if (DEBUG_VIDEO_EVENTS) console.log('Video loadstart event')}}
+                            onLoadedData={() => {
+                                if (DEBUG_VIDEO_EVENTS) console.log('Video loaded data');
+                                setIsVideoLoaded(true);
+                            }}
+                            onPlay={() => {
+                                if (DEBUG_VIDEO_EVENTS) console.log('Video play event');
+                                setIsVideoPlaying(true);
+                            }}
+                            onPause={() => {
+                                if (DEBUG_VIDEO_EVENTS) console.log('Video pause event');
+                                setIsVideoPlaying(false);
+                            }}
+                            onEnded={() => {
+                                if (DEBUG_VIDEO_EVENTS) console.log('Video ended event');
+                                setIsVideoPlaying(false);
+                            }}
                             onError={(e) => {
                                 console.error('Video error:', e.target.error);
                                 console.error('Video src:', e.target.src);
@@ -191,12 +212,12 @@ const Video = (props) => {
                                     console.error('Error message:', e.target.error.message);
                                 }
                             }}
-                            onCanPlay={() => console.log('Video can play')}
-                            onWaiting={() => console.log('Video waiting for data')}
-                            onSuspend={() => console.log('Video suspended')}
-                            onStalled={() => console.log('Video stalled')}
+                            onCanPlay={() => {if (DEBUG_VIDEO_EVENTS) console.log('Video can play')}}
+                            onWaiting={() => {if (DEBUG_VIDEO_EVENTS) console.log('Video waiting for data')}}
+                            onSuspend={() => {if (DEBUG_VIDEO_EVENTS) console.log('Video suspended')}}
+                            onStalled={() => {if (DEBUG_VIDEO_EVENTS) console.log('Video stalled')}}
                             onProgress={(e) => {
-                                if (e.target.buffered.length > 0) {
+                                if (DEBUG_VIDEO_EVENTS && e.target.buffered.length > 0) {
                                     const buffered = e.target.buffered.end(0);
                                     const duration = e.target.duration || 0;
                                     console.log(`Video progress: buffered ${buffered.toFixed(1)}s / ${duration.toFixed(1)}s`);
@@ -216,8 +237,8 @@ const Video = (props) => {
                         >
                             Your browser does not support the video tag.
                         </video>
-                        {/* Duration overlay - shows metadata duration */}
-                        {videoMetadata?.duration && (
+                        {/* Duration overlay - shows metadata duration only when video is not loaded/playing */}
+                        {videoMetadata?.duration && !isVideoLoaded && (
                             <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded pointer-events-none">
                                 {Math.floor(videoMetadata.duration / 60)}:{String(Math.floor(videoMetadata.duration % 60)).padStart(2, '0')}
                             </div>

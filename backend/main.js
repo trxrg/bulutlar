@@ -16,6 +16,9 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ✅ MEDIA STREAMING DEBUG: Set to true to enable detailed logging
+const DEBUG_MEDIA_STREAMING = false;
+
 console.log('main.js running')
 console.log('dirname: ', __dirname)
 initialize();
@@ -107,14 +110,16 @@ app.whenReady().then(async () => {
   // Register a modern file protocol handler using protocol.handle with streaming support
   protocol.handle('media-file', async (request) => {
     try {
-      console.log('🎵 Protocol handler received request:', request.url);
+      if (DEBUG_MEDIA_STREAMING) console.log('🎵 Protocol handler received request:', request.url);
       
       const url = new URL(request.url);
       let filePath = url.pathname;
       
-      console.log('🎵 URL parts:');
-      console.log('  - hostname:', url.hostname);
-      console.log('  - pathname:', url.pathname);
+      if (DEBUG_MEDIA_STREAMING) {
+        console.log('🎵 URL parts:');
+        console.log('  - hostname:', url.hostname);
+        console.log('  - pathname:', url.pathname);
+      }
       
       // Handle different URL formats based on platform
       if (process.platform === 'win32') {
@@ -144,8 +149,10 @@ app.whenReady().then(async () => {
       // Decode URL-encoded characters (spaces, special chars, etc.)
       filePath = decodeURIComponent(filePath);
       
-      console.log('🎵 Final file path:', filePath);
-      console.log('🎵 Is absolute path?', path.isAbsolute(filePath));
+      if (DEBUG_MEDIA_STREAMING) {
+        console.log('🎵 Final file path:', filePath);
+        console.log('🎵 Is absolute path?', path.isAbsolute(filePath));
+      }
       
       // Security check - ensure the file path is absolute
       if (!path.isAbsolute(filePath)) {
@@ -159,7 +166,7 @@ app.whenReady().then(async () => {
         return new Response('File not found', { status: 404 });
       }
       
-      console.log('✅ Serving media file:', filePath);
+      if (DEBUG_MEDIA_STREAMING) console.log('✅ Serving media file:', filePath);
       
       // Get file stats for size and streaming support
       const stats = fs.statSync(filePath);
@@ -179,7 +186,7 @@ app.whenReady().then(async () => {
       
       // Handle range requests for video streaming
       const range = request.headers.get('range');
-      console.log(`🎵 Received request with range header: "${range}"`);
+      if (DEBUG_MEDIA_STREAMING) console.log(`🎵 Received request with range header: "${range}"`);
       
       if (range) {
         // Parse range header (e.g., "bytes=0-1023")
@@ -194,7 +201,7 @@ app.whenReady().then(async () => {
         }
         
         const chunkSize = (end - start) + 1;
-        console.log(`🎵 Range request: ${start}-${end}/${fileSize} (${(chunkSize / 1024 / 1024).toFixed(1)}MB)`);
+        if (DEBUG_MEDIA_STREAMING) console.log(`🎵 Range request: ${start}-${end}/${fileSize} (${(chunkSize / 1024 / 1024).toFixed(1)}MB)`);
         
         // ✅ ELECTRON INSIGHT: Let Electron handle the streaming, just provide the data correctly
         
@@ -283,7 +290,7 @@ app.whenReady().then(async () => {
         // ✅ NO RANGE REQUEST: For large files, force a range request by sending partial content headers
         // This prevents loading entire files when no range is specified
         if (fileSize > 1024 * 1024) { // Files larger than 1MB
-          console.log(`🎵 No range request for large file (${(fileSize / 1024 / 1024).toFixed(1)}MB), sending partial response`);
+          if (DEBUG_MEDIA_STREAMING) console.log(`🎵 No range request for large file (${(fileSize / 1024 / 1024).toFixed(1)}MB), sending partial response`);
           
           // Send the first 64KB as a partial response to encourage range requests
           const end = Math.min(65535, fileSize - 1);
@@ -347,7 +354,7 @@ app.whenReady().then(async () => {
           });
         } else {
           // Small files: serve completely
-          console.log(`🎵 Small file (${(fileSize / 1024).toFixed(1)}KB), serving completely`);
+          if (DEBUG_MEDIA_STREAMING) console.log(`🎵 Small file (${(fileSize / 1024).toFixed(1)}KB), serving completely`);
         }
         
         // Convert Node.js readable stream to web ReadableStream with proper cleanup

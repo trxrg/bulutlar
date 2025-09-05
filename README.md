@@ -49,6 +49,7 @@ npm run package-linux
 ## Versions
 1.4.1
 - more efficient media streaming
+
 1.4.0
 - in-article search
 - navigate-to-search

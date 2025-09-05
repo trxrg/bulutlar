@@ -79,12 +79,18 @@ contextBridge.exposeInMainWorld('api', {
     getDataByPath: (path)   => ipcRenderer.invoke('audio/getDataByPath', path),
     deleteById:    (id)     => ipcRenderer.invoke('audio/deleteById', id),
     download:      (id)     => ipcRenderer.invoke('audio/download', id),
+    extractMetadata: (id)   => ipcRenderer.invoke('audio/extractMetadata', id),
+    updateMetadata: (id, metadata) => ipcRenderer.invoke('audio/updateMetadata', id, metadata),
+    updateMissingDurations: () => ipcRenderer.invoke('audio/updateMissingDurations'),
   },
   video: {
     getDataById:   (id)     => ipcRenderer.invoke('video/getDataById', id),
     getDataByPath: (path)   => ipcRenderer.invoke('video/getDataByPath', path),
     deleteById:    (id)     => ipcRenderer.invoke('video/deleteById', id),
     download:      (id)     => ipcRenderer.invoke('video/download', id),
+    extractMetadata: (id)   => ipcRenderer.invoke('video/extractMetadata', id),
+    updateMetadata: (id, metadata) => ipcRenderer.invoke('video/updateMetadata', id, metadata),
+    updateMissingDurations: () => ipcRenderer.invoke('video/updateMissingDurations'),
   },
   tag: {
     create:     (tag) => ipcRenderer.invoke('tag/create', tag),

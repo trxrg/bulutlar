@@ -5,6 +5,7 @@ import { ReadContext } from '../../../../store/read-context';
 import ContextMenu from '../../../common/ContextMenu';
 import ActionButton from '../../../common/ActionButton';
 import ConfirmModal from '../../../common/ConfirmModal';
+import { MediaMetadataExtractor } from '../../../../utils/MediaMetadataExtractor';
 import toastr from 'toastr';
 
 const Audio = (props) => {
@@ -13,6 +14,7 @@ const Audio = (props) => {
     const onDelete = props.blockProps.onDelete;
 
     const [audioData, setAudioData] = useState(null);
+    const [audioMetadata, setAudioMetadata] = useState(null);
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
     const [deleteConfirmModalIsOpen, setDeleteConfirmModalIsOpen] = useState(false);
@@ -60,15 +62,52 @@ const Audio = (props) => {
 
     const fetchAudioData = async () => {
         try {
-            setAudioData(await audioApi.getDataById(audioEntity.id));
+            const result = await audioApi.getDataById(audioEntity.id);
+            console.log('🎵 Audio fetch result:', result);
+            // Handle both old format (string) and new format (object)
+            if (typeof result === 'string') {
+                setAudioData(result);
+                setAudioMetadata(null);
+            } else {
+                setAudioData(result.path);
+                setAudioMetadata(result.metadata);
+                console.log('🎵 Audio metadata:', result.metadata);
+            }
         } catch (error) {
             console.error('Error fetching audio data:', error);
+        }
+    };
+    
+    const extractAndUpdateMetadata = async (currentMetadata) => {
+        try {
+            console.log('🎵 Extracting missing audio metadata...');
+            const extractedMetadata = await MediaMetadataExtractor.extractAudioMetadata(audioUrl);
+            
+            // Update the database with the extracted metadata
+            await audioApi.updateMetadata(audioEntity.id, extractedMetadata);
+            
+            // Update the local state
+            setAudioMetadata({
+                ...currentMetadata,
+                ...extractedMetadata
+            });
+            
+            console.log('✅ Audio metadata updated successfully');
+        } catch (error) {
+            console.error('❌ Failed to extract audio metadata:', error);
         }
     };
 
     useEffect(() => {
         fetchAudioData();
     }, [audioEntity]);
+    
+    // Extract metadata when audioUrl becomes available and duration is missing
+    useEffect(() => {
+        if (audioUrl && audioMetadata && !audioMetadata.duration) {
+            extractAndUpdateMetadata(audioMetadata);
+        }
+    }, [audioUrl, audioMetadata]);
 
     const handleRightClick = (e) => {
         e.preventDefault();
@@ -122,7 +161,7 @@ const Audio = (props) => {
     return (
         <div className='relative'>
             <div 
-                className='select-none cursor-pointer inline-block w-full' 
+                className='select-none cursor-pointer inline-block w-full relative' 
                 onContextMenu={handleRightClick}
                 onMouseDown={(e) => {
                     // Only prevent propagation if clicking on the audio container itself
@@ -132,26 +171,35 @@ const Audio = (props) => {
                 }}
             >
                 {audioData && audioUrl ? (
-                    <audio 
-                        ref={audioRef}
-                        src={audioUrl} 
-                        controls
-                        controlsList="nodownload"
-                        className='rounded w-full'
-                        onClick={(e) => e.stopPropagation()}
-                        onMouseDown={(e) => e.stopPropagation()}
-                        onMouseUp={(e) => e.stopPropagation()}
-                        onFocus={(e) => e.stopPropagation()}
-                        onBlur={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => e.stopPropagation()}
-                        onKeyUp={(e) => e.stopPropagation()}
-                        onInput={(e) => e.stopPropagation()}
-                        onChange={(e) => e.stopPropagation()}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onPointerUp={(e) => e.stopPropagation()}
-                    >
-                        Your browser does not support the audio element.
-                    </audio>
+                    <>
+                        <audio 
+                            ref={audioRef}
+                            src={audioUrl} 
+                            controls
+                            controlsList="nodownload"
+                            className='rounded w-full'
+                            preload="none" // ✅ CRITICAL: Prevent automatic preloading
+                            onClick={(e) => e.stopPropagation()}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onMouseUp={(e) => e.stopPropagation()}
+                            onFocus={(e) => e.stopPropagation()}
+                            onBlur={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => e.stopPropagation()}
+                            onKeyUp={(e) => e.stopPropagation()}
+                            onInput={(e) => e.stopPropagation()}
+                            onChange={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onPointerUp={(e) => e.stopPropagation()}
+                        >
+                            Your browser does not support the audio element.
+                        </audio>
+                        {/* Duration overlay - shows metadata duration */}
+                        {audioMetadata?.duration && (
+                            <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded pointer-events-none">
+                                {Math.floor(audioMetadata.duration / 60)}:{String(Math.floor(audioMetadata.duration % 60)).padStart(2, '0')}
+                            </div>
+                        )}
+                    </>
                 ) : (
                     t('loading') + '...'
                 )}

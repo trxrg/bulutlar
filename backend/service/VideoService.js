@@ -15,6 +15,9 @@ function initService() {
     ipcMain.handle('video/getDataByAnyPath', (event, path, type) => getVideoDataFromPublic(path, type));
     ipcMain.handle('video/deleteById', (event, id) => deleteVideoById(id));
     ipcMain.handle('video/download', (event, id) => downloadVideoById(id));
+    ipcMain.handle('video/extractMetadata', (event, videoId) => extractVideoMetadataById(videoId)); // New function
+    ipcMain.handle('video/updateMetadata', (event, videoId, metadata) => updateVideoMetadata(videoId, metadata)); // New function
+    ipcMain.handle('video/updateMissingDurations', () => updateMissingDurations()); // New function
     
     publicFolderPath = config.publicFolderPath;
     videosFolderPath = config.videosFolderPath;
@@ -59,9 +62,27 @@ async function getVideoDataById(videoId) {
         if (!video)
             throw ('no video found with id: ' + videoId);
 
-        // Instead of loading the entire file into memory as base64,
-        // return the absolute file path so the frontend can stream it
-        return getVideoAbsPath(video.path);
+        // Return both the file path for streaming AND metadata
+        const result = {
+            path: getVideoAbsPath(video.path),
+            metadata: {
+                duration: video.duration,
+                width: video.width,
+                height: video.height,
+                name: video.name,
+                size: video.size,
+                type: video.type
+            }
+        };
+        
+        console.log('🎬 VideoService returning:', {
+            videoId,
+            duration: video.duration,
+            hasMetadata: !!result.metadata,
+            metadataKeys: Object.keys(result.metadata)
+        });
+        
+        return result;
     } catch (err) {
         console.error('Error in getVideoData', err);
     }
@@ -157,10 +178,82 @@ function getVideoAbsPath(videoPath) {
     return absolutePath;
 }
 
+// Extract video metadata using browser-based method (no external dependencies)
+async function extractVideoMetadataById(videoId) {
+    try {
+        const video = await sequelize.models.video.findByPk(videoId);
+        if (!video) {
+            throw new Error('Video not found');
+        }
+        
+        const filePath = getVideoAbsPath(video.path);
+        
+        // Return the file path - the frontend will handle the metadata extraction
+        return { 
+            videoId,
+            filePath,
+            currentMetadata: {
+                duration: video.duration,
+                width: video.width,
+                height: video.height
+            }
+        };
+    } catch (error) {
+        console.error('Error in extractVideoMetadataById:', error);
+        throw error;
+    }
+}
+
+// Update videos that are missing duration information
+async function updateMissingDurations() {
+    try {
+        const videosWithoutDuration = await sequelize.models.video.findAll({
+            where: {
+                duration: null
+            }
+        });
+        
+        console.log(`Found ${videosWithoutDuration.length} videos without duration`);
+        return { 
+            videosToUpdate: videosWithoutDuration.map(v => ({
+                id: v.id,
+                name: v.name,
+                path: getVideoAbsPath(v.path)
+            }))
+        };
+    } catch (error) {
+        console.error('Error finding videos without duration:', error);
+        throw error;
+    }
+}
+
+// Update specific video metadata (called from frontend after extraction)
+async function updateVideoMetadata(videoId, metadata) {
+    try {
+        const video = await sequelize.models.video.findByPk(videoId);
+        if (!video) {
+            throw new Error('Video not found');
+        }
+        
+        await video.update({
+            duration: metadata.duration || video.duration,
+            width: metadata.width || video.width,
+            height: metadata.height || video.height
+        });
+        
+        console.log(`Updated video ${videoId} metadata:`, metadata);
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating video metadata:', error);
+        throw error;
+    }
+}
+
 const VideoService = {
     initService,
     createVideo,
     deleteVideosByArticleId,
+    updateMissingDurations, // Export the new function
 };
 
 export default VideoService;

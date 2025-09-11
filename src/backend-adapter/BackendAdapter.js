@@ -77,6 +77,9 @@ export const audioApi = {
     getDataByAnyPath:   async (path, type)          => window.api.audio.getDataByAnyPath(path, type),
     deleteById:         async (id)                  => window.api.audio.deleteById(id),
     download:           async (id)                  => window.api.audio.download(id),
+    extractMetadata:    async (id)                  => window.api.audio.extractMetadata(id),
+    updateMetadata:     async (id, metadata)        => window.api.audio.updateMetadata(id, metadata),
+    updateMissingDurations: async ()                => window.api.audio.updateMissingDurations(),
 };
 
 export const videoApi = {
@@ -85,6 +88,9 @@ export const videoApi = {
     getDataByAnyPath:   async (path, type)          => window.api.video.getDataByAnyPath(path, type),
     deleteById:         async (id)                  => window.api.video.deleteById(id),
     download:           async (id)                  => window.api.video.download(id),
+    extractMetadata:    async (id)                  => window.api.video.extractMetadata(id),
+    updateMetadata:     async (id, metadata)        => window.api.video.updateMetadata(id, metadata),
+    updateMissingDurations: async ()                => window.api.video.updateMissingDurations(),
 };
 
 export const tagApi = {

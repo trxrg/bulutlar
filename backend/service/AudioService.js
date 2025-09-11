@@ -15,6 +15,9 @@ function initService() {
     ipcMain.handle('audio/getDataByAnyPath', (event, path, type) => getAudioDataFromPublic(path, type));
     ipcMain.handle('audio/deleteById', (event, id) => deleteAudioById(id));
     ipcMain.handle('audio/download', (event, id) => downloadAudioById(id));
+    ipcMain.handle('audio/extractMetadata', (event, audioId) => extractAudioMetadataById(audioId)); // New function
+    ipcMain.handle('audio/updateMetadata', (event, audioId, metadata) => updateAudioMetadata(audioId, metadata)); // New function
+    ipcMain.handle('audio/updateMissingDurations', () => updateMissingDurations()); // New function
     
     publicFolderPath = config.publicFolderPath;
     audiosFolderPath = config.audiosFolderPath;
@@ -56,8 +59,25 @@ async function getAudioDataById(audioId) {
         if (!audio)
             throw ('no audio found with id: ' + audioId);
 
-        // Return the absolute file path for streaming instead of base64
-        return getAudioAbsPath(audio.path);
+        // Return both the file path for streaming AND metadata
+        const result = {
+            path: getAudioAbsPath(audio.path),
+            metadata: {
+                duration: audio.duration,
+                name: audio.name,
+                size: audio.size,
+                type: audio.type
+            }
+        };
+        
+        console.log('🎵 AudioService returning:', {
+            audioId,
+            duration: audio.duration,
+            hasMetadata: !!result.metadata,
+            metadataKeys: Object.keys(result.metadata)
+        });
+        
+        return result;
     } catch (err) {
         console.error('Error in getAudioData', err);
     }
@@ -153,10 +173,78 @@ function getAudioAbsPath(audioPath) {
     return absolutePath;
 }
 
+// Extract audio metadata using browser-based method (no external dependencies)
+async function extractAudioMetadataById(audioId) {
+    try {
+        const audio = await sequelize.models.audio.findByPk(audioId);
+        if (!audio) {
+            throw new Error('Audio not found');
+        }
+        
+        const filePath = getAudioAbsPath(audio.path);
+        
+        // Return the file path - the frontend will handle the metadata extraction
+        return { 
+            audioId,
+            filePath,
+            currentMetadata: {
+                duration: audio.duration
+            }
+        };
+    } catch (error) {
+        console.error('Error in extractAudioMetadataById:', error);
+        throw error;
+    }
+}
+
+// Update audios that are missing duration information
+async function updateMissingDurations() {
+    try {
+        const audiosWithoutDuration = await sequelize.models.audio.findAll({
+            where: {
+                duration: null
+            }
+        });
+        
+        console.log(`Found ${audiosWithoutDuration.length} audios without duration`);
+        return { 
+            audiosToUpdate: audiosWithoutDuration.map(a => ({
+                id: a.id,
+                name: a.name,
+                path: getAudioAbsPath(a.path)
+            }))
+        };
+    } catch (error) {
+        console.error('Error finding audios without duration:', error);
+        throw error;
+    }
+}
+
+// Update specific audio metadata (called from frontend after extraction)
+async function updateAudioMetadata(audioId, metadata) {
+    try {
+        const audio = await sequelize.models.audio.findByPk(audioId);
+        if (!audio) {
+            throw new Error('Audio not found');
+        }
+        
+        await audio.update({
+            duration: metadata.duration || audio.duration
+        });
+        
+        console.log(`Updated audio ${audioId} metadata:`, metadata);
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating audio metadata:', error);
+        throw error;
+    }
+}
+
 const AudioService = {
     initService,
     createAudio,
     deleteAudiosByArticleId,
+    updateMissingDurations, // Export the new function
 };
 
 export default AudioService;

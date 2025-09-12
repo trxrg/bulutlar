@@ -22,20 +22,20 @@
 
 [data-theme="dark"] {
   /* Dark theme */
-  --bg-primary: #111827;
-  --bg-secondary: #1f2937;
-  --bg-tertiary: #2d3748;
-  --bg-stone: #374151;
+  --bg-primary: #151918;
+  --bg-secondary: #1f2421;
+  --bg-tertiary: #292e2a;
+  --bg-stone: #333833;
   --text-primary: #f9fafb;
   --text-secondary: #d1d5db;
   --text-tertiary: #9ca3af;
-  --border-primary: #4a5568;
-  --border-secondary: #374151;
-  --button-bg: #374151;
-  --button-hover: #4b5563;
+  --border-primary: #4a5a4a;
+  --border-secondary: #333833;
+  --button-bg: #333833;
+  --button-hover: #3e433e;
   --scrollbar-thumb: rgba(255, 255, 255, 0.4);
-  --scrollbar-track: rgba(55, 65, 81, 0.6);
-  --toast-bg: #1f2937;
+  --scrollbar-track: rgba(51, 56, 51, 0.6);
+  --toast-bg: #1f2421;
   --toast-text: #f9fafb;
   --shadow: rgba(0, 0, 0, 0.3);
   --highlight-bg: #785c00;

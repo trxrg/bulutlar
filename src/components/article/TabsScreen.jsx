@@ -64,26 +64,33 @@ const TabsScreen = () => {
                 color: 'var(--text-primary)',
                 transition: 'all 0.3s ease'
               }}
-              onMouseEnter={(e) => e.target.style.borderBottomColor = 'var(--border-primary)'}
-              onMouseLeave={(e) => e.target.style.borderBottomColor = 'transparent'}
+              onMouseEnter={(e) => e.currentTarget.style.borderBottomColor = 'var(--border-primary)'}
+              onMouseLeave={(e) => e.currentTarget.style.borderBottomColor = 'transparent'}
               onClick={() => handleTabClick(tab.id)}
             >
               {getTitle(tab.id)}
               {tab.id != 'search' && (
                 <button
-                  className="absolute right-0 top-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                  className="absolute right-1 top-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100 p-1 rounded"
                   style={{ 
                     color: '#dc2626',
-                    transition: 'color 0.2s ease, opacity 0.3s ease'
+                    backgroundColor: 'transparent',
+                    transition: 'all 0.2s ease'
                   }}
-                  onMouseEnter={(e) => e.target.style.color = '#ef4444'}
-                  onMouseLeave={(e) => e.target.style.color = '#dc2626'}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#ffffff';
+                    e.currentTarget.style.backgroundColor = '#d46060ff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#d46060ff';
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                   onClick={(e) => {
                     e.stopPropagation();
                     closeTab(tab.id);
                   }}
                 >
-                  <XMarkIcon className="w-5 h-5" />
+                  <XMarkIcon className="w-4 h-4" style={{ color: 'inherit' }} />
                 </button>
               )}
             </div>

@@ -1,6 +1,13 @@
 export default function TagButton({ handleClose, isCloseable, label }) {
     return (
-        <div className="inline-block inline-flex items-center cursor-pointer bg-[#E7ECD8] hover:bg-[#F8FDE9] text-stone-700 text-md py-2 px-3 m-1 rounded-xl shadow-md transition duration-300 ease-in-out group">
+        <div className="inline-block inline-flex items-center cursor-pointer text-md py-2 px-3 m-1 rounded-xl shadow-md transition duration-300 ease-in-out group"
+             style={{
+                 backgroundColor: 'var(--bg-tertiary)',
+                 color: 'var(--text-primary)'
+             }}
+             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-stone)'}
+             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+        >
             <div>
                 <h2>
                     {label}

@@ -17,6 +17,7 @@
   --toast-text: #374151;
   --shadow: rgba(0, 0, 0, 0.1);
   --highlight-bg: #ffff00;
+  --close-button-hover-bg: #fecaca;
 }
 
 [data-theme="dark"] {
@@ -38,6 +39,7 @@
   --toast-text: #f9fafb;
   --shadow: rgba(0, 0, 0, 0.3);
   --highlight-bg: #785c00;
+  --close-button-hover-bg: #7f1d1d;
 }
 
 /* Apply theme variables to body and html */

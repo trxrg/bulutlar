@@ -6,7 +6,9 @@ const FormatButton = ({ onClick, onMouseDown, wfixed = true, title='', children,
                 style={{
                     backgroundColor: 'var(--button-bg)',
                     color: 'var(--text-primary)',
-                    transition: 'background-color 0.2s ease'
+                    transition: 'background-color 0.2s ease',
+                    border: 'none',
+                    outline: 'none'
                 }}
                 onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--button-hover)'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--button-bg)'}

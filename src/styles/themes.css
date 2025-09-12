@@ -136,6 +136,24 @@ input[type="color"] {
   border: 1px solid var(--border-secondary) !important;
 }
 
+/* Tab styling */
+.bg-stone-100 {
+  background-color: var(--bg-secondary) !important;
+}
+
+.text-gray-800 {
+  color: var(--text-primary) !important;
+}
+
+/* Button styling */
+.text-red-700 {
+  color: #dc2626 !important;
+}
+
+.hover\:text-red-500:hover {
+  color: #ef4444 !important;
+}
+
 /* Theme toggle button styling */
 .theme-toggle-button {
   position: relative;

@@ -235,8 +235,8 @@ const ReadControls = () => {
                             setLeftPanelCollapsed(false);
                             setRightPanelCollapsed(false);
                         }} title={t('hide panels')}>
-                            <ChevronLeftIcon className="w-5 h-5" />
                             <ChevronRightIcon className="w-5 h-5" />
+                            <ChevronLeftIcon className="w-5 h-5" />
                         </FormatButton>
                     }
                     {fullScreen ?

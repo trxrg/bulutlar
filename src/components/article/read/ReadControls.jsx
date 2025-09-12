@@ -222,6 +222,23 @@ const ReadControls = () => {
                         title={t('preferences')}>
                         <EllipsisHorizontalIcon className="w-5 h-5" />
                     </FormatButton>
+                    {!leftPanelCollapsed || !rightPanelCollapsed ?
+                        <FormatButton onClick={() => {
+                            setLeftPanelCollapsed(true);
+                            setRightPanelCollapsed(true);
+                        }} title={t('show panels')}>
+                            <ChevronLeftIcon className="w-5 h-5" />
+                            <ChevronRightIcon className="w-5 h-5" />
+                        </FormatButton>
+                        :
+                        <FormatButton onClick={() => {
+                            setLeftPanelCollapsed(false);
+                            setRightPanelCollapsed(false);
+                        }} title={t('hide panels')}>
+                            <ChevronLeftIcon className="w-5 h-5" />
+                            <ChevronRightIcon className="w-5 h-5" />
+                        </FormatButton>
+                    }
                     {fullScreen ?
                         <FormatButton onClick={() => setFullScreen(false)} title={t('exit full screen')}>
                             <ArrowsPointingInIcon className="w-5 h-5" />

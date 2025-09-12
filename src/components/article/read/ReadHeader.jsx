@@ -26,9 +26,20 @@ const ReadHeader = () => {
   }
 
   return (
-    <div className={fullScreen ? 'hidden' : 'bg-white pt-2 pb-1 flex justify-between border-b-4 border-[#809671]'}>
+    <div 
+      className={fullScreen ? 'hidden' : 'pt-2 pb-1 flex justify-between border-b-4'}
+      style={{
+        backgroundColor: 'var(--bg-primary)',
+        borderColor: 'var(--border-primary)'
+      }}
+    >
       <div className='px-4'>
-        <RichInput initialText={article.title} handleSave={(newName) => handleChangeTitle(newName)} className="text-2xl font-semibold text-gray-800 mb-1"></RichInput>
+        <RichInput 
+          initialText={article.title} 
+          handleSave={(newName) => handleChangeTitle(newName)} 
+          className="text-2xl font-semibold mb-1"
+          style={{ color: 'var(--text-primary)' }}
+        ></RichInput>
         <ArticleInfo article={article}></ArticleInfo>
       </div>
       <div onClick={handleStarClick} className='flex items-center pr-6'>

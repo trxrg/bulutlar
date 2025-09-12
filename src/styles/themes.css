@@ -163,10 +163,44 @@ input[type="color"] {
   color: var(--text-primary) !important;
 }
 
+.text-2xl {
+  color: var(--text-primary) !important;
+}
+
+.text-gray-700 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-800 {
+  color: var(--text-primary) !important;
+}
+
 /* Input focus styling */
 input:focus {
   outline: 2px solid var(--border-primary) !important;
   outline-offset: 2px;
+}
+
+/* RichInput component styling */
+.rich-input-text {
+  color: inherit !important;
+  transition: color 0.3s ease;
+}
+
+/* Ensure all paragraph elements inherit color */
+p {
+  color: inherit;
+}
+
+/* Override any remaining Tailwind text color utilities */
+.text-inherit {
+  color: inherit !important;
+}
+
+/* Ensure hover effects work with theme colors */
+.hover\:underline:hover {
+  text-decoration: underline;
+  color: inherit;
 }
 
 /* Theme toggle button styling */

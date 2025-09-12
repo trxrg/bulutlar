@@ -58,22 +58,25 @@ const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true }) => {
     const category = getCategoryById(article.categoryId);
 
     return (
-        <div className={"text-gray-700 " + fontSize} >
-            <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setOwnerModalIsOpen(true) : undefined}>{(owner && owner.name + " | ")}</span>
-            <span className={'select-none' + (isEditable && ' cursor-pointer')} onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category && category.name}</span>
+        <div 
+            className={fontSize} 
+            style={{ color: 'var(--text-primary)' }}
+        >
+            <span className={'select-none' + (isEditable && ' cursor-pointer')} style={{ color: 'var(--text-primary)' }} onDoubleClick={isEditable ? () => setOwnerModalIsOpen(true) : undefined}>{(owner && owner.name + " | ")}</span>
+            <span className={'select-none' + (isEditable && ' cursor-pointer')} style={{ color: 'var(--text-primary)' }} onDoubleClick={isEditable ? () => setCategoryModalIsOpen(true) : undefined}>{category && category.name}</span>
             {!article.isDateUncertain && <>
-                <span>{" | "}</span>
-                <span className='inline-flex'>{isEditable ?
+                <span style={{ color: 'var(--text-primary)' }}>{" | "}</span>
+                <span className='inline-flex' style={{ color: 'var(--text-primary)' }}>{isEditable ?
                     <RichInput className='flex' initialText={new Date(article.date).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate}></RichInput>
                     :
                     new Date(article.date).toLocaleDateString('tr')}</span>
-                <span>{" (" + article.number + ") | "}</span>
-                <span>{getDayOfWeek() + " | "}</span>
-                <span className='inline-flex'>{isEditable ?
+                <span style={{ color: 'var(--text-primary)' }}>{" (" + article.number + ") | "}</span>
+                <span style={{ color: 'var(--text-primary)' }}>{getDayOfWeek() + " | "}</span>
+                <span className='inline-flex' style={{ color: 'var(--text-primary)' }}>{isEditable ?
                     <RichInput className='flex' initialText={new Date(article.date2).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate2}></RichInput>
                     :
                     new Date(article.date2).toLocaleDateString('tr')}</span>
-                <span>{" (" + article.number2 + ")"}</span>
+                <span style={{ color: 'var(--text-primary)' }}>{" (" + article.number2 + ")"}</span>
             </>}
             <OwnerModal isOpen={ownerModalIsOpen} onRequestClose={() => setOwnerModalIsOpen(false)} initialOwnerName={owner && owner.name} onConfirm={handleUpdateOwner}></OwnerModal>
             <CategoryModal isOpen={categoryModalIsOpen} onRequestClose={() => setCategoryModalIsOpen(false)} initialCategoryName={category && category.name} onConfirm={handleUpdateCategory}></CategoryModal>

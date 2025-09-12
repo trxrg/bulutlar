@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CheckIcon, PencilIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import FormatButton from './FormatButton';
 
-const RichInput = ({ initialText, handleSave, inputType = 'text', hasEditButton = false, onClick=undefined, ...props }) => {
+const RichInput = ({ initialText, handleSave, inputType = 'text', hasEditButton = false, onClick = undefined, style, ...props }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [inputValue, setInputValue] = useState(inputType === 'date' ? convertDateFormat(initialText) : initialText);
     const [inputWidth, setInputWidth] = useState('auto');
@@ -82,7 +82,7 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', hasEditButton 
     }, [isEditing, handleKeyDown]);
 
     return (
-        <div {...props}>
+        <div {...props} style={{ ...style, color: style?.color || 'inherit' }}>
             <div className="relative group inline-flex items-center">
                 <div className='flex'>
                     {isEditing ?
@@ -93,7 +93,7 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', hasEditButton 
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 className="rounded-md p-1"
-                                style={{ 
+                                style={{
                                     minWidth: inputWidth,
                                     backgroundColor: 'var(--bg-primary)',
                                     color: 'var(--text-primary)',
@@ -110,9 +110,9 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', hasEditButton 
                         :
                         hasEditButton ?
                             <div className={'flex flex-wrap ml-1 gap-1 w-full'}>
-                                <p className='flex items-center cursor-pointer hover:underline' 
-                                   onClick={handleClick}
-                                   style={{ color: 'var(--text-primary)' }}>                                    
+                                <p className='flex items-center cursor-pointer hover:underline'
+                                    onClick={handleClick}
+                                    style={{ color: 'var(--text-primary)' }}>
                                     {initialText}
                                 </p>
                                 <FormatButton onClick={handleEditClick} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -121,7 +121,9 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', hasEditButton 
                             </div>
                             : <div className=''
                                 onClick={handleEditClick}
-                                ref={textRef} >
+                                ref={textRef}
+                                style={{ color: 'var(--text-primary)' }}
+                            >
                                 {initialText}
                             </div>
                     }

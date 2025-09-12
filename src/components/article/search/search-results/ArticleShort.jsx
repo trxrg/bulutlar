@@ -148,7 +148,8 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
         if (!text || index < 0) return '';
         if (text.length <= index) return text;
         const nextPeriodIndex = text.indexOf('.', index);
-        return nextPeriodIndex !== -1 ? text.slice(0, nextPeriodIndex + 1) + '..' : text;
+        const result = nextPeriodIndex !== -1 ? text.slice(0, nextPeriodIndex + 1) + '..' : text;
+        return result.trim();
     };
 
     const handleStarClick = async (e) => {

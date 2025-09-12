@@ -154,6 +154,21 @@ input[type="color"] {
   color: #ef4444 !important;
 }
 
+/* Text styling */
+.text-sm {
+  color: var(--text-primary) !important;
+}
+
+.text-xl {
+  color: var(--text-primary) !important;
+}
+
+/* Input focus styling */
+input:focus {
+  outline: 2px solid var(--border-primary) !important;
+  outline-offset: 2px;
+}
+
 /* Theme toggle button styling */
 .theme-toggle-button {
   position: relative;

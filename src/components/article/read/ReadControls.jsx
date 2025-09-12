@@ -120,7 +120,13 @@ const ReadControls = () => {
     }
 
     return (
-        <div className='flex flex-col gap-2 shadow-lg bg-white p-2 items-center'>
+        <div 
+            className='flex flex-col gap-2 shadow-lg p-2 items-center'
+            style={{ 
+                backgroundColor: 'var(--bg-primary)', 
+                boxShadow: '0 10px 15px -3px var(--shadow), 0 4px 6px -2px var(--shadow)' 
+            }}
+        >
             <div className='flex justify-between w-full'>
                 {/* left */}
                 <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
@@ -139,6 +145,11 @@ const ReadControls = () => {
                             <input
                                 type="text"
                                 className="border rounded p-1"
+                                style={{
+                                    backgroundColor: 'var(--bg-primary)',
+                                    color: 'var(--text-primary)',
+                                    borderColor: 'var(--border-secondary)'
+                                }}
                                 placeholder={t('search')}
                                 value={localSearchTerm}
                                 onChange={(e) => setLocalSearchTerm(e.target.value)}
@@ -156,7 +167,10 @@ const ReadControls = () => {
                             <FormatButton onClick={handlePreviousHighlight} title={t('previous match')}>
                                 <ChevronUpIcon className="w-5 h-5" />
                             </FormatButton>
-                            <span className="text-sm px-2 py-1">
+                            <span 
+                                className="text-sm px-2 py-1"
+                                style={{ color: 'var(--text-primary)' }}
+                            >
                                 {getHighlightInfo().current}/{getHighlightInfo().total}
                             </span>
                             <FormatButton onClick={handleNextHighlight} title={t('next match')}>
@@ -178,7 +192,12 @@ const ReadControls = () => {
                         :
                         (fullScreen &&
                             <div className='flex items-center h-full'>
-                                <h2 className='text-xl whitespace-normal break-words mx-10'>{article.title + (article.isDateUncertain ? '' : ` (${new Date(article.date).toLocaleDateString('tr')})`)}</h2>
+                                <h2 
+                                    className='text-xl whitespace-normal break-words mx-10'
+                                    style={{ color: 'var(--text-primary)' }}
+                                >
+                                    {article.title + (article.isDateUncertain ? '' : ` (${new Date(article.date).toLocaleDateString('tr')})`)}
+                                </h2>
                             </div>
                         )}
                 </div>

@@ -16,7 +16,7 @@
   --toast-bg: #ffffff;
   --toast-text: #374151;
   --shadow: rgba(0, 0, 0, 0.1);
-  --highlight-bg: #ffff00;
+  --highlight-bg: #f7d812;
   --close-button-hover-bg: #fecaca;
   
   /* Quote colors for light theme */
@@ -56,6 +56,16 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Article hover effects for performance */
+.article-short-hover {
+  background-color: var(--bg-secondary);
+  transition: background-color 0.2s ease;
+}
+
+.article-short-hover:hover {
+  background-color: var(--bg-primary);
 }
 
 /* Update scrollbar colors to use theme variables */

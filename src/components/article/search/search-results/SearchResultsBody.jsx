@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useMemo } from 'react';
 
 import ArticleShort from './ArticleShort.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
@@ -6,7 +6,7 @@ import { DBContext } from '../../../../store/db-context.jsx';
 import { SearchContext } from '../../../../store/search-context.jsx';
 import toastr from 'toastr';
 
-const SearchResultsBody = () => {
+const SearchResultsBody = React.memo(() => {
     const { handleAddTab, translate: t, normalizeText, htmlToText } = useContext(AppContext);
     const { allArticles, getOwnerById, getTagById, getCategoryById, getGroupById } = useContext(DBContext);
     const { filtering, filteredArticles, setFilteredArticles,
@@ -165,6 +165,19 @@ const SearchResultsBody = () => {
         }
     }
 
+    // Memoize the article list rendering for better performance
+    const articlesList = useMemo(() => {
+        return filteredArticles.map(art => (
+            <ArticleShort
+                handleClick={handleAddTab}
+                key={art.id}
+                article={art}
+                keywords={(filtering.keywords && filtering.keywords.length) ? filtering.keywords : null}
+                dangerouslySetInnerHTML={{ __html: art.title }}
+            />
+        ));
+    }, [filteredArticles, handleAddTab, filtering.keywords]);
+
     return (
         <>
             {allArticles.length === 0 ?
@@ -172,18 +185,10 @@ const SearchResultsBody = () => {
                     <p>{t('no articles')}</p>
                 </div> :
                 <div className='flex flex-col gap-5 p-5 relative'>
-                    {filteredArticles.map(art => (
-                        <ArticleShort
-                            handleClick={handleAddTab}
-                            key={art.id}
-                            article={art}
-                            keywords={(filtering.keywords && filtering.keywords.length) ? filtering.keywords : null}
-                            dangerouslySetInnerHTML={{ __html: art.title }}
-                        />
-                    ))}
+                    {articlesList}
                 </div>}
         </>
     );
-};
+});
 
 export default SearchResultsBody;

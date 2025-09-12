@@ -1,6 +1,6 @@
 import parse from 'html-react-parser';
 import TagButton from '../../../tag/TagButton';
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { DBContext } from '../../../../store/db-context';
 import { AppContext } from '../../../../store/app-context';
 import { SearchContext } from '../../../../store/search-context';
@@ -9,7 +9,7 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import ArticleInfo from '../../ArticleInfo';
 
-export default function ArticleShort({ article, keywords, handleClick }) {
+const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
 
     const [isSelected, setIsSelected] = useState(false);
     const { getCategoryById, getTagById, fetchArticleById } = useContext(DBContext);
@@ -19,13 +19,15 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     const numberOfTags = 3;
     const numberOfCharsForText = 400;
 
-    const category = getCategoryById(article.categoryId);
+    // Memoize category lookup for performance
+    const category = useMemo(() => getCategoryById(article.categoryId), [getCategoryById, article.categoryId]);
 
     useEffect(() => {
         setIsSelected(allOrNoneSelected);
     }, [selectAllOrNoneClicks]);
 
-    const highlightKeywords = (text, keywords) => {
+    // Memoize the highlight function for better performance
+    const highlightKeywords = useCallback((text, keywords) => {
         if (!text || text.length === 0)
             return '';
         const normalizedText = normalizeText(text);
@@ -54,9 +56,9 @@ export default function ArticleShort({ article, keywords, handleClick }) {
         });
 
         return highlightedText;
-    };
+    }, [normalizeText]);
 
-    const getToBeHighlightedParts = (text, keywords, contextLength = 50) => {
+    const getToBeHighlightedParts = useCallback((text, keywords, contextLength = 50) => {
         const normalizedKeywords = keywords.map(keyword => normalizeText(keyword));
         const normalizedText = normalizeText(text);
         const regex = new RegExp(`(${normalizedKeywords.join('|')})`, 'gi');
@@ -100,25 +102,47 @@ export default function ArticleShort({ article, keywords, handleClick }) {
 
         });
         return highlightedParts;
-    };
+    }, [normalizeText]);
 
-    const handleCheckboxChange = (e) => {
+    const handleCheckboxChange = useCallback((e) => {
         const checked = e.target.checked;
         setIsSelected(checked);
         checked ? selectArticle(article.id) : deselectArticle(article.id);
-    };
+    }, [selectArticle, deselectArticle, article.id]);
 
-    let highlightedTitle;
-    let highlightedTextParts = [];
-    let highlightedExplanation;
-    let highlightedCommentParts = [];
+    const toggleStar = useCallback(async (e) => {
+        e.stopPropagation();
+        try {
+            await articleApi.updateArticle(article.id, { isStarred: !article.isStarred });
+            await fetchArticleById(article.id);
+        } catch (error) {
+            console.error('Error updating star status:', error);
+        }
+    }, [article.id, article.isStarred, fetchArticleById]);
 
-    if (keywords) {
-        highlightedTitle = highlightKeywords(article.title, keywords);
-        highlightedExplanation = highlightKeywords(htmlToText(article.explanation), keywords);
-        highlightedTextParts = getToBeHighlightedParts(htmlToText(article.text), keywords).map(part => highlightKeywords(part, keywords));
-        highlightedCommentParts = getToBeHighlightedParts(article.comments[0] ? htmlToText(article.comments[0].text) : '', keywords).map(part => highlightKeywords(part, keywords));
-    }
+    // Memoize highlighted content for performance
+    const highlightedContent = useMemo(() => {
+        if (!keywords) {
+            return {
+                title: article.title,
+                explanation: htmlToText(article.explanation),
+                textParts: [],
+                commentParts: []
+            };
+        }
+
+        return {
+            title: highlightKeywords(article.title, keywords),
+            explanation: highlightKeywords(htmlToText(article.explanation), keywords),
+            textParts: getToBeHighlightedParts(htmlToText(article.text), keywords).map(part => highlightKeywords(part, keywords)),
+            commentParts: getToBeHighlightedParts(article.comments[0] ? htmlToText(article.comments[0].text) : '', keywords).map(part => highlightKeywords(part, keywords))
+        };
+    }, [article.title, article.explanation, article.text, article.comments, keywords, highlightKeywords, getToBeHighlightedParts, htmlToText]);
+
+    let highlightedTitle = highlightedContent.title;
+    let highlightedTextParts = highlightedContent.textParts;
+    let highlightedExplanation = highlightedContent.explanation;
+    let highlightedCommentParts = highlightedContent.commentParts;
 
     const getSubstringUntilNextPeriod = (text, index) => {
         if (!text || index < 0) return '';
@@ -134,14 +158,11 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     }
 
     return (
-        <div className="rounded-md border-4
+        <div className="article-short-hover rounded-md border-4
          shadow-xl cursor-pointer flex flex-row w-full overflow-hidden"
             style={{ 
-                borderColor: category && category.color,
-                backgroundColor: 'var(--bg-secondary)'
+                borderColor: category && category.color
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
         >
             {areArticlesSelectable && <div className='min-h-full flex items-center pl-5 cursor-normal' onClick={handleCheckboxChange}>
                 <input
@@ -154,7 +175,7 @@ export default function ArticleShort({ article, keywords, handleClick }) {
             <div className='flex flex-1 flex-col overflow-hidden px-10 py-6 text-xl' onClick={(e) => handleClick(e, article.id)} style={{ color: 'var(--text-primary)' }}>
                 <div className='flex justify-between'>
                     <h2 className="text-2xl font-bold break-words" style={{ color: 'var(--text-primary)' }}>{keywords ? parse(highlightedTitle) : article.title}</h2>
-                    <div onClick={handleStarClick} className='cursor-default'>
+                    <div onClick={toggleStar} className='cursor-default'>
                         {article.isStarred ? (
                             <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="hover:scale-125" />
                         ) : (
@@ -187,4 +208,6 @@ export default function ArticleShort({ article, keywords, handleClick }) {
             </div>
         </div >
     );
-}
+});
+
+export default ArticleShort;

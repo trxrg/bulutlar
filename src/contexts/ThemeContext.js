@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 const ThemeContext = createContext();
 
@@ -20,26 +20,26 @@ export const ThemeProvider = ({ children }) => {
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
     localStorage.setItem('bulutlar-theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
-  };
+  }, [theme]);
 
-  const setSpecificTheme = (themeName) => {
+  const setSpecificTheme = useCallback((themeName) => {
     setTheme(themeName);
     localStorage.setItem('bulutlar-theme', themeName);
     document.documentElement.setAttribute('data-theme', themeName);
-  };
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     theme,
     toggleTheme,
     setTheme: setSpecificTheme,
     isDark: theme === 'dark',
     isLight: theme === 'light'
-  };
+  }), [theme, toggleTheme, setSpecificTheme]);
 
   return (
     <ThemeContext.Provider value={value}>

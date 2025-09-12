@@ -47,6 +47,13 @@ npm run package-linux
 ```
 
 ## Versions
+1.4.3
+- efficiency fixes
+
+1.4.2
+- add dark mode
+- some styling
+
 1.4.1
 - more efficient media streaming
 

@@ -19,16 +19,18 @@ const CustomOption = (props) => {
 const customStyles = {
     control: (base) => ({
         ...base,
-        border: '1px solid #ccc',
+        backgroundColor: 'var(--bg-primary)',
+        border: '1px solid var(--border-secondary)',
+        color: 'var(--text-primary)',
         boxShadow: 'none',
         '&:hover': {
-            border: '1px solid #007bff',
+            border: '1px solid var(--border-primary)',
         },
     }),
     option: (base, state) => {
         const borderLeft = '20px solid ' + state.data.color;
-        const backgroundColor = state.isFocused ? '#f0f0f0' : 'white';
-        const color = '#333';
+        const backgroundColor = state.isFocused ? 'var(--bg-tertiary)' : 'var(--bg-primary)';
+        const color = 'var(--text-primary)';
 
         return {
             ...base,
@@ -40,7 +42,16 @@ const customStyles = {
     },
     singleValue: (base, state) => ({
         ...base,
-        color: state.data.color || '#333',
+        color: state.data.color || 'var(--text-primary)',
+    }),
+    menu: (base) => ({
+        ...base,
+        backgroundColor: 'var(--bg-primary)',
+        border: '1px solid var(--border-secondary)',
+    }),
+    placeholder: (base) => ({
+        ...base,
+        color: 'var(--text-tertiary)',
     }),
 };
 

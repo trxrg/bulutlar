@@ -32,17 +32,18 @@ const ArticleList = ({ onArticleChange, excludedArticleIds, onViewClicked }) => 
     const customStyles = {
         control: (base) => ({
             ...base,
-            backgroundColor: '#fff',
-            border: '1px solid #ccc',
+            backgroundColor: 'var(--bg-primary)',
+            border: '1px solid var(--border-secondary)',
+            color: 'var(--text-primary)',
             boxShadow: 'none',
             '&:hover': {
-                border: '1px solid #007bff',
+                border: '1px solid var(--border-primary)',
             },
         }),
         option: (base, state) => {
-            const border = state.isFocused ? '2px solid' : 'none';
-            const backgroundColor = '#fff';
-            const color = '#333';
+            const border = state.isFocused ? '2px solid var(--border-primary)' : 'none';
+            const backgroundColor = state.isFocused ? 'var(--bg-tertiary)' : 'var(--bg-primary)';
+            const color = 'var(--text-primary)';
 
             return {
                 ...base,
@@ -54,7 +55,16 @@ const ArticleList = ({ onArticleChange, excludedArticleIds, onViewClicked }) => 
         },
         singleValue: (base, state) => ({
             ...base,
-            // color: state.data.color || '#333',
+            color: 'var(--text-primary)',
+        }),
+        menu: (base) => ({
+            ...base,
+            backgroundColor: 'var(--bg-primary)',
+            border: '1px solid var(--border-secondary)',
+        }),
+        placeholder: (base) => ({
+            ...base,
+            color: 'var(--text-tertiary)',
         }),
     };
 

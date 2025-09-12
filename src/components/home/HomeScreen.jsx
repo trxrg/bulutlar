@@ -14,9 +14,10 @@ const HomeScreen = () => {
     const primaryButtonProps = {
         variant: 'contained',
         sx: { 
-            fontFamily: '"Trebuchet MS", sans-serif', 
-            fontWeight: 'bold', 
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
+            fontWeight: '600', 
             fontSize: '1.2rem',
+            letterSpacing: '0.025em',
             backgroundColor: '#059669',
             color: '#f9fafb',
             '&:hover': {
@@ -28,9 +29,10 @@ const HomeScreen = () => {
     const secondaryButtonProps = {
         variant: 'contained',
         sx: { 
-            fontFamily: '"Trebuchet MS", sans-serif', 
-            fontWeight: 'bold', 
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
+            fontWeight: '600', 
             fontSize: '1.2rem',
+            letterSpacing: '0.025em',
             backgroundColor: 'var(--border-primary)',
             color: '#f9fafb',
             '&:hover': {
@@ -42,9 +44,10 @@ const HomeScreen = () => {
     const settingsButtonProps = {
         variant: 'contained',
         sx: { 
-            fontFamily: '"Trebuchet MS", sans-serif', 
-            fontWeight: 'bold', 
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
+            fontWeight: '600', 
             fontSize: '1.2rem',
+            letterSpacing: '0.025em',
             backgroundColor: '#B53A16',
             color: '#f9fafb',
             '&:hover': {

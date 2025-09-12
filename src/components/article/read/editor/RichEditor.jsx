@@ -22,18 +22,18 @@ import 'draft-js/dist/Draft.css'; // necessary for list item styling etc.
 const styleMap = {
     'HIGHLIGHT': {
         backgroundColor: 'var(--highlight-bg)',
-        color: 'var(--text-primary)',
+        color: 'var(--text-editor)',
         borderRadius: '3px'
     },
     'SUPERSCRIPT': {
         verticalAlign: 'super',
         fontSize: 'medium',
-        color: 'var(--text-primary)'
+        color: 'var(--text-editor)'
     },
     'SUBSCRIPT': {
         verticalAlign: 'sub',
         fontSize: 'medium',
-        color: 'var(--text-primary)'
+        color: 'var(--text-editor)'
     },
 };
 
@@ -84,7 +84,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
                 ref={highlightRef}
                 style={{ 
                     backgroundColor: '#a5d6a7',
-                    color: 'var(--text-primary)'
+                    color: 'var(--text-editor)'
                 }}>
                 {children}
             </span>
@@ -651,7 +651,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
             onMouseUp={handleMouseUp}
             style={{ 
                 backgroundColor: 'var(--bg-primary)',
-                color: 'var(--text-primary)'
+                color: 'var(--text-editor)'
             }}
         >
             <div 
@@ -660,7 +660,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
                 style={{
                     borderColor: editable ? 'var(--border-secondary)' : 'transparent',
                     backgroundColor: 'var(--bg-primary)',
-                    color: 'var(--text-primary)'
+                    color: 'var(--text-editor)'
                 }}
             >
                 {editorState.getCurrentContent().hasText() || !editable ? null : (

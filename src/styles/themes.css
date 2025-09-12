@@ -7,6 +7,7 @@
   --text-primary: #374151;
   --text-secondary: #6b7280;
   --text-tertiary: #9ca3af;
+  --text-editor: #374151; /* Same as text-primary for light theme */
   --border-primary: #809671;
   --border-secondary: #e5e7eb;
   --button-bg: #f9fafb;
@@ -30,9 +31,10 @@
   --bg-secondary: #1f2421;
   --bg-tertiary: #292e2a;
   --bg-stone: #333833;
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --text-tertiary: #9ca3af;
+  --text-primary: #d1d5db; /* Darker from #f9fafb */
+  --text-secondary: #9ca3af; /* Darker from #d1d5db */
+  --text-tertiary: #6b7280; /* Darker from #9ca3af */
+  --text-editor: #a1a5a9; /* Even darker text for comfortable night reading */
   --border-primary: #4a5a4a;
   --border-secondary: #333833;
   --button-bg: #333833;
@@ -291,19 +293,19 @@ button svg {
 /* Draft.js RichEditor theming */
 .DraftEditor-root {
   background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
+  color: var(--text-editor) !important;
   transition: background-color 0.3s ease;
 }
 
 .DraftEditor-editorContainer {
   background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
+  color: var(--text-editor) !important;
   transition: background-color 0.3s ease;
 }
 
 .public-DraftEditor-content {
   background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
+  color: var(--text-editor) !important;
   transition: background-color 0.3s ease;
 }
 
@@ -314,26 +316,26 @@ button svg {
 
 /* Draft.js block elements */
 .public-DraftStyleDefault-block {
-  color: var(--text-primary) !important;
+  color: var(--text-editor) !important;
   transition: none;
 }
 
 /* Draft.js list items */
 .public-DraftStyleDefault-ol,
 .public-DraftStyleDefault-ul {
-  color: var(--text-primary) !important;
+  color: var(--text-editor) !important;
   transition: none;
 }
 
 .public-DraftStyleDefault-ol li,
 .public-DraftStyleDefault-ul li {
-  color: var(--text-primary) !important;
+  color: var(--text-editor) !important;
   transition: none;
 }
 
 /* Draft.js selection */
 .DraftEditor-editorContainer .public-DraftEditor-content [data-contents="true"] {
-  color: var(--text-primary) !important;
+  color: var(--text-editor) !important;
   transition: none;
 }
 

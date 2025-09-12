@@ -110,7 +110,7 @@ const OwnerScreen = () => {
                     </thead>
                     <tbody>
                         {sortedOwners.map((owner, index) => (
-                            <tr key={owner.id} className="group" style={{ backgroundColor: 'var(--bg-primary)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}>
+                            <tr key={owner.id} className="group table-row-hover">
                                 <td className='text-center' style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }}>
                                     <h2>{index + 1}</h2>
                                 </td>

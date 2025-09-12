@@ -31,14 +31,11 @@ const RelatedArticleCard = ({ relatedArticle, onClick }) => {
 
     return (
         <div className='relative' onContextMenu={handleRightClick}>
-            <div className='rounded-md border-2
+            <div className='rounded-md border-2 related-article-card
         active:shadow-none shadow-xl cursor-pointer flex flex-row w-full overflow-hidden'
                 style={{ 
-                    borderColor: category && category.color,
-                    backgroundColor: 'var(--bg-secondary)'
+                    borderColor: category && category.color
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
                 onClick={onClick}>
                 <h2 className="text-xl break-words p-2" style={{ color: 'var(--text-primary)' }}>{relatedArticle.title}</h2>
             </div>

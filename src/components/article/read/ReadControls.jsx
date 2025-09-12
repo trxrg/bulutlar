@@ -138,8 +138,12 @@ const ReadControls = () => {
                         <FormatButton onClick={() => setLeftPanelCollapsed(true)} title={t('hide left panel')}>
                             <ChevronLeftIcon className="w-5 h-5" />
                         </FormatButton>}
-                    <FormatButton onClick={decreaseFontSize} title={t('decrease font')}>A-</FormatButton>
-                    <FormatButton onClick={increaseFontSize} title={t('increase font')}>A+</FormatButton>
+                    <FormatButton onClick={decreaseFontSize} title={t('decrease font')}>
+                        <span className="text-xs font-bold">A</span>
+                    </FormatButton>
+                    <FormatButton onClick={increaseFontSize} title={t('increase font')}>
+                        <span className="text-lg font-bold">A</span>
+                    </FormatButton>
                     {searchBarOpen && (
                         <>
                             <input

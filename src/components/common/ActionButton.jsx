@@ -36,17 +36,8 @@ const ActionButton = ({ onClick, color='', size='', title='', children }) => {
 
     return (
         <button
-            className={"rounded-md shadow-sm select-none " + sizeStyle}
-            style={{
-                ...colorStyle,
-                transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-                e.target.style.filter = 'brightness(1.1)';
-            }}
-            onMouseLeave={(e) => {
-                e.target.style.filter = 'brightness(1)';
-            }}
+            className={"rounded-md shadow-sm select-none action-button " + sizeStyle}
+            style={colorStyle}
             onClick={onClick}
             title={title || children}
         >

@@ -73,7 +73,6 @@
   .quote {
     color: var(--quote-primary); /* Theme-aware quote color */
     text-decoration: none; /* Remove underline */
-    font-weight: 500; /* Medium font weight */
     position: relative; /* Positioning for pseudo-elements */
     padding-bottom: 1px; /* Add a bottom padding for a subtle underline effect */
     transition: color 0.3s ease; /* Smooth color transition */
@@ -106,6 +105,77 @@
 
   .format-button:hover svg {
     transform: scale(1.1);
+  }
+
+  /* Tag button hover effect */
+  .tag-button {
+    background-color: var(--bg-tertiary);
+    transition: background-color 0.3s ease;
+  }
+
+  .tag-button:hover {
+    background-color: var(--bg-stone);
+  }
+
+  /* Action button hover effect */
+  .action-button {
+    transition: all 0.2s ease;
+  }
+
+  .action-button:hover {
+    filter: brightness(1.1);
+  }
+
+  /* Annotation card hover effect */
+  .annotation-card {
+    background-color: var(--bg-secondary);
+    transition: background-color 0.3s ease;
+  }
+
+  .annotation-card:hover {
+    background-color: var(--bg-primary);
+  }
+
+  /* Table row hover effect */
+  .table-row-hover {
+    background-color: var(--bg-primary);
+    transition: background-color 0.2s ease;
+  }
+
+  .table-row-hover:hover {
+    background-color: var(--bg-secondary);
+  }
+
+  /* Related article card hover effect */
+  .related-article-card {
+    background-color: var(--bg-secondary);
+    transition: background-color 0.3s ease;
+  }
+
+  .related-article-card:hover {
+    background-color: var(--bg-primary);
+  }
+
+  /* Tab hover effect */
+  .tab-item {
+    border-bottom: 4px solid transparent;
+    transition: all 0.3s ease;
+  }
+
+  .tab-item:hover {
+    border-bottom-color: var(--border-primary);
+  }
+
+  /* Tab close button hover effect */
+  .tab-close-button {
+    color: #dc2626;
+    background-color: transparent;
+    transition: all 0.2s ease;
+  }
+
+  .tab-close-button:hover {
+    color: #ffffff;
+    background-color: #d46060ff;
   }
 
   .primary-button {

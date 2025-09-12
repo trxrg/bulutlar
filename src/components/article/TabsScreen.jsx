@@ -58,33 +58,17 @@ const TabsScreen = () => {
           {tabs.map(tab => (
             <div
               key={tab.id}
-              className="group min-w-60 py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent focus:outline-none relative text-left"
+              className="group min-w-60 py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent tab-item focus:outline-none relative text-left"
               style={{
                 backgroundColor: activeTabId === tab.id ? 'var(--bg-primary)' : 'var(--bg-secondary)',
-                color: 'var(--text-primary)',
-                transition: 'all 0.3s ease'
+                color: 'var(--text-primary)'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.borderBottomColor = 'var(--border-primary)'}
-              onMouseLeave={(e) => e.currentTarget.style.borderBottomColor = 'transparent'}
               onClick={() => handleTabClick(tab.id)}
             >
               {getTitle(tab.id)}
               {tab.id != 'search' && (
                 <button
-                  className="absolute right-1 top-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100 p-1 rounded"
-                  style={{ 
-                    color: '#dc2626',
-                    backgroundColor: 'transparent',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#ffffff';
-                    e.currentTarget.style.backgroundColor = '#d46060ff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#d46060ff';
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
+                  className="absolute right-1 top-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100 p-1 rounded tab-close-button"
                   onClick={(e) => {
                     e.stopPropagation();
                     closeTab(tab.id);

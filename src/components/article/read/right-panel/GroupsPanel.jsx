@@ -26,10 +26,10 @@ const GroupsPanel = () => {
     }
 
     return (
-        <div className='border-t-4 border-[#809671] h-full'>
+        <div className='h-full'>
             <BodyWithFixedHeader>
-                <div className='flex flex-wrap justify-between p-2 shadow-lg bg-white items-center'>
-                    <h2 className='ml-2 text-xl font-semibold text-gray-800 cursor-pointer hover:underline' onClick={handleTitleClick}>{t('groups')}</h2>
+                <div className='flex flex-wrap justify-between p-2 shadow-lg items-center' style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                    <h2 className='ml-2 text-xl font-semibold cursor-pointer hover:underline' style={{ color: 'var(--text-primary)' }} onClick={handleTitleClick}>{t('groups')}</h2>
                     <FormatButton onClick={() => setIsModalOpen(true)} title={t('add to group')}><PlusIcon className="w-5 h-5" /></FormatButton>
                 </div>
                 {article.groups.length > 0 ?
@@ -38,7 +38,7 @@ const GroupsPanel = () => {
                     </div>
                     :
                     <div className='flex justify-center p-2 h-full'>
-                        <p>{t('no groups')}</p>
+                        <p style={{ color: 'var(--text-secondary)' }}>{t('no groups')}</p>
                     </div>}
             </BodyWithFixedHeader>
             <GroupModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} onConfirm={addArticleToGroup}/>

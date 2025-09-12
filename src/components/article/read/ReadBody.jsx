@@ -32,14 +32,14 @@ const ReadBody = () => {
         minSize={containerWidth * 0.6}
         maxSize={containerWidth * 0.8}
         size={rightPanelCollapsed ? '100%' : containerWidth * 0.8}
-        resizerStyle={rightPanelCollapsed ? { display: 'none' } : { background: '#809671', cursor: 'col-resize', width: '4px' }}
+        resizerStyle={rightPanelCollapsed ? { display: 'none' } : { background: 'var(--border-primary)', cursor: 'col-resize', width: '4px' }}
       >
         <SplitPane
           split="vertical"
           minSize={containerWidth * 0.1}
           maxSize={containerWidth * 0.3}
           size={leftPanelCollapsed ? '0%' : containerWidth * 0.2}
-          resizerStyle={leftPanelCollapsed ? { display: 'none' } : { background: '#809671', cursor: 'col-resize', width: '4px' }}
+          resizerStyle={leftPanelCollapsed ? { display: 'none' } : { background: 'var(--border-primary)', cursor: 'col-resize', width: '4px' }}
         >
           <div className={`h-full transition-transform duration-300 ${leftPanelCollapsed ? 'transform -translate-x-full w-0 opacity-0' : 'w-full'}`}>
             <ReadLeftPanel />

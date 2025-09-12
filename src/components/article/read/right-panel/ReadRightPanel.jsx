@@ -9,10 +9,10 @@ const ReadRightPanel = () => {
             <div className='flex-1 min-w-full overflow-y-auto'>
                 <RelatedArticlesPanel />
             </div>
-            <div className='flex-1 min-w-full overflow-y-auto'>
+            <div className='flex-1 min-w-full overflow-y-auto' style={{ borderTop: '4px solid var(--border-primary)' }}>
                 <TagsPanel />
             </div>
-            <div className='flex-1 min-w-full overflow-y-auto'>
+            <div className='flex-1 min-w-full overflow-y-auto' style={{ borderTop: '4px solid var(--border-primary)' }}>
                 <GroupsPanel />
             </div>
         </div>

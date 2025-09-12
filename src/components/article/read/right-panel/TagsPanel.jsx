@@ -14,10 +14,10 @@ const TagsPanel = () => {
     }
 
     return (
-        <div className='border-t-4 border-[#809671] h-full'>
+        <div className='h-full'>
             <BodyWithFixedHeader>
-                <div className='flex flex-wrap justify-between p-2 shadow-lg bg-white items-center'>
-                    <h2 className='ml-2 text-xl font-semibold text-gray-800 cursor-pointer hover:underline' onClick={handleTitleClick}>{t('tags')}</h2>
+                <div className='flex flex-wrap justify-between p-2 shadow-lg items-center' style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                    <h2 className='ml-2 text-xl font-semibold cursor-pointer hover:underline' style={{ color: 'var(--text-primary)' }} onClick={handleTitleClick}>{t('tags')}</h2>
                     <FormatButton onClick={() => setAdding(prev => !prev)} title={t('add tag')}><PlusIcon className="w-5 h-5" /></FormatButton>
                 </div>
                 <div className='flex'>

@@ -13,66 +13,113 @@ const HomeScreen = () => {
 
     const primaryButtonProps = {
         variant: 'contained',
-        color: 'primary',
-        style: { 
+        sx: { 
             fontFamily: '"Trebuchet MS", sans-serif', 
             fontWeight: 'bold', 
             fontSize: '1.2rem',
-            backgroundColor: 'var(--button-bg)',
-            color: 'var(--text-primary)',
+            backgroundColor: '#059669',
+            color: '#f9fafb',
             '&:hover': {
-                backgroundColor: 'var(--button-hover)'
+                backgroundColor: '#047857',
+                filter: 'brightness(1.1)'
             }
         }
     };
     const secondaryButtonProps = {
-        variant: 'outlined',
-        color: 'primary',
-        style: { 
+        variant: 'contained',
+        sx: { 
             fontFamily: '"Trebuchet MS", sans-serif', 
             fontWeight: 'bold', 
             fontSize: '1.2rem',
-            borderColor: 'var(--border-primary)',
-            color: 'var(--text-primary)',
+            backgroundColor: 'var(--border-primary)',
+            color: '#f9fafb',
             '&:hover': {
-                backgroundColor: 'var(--button-hover)',
-                borderColor: 'var(--border-primary)'
+                filter: 'brightness(1.1)'
+            }
+        }
+    };
+    
+    const settingsButtonProps = {
+        variant: 'contained',
+        sx: { 
+            fontFamily: '"Trebuchet MS", sans-serif', 
+            fontWeight: 'bold', 
+            fontSize: '1.2rem',
+            backgroundColor: '#B53A16',
+            color: '#f9fafb',
+            '&:hover': {
+                backgroundColor: '#991b1b',
+                filter: 'brightness(1.1)'
             }
         }
     };
 
     return (
-        <div className='relative flex w-full h-full' style={{ fontFamily: '"Trebuchet MS", sans-serif' }}>
+        <div className='flex items-center justify-center w-full h-full' style={{ 
+            fontFamily: '"Trebuchet MS", sans-serif',
+            background: 'linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%)'
+        }}>
             {/* Theme toggle button in top-right corner */}
-            <div className='absolute top-4 right-4 z-10'>
+            <div className='absolute top-6 right-6 z-10'>
                 <ThemeToggle />
             </div>
-            <div className='relative flex w-full h-full'>
-                <div className='w-3/4'></div>
-                <div className='flex flex-col flex-shrink-0 items-center justify-center gap-5 px-20 py-10' style={{ backgroundColor: 'var(--bg-secondary)', opacity: 0.95 }}>
-                    <h1 className='text-6xl pb-10 select-none' style={{ color: 'var(--border-primary)' }}>bulutlar</h1>
-                    <div className='flex flex-col gap-3'>
-                        <Button size="large" onClick={() => setActiveScreen('tabs')} {...primaryButtonProps}>{t('all articles')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('categories')} {...primaryButtonProps}>{t('categories')}</Button>
-                        <Button size="large" onClick={() => setActiveScreen('groups')} {...primaryButtonProps}>{t('groups')}</Button>
-                        <div className='flex flex-row gap-3 min-w-full'>
-                            <div className='flex flex-col gap-3'>
-                                <Button size="large" onClick={() => setActiveScreen('owners')} {...secondaryButtonProps}>{t('owners')}</Button>
-                                <Button size="large" onClick={() => setActiveScreen('tags')} {...secondaryButtonProps}>{t('tags')}</Button>
-                            </div>
-                            <div className='flex flex-col gap-3'>
-                                <Button size="large" onClick={() => setActiveScreen('annotations')} {...secondaryButtonProps}>{t('annotations')}</Button>
-                                <Button size="large" onClick={() => setActiveScreen('quotes')} {...secondaryButtonProps}>{t('quotes')}</Button>
-                            </div>
-                        </div>
-                        <Button size="large" onClick={() => setActiveScreen('settings')} {...secondaryButtonProps}>{t('settings')}</Button>
+            
+            {/* Main content centered */}
+            <div className='flex flex-col items-center justify-center gap-8 px-8 py-12 rounded-3xl shadow-lg' style={{ 
+                backgroundColor: 'var(--bg-secondary)', 
+                boxShadow: '0 20px 40px var(--shadow)',
+                border: '1px solid var(--border-secondary)',
+                maxWidth: '600px',
+                width: '90%'
+            }}>
+                {/* App title with cloud emoji */}
+                <div className='flex items-center gap-4 mb-4'>
+                    <h1 className='text-5xl select-none' style={{ 
+                        color: 'var(--border-primary)',
+                        fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+                        fontWeight: '300',
+                        letterSpacing: '0.05em',
+                        textShadow: '0 2px 4px var(--shadow)'
+                    }}>
+                        bulutlar
+                    </h1>
+                </div>
+                
+                {/* Navigation buttons */}
+                <div className='flex flex-col gap-4 w-full max-w-md'>
+                    <Button size="large" fullWidth onClick={() => setActiveScreen('tabs')} {...primaryButtonProps}>
+                        {t('all articles')}
+                    </Button>
+                    <Button size="large" fullWidth onClick={() => setActiveScreen('categories')} {...primaryButtonProps}>
+                        {t('categories')}
+                    </Button>
+                    <Button size="large" fullWidth onClick={() => setActiveScreen('groups')} {...primaryButtonProps}>
+                        {t('groups')}
+                    </Button>
+                    
+                    <div className='grid grid-cols-2 gap-3 mt-2'>
+                        <Button size="large" onClick={() => setActiveScreen('owners')} {...secondaryButtonProps}>
+                            {t('owners')}
+                        </Button>
+                        <Button size="large" onClick={() => setActiveScreen('tags')} {...secondaryButtonProps}>
+                            {t('tags')}
+                        </Button>
+                        <Button size="large" onClick={() => setActiveScreen('annotations')} {...secondaryButtonProps}>
+                            {t('annotations')}
+                        </Button>
+                        <Button size="large" onClick={() => setActiveScreen('quotes')} {...secondaryButtonProps}>
+                            {t('quotes')}
+                        </Button>
                     </div>
-                    <div>
-                        <h2 className='text-l' style={{ color: 'var(--text-secondary)' }}>db version: {dbVersion}</h2>
-                    </div>
-                    <div>
-                        <h2 className='text-l' style={{ color: 'var(--text-secondary)' }}>app version: {packageJson.version}</h2>
-                    </div>
+                    
+                    <Button size="large" fullWidth onClick={() => setActiveScreen('settings')} {...settingsButtonProps}>
+                        {t('settings')}
+                    </Button>
+                </div>
+                
+                {/* Version info */}
+                <div className='flex flex-col items-center gap-1 mt-4 text-sm' style={{ color: 'var(--text-tertiary)' }}>
+                    <span>DB: {dbVersion} • App: {packageJson.version}</span>
                 </div>
             </div>
         </div>

@@ -22,7 +22,6 @@ const HomeScreen = () => {
             color: '#f9fafb',
             '&:hover': {
                 backgroundColor: '#047857',
-                filter: 'brightness(1.1)'
             }
         }
     };
@@ -36,7 +35,7 @@ const HomeScreen = () => {
             backgroundColor: 'var(--border-primary)',
             color: '#f9fafb',
             '&:hover': {
-                filter: 'brightness(1.1)'
+                backgroundColor: '#2f4f0bff',
             }
         }
     };
@@ -51,8 +50,7 @@ const HomeScreen = () => {
             backgroundColor: '#B53A16',
             color: '#f9fafb',
             '&:hover': {
-                backgroundColor: '#991b1b',
-                filter: 'brightness(1.1)'
+                backgroundColor: '#991b1b'
             }
         }
     };
@@ -75,7 +73,6 @@ const HomeScreen = () => {
                 maxWidth: '600px',
                 width: '90%'
             }}>
-                {/* App title with cloud emoji */}
                 <div className='flex items-center gap-4 mb-4'>
                     <h1 className='text-5xl select-none' style={{ 
                         color: 'var(--border-primary)',

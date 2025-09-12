@@ -18,6 +18,10 @@
   --shadow: rgba(0, 0, 0, 0.1);
   --highlight-bg: #ffff00;
   --close-button-hover-bg: #fecaca;
+  
+  /* Quote colors for light theme */
+  --quote-primary: #cf2626;
+  --quote-hover: #dc3920;
 }
 
 [data-theme="dark"] {
@@ -40,6 +44,10 @@
   --shadow: rgba(0, 0, 0, 0.3);
   --highlight-bg: #785c00;
   --close-button-hover-bg: #7f1d1d;
+  
+  /* Quote colors for dark theme */
+  --quote-primary: #8b5cf6;
+  --quote-hover: #a78bfa;
 }
 
 /* Apply theme variables to body and html */

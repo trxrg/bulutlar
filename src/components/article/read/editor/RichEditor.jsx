@@ -23,7 +23,6 @@ const styleMap = {
     'HIGHLIGHT': {
         backgroundColor: 'var(--highlight-bg)',
         color: 'var(--text-primary)',
-        padding: '2px 4px',
         borderRadius: '3px'
     },
     'SUPERSCRIPT': {

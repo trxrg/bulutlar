@@ -16,6 +16,52 @@ const SettingsScreen = () => {
 
     const language = getLanguage();
 
+    // Button styling to match HomeScreen
+    const primaryButtonProps = {
+        variant: 'contained',
+        sx: { 
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
+            fontWeight: '600', 
+            fontSize: '1rem',
+            letterSpacing: '0.025em',
+            backgroundColor: '#059669',
+            color: '#f9fafb',
+            '&:hover': {
+                backgroundColor: '#047857',
+            }
+        }
+    };
+
+    const secondaryButtonProps = {
+        variant: 'contained',
+        sx: { 
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
+            fontWeight: '600', 
+            fontSize: '1rem',
+            letterSpacing: '0.025em',
+            backgroundColor: 'var(--border-primary)',
+            color: '#f9fafb',
+            '&:hover': {
+                backgroundColor: '#2f4f0bff',
+            }
+        }
+    };
+
+    const dangerButtonProps = {
+        variant: 'contained',
+        sx: { 
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
+            fontWeight: '600', 
+            fontSize: '1rem',
+            letterSpacing: '0.025em',
+            backgroundColor: '#B53A16',
+            color: '#f9fafb',
+            '&:hover': {
+                backgroundColor: '#991b1b'
+            }
+        }
+    };
+
     useEffect(() => {
         const fetchBackupDir = async () => {
             try {
@@ -177,13 +223,13 @@ const SettingsScreen = () => {
                 <AccordionDetails sx={{ backgroundColor: 'var(--bg-secondary)' }}>
                     <div className='flex flex-row gap-3'>
                         <div className='flex flex-col gap-3 w-fit'>
-                            <Button variant="contained" color="secondary" onClick={handleBackupDb} startIcon={<FileUploadIcon />}>
+                            <Button startIcon={<FileUploadIcon />} {...secondaryButtonProps} onClick={handleBackupDb}>
                                 {t('backup')}
                             </Button>
-                            <Button variant="contained" color="primary" onClick={handleExportDb} startIcon={<FileUploadIcon />}>
+                            <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={handleExportDb}>
                                 {t('export')}
                             </Button>
-                            <Button variant="contained" color="primary" onClick={handleImportDb} startIcon={<FileDownloadIcon />}>
+                            <Button startIcon={<FileDownloadIcon />} {...primaryButtonProps} onClick={handleImportDb}>
                                 {t('import')}
                             </Button>
                         </div>

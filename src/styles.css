@@ -71,7 +71,7 @@
   }
   
   .quote {
-    color: #ff5722; /* Distinctive orange text color */
+    color: var(--quote-primary); /* Theme-aware quote color */
     text-decoration: none; /* Remove underline */
     font-weight: 500; /* Medium font weight */
     position: relative; /* Positioning for pseudo-elements */
@@ -81,7 +81,7 @@
 
   /* Hover effect */
   .quote:hover {
-    color: #e64a19; /* Darker orange on hover */
+    color: var(--quote-hover); /* Theme-aware hover color */
   }
     
   .editor-container {

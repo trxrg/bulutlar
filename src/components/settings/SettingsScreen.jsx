@@ -99,14 +99,24 @@ const SettingsScreen = () => {
                 <AccordionDetails>
                     <div className='flex flex-col gap-5'>
                         <FormControl variant="outlined" fullWidth>
-                            <InputLabel>{t('language')}</InputLabel>
+                            <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('language')}</InputLabel>
                             <Select
                                 value={language}
                                 onChange={changeLanguage}
                                 label={t('language')}
+                                sx={{
+                                    color: 'var(--text-primary)',
+                                    '.MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'var(--border-secondary)',
+                                    },
+                                    '.MuiSvgIcon-root': {
+                                        color: 'var(--text-primary)',
+                                    },
+                                    backgroundColor: 'var(--bg-primary)',
+                                }}
                             >
-                                <MenuItem value="en">{t('english')}</MenuItem>
-                                <MenuItem value="tr">{t('turkish')}</MenuItem>
+                                <MenuItem value="en" sx={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}>{t('english')}</MenuItem>
+                                <MenuItem value="tr" sx={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}>{t('turkish')}</MenuItem>
                             </Select>
                         </FormControl>
                     </div>

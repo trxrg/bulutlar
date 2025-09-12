@@ -59,7 +59,12 @@ const AddGroup = ({ onClose }) => {
                             handleAddGroup(e);
                         }
                     }}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="shadow appearance-none rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+                    style={{
+                        border: '1px solid var(--border-secondary)',
+                        backgroundColor: 'var(--bg-primary)',
+                        color: 'var(--text-primary)'
+                    }}
                 />
                 <ActionButton color='blue' onClick={handleAddGroup}>{t('add')}</ActionButton>
             </div>

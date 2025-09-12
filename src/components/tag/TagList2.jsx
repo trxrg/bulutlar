@@ -45,7 +45,7 @@ const TagList2 = ({ showInput = true }) => {
     };
 
     return (
-        <div className='p-2 w-full'>
+        <div className='p-2 w-full' style={{ color: 'var(--text-primary)' }}>
             {showInput && <div className='flex gap-2'>
                 <input
                     type="text"
@@ -57,13 +57,18 @@ const TagList2 = ({ showInput = true }) => {
                             handleAddTag(inputValue);
                         }
                     }}
-                    className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 mb-1 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="w-[40%] shadow appearance-none rounded w-full py-2 px-3 mb-1 leading-tight focus:outline-none focus:shadow-outline"
+                    style={{
+                        border: '1px solid var(--border-secondary)',
+                        backgroundColor: 'var(--bg-primary)',
+                        color: 'var(--text-primary)'
+                    }}
                 />
                 <ActionButton onClick={() => handleAddTag(inputValue)} color='blue'>{t('add')}</ActionButton>
             </div>}
             {inputValue.length > 0 &&
                 <div>
-                    <span>{t('suggested tags')}: </span>
+                    <span style={{ color: 'var(--text-primary)' }}>{t('suggested tags')}: </span>
                     {suggestedTags
                         .filter(tag => tag.name.toLowerCase().includes(inputValue.toLowerCase()))
                         .filter(tag => !tags.map(t => t.name).includes(tag.name))
@@ -71,7 +76,13 @@ const TagList2 = ({ showInput = true }) => {
                         .map(tag => (
                             <span key={tag.id} >
                                 <button onClick={() => handleAddTag(tag.name)}
-                                    className='px-2 m-1 border'>{tag.name}
+                                    className='px-2 m-1 rounded'
+                                    style={{
+                                        border: '1px solid var(--border-secondary)',
+                                        backgroundColor: 'var(--bg-secondary)',
+                                        color: 'var(--text-primary)'
+                                    }}
+                                >{tag.name}
                                 </button>
                             </span>
                         ))}

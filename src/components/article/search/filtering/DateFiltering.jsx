@@ -26,59 +26,67 @@ const DateFiltering = ({ startDate, setStartDate, endDate, setEndDate }) => {
         setEndYear(endDate.year ? endDate.year : '');
     }, [startDate, endDate]);
 
-    const inputStyle = 'flex-1 min-w-0 border border-black rounded p-1';
+    const inputStyle = {
+        border: '1px solid var(--border-secondary)',
+        backgroundColor: 'var(--bg-primary)',
+        color: 'var(--text-primary)',
+        borderRadius: '4px',
+        padding: '4px',
+        flex: '1',
+        minWidth: '0'
+    };
 
     return (
-        <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-4' style={{ color: 'var(--text-primary)' }}>
             <div className='flex flex-col gap-2'>
-                <label>{t('start')}:</label>
+                <label style={{ color: 'var(--text-primary)' }}>{t('start')}:</label>
                 <div className='flex flex-row flex-wrap gap-2'>
                     <input
                         type="number"
                         value={startDay}
                         onChange={e => setStartDay(e.target.value)}
                         placeholder={t('day')}
-                        className={inputStyle}
+                        style={inputStyle}
                     />
                     <input
                         type="number"
                         value={startMonth}
                         onChange={(e) => setStartMonth(e.target.value)}
                         placeholder={t('month')}
-                        className={inputStyle}
+                        style={inputStyle}
                     />
                     <input
                         type="number"
                         value={startYear}
                         onChange={(e) => setStartYear(e.target.value)}
                         placeholder={t('year')}
-                        className={inputStyle}
+                        style={inputStyle}
                     />
                 </div>
             </div>
             <div className='flex flex-col gap-4'>
-                <label>{t('end')}:</label>
+                <label style={{ color: 'var(--text-primary)' }}>{t('end')}:</label>
                 <div className='flex flex-row flex-wrap gap-2'>
                     <input
                         type="number"
                         value={endDay}
                         onChange={(e) => setEndDay(e.target.value)}
                         placeholder={t('day')}
-                        className={inputStyle}
+                        style={inputStyle}
                     />
                     <input
                         type="number"
                         value={endMonth}
                         onChange={(e) => setEndMonth(e.target.value)}
                         placeholder={t('month')}
-                        className={inputStyle}
+                        style={inputStyle}
                     />
                     <input
                         type="number"
                         value={endYear}
                         onChange={(e) => setEndYear(e.target.value)}
                         placeholder={t('year')}
-                        className={inputStyle}
+                        style={inputStyle}
                     />
                 </div>
             </div>

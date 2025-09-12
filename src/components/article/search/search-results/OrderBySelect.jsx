@@ -21,7 +21,12 @@ const OrderBySelect = ({ onOrderChange, initialSelection }) => {
     return (
         <select 
             onChange={(e) => onOrderChange(JSON.parse(e.target.value))} 
-            className="border rounded px-2 py-1 max-h-10"
+            className="rounded px-2 py-1 max-h-10"
+            style={{
+                border: '1px solid var(--border-secondary)',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)'
+            }}
             value={JSON.stringify(initialSelection)}
             label={getLabelByValue(initialSelection)}
         >

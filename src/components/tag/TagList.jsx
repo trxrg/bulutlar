@@ -50,7 +50,12 @@ const TagList = React.forwardRef(({ selectedTags, onTagsChange }, ref) => {
                     value={inputValue}
                     onChange={handleInputChange}
                     placeholder={t('type tags') + '...'}
-                    className="w-[40%] shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    className="w-[40%] shadow appearance-none rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+                    style={{
+                        border: '1px solid var(--border-secondary)',
+                        backgroundColor: 'var(--bg-primary)',
+                        color: 'var(--text-primary)'
+                    }}
                 />
                 <ActionButton onClick={() => handleAddTag(inputValue)} color='blue'>{t('add')}</ActionButton>
             </div>

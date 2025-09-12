@@ -16,6 +16,7 @@
   --toast-bg: #ffffff;
   --toast-text: #374151;
   --shadow: rgba(0, 0, 0, 0.1);
+  --highlight-bg: #ffff00;
 }
 
 [data-theme="dark"] {
@@ -36,6 +37,7 @@
   --toast-bg: #1f2937;
   --toast-text: #f9fafb;
   --shadow: rgba(0, 0, 0, 0.3);
+  --highlight-bg: #785c00;
 }
 
 /* Apply theme variables to body and html */
@@ -82,9 +84,9 @@ body.windows *::after::-webkit-scrollbar-thumb:active {
   filter: brightness(1.4);
 }
 
-/* Theme transition for all elements */
+/* Theme transition for all elements - excluding color for instant text changes */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Apply theme to Tailwind classes */
@@ -220,6 +222,70 @@ p {
 button svg {
   color: var(--text-primary) !important;
   transition: color 0.1s ease;
+  background: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove any square artifacts from Heroicons */
+.theme-toggle-button svg,
+button svg {
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  fill: none !important;
+  stroke: currentColor !important;
+}
+
+/* Draft.js RichEditor theming */
+.DraftEditor-root {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  transition: background-color 0.3s ease;
+}
+
+.DraftEditor-editorContainer {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  transition: background-color 0.3s ease;
+}
+
+.public-DraftEditor-content {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  transition: background-color 0.3s ease;
+}
+
+.public-DraftEditorPlaceholder-root {
+  color: var(--text-tertiary) !important;
+  transition: none;
+}
+
+/* Draft.js block elements */
+.public-DraftStyleDefault-block {
+  color: var(--text-primary) !important;
+  transition: none;
+}
+
+/* Draft.js list items */
+.public-DraftStyleDefault-ol,
+.public-DraftStyleDefault-ul {
+  color: var(--text-primary) !important;
+  transition: none;
+}
+
+.public-DraftStyleDefault-ol li,
+.public-DraftStyleDefault-ul li {
+  color: var(--text-primary) !important;
+  transition: none;
+}
+
+/* Draft.js selection */
+.DraftEditor-editorContainer .public-DraftEditor-content [data-contents="true"] {
+  color: var(--text-primary) !important;
+  transition: none;
 }
 
 /* Toastr theme customization */

@@ -21,15 +21,20 @@ import 'draft-js/dist/Draft.css'; // necessary for list item styling etc.
 
 const styleMap = {
     'HIGHLIGHT': {
-        backgroundColor: 'rgba(240, 240, 120, 1.0)'
+        backgroundColor: 'var(--highlight-bg)',
+        color: 'var(--text-primary)',
+        padding: '2px 4px',
+        borderRadius: '3px'
     },
     'SUPERSCRIPT': {
         verticalAlign: 'super',
         fontSize: 'medium',
+        color: 'var(--text-primary)'
     },
     'SUBSCRIPT': {
         verticalAlign: 'sub',
         fontSize: 'medium',
+        color: 'var(--text-primary)'
     },
 };
 
@@ -78,7 +83,10 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         return (
             <span
                 ref={highlightRef}
-                style={{ backgroundColor: '#a5d6a7' }}>
+                style={{ 
+                    backgroundColor: '#a5d6a7',
+                    color: 'var(--text-primary)'
+                }}>
                 {children}
             </span>
         );
@@ -639,11 +647,26 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
     };
 
     return (
-        <div className='relative flex justify-center cursor-text' onMouseUp={handleMouseUp}>
-            <div className={(editable ? 'border-2 border-stone-300' : 'caret-transparent') + ' overflow-y-auto max-w-6xl w-full'} ref={editorRef}>
+        <div 
+            className='relative flex justify-center cursor-text' 
+            onMouseUp={handleMouseUp}
+            style={{ 
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)'
+            }}
+        >
+            <div 
+                className={(editable ? 'border-2' : 'caret-transparent') + ' overflow-y-auto max-w-6xl w-full'} 
+                ref={editorRef}
+                style={{
+                    borderColor: editable ? 'var(--border-secondary)' : 'transparent',
+                    backgroundColor: 'var(--bg-primary)',
+                    color: 'var(--text-primary)'
+                }}
+            >
                 {editorState.getCurrentContent().hasText() || !editable ? null : (
                     <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">
-                        <span className="text-gray-400">{prompt}</span>
+                        <span style={{ color: 'var(--text-tertiary)' }}>{prompt}</span>
                     </div>
                 )}
                 <Editor

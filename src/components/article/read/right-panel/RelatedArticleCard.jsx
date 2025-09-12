@@ -31,10 +31,16 @@ const RelatedArticleCard = ({ relatedArticle, onClick }) => {
 
     return (
         <div className='relative' onContextMenu={handleRightClick}>
-            <div className='rounded-md bg-gray-100 hover:bg-white border-2
-        active:bg-gray-300 active:shadow-none shadow-xl cursor-pointer flex flex-row w-full overflow-hidden'
-                style={{ borderColor: category && category.color }} onClick={onClick}>
-                <h2 className="text-xl text-gray-700 hover:text-gray-600 break-words p-2">{relatedArticle.title}</h2>
+            <div className='rounded-md border-2
+        active:shadow-none shadow-xl cursor-pointer flex flex-row w-full overflow-hidden'
+                style={{ 
+                    borderColor: category && category.color,
+                    backgroundColor: 'var(--bg-secondary)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
+                onClick={onClick}>
+                <h2 className="text-xl break-words p-2" style={{ color: 'var(--text-primary)' }}>{relatedArticle.title}</h2>
             </div>
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                 <div className='flex flex-col'>

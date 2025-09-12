@@ -10,15 +10,22 @@ const AnnotationCard = ({ annotation, onClick }) => {
     }
 
     return (
-        <div className="text-lg rounded-md bg-gray-100 hover:bg-white border-4 border-gray-300 hover:border-gray-500 transition duration-300 ease-in-out
-        active:bg-gray-300 active:shadow-none p-5 shadow-xl cursor-pointer flex flex-col w-full overflow-hidden"
+        <div className="text-lg rounded-md border-4 transition duration-300 ease-in-out
+        active:shadow-none p-5 shadow-xl cursor-pointer flex flex-col w-full overflow-hidden"
+            style={{
+                backgroundColor: 'var(--bg-secondary)',
+                borderColor: 'var(--border-secondary)',
+                color: 'var(--text-primary)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
             onClick={handleClick}>
             {annotation &&
                 <div>
                     <div style={{ whiteSpace: 'pre-line' }}>
                         {annotation.note}
                     </div>
-                    <div className="text-sm text-gray-400 italic mt-2">
+                    <div className="text-sm italic mt-2" style={{ color: 'var(--text-tertiary)' }}>
                         <div>                            
                             <div>{t('last update')}: {new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}</div>
                         </div>

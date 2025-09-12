@@ -134,9 +134,14 @@ export default function ArticleShort({ article, keywords, handleClick }) {
     }
 
     return (
-        <div className="rounded-md bg-stone-50 hover:bg-white border-4
+        <div className="rounded-md border-4
          shadow-xl cursor-pointer flex flex-row w-full overflow-hidden"
-            style={{ borderColor: category && category.color }}
+            style={{ 
+                borderColor: category && category.color,
+                backgroundColor: 'var(--bg-secondary)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
         >
             {areArticlesSelectable && <div className='min-h-full flex items-center pl-5 cursor-normal' onClick={handleCheckboxChange}>
                 <input
@@ -146,9 +151,9 @@ export default function ArticleShort({ article, keywords, handleClick }) {
                     className="form-checkbox h-6 w-6 text-blue-600 mr-2"
                 />
             </div>}
-            <div className='flex flex-1 flex-col overflow-hidden px-10 py-6 text-xl' onClick={(e) => handleClick(e, article.id)} >
+            <div className='flex flex-1 flex-col overflow-hidden px-10 py-6 text-xl' onClick={(e) => handleClick(e, article.id)} style={{ color: 'var(--text-primary)' }}>
                 <div className='flex justify-between'>
-                    <h2 className="text-2xl text-gray-700 font-bold hover:text-gray-600 break-words">{keywords ? parse(highlightedTitle) : article.title}</h2>
+                    <h2 className="text-2xl font-bold break-words" style={{ color: 'var(--text-primary)' }}>{keywords ? parse(highlightedTitle) : article.title}</h2>
                     <div onClick={handleStarClick} className='cursor-default'>
                         {article.isStarred ? (
                             <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="hover:scale-125" />

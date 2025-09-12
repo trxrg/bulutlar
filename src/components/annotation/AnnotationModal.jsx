@@ -82,7 +82,9 @@ const AnnotationModal = ({ isOpen, onRequestClose, annotationId, articleId }) =>
                         padding: '10px',
                         boxSizing: 'border-box',
                         borderRadius: '5px',
-                        border: '1px solid #111'
+                        border: '1px solid var(--border-secondary)',
+                        backgroundColor: 'var(--bg-primary)',
+                        color: 'var(--text-primary)'
                     }}
                 />
                 {annotation ?

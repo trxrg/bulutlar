@@ -91,12 +91,21 @@ const SettingsScreen = () => {
     }
 
     return (
-        <div className='max-w-6xl w-full'>
-            <Accordion defaultExpanded>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant='h5'>{t('general')}</Typography>
+        <div className='max-w-6xl w-full min-h-screen p-4' style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+            <Accordion defaultExpanded sx={{ 
+                backgroundColor: 'var(--bg-secondary)', 
+                color: 'var(--text-primary)',
+                '&:before': {
+                    display: 'none',
+                }
+            }}>
+                <AccordionSummary 
+                    expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
+                    sx={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                >
+                    <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>{t('general')}</Typography>
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails sx={{ backgroundColor: 'var(--bg-secondary)' }}>
                     <div className='flex flex-col gap-5'>
                         <FormControl variant="outlined" fullWidth>
                             <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('language')}</InputLabel>
@@ -104,6 +113,14 @@ const SettingsScreen = () => {
                                 value={language}
                                 onChange={changeLanguage}
                                 label={t('language')}
+                                MenuProps={{
+                                    PaperProps: {
+                                        sx: {
+                                            backgroundColor: 'var(--bg-primary)',
+                                            color: 'var(--text-primary)',
+                                        }
+                                    }
+                                }}
                                 sx={{
                                     color: 'var(--text-primary)',
                                     '.MuiOutlinedInput-notchedOutline': {
@@ -115,18 +132,49 @@ const SettingsScreen = () => {
                                     backgroundColor: 'var(--bg-primary)',
                                 }}
                             >
-                                <MenuItem value="en" sx={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}>{t('english')}</MenuItem>
-                                <MenuItem value="tr" sx={{ color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)' }}>{t('turkish')}</MenuItem>
+                                <MenuItem 
+                                    value="en" 
+                                    sx={{ 
+                                        color: 'var(--text-primary)', 
+                                        backgroundColor: 'var(--bg-primary)',
+                                        '&:hover': {
+                                            backgroundColor: 'var(--bg-secondary)',
+                                        }
+                                    }}
+                                >
+                                    {t('english')}
+                                </MenuItem>
+                                <MenuItem 
+                                    value="tr" 
+                                    sx={{ 
+                                        color: 'var(--text-primary)', 
+                                        backgroundColor: 'var(--bg-primary)',
+                                        '&:hover': {
+                                            backgroundColor: 'var(--bg-secondary)',
+                                        }
+                                    }}
+                                >
+                                    {t('turkish')}
+                                </MenuItem>
                             </Select>
                         </FormControl>
                     </div>
                 </AccordionDetails>
             </Accordion>
-            <Accordion defaultExpanded>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography variant='h5'>{t('database')}</Typography>
+            <Accordion defaultExpanded sx={{ 
+                backgroundColor: 'var(--bg-secondary)', 
+                color: 'var(--text-primary)',
+                '&:before': {
+                    display: 'none',
+                }
+            }}>
+                <AccordionSummary 
+                    expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
+                    sx={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                >
+                    <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>{t('database')}</Typography>
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails sx={{ backgroundColor: 'var(--bg-secondary)' }}>
                     <div className='flex flex-row gap-3'>
                         <div className='flex flex-col gap-3 w-fit'>
                             <Button variant="contained" color="secondary" onClick={handleBackupDb} startIcon={<FileUploadIcon />}>
@@ -140,9 +188,10 @@ const SettingsScreen = () => {
                             </Button>
                         </div>
                         <div className='h-fit flex flex-row'>
-                            <Typography variant="body1" className='p-1'>{t('backup folder')}: </Typography>
+                            <Typography variant="body1" className='p-1' sx={{ color: 'var(--text-primary)' }}>{t('backup folder')}: </Typography>
                             <Typography variant="body2" onClick={handleChangeBackupDir}
-                                className='border-4 border-blue-500 rounded-lg p-1 cursor-pointer'>
+                                className='border-4 border-blue-500 rounded-lg p-1 cursor-pointer'
+                                sx={{ color: 'var(--text-primary)' }}>
                                 {backupDir}
                             </Typography>
                         </div>

@@ -69,54 +69,64 @@ const QuoteScreen = () => {
     };
 
     return (
-        <div className="container h-full overflow-y-auto mx-auto p-4">
+        <div className="container h-full overflow-y-auto mx-auto p-4" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
             <div className="mb-2">
                 <input
                     type="text"
                     placeholder={t('filter quotes')}
                     value={filterTerm}
                     onChange={(e) => setFilterTerm(e.target.value)}
-                    className="border border-black p-2 rounded w-full"
+                    className="p-2 rounded w-full"
+                    style={{
+                        border: '1px solid var(--border-secondary)',
+                        backgroundColor: 'var(--bg-primary)',
+                        color: 'var(--text-primary)'
+                    }}
                 />
             </div>
-            <table className="min-w-full bg-white">
+            <table className="min-w-full" style={{ backgroundColor: 'var(--bg-primary)' }}>
                 <thead>
                     <tr>
-                        <th className="py-2 px-4 border-b"></th>
-                        <th className="py-2 px-4 border-b">{t('quote')}</th>
-                        <th className="py-2 px-4 border-b cursor-pointer" onClick={() => handleSort('title')}>
+                        <th className="py-2 px-4" style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }}></th>
+                        <th className="py-2 px-4" style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }}>{t('quote')}</th>
+                        <th className="py-2 px-4 cursor-pointer" style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }} onClick={() => handleSort('title')}>
                             {t('article')} {getSortIndicator('title')}
                         </th>
-                        <th className="py-2 px-4 border-b cursor-pointer" onClick={() => handleSort('date')}>
+                        <th className="py-2 px-4 cursor-pointer" style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }} onClick={() => handleSort('date')}>
                             {t('date')} {getSortIndicator('date')}
                         </th>
-                        <th className="py-2 px-4 border-b"></th>
+                        <th className="py-2 px-4" style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }}></th>
                     </tr>
                 </thead>
                 <tbody>
                     {sortedAnnotations.map((annotation, index) => {
                         const article = getArticleById(annotation.articleId);
 
-                        return (<tr key={annotation.id} className="hover:bg-gray-100 group">
-                            <td className='border-b text-center'>
+                        return (<tr key={annotation.id} className="group" style={{ backgroundColor: 'var(--bg-primary)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-primary)'}>
+                            <td className='text-center' style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }}>
                                 <h2>{index + 1}</h2>
                             </td>
-                            <td className='border-b'>
-                                <div className='border border-2 rounded-md p-1 m-2' style={{ whiteSpace: 'pre-line' }}>
+                            <td style={{ borderBottom: '1px solid var(--border-secondary)' }}>
+                                <div className='rounded-md p-1 m-2' style={{ 
+                                    whiteSpace: 'pre-line',
+                                    border: '2px solid var(--border-secondary)',
+                                    backgroundColor: 'var(--bg-secondary)',
+                                    color: 'var(--text-primary)'
+                                }}>
                                     {annotation.quote}
                                 </div>
                             </td>
-                            <td className='border-b text-center'>
+                            <td className='text-center' style={{ borderBottom: '1px solid var(--border-secondary)' }}>
                                 {article ? (
-                                    <h2 className='cursor-pointer hover:underline' onClick={() => handleOpenArticle(article)}>{article.title}</h2>
+                                    <h2 className='cursor-pointer hover:underline' style={{ color: 'var(--text-primary)' }} onClick={() => handleOpenArticle(article)}>{article.title}</h2>
                                 ) : (
-                                    <h2>{t('article_not_found')}</h2>
+                                    <h2 style={{ color: 'var(--text-primary)' }}>{t('article_not_found')}</h2>
                                 )}
                             </td>
-                            <td className='border-b text-center'>
-                                <h2>{new Date(annotation.createdAt).toLocaleDateString(t('locale'))}</h2>
+                            <td className='text-center' style={{ borderBottom: '1px solid var(--border-secondary)' }}>
+                                <h2 style={{ color: 'var(--text-primary)' }}>{new Date(annotation.createdAt).toLocaleDateString(t('locale'))}</h2>
                             </td>
-                            <td className="py-2 px-4 border-b text-center">
+                            <td className="py-2 px-4 text-center" style={{ borderBottom: '1px solid var(--border-secondary)' }}>
                                 <div className="flex justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                     <ActionButton color='red' onClick={() => handleDeleteAnnotation(annotation)}>{t('delete')}</ActionButton>
                                 </div>

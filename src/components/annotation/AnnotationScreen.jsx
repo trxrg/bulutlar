@@ -70,28 +70,33 @@ const AnnotationScreen = () => {
     };
 
     return (
-        <div className="container h-full overflow-y-auto mx-auto p-4">
+        <div className="container h-full overflow-y-auto mx-auto p-4" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
             <div className="mb-2">
                 <input
                     type="text"
                     placeholder={t('filter notes')}
                     value={filterTerm}
                     onChange={(e) => setFilterTerm(e.target.value)}
-                    className="border border-black p-2 rounded w-full"
+                    className="p-2 rounded w-full"
+                    style={{
+                        border: '1px solid var(--border-secondary)',
+                        backgroundColor: 'var(--bg-primary)',
+                        color: 'var(--text-primary)'
+                    }}
                 />
             </div>
-            <table className="min-w-full bg-white">
+            <table className="min-w-full" style={{ backgroundColor: 'var(--bg-primary)' }}>
                 <thead>
                     <tr>
-                        <th className="py-2 px-4 border-b"></th>
-                        <th className="py-2 px-4 border-b">{t('note')}</th>
-                        <th className="py-2 px-4 border-b cursor-pointer" onClick={() => handleSort('title')}>
+                        <th className="py-2 px-4" style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }}></th>
+                        <th className="py-2 px-4" style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }}>{t('note')}</th>
+                        <th className="py-2 px-4 cursor-pointer" style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }} onClick={() => handleSort('title')}>
                             {t('article')} {getSortIndicator('title')}
                         </th>
-                        <th className="py-2 px-4 border-b cursor-pointer" onClick={() => handleSort('createdAt')}>
+                        <th className="py-2 px-4 cursor-pointer" style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }} onClick={() => handleSort('createdAt')}>
                             {t('created_at')} {getSortIndicator('createdAt')}
                         </th>
-                        <th className="py-2 px-4 border-b cursor-pointer" onClick={() => handleSort('updatedAt')}>
+                        <th className="py-2 px-4 cursor-pointer" style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }} onClick={() => handleSort('updatedAt')}>
                             {t('updated_at')} {getSortIndicator('updatedAt')}
                         </th>
                     </tr>
@@ -101,26 +106,31 @@ const AnnotationScreen = () => {
                         const article = getArticleById(annotation.articleId);
 
                         return (<tr key={annotation.id}>
-                            <td className='border-b text-center'>
+                            <td className='text-center' style={{ borderBottom: '1px solid var(--border-secondary)', color: 'var(--text-primary)' }}>
                                 <h2>{index + 1}</h2>
                             </td>
-                            <td className='border-b'>
-                                <div className='border border-2 rounded-md p-1 m-2 hover:underline cursor-pointer' onClick={() => handleNoteClicked(annotation)} style={{ whiteSpace: 'pre-line' }}>
+                            <td style={{ borderBottom: '1px solid var(--border-secondary)' }}>
+                                <div className='rounded-md p-1 m-2 hover:underline cursor-pointer' style={{ 
+                                    whiteSpace: 'pre-line',
+                                    border: '2px solid var(--border-secondary)',
+                                    backgroundColor: 'var(--bg-secondary)',
+                                    color: 'var(--text-primary)'
+                                }} onClick={() => handleNoteClicked(annotation)}>
                                     {annotation.note}
                                 </div>
                             </td>
-                            <td className='border-b text-center'>
+                            <td className='text-center' style={{ borderBottom: '1px solid var(--border-secondary)' }}>
                                 {article ? (
-                                    <h2 className='cursor-pointer hover:underline' onClick={() => handleOpenArticle(article)}>{article.title}</h2>
+                                    <h2 className='cursor-pointer hover:underline' style={{ color: 'var(--text-primary)' }} onClick={() => handleOpenArticle(article)}>{article.title}</h2>
                                 ) : (
-                                    <h2>{t('article_not_found')}</h2>
+                                    <h2 style={{ color: 'var(--text-primary)' }}>{t('article_not_found')}</h2>
                                 )}
                             </td>
-                            <td className='border-b text-center'>
-                                <h2>{new Date(annotation.createdAt).toLocaleDateString(t('locale'))}</h2>
+                            <td className='text-center' style={{ borderBottom: '1px solid var(--border-secondary)' }}>
+                                <h2 style={{ color: 'var(--text-primary)' }}>{new Date(annotation.createdAt).toLocaleDateString(t('locale'))}</h2>
                             </td>
-                            <td className='border-b text-center'>
-                                <h2>{new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}</h2>
+                            <td className='text-center' style={{ borderBottom: '1px solid var(--border-secondary)' }}>
+                                <h2 style={{ color: 'var(--text-primary)' }}>{new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}</h2>
                             </td>
                         </tr>
                         )

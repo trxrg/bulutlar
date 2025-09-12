@@ -1,0 +1,176 @@
+:root {
+  /* Light theme (default) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #E7ECD8;
+  --bg-stone: #d6d3d1;
+  --text-primary: #374151;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --border-primary: #809671;
+  --border-secondary: #e5e7eb;
+  --button-bg: #f9fafb;
+  --button-hover: #f3f4f6;
+  --scrollbar-thumb: rgba(0, 0, 0, 0.6);
+  --scrollbar-track: rgba(240, 240, 240, 0.8);
+  --toast-bg: #ffffff;
+  --toast-text: #374151;
+  --shadow: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  /* Dark theme */
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-tertiary: #2d3748;
+  --bg-stone: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --border-primary: #4a5568;
+  --border-secondary: #374151;
+  --button-bg: #374151;
+  --button-hover: #4b5563;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.6);
+  --scrollbar-track: rgba(55, 65, 81, 0.8);
+  --toast-bg: #1f2937;
+  --toast-text: #f9fafb;
+  --shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Apply theme variables to body and html */
+html,
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Update scrollbar colors to use theme variables */
+body.windows {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track) !important;
+}
+
+body.windows ::-webkit-scrollbar-track,
+body.windows *::-webkit-scrollbar-track,
+body.windows *::before::-webkit-scrollbar-track,
+body.windows *::after::-webkit-scrollbar-track {
+  background: var(--scrollbar-track) !important;
+}
+
+body.windows ::-webkit-scrollbar-thumb,
+body.windows *::-webkit-scrollbar-thumb,
+body.windows *::before::-webkit-scrollbar-thumb,
+body.windows *::after::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb) !important;
+  border: 2px solid var(--scrollbar-track) !important;
+}
+
+body.windows ::-webkit-scrollbar-thumb:hover,
+body.windows *::-webkit-scrollbar-thumb:hover,
+body.windows *::before::-webkit-scrollbar-thumb:hover,
+body.windows *::after::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb) !important;
+  filter: brightness(1.2);
+}
+
+body.windows ::-webkit-scrollbar-thumb:active,
+body.windows *::-webkit-scrollbar-thumb:active,
+body.windows *::before::-webkit-scrollbar-thumb:active,
+body.windows *::after::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb) !important;
+  filter: brightness(1.4);
+}
+
+/* Theme transition for all elements */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Apply theme to Tailwind classes */
+.bg-stone-300 {
+  background-color: var(--bg-stone) !important;
+}
+
+.bg-white {
+  background-color: var(--bg-secondary) !important;
+}
+
+.text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-700 {
+  color: var(--text-primary) !important;
+}
+
+.border-gray-300 {
+  border-color: var(--border-secondary) !important;
+}
+
+.border-gray-700 {
+  border-color: var(--border-secondary) !important;
+}
+
+/* Table styling */
+table {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+table th {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+table td {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+/* Input styling */
+input[type="color"] {
+  background-color: var(--bg-primary) !important;
+  border: 1px solid var(--border-secondary) !important;
+}
+
+/* Theme toggle button styling */
+.theme-toggle-button {
+  position: relative;
+}
+
+.theme-toggle-button svg {
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle-button:hover svg {
+  transform: scale(1.1);
+}
+
+/* Toastr theme customization */
+.toast-bottom-left {
+  background-color: var(--toast-bg) !important;
+  color: var(--toast-text) !important;
+}
+
+.toast-success {
+  background-color: #059669 !important;
+  color: white !important;
+}
+
+.toast-error {
+  background-color: #dc2626 !important;
+  color: white !important;
+}
+
+.toast-warning {
+  background-color: #d97706 !important;
+  color: white !important;
+}
+
+.toast-info {
+  background-color: #2563eb !important;
+  color: white !important;
+}

@@ -1,14 +1,31 @@
 const ActionButton = ({ onClick, color='', size='', title='', children }) => {
-    let colorStyle = "bg-gray-200 hover:bg-gray-300 text-gray-700";
+    let colorStyle = {};
 
-    if (color === 'green')
-        colorStyle = "bg-green-500 hover:bg-green-600 text-gray-100 font-bold";
-    else if (color === 'red')
-        colorStyle = "bg-[#B53A16] hover:bg-red-600 text-gray-100 font-bold";
-    else if (color === 'blue')
-        colorStyle = "bg-[#809671] hover:bg-[#708661] text-gray-100 font-bold";
-    else
-        colorStyle = "bg-[#809671] hover:bg-[#708661] text-gray-100 font-bold";
+    if (color === 'green') {
+        colorStyle = {
+            backgroundColor: '#059669',
+            color: '#f9fafb',
+            fontWeight: 'bold'
+        };
+    } else if (color === 'red') {
+        colorStyle = {
+            backgroundColor: '#B53A16',
+            color: '#f9fafb',
+            fontWeight: 'bold'
+        };
+    } else if (color === 'blue') {
+        colorStyle = {
+            backgroundColor: 'var(--border-primary)',
+            color: '#f9fafb',
+            fontWeight: 'bold'
+        };
+    } else {
+        colorStyle = {
+            backgroundColor: 'var(--border-primary)',
+            color: '#f9fafb',
+            fontWeight: 'bold'
+        };
+    }
 
     let sizeStyle = "text-lg px-2 py-1";
 
@@ -19,7 +36,17 @@ const ActionButton = ({ onClick, color='', size='', title='', children }) => {
 
     return (
         <button
-            className= {colorStyle + " rounded-md shadow-sm select-none " + sizeStyle}
+            className={"rounded-md shadow-sm select-none " + sizeStyle}
+            style={{
+                ...colorStyle,
+                transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+                e.target.style.filter = 'brightness(1.1)';
+            }}
+            onMouseLeave={(e) => {
+                e.target.style.filter = 'brightness(1)';
+            }}
             onClick={onClick}
             title={title || children}
         >

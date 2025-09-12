@@ -1,8 +1,10 @@
 import './App.css';
+import './styles/themes.css';
 import AppScreen from './components/app/AppScreen.jsx';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import AppContextProvider from './store/app-context.jsx';
 import DBContextProvider from './store/db-context.jsx';
+import { ThemeProvider } from './contexts/ThemeContext.js';
 import { useEffect } from 'react';
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
@@ -50,16 +52,18 @@ function App() {
   }, []);
 
   return (
-    <div className='bg-stone-300'>
-      <ErrorBoundary>
-        <DBContextProvider>
-          <AppContextProvider>
-            <SearchContextProvider>
-              <AppScreen />
-            </SearchContextProvider>
-          </AppContextProvider>
-        </DBContextProvider>
-      </ErrorBoundary>
+    <div style={{ backgroundColor: 'var(--bg-stone)' }}>
+      <ThemeProvider>
+        <ErrorBoundary>
+          <DBContextProvider>
+            <AppContextProvider>
+              <SearchContextProvider>
+                <AppScreen />
+              </SearchContextProvider>
+            </AppContextProvider>
+          </DBContextProvider>
+        </ErrorBoundary>
+      </ThemeProvider>
     </div>
   );
 }

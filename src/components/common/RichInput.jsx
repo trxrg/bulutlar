@@ -92,8 +92,13 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', hasEditButton 
                                 type={inputType}
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
-                                className="rounded-md, p-1"
-                                style={{ minWidth: inputWidth }}
+                                className="rounded-md p-1"
+                                style={{ 
+                                    minWidth: inputWidth,
+                                    backgroundColor: 'var(--bg-primary)',
+                                    color: 'var(--text-primary)',
+                                    border: '1px solid var(--border-secondary)'
+                                }}
                             />
                             <FormatButton onClick={handleConfirmClick}>
                                 <CheckIcon className="w-5 h-5" />
@@ -105,7 +110,9 @@ const RichInput = ({ initialText, handleSave, inputType = 'text', hasEditButton 
                         :
                         hasEditButton ?
                             <div className={'flex flex-wrap ml-1 gap-1 w-full'}>
-                                <p className='flex items-center cursor-pointer hover:underline' onClick={handleClick}>                                    
+                                <p className='flex items-center cursor-pointer hover:underline' 
+                                   onClick={handleClick}
+                                   style={{ color: 'var(--text-primary)' }}>                                    
                                     {initialText}
                                 </p>
                                 <FormatButton onClick={handleEditClick} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">

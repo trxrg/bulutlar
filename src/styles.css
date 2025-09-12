@@ -88,6 +88,26 @@
     position: relative;
   }
 
+  .format-button {
+    background-color: transparent;
+    color: var(--text-primary);
+    transition: background-color 0.2s ease;
+    border: none;
+    outline: none;
+  }
+
+  .format-button:hover {
+    background-color: var(--button-hover);
+  }
+
+  .format-button svg {
+    transition: transform 0.3s ease;
+  }
+
+  .format-button:hover svg {
+    transform: scale(1.1);
+  }
+
   .primary-button {
     height: 2.5rem; /* 10 * 0.25rem */
     padding-left: 0.5rem; /* 2 * 0.25rem */

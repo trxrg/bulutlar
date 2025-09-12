@@ -267,14 +267,6 @@ p {
   position: relative;
 }
 
-.theme-toggle-button svg {
-  transition: transform 0.3s ease;
-}
-
-.theme-toggle-button:hover svg {
-  transform: scale(1.1);
-}
-
 /* FormatButton specific styling - targeted approach */
 button svg {
   color: var(--text-primary) !important;

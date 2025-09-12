@@ -13,23 +13,23 @@ const HomeScreen = () => {
 
     const primaryButtonProps = {
         variant: 'contained',
-        sx: { 
-            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
-            fontWeight: '600', 
+        sx: {
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            fontWeight: '600',
             fontSize: '1.2rem',
             letterSpacing: '0.025em',
-            backgroundColor: '#059669',
-            color: '#f9fafb',
+            backgroundColor: '#e3c204ff', // gold
+            color: '#222', // dark text for contrast
             '&:hover': {
-                backgroundColor: '#047857',
+                backgroundColor: '#FFC300', // darker gold on hover
             }
         }
     };
     const secondaryButtonProps = {
         variant: 'contained',
-        sx: { 
-            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
-            fontWeight: '600', 
+        sx: {
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            fontWeight: '600',
             fontSize: '1.2rem',
             letterSpacing: '0.025em',
             backgroundColor: 'var(--border-primary)',
@@ -39,12 +39,12 @@ const HomeScreen = () => {
             }
         }
     };
-    
+
     const settingsButtonProps = {
         variant: 'contained',
-        sx: { 
-            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
-            fontWeight: '600', 
+        sx: {
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            fontWeight: '600',
             fontSize: '1.2rem',
             letterSpacing: '0.025em',
             backgroundColor: '#B53A16',
@@ -56,7 +56,7 @@ const HomeScreen = () => {
     };
 
     return (
-        <div className='flex items-center justify-center w-full h-full' style={{ 
+        <div className='flex items-center justify-center w-full h-full' style={{
             fontFamily: '"Trebuchet MS", sans-serif',
             background: 'linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%)'
         }}>
@@ -64,17 +64,18 @@ const HomeScreen = () => {
             <div className='absolute top-6 right-6 z-10'>
                 <ThemeToggle />
             </div>
-            
+
             {/* Main content centered */}
-            <div className='flex flex-col items-center justify-center gap-8 px-8 py-12 rounded-3xl shadow-lg' style={{ 
-                backgroundColor: 'var(--bg-secondary)', 
-                boxShadow: '0 20px 40px var(--shadow)',
-                border: '1px solid var(--border-secondary)',
+            <div className='flex flex-col items-center justify-center gap-8 px-8 py-12 rounded-3xl shadow-lg' style={{
+                backgroundColor: 'var(--bg-primary)',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1)',
+                border: '2px solid var(--border-primary)',
+                backdropFilter: 'blur(10px)',
                 maxWidth: '600px',
                 width: '90%'
             }}>
                 <div className='flex items-center gap-4 mb-4'>
-                    <h1 className='text-5xl select-none' style={{ 
+                    <h1 className='text-5xl select-none' style={{
                         color: 'var(--border-primary)',
                         fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
                         fontWeight: '300',
@@ -84,20 +85,20 @@ const HomeScreen = () => {
                         bulutlar
                     </h1>
                 </div>
-                
+
                 {/* Navigation buttons */}
-                <div className='flex flex-col gap-4 w-full max-w-md'>
+                <div className='flex flex-col gap-3 w-full max-w-md'>
                     <Button size="large" fullWidth onClick={() => setActiveScreen('tabs')} {...primaryButtonProps}>
                         {t('all articles')}
                     </Button>
-                    <Button size="large" fullWidth onClick={() => setActiveScreen('categories')} {...primaryButtonProps}>
-                        {t('categories')}
-                    </Button>
-                    <Button size="large" fullWidth onClick={() => setActiveScreen('groups')} {...primaryButtonProps}>
-                        {t('groups')}
-                    </Button>
-                    
-                    <div className='grid grid-cols-2 gap-3 mt-2'>
+
+                    <div className='grid grid-cols-2 gap-3'>
+                        <Button size="large" fullWidth onClick={() => setActiveScreen('categories')} {...secondaryButtonProps}>
+                            {t('categories')}
+                        </Button>
+                        <Button size="large" fullWidth onClick={() => setActiveScreen('groups')} {...secondaryButtonProps}>
+                            {t('groups')}
+                        </Button>
                         <Button size="large" onClick={() => setActiveScreen('owners')} {...secondaryButtonProps}>
                             {t('owners')}
                         </Button>
@@ -111,12 +112,12 @@ const HomeScreen = () => {
                             {t('quotes')}
                         </Button>
                     </div>
-                    
-                    <Button size="large" fullWidth onClick={() => setActiveScreen('settings')} {...settingsButtonProps}>
+
+                    <Button size="large" fullWidth onClick={() => setActiveScreen('settings')} {...secondaryButtonProps}>
                         {t('settings')}
                     </Button>
                 </div>
-                
+
                 {/* Version info */}
                 <div className='flex flex-col items-center gap-1 mt-4 text-sm' style={{ color: 'var(--text-tertiary)' }}>
                     <span>DB: {dbVersion} • App: {packageJson.version}</span>

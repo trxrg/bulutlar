@@ -42,11 +42,14 @@ const SearchFilterings = () => {
 
     return (
         <>
-            <div className='flex flex-col p-3 bg-white'>
+            <div className='flex flex-col p-3' style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
                 <label className={'select-none cursor-pointer'}>
                     <Checkbox
                         checked={filterStarred}
                         onChange={(e) => setFilterStarred(e.target.checked)}
+                        sx={{
+                            color: 'var(--text-primary)',
+                        }}
                     />
                     {t('starred')}
                 </label>

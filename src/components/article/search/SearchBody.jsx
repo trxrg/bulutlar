@@ -29,7 +29,7 @@ const SearchBody = () => {
                 maxSize={containerWidth * 0.6}
                 size={sidePanelCollapsed ? '0%' : containerWidth * 0.3}
                 paneStyle={{ overflow: 'auto' }}
-                resizerStyle={sidePanelCollapsed ? { display: 'none' } : { background: '#809671', cursor: 'col-resize', width: '4px' }}
+                resizerStyle={sidePanelCollapsed ? { display: 'none' } : { background: 'var(--border-primary)', cursor: 'col-resize', width: '4px' }}
             >
                 <SearchFilterings></SearchFilterings>
                 <SearchResults></SearchResults>

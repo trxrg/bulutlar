@@ -11,11 +11,14 @@ const FilterAccordion = ({ title, isFilterActive, clearFilter, children }) => {
         fontWeight: 'bold',
         padding: '10px 20px',
         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+        backgroundColor: 'var(--bg-secondary)',
+        color: 'var(--text-primary)',
     };
 
     const activeHeadStyle = {
         ...headStyle,
-        backgroundColor: '#d0f0c0', // Light green color
+        backgroundColor: 'var(--bg-tertiary)',
+        color: 'var(--text-primary)',
     };
 
     const handleClearFilter = (e) => {
@@ -24,15 +27,38 @@ const FilterAccordion = ({ title, isFilterActive, clearFilter, children }) => {
     }
 
     return (
-        <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={isFilterActive ? activeHeadStyle : headStyle}>
+        <Accordion 
+            sx={{
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                '& .MuiAccordionSummary-expandIconWrapper': {
+                    color: 'var(--text-primary)',
+                },
+                '& .MuiAccordionDetails-root': {
+                    backgroundColor: 'var(--bg-primary)',
+                    color: 'var(--text-primary)',
+                },
+            }}
+        >
+            <AccordionSummary 
+                expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />} 
+                sx={isFilterActive ? activeHeadStyle : headStyle}
+            >
                 <Box sx={{ display: 'flex', width: '100%', alignItems: 'center' }}>
                     {isFilterActive && (
-                        <IconButton color="primary" onClick={handleClearFilter}>
+                        <IconButton 
+                            onClick={handleClearFilter}
+                            sx={{ 
+                                color: 'var(--text-primary)',
+                                '&:hover': {
+                                    backgroundColor: 'var(--button-hover)',
+                                }
+                            }}
+                        >
                             <ClearIcon />
                         </IconButton>
                     )}
-                    <Typography>{title}</Typography>
+                    <Typography sx={{ color: 'var(--text-primary)' }}>{title}</Typography>
                 </Box>
             </AccordionSummary>
             <AccordionDetails>

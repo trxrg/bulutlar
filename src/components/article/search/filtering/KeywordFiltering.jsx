@@ -45,12 +45,15 @@ const KeywordFiltering = () => {
     const checkboxStyle = 'select-none cursor-pointer';
 
     return (
-        <div className='p-1 flex flex-col overflow-auto max-h-80'>
+        <div className='p-1 flex flex-col overflow-auto max-h-80' style={{ color: 'var(--text-primary)' }}>
             <div className="flex flex-col mb-3">
                 <label className={checkboxStyle}>
                     <Checkbox
                         checked={searchInTitle}
                         onChange={handleCheckboxChange(setSearchInTitle)}
+                        sx={{
+                            color: 'var(--text-primary)',
+                        }}
                     />
                     {t('title')}
                 </label>
@@ -58,6 +61,9 @@ const KeywordFiltering = () => {
                     <Checkbox
                         checked={searchInExplanation}
                         onChange={handleCheckboxChange(setSearchInExplanation)}
+                        sx={{
+                            color: 'var(--text-primary)',
+                        }}
                     />
                     {t('explanation')}
                 </label>
@@ -65,6 +71,9 @@ const KeywordFiltering = () => {
                     <Checkbox
                         checked={searchInMainText}
                         onChange={handleCheckboxChange(setSearchInMainText)}
+                        sx={{
+                            color: 'var(--text-primary)',
+                        }}
                     />
                     {t('main text')}
                 </label>
@@ -72,6 +81,9 @@ const KeywordFiltering = () => {
                     <Checkbox
                         checked={searchInComments}
                         onChange={handleCheckboxChange(setSearchInComments)}
+                        sx={{
+                            color: 'var(--text-primary)',
+                        }}
                     />
                     {t('comment')}
                 </label>
@@ -80,7 +92,12 @@ const KeywordFiltering = () => {
                 <input
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    className='flex-1 p-1 border border-black rounded'
+                    className='flex-1 p-1 rounded'
+                    style={{
+                        border: '1px solid var(--border-secondary)',
+                        backgroundColor: 'var(--bg-primary)',
+                        color: 'var(--text-primary)'
+                    }}
                     onKeyDown={handleKeyDown}
                     placeholder={t('enter keyword')}
                 />
@@ -91,8 +108,8 @@ const KeywordFiltering = () => {
             <ul>
                 {keywords.map((keyword, index) => (
                     <li key={index}>
-                        <div className='flex justify-between py-1 border-t border-red-300'>
-                            <p>{keyword}</p>
+                        <div className='flex justify-between py-1' style={{ borderTop: '1px solid var(--border-secondary)' }}>
+                            <p style={{ color: 'var(--text-primary)' }}>{keyword}</p>
                             <FormatButton onClick={() => handleRemoveKeyword(index)}><XMarkIcon className="w-4 h-4" /></FormatButton>
                         </div>
                     </li>

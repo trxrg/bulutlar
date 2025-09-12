@@ -283,6 +283,9 @@
 
     "enter at least 2 characters": "En az 2 karakter giriniz",
 
+    "switch to light mode": "Açık Temaya Geç",
+    "switch to dark mode": "Koyu Temaya Geç",
+
     "play": "Oynat",
     "pause": "Duraklat"
 }

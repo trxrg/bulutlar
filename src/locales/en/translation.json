@@ -277,5 +277,8 @@
     "error occured while saving": "An error occured while saving",
     "changes saved": "Changes saved",
 
-    "enter at least 2 characters": "Enter at least 2 characters"
+    "enter at least 2 characters": "Enter at least 2 characters",
+
+    "switch to light mode": "Switch to Light Mode",
+    "switch to dark mode": "Switch to Dark Mode"
   }

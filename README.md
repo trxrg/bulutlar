@@ -47,6 +47,9 @@ npm run package-linux
 ```
 
 ## Versions
+1.4.6
+- fix layout issues
+  
 1.4.5
 - fix some styling issues
 

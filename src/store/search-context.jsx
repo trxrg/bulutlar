@@ -22,6 +22,7 @@ export default function SearchContextProvider({ children }) {
     const [selectedNumbers1, setSelectedNumbers1] = usePersistentState('selectedNumbers1', []);
     const [selectedNumbers2, setSelectedNumbers2] = usePersistentState('selectedNumbers2', []);
     const [keywords, setKeywords] = usePersistentState('keywords', []);
+    const [quickSearchTerm, setQuickSearchTerm] = usePersistentState('quickSearchTerm', '');
     const [searchInTitle, setSearchInTitle] = usePersistentState('searchInTitle', true);
     const [searchInExplanation, setSearchInExplanation] = usePersistentState('searchInExplanation', true);
     const [searchInMainText, setSearchInMainText] = usePersistentState('searchInMainText', true);
@@ -64,6 +65,7 @@ export default function SearchContextProvider({ children }) {
         setSelectedNumbers1([]);
         setSelectedNumbers2([]);
         setKeywords([]);
+        setQuickSearchTerm('');
         setStartDate({ day: '', month: '', year: '' });
         setEndDate({ day: '', month: '', year: '' });
         setStartDate2({ day: '', month: '', year: '' });
@@ -107,6 +109,7 @@ export default function SearchContextProvider({ children }) {
             categoryNames: selectedCategoryNames,
             groupNames: selectedGroupNames,
             keywords: keywords,
+            quickSearchTerm: quickSearchTerm,
             startDate: startDate,
             endDate: endDate,
             startDate2: startDate2,
@@ -116,7 +119,7 @@ export default function SearchContextProvider({ children }) {
             filterStarred: filterStarred,
         });
     }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames,
-        selectedGroupNames, selectedNumbers1, selectedNumbers2, keywords, startDate,
+        selectedGroupNames, selectedNumbers1, selectedNumbers2, keywords, quickSearchTerm, startDate,
         endDate, startDate2, endDate2, filterStarred,
         searchInTitle, searchInExplanation, searchInMainText, searchInComments]);
 
@@ -137,6 +140,8 @@ export default function SearchContextProvider({ children }) {
         setSelectedGroupNames,
         keywords,
         setKeywords,
+        quickSearchTerm,
+        setQuickSearchTerm,
         areArticlesSelectable,
         setArticlesSelectable,
         toggleArticlesSelectable,

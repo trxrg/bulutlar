@@ -12,6 +12,7 @@ import ActionButton from '../../../common/ActionButton.jsx';
 import { groupApi } from '../../../../backend-adapter/BackendAdapter.js';
 import GroupModal from '../../../group/GroupModal.jsx';
 import OrderBySelect from './OrderBySelect.jsx';
+import QuickSearchBar from './QuickSearchBar.jsx';
 import toastr from 'toastr';
 
 const SearchResultsHeader = () => {
@@ -55,7 +56,7 @@ const SearchResultsHeader = () => {
         <div className='flex flex-col gap-2 shadow-lg bg-white p-2'>
             <div className='flex justify-between w-full'>
                 {/* left */}
-                <div className='flex flex-wrap gap-1'>
+                <div className='flex flex-wrap gap-1 items-center'>
                     {sidePanelCollapsed ?
                         <FormatButton onClick={() => setSidePanelCollapsed(false)} title={t('show left panel')}>
                             <ChevronRightIcon className="w-5 h-5" />
@@ -66,13 +67,14 @@ const SearchResultsHeader = () => {
                         </FormatButton>}
                     <FormatButton onClick={() => toggleArticlesSelectable()} title={t('select articles')}><PencilSquareIcon className="w-5 h-5" /></FormatButton>
                     <FormatButton onClick={handleAddToGroupClick} title={t('add selected articles to group')}><FolderPlusIcon className="w-5 h-5" /></FormatButton>
+                    <QuickSearchBar />
                 </div>
                 {/* center */}
                 <div className='flex gap-2 items-center'>
                     <h3 className='text-xl text-gray-700 flex justify-center'>{(areArticlesSelectable ? selectedArticles.length + '/' : '') + filteredArticles.length + ' ' + t('articlesTR')}</h3>
                 </div>
                 {/* right */}
-                <div className='flex flex-wrap gap-1'>
+                <div className='flex flex-wrap gap-1 items-center'>                    
                     <OrderBySelect onOrderChange={handleOrderChange} initialSelection={articleOrder} />
                     {/* <FormatButton onClick={generatePDFOfSelectedArticles} title={t('download as pdf')}><DocumentArrowDownIcon className="w-5 h-5" /></FormatButton> */}
                     <FormatButton onClick={handleAddRandomTab} title={t('open random article')}><BoltIcon className="w-5 h-5" /></FormatButton>

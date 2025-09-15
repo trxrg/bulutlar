@@ -61,6 +61,16 @@ const SearchResultsBody = React.memo(() => {
             }));
         }
 
+        if (filtering.quickSearchTerm && filtering.quickSearchTerm.trim()) {
+            const normalizedQuickSearch = normalizeText(filtering.quickSearchTerm.trim());
+            localFilteredArticles = localFilteredArticles.filter(art => {
+                return (searchInTitle && normalizeText(htmlToText(art.title)).includes(normalizedQuickSearch)) ||
+                    (searchInMainText && normalizeText(htmlToText(art.text)).includes(normalizedQuickSearch)) ||
+                    (searchInExplanation && normalizeText(htmlToText(art.explanation)).includes(normalizedQuickSearch)) ||
+                    (searchInComments && (art.comments[0] && normalizeText(htmlToText(art.comments[0].text)).includes(normalizedQuickSearch)));
+            });
+        }
+
         setFilteredArticles(localFilteredArticles);
     };
 
@@ -167,16 +177,25 @@ const SearchResultsBody = React.memo(() => {
 
     // Memoize the article list rendering for better performance
     const articlesList = useMemo(() => {
+        // Combine keywords and quick search term for highlighting
+        let allKeywords = [];
+        if (filtering.keywords && filtering.keywords.length) {
+            allKeywords = [...filtering.keywords];
+        }
+        if (filtering.quickSearchTerm && filtering.quickSearchTerm.trim()) {
+            allKeywords.push(filtering.quickSearchTerm.trim());
+        }
+        
         return filteredArticles.map(art => (
             <ArticleShort
                 handleClick={handleAddTab}
                 key={art.id}
                 article={art}
-                keywords={(filtering.keywords && filtering.keywords.length) ? filtering.keywords : null}
+                keywords={allKeywords.length > 0 ? allKeywords : null}
                 dangerouslySetInnerHTML={{ __html: art.title }}
             />
         ));
-    }, [filteredArticles, handleAddTab, filtering.keywords]);
+    }, [filteredArticles, handleAddTab, filtering.keywords, filtering.quickSearchTerm]);
 
     return (
         <>

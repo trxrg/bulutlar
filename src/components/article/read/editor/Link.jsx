@@ -78,7 +78,36 @@ const Link = (props) => {
         if (linkRef.current) {
             const rect = linkRef.current.getBoundingClientRect();
             const rectParent = linkRef.current.parentElement.getBoundingClientRect();
-            setContextMenuPosition({ x: rect.left - rectParent.left, y: rect.top - rectParent.top + rect.height });
+            
+            // Calculate initial position
+            let x = rect.left - rectParent.left;
+            const y = rect.top - rectParent.top + rect.height;
+            
+            // Find the content container (the middle pane in splitpane layout)
+            // Look for the BodyWithFixedHeader container which represents the content area
+            let contentContainer = linkRef.current;
+            while (contentContainer && !contentContainer.querySelector('[class*="leading-loose"]')) {
+                contentContainer = contentContainer.parentElement;
+                // Stop if we reach the body to avoid infinite loop
+                if (contentContainer === document.body) break;
+            }
+            
+            // Get the available width of the content area
+            const contentBounds = contentContainer ? contentContainer.getBoundingClientRect() : rectParent;
+            const availableWidth = contentBounds.width;
+            
+            // Estimate menu width (you can adjust this value based on your typical menu content)
+            const estimatedMenuWidth = 300;
+            
+            // Check if menu would extend beyond the right edge of the content area
+            if (rect.left - contentBounds.left + estimatedMenuWidth > availableWidth) {
+                // Position menu to the left of the link instead
+                x = rect.right - rectParent.left - estimatedMenuWidth;
+                // Ensure it doesn't go beyond the left edge
+                x = Math.max(0, x);
+            }
+            
+            setContextMenuPosition({ x, y });
         }
     }
 
@@ -101,7 +130,7 @@ const Link = (props) => {
             </div>
             <ContextMenu isOpen={infoMenuIsOpen}
                 onClose={() => setInfoMenuIsOpen(false)}
-                position={{ top: contextMenuPosition.y, left: 0 }}>
+                position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                 {article &&
                     <div className='flex flex-col'>
                         <p>{article.title}</p>

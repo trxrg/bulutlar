@@ -432,14 +432,36 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
     const handleMouseUp = (e) => {
         const selection = window.getSelection();
         if (selection.rangeCount > 0 && !selection.isCollapsed) {
-            const editorBounds = e.currentTarget.parentElement.parentElement.parentElement.parentElement.parentElement.getBoundingClientRect();
-            // const range = selection.getRangeAt(0).getBoundingClientRect();
-            // const top = Math.max(range.top - editorBounds.top - 60, 0);
-            // const left = range.left - editorBounds.left;
+            // Find the main ReadContent container instead of using hardcoded DOM traversal
+            let readContentContainer = e.currentTarget;
+            while (readContentContainer && !readContentContainer.classList.contains('leading-loose')) {
+                readContentContainer = readContentContainer.parentElement;
+            }
+            
+            // If we can't find the container, fall back to document body
+            const containerBounds = readContentContainer ? 
+                readContentContainer.getBoundingClientRect() : 
+                document.body.getBoundingClientRect();
+
+            // Calculate initial position
+            let left = e.clientX - containerBounds.left;
+            const top = e.clientY - containerBounds.top;
+            
+            // Estimate toolbar width (adjust this based on your actual toolbar size)
+            const estimatedToolbarWidth = 280;
+            const availableWidth = containerBounds.width;
+            
+            // Check if toolbar would extend beyond the right edge of the content area
+            if (left + estimatedToolbarWidth > availableWidth) {
+                // Position toolbar to the left to keep it within bounds
+                left = availableWidth - estimatedToolbarWidth;
+                // Ensure it doesn't go beyond the left edge
+                left = Math.max(10, left);
+            }
 
             setContextMenuPosition({
-                top: e.clientY - editorBounds.top,
-                left: e.clientX - editorBounds.left,
+                top: top,
+                left: left,
             });
             setContextMenuIsOpen(true);
         } else {

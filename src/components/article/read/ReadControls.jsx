@@ -36,11 +36,21 @@ const ReadControls = () => {
     }
 
     const handleSearchClick = () => {
-        setCurrentHighlightIndex(-1);
-        if (searchBarOpen)
-            setSearchTerm(localSearchTerm);
-        else
+        if (searchBarOpen) {
+            // If search bar is open and we have a term, reset and search
+            if (localSearchTerm) {
+                // Clear the current search first to reset highlight system
+                setSearchTerm('');
+                setCurrentHighlightIndex(-1);
+                // Set new term after a brief delay to allow reset to complete
+                setTimeout(() => {
+                    setSearchTerm(localSearchTerm);
+                    setCurrentHighlightIndex(0);
+                }, 50);
+            }
+        } else {
             setSearchBarOpen(true);
+        }
     }
 
     const handleCloseSearchBar = () => {
@@ -62,7 +72,7 @@ const ReadControls = () => {
     useEffect(() => {
         const handleKeyDown = (e) => {
             // Ctrl+F or Cmd+F to open search
-            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
                 e.preventDefault();
                 if (!searchBarOpen) {
                     setSearchBarOpen(true);
@@ -88,14 +98,32 @@ const ReadControls = () => {
         };
     }, [searchBarOpen, t]);
 
+    const handleSearchInputChange = (e) => {
+        const newValue = e.target.value;
+        setLocalSearchTerm(newValue);
+        
+        // Clear the search term to remove highlights when user starts typing
+        // Only if the new value is different from the current search term
+        if (newValue !== searchTerm && searchTerm !== '') {
+            setSearchTerm('');
+            setCurrentHighlightIndex(-1);
+        }
+    };
+
     const handleSearchKeyDown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             if (searchBarOpen && localSearchTerm) {
                 // If search term is not set yet, set it first
                 if (localSearchTerm !== searchTerm) {
-                    setSearchTerm(localSearchTerm);
+                    // Clear the current search first to reset highlight system
+                    setSearchTerm('');
                     setCurrentHighlightIndex(-1);
+                    // Set new term after a brief delay to allow reset to complete
+                    setTimeout(() => {
+                        setSearchTerm(localSearchTerm);
+                        setCurrentHighlightIndex(0);
+                    }, 50);
                 } else {
                     // If search term is already set, go to next highlight
                     handleNextHighlight();
@@ -156,7 +184,7 @@ const ReadControls = () => {
                                 }}
                                 placeholder={t('search')}
                                 value={localSearchTerm}
-                                onChange={(e) => setLocalSearchTerm(e.target.value)}
+                                onChange={handleSearchInputChange}
                                 onKeyDown={handleSearchKeyDown}
                                 autoFocus
                             />
@@ -166,21 +194,30 @@ const ReadControls = () => {
                         </>
                     )}
                     <FormatButton onClick={handleSearchClick} title={t('search in the article')}><MagnifyingGlassIcon className="w-5 h-5" /></FormatButton>
-                    {searchBarOpen && getHighlightInfo && getHighlightInfo().hasMatches && (
-                        <>
-                            <FormatButton onClick={handlePreviousHighlight} title={t('previous match')}>
-                                <ChevronUpIcon className="w-5 h-5" />
-                            </FormatButton>
+                    {searchBarOpen && getHighlightInfo && (
+                        getHighlightInfo().hasMatches ? (
+                            <>
+                                <FormatButton onClick={handlePreviousHighlight} title={t('previous match')}>
+                                    <ChevronUpIcon className="w-5 h-5" />
+                                </FormatButton>
+                                <span 
+                                    className="text-sm px-2 py-1"
+                                    style={{ color: 'var(--text-primary)' }}
+                                >
+                                    {getHighlightInfo().current}/{getHighlightInfo().total}
+                                </span>
+                                <FormatButton onClick={handleNextHighlight} title={t('next match')}>
+                                    <ChevronDownIcon className="w-5 h-5" />
+                                </FormatButton>
+                            </>
+                        ) : searchTerm && (
                             <span 
-                                className="text-sm px-2 py-1"
-                                style={{ color: 'var(--text-primary)' }}
+                                className="flex text-sm px-2 py-1 items-center"
+                                style={{ color: 'var(--text-secondary)' }}
                             >
-                                {getHighlightInfo().current}/{getHighlightInfo().total}
+                                {t('no results found')}
                             </span>
-                            <FormatButton onClick={handleNextHighlight} title={t('next match')}>
-                                <ChevronDownIcon className="w-5 h-5" />
-                            </FormatButton>
-                        </>
+                        )
                     )}
                 </div>
                 {/* center */}

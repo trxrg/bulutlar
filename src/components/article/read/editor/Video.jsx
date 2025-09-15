@@ -37,10 +37,6 @@ const Video = (props) => {
         // Get platform information
         const platform = window.versions?.platform() || 'unknown';
         
-        console.log('🎬 Video URL generation:');
-        console.log('  - Platform:', platform);
-        console.log('  - Original path:', videoData);
-        
         let finalUrl;
         if (platform === 'win32') {
             // Windows: Normalize path and handle drive letters
@@ -58,14 +54,12 @@ const Video = (props) => {
             finalUrl = `media-file://${videoData}`;
         }
         
-        console.log('  - Final URL:', finalUrl);
         return finalUrl;
     }, [videoData]);
 
     const fetchVideoData = async () => {
         try {
             const result = await videoApi.getDataById(videoEntity.id);
-            console.log('🎬 Video fetch result:', result);
             // Handle both old format (string) and new format (object)
             if (typeof result === 'string') {
                 setVideoData(result);
@@ -73,7 +67,6 @@ const Video = (props) => {
             } else {
                 setVideoData(result.path);
                 setVideoMetadata(result.metadata);
-                console.log('🎬 Video metadata:', result.metadata);
                 
                 // If duration is missing, extract it using browser-based method
                 if (!result.metadata.duration && videoUrl) {
@@ -87,7 +80,6 @@ const Video = (props) => {
     
     const extractAndUpdateMetadata = async (currentMetadata) => {
         try {
-            console.log('🎬 Extracting missing video metadata...');
             const extractedMetadata = await MediaMetadataExtractor.extractVideoMetadata(videoUrl);
             
             // Update the database with the extracted metadata
@@ -98,8 +90,6 @@ const Video = (props) => {
                 ...currentMetadata,
                 ...extractedMetadata
             });
-            
-            console.log('✅ Video metadata updated successfully');
         } catch (error) {
             console.error('❌ Failed to extract video metadata:', error);
         }

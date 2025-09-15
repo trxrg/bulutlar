@@ -70,7 +70,6 @@ const Audio = (props) => {
     const fetchAudioData = async () => {
         try {
             const result = await audioApi.getDataById(audioEntity.id);
-            if (DEBUG_AUDIO_EVENTS) console.log('🎵 Audio fetch result:', result);
             // Handle both old format (string) and new format (object)
             if (typeof result === 'string') {
                 setAudioData(result);
@@ -78,7 +77,6 @@ const Audio = (props) => {
             } else {
                 setAudioData(result.path);
                 setAudioMetadata(result.metadata);
-                if (DEBUG_AUDIO_EVENTS) console.log('🎵 Audio metadata:', result.metadata);
             }
         } catch (error) {
             console.error('Error fetching audio data:', error);
@@ -87,7 +85,6 @@ const Audio = (props) => {
     
     const extractAndUpdateMetadata = async (currentMetadata) => {
         try {
-            if (DEBUG_AUDIO_EVENTS) console.log('🎵 Extracting missing audio metadata...');
             const extractedMetadata = await MediaMetadataExtractor.extractAudioMetadata(audioUrl);
             
             // Update the database with the extracted metadata
@@ -98,8 +95,6 @@ const Audio = (props) => {
                 ...currentMetadata,
                 ...extractedMetadata
             });
-            
-            if (DEBUG_AUDIO_EVENTS) console.log('✅ Audio metadata updated successfully');
         } catch (error) {
             console.error('❌ Failed to extract audio metadata:', error);
         }

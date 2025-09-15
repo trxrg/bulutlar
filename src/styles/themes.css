@@ -62,7 +62,6 @@ body {
 
 /* Global h1 styling only */
 h1 {
-  font-family: "Orbitron", monospace, sans-serif !important;
   font-weight: 700 !important;
   letter-spacing: 0.05em !important;
 }

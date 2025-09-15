@@ -39,9 +39,7 @@ const ActionButton = ({ onClick, color='', size='', title='', children }) => {
             className={"rounded-md shadow-sm select-none action-button " + sizeStyle}
             style={{
                 ...colorStyle,
-                fontFamily: '"Orbitron", monospace, sans-serif',
-                fontWeight: '600',
-                letterSpacing: '0.05em'
+                fontWeight: '600'
             }}
             onClick={onClick}
             title={title || children}

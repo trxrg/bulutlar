@@ -66,7 +66,7 @@ const SearchResultsHeader = () => {
                             <ChevronLeftIcon className="w-5 h-5" />
                         </FormatButton>}
                     <FormatButton onClick={() => toggleArticlesSelectable()} title={t('select articles')}><PencilSquareIcon className="w-5 h-5" /></FormatButton>
-                    <FormatButton onClick={handleAddToGroupClick} title={t('add selected articles to group')}><FolderPlusIcon className="w-5 h-5" /></FormatButton>
+                    {/* <FormatButton onClick={handleAddToGroupClick} title={t('add selected articles to group')}><FolderPlusIcon className="w-5 h-5" /></FormatButton> */}
                     <QuickSearchBar />
                 </div>
                 {/* center */}
@@ -74,7 +74,7 @@ const SearchResultsHeader = () => {
                     <h3 className='text-xl text-gray-700 flex justify-center'>{(areArticlesSelectable ? selectedArticles.length + '/' : '') + filteredArticles.length + ' ' + t('articlesTR')}</h3>
                 </div>
                 {/* right */}
-                <div className='flex flex-wrap gap-1 items-center'>                    
+                <div className='flex flex-wrap gap-1 items-center'>
                     <OrderBySelect onOrderChange={handleOrderChange} initialSelection={articleOrder} />
                     {/* <FormatButton onClick={generatePDFOfSelectedArticles} title={t('download as pdf')}><DocumentArrowDownIcon className="w-5 h-5" /></FormatButton> */}
                     <FormatButton onClick={handleAddRandomTab} title={t('open random article')}><BoltIcon className="w-5 h-5" /></FormatButton>
@@ -82,9 +82,14 @@ const SearchResultsHeader = () => {
                 </div>
             </div>
             {areArticlesSelectable &&
-                <div className='flex flex-wrap gap-1'>
-                    <ActionButton onClick={() => selectAllOrNone(true)} color='blue'>{t('selectAll')}</ActionButton>
-                    <ActionButton onClick={() => selectAllOrNone(false)} color='blue'>{t('selectNone')}</ActionButton>
+                <div className='flex flex-wrap gap-1 justify-between'>
+                    <div className='flex gap-1'>
+                        <ActionButton onClick={() => selectAllOrNone(true)} color='blue'>{t('selectAll')}</ActionButton>
+                        <ActionButton onClick={() => selectAllOrNone(false)} color='blue'>{t('selectNone')}</ActionButton>
+                    </div>
+                    <div className='flex gap-1'>
+                        <ActionButton onClick={handleAddToGroupClick} color='blue'>{t('add to group')}</ActionButton>
+                    </div>
                 </div>
             }
             <AddArticleModal isOpen={isAddArticleModalOpen} onRequestClose={() => setAddArticleModalOpen(false)} />

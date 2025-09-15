@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { BarsArrowDownIcon } from '@heroicons/react/24/outline';
 import { AppContext } from '../../../../store/app-context';
 
 const OrderBySelect = ({ onOrderChange, initialSelection }) => {
@@ -19,23 +20,28 @@ const OrderBySelect = ({ onOrderChange, initialSelection }) => {
     };
 
     return (
-        <select 
-            onChange={(e) => onOrderChange(JSON.parse(e.target.value))} 
-            className="rounded px-2 py-1 max-h-10"
-            style={{
-                border: '1px solid var(--border-secondary)',
-                backgroundColor: 'var(--bg-primary)',
-                color: 'var(--text-primary)'
-            }}
-            value={JSON.stringify(initialSelection)}
-            label={getLabelByValue(initialSelection)}
-        >
-            {options.map((option, index) => (
-                <option key={index} value={JSON.stringify({ field: option.field, direction: option.direction })}>
-                    {option.label}
-                </option>
-            ))}
-        </select>
+        <div className='flex items-center rounded-lg shadow-sm min-w-60' 
+             style={{
+                 backgroundColor: 'var(--bg-primary)',
+                 border: '1px solid var(--border-secondary)'
+             }}>
+            <BarsArrowDownIcon className="w-5 h-5 ml-3" style={{ color: 'var(--text-tertiary)' }} />
+            <select 
+                onChange={(e) => onOrderChange(JSON.parse(e.target.value))} 
+                className="flex-1 p-2 border-none outline-none bg-transparent cursor-pointer"
+                style={{
+                    color: 'var(--text-primary)'
+                }}
+                value={JSON.stringify(initialSelection)}
+                label={getLabelByValue(initialSelection)}
+            >
+                {options.map((option, index) => (
+                    <option key={index} value={JSON.stringify({ field: option.field, direction: option.direction })}>
+                        {option.label}
+                    </option>
+                ))}
+            </select>
+        </div>
     );
 };
 

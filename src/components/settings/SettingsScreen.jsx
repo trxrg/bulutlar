@@ -20,10 +20,10 @@ const SettingsScreen = () => {
     const primaryButtonProps = {
         variant: 'contained',
         sx: { 
-            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
+            fontFamily: '"Orbitron", monospace, sans-serif', 
             fontWeight: '600', 
             fontSize: '1rem',
-            letterSpacing: '0.025em',
+            letterSpacing: '0.05em',
             backgroundColor: '#059669',
             color: '#f9fafb',
             '&:hover': {
@@ -35,10 +35,10 @@ const SettingsScreen = () => {
     const secondaryButtonProps = {
         variant: 'contained',
         sx: { 
-            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
+            fontFamily: '"Orbitron", monospace, sans-serif', 
             fontWeight: '600', 
             fontSize: '1rem',
-            letterSpacing: '0.025em',
+            letterSpacing: '0.05em',
             backgroundColor: 'var(--border-primary)',
             color: '#f9fafb',
             '&:hover': {
@@ -50,10 +50,10 @@ const SettingsScreen = () => {
     const dangerButtonProps = {
         variant: 'contained',
         sx: { 
-            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', 
+            fontFamily: '"Orbitron", monospace, sans-serif', 
             fontWeight: '600', 
             fontSize: '1rem',
-            letterSpacing: '0.025em',
+            letterSpacing: '0.05em',
             backgroundColor: '#B53A16',
             color: '#f9fafb',
             '&:hover': {

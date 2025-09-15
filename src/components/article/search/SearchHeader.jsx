@@ -10,7 +10,9 @@ const SearchHeader = () => {
                  backgroundColor: 'var(--bg-secondary)', 
                  borderBottomColor: 'var(--border-primary)' 
              }}>
-            <h1 className='text-3xl' style={{ color: 'var(--text-secondary)' }}>{t('search screen')}</h1>
+            <h1 className='text-3xl' style={{ color: 'var(--text-secondary)' }}>
+                {t('search screen')}
+            </h1>
         </div>
     );
 };

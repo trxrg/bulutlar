@@ -60,6 +60,13 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Global h1 styling only */
+h1 {
+  font-family: "Orbitron", monospace, sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+}
+
 /* Article hover effects for performance */
 .article-short-hover {
   background-color: var(--bg-secondary);

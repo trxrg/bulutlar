@@ -204,6 +204,30 @@ input[type="color"] {
   border: 1px solid var(--border-secondary) !important;
 }
 
+/* Select element styling for dark mode */
+select {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+select option {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Ensure select dropdown has proper dark mode styling */
+[data-theme="dark"] select {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+[data-theme="dark"] select option {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
 /* Tab styling */
 .bg-stone-100 {
   background-color: var(--bg-secondary) !important;

@@ -30,13 +30,21 @@ const OrderBySelect = ({ onOrderChange, initialSelection }) => {
                 onChange={(e) => onOrderChange(JSON.parse(e.target.value))} 
                 className="flex-1 p-2 border-none outline-none bg-transparent cursor-pointer"
                 style={{
-                    color: 'var(--text-primary)'
+                    color: 'var(--text-primary)',
+                    backgroundColor: 'var(--bg-primary)'
                 }}
                 value={JSON.stringify(initialSelection)}
                 label={getLabelByValue(initialSelection)}
             >
                 {options.map((option, index) => (
-                    <option key={index} value={JSON.stringify({ field: option.field, direction: option.direction })}>
+                    <option 
+                        key={index} 
+                        value={JSON.stringify({ field: option.field, direction: option.direction })}
+                        style={{
+                            backgroundColor: 'var(--bg-primary)',
+                            color: 'var(--text-primary)'
+                        }}
+                    >
                         {option.label}
                     </option>
                 ))}

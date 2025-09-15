@@ -151,7 +151,7 @@ const ReadControls = () => {
         <div 
             className='flex flex-col gap-2 shadow-lg p-2 items-center'
             style={{ 
-                backgroundColor: 'var(--bg-primary)', 
+                backgroundColor: fullScreen ? 'var(--bg-primary)' : 'var(--bg-secondary)', 
                 boxShadow: '0 10px 15px -3px var(--shadow), 0 4px 6px -2px var(--shadow)' 
             }}
         >
@@ -235,7 +235,7 @@ const ReadControls = () => {
                             <div className='flex items-center h-full'>
                                 <h2 
                                     className='text-xl whitespace-normal break-words mx-10'
-                                    style={{ color: 'var(--text-primary)' }}
+                                    style={{ color: 'var(--text-secondary)' }}
                                 >
                                     {article.title + (article.isDateUncertain ? '' : ` (${new Date(article.date).toLocaleDateString('tr')})`)}
                                 </h2>

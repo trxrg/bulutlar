@@ -40,7 +40,7 @@ const QuickSearchBar = () => {
             setQuickSearchTerm('');
             return;
         }
-        
+
         const trimmed = localSearchTerm.trim();
         if (trimmed.length >= 2) {
             setQuickSearchTerm(trimmed);
@@ -60,7 +60,7 @@ const QuickSearchBar = () => {
     const handleInputChange = (e) => {
         const newValue = e.target.value;
         setLocalSearchTerm(newValue);
-        
+
         // Reset search results when user starts typing (but keep the input value)
         if (quickSearchTerm) {
             setQuickSearchTerm('');
@@ -73,17 +73,19 @@ const QuickSearchBar = () => {
     };
 
     return (
-        <div className='flex items-center rounded-lg shadow-sm min-w-60' 
-             style={{
-                 backgroundColor: 'var(--bg-primary)',
-                 border: '1px solid var(--border-secondary)'
-             }}>
+        <div className='flex items-center rounded-lg shadow-sm min-w-60'
+            style={{
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border-secondary)',
+                borderRadius: '0.25rem',
+                padding: '0.25rem'
+            }}>
             <div className="flex items-center ml-3">
                 <MagnifyingGlassIcon className="w-5 h-5" style={{ color: 'var(--text-tertiary)' }} />
-                <CheckIcon 
-                    className={`w-4 h-4 ml-1 transition-opacity duration-200 ${quickSearchTerm ? 'opacity-100' : 'opacity-0'}`} 
-                    style={{ color: 'var(--success-color, #22c55e)' }} 
-                    title={quickSearchTerm ? t('search completed') : ''} 
+                <CheckIcon
+                    className={`w-4 h-4 ml-1 transition-opacity duration-200 ${quickSearchTerm ? 'opacity-100' : 'opacity-0'}`}
+                    style={{ color: 'var(--success-color, #22c55e)' }}
+                    title={quickSearchTerm ? t('search completed') : ''}
                 />
             </div>
             <input

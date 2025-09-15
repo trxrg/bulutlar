@@ -7,10 +7,10 @@ const SearchHeader = () => {
     return (
         <div className={'overflow-auto px-4 py-3 border-b-4'} 
              style={{ 
-                 backgroundColor: 'var(--bg-secondary)', 
+                 backgroundColor: 'var(--bg-primary)', 
                  borderBottomColor: 'var(--border-primary)' 
              }}>
-            <h1 className='text-3xl' style={{ color: 'var(--text-secondary)' }}>
+            <h1 className='text-3xl' style={{ color: 'var(--text-primary)' }}>
                 {t('search screen')}
             </h1>
         </div>

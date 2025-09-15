@@ -191,7 +191,7 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
                     </article>
                 }
                 <article className='my-2'>
-                    {keywords ? highlightedTextParts.map(part => parse('<p>' + part + '</p><p>...</p>')) : (article.text && parse(getSubstringUntilNextPeriod(article.text, numberOfCharsForText)))}
+                    {keywords ? highlightedTextParts.map(part => parse('<p>' + part + '</p><p>...</p>')) : (article.text && parse(getSubstringUntilNextPeriod(htmlToText(article.text), numberOfCharsForText)))}
                 </article>
                 {keywords &&
                     <article className='my-2'>

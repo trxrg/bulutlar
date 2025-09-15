@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { SearchContext } from '../../../../store/search-context.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
 import FormatButton from '../../../common/FormatButton.jsx';
@@ -11,9 +11,12 @@ const QuickSearchBar = () => {
     const { quickSearchTerm, setQuickSearchTerm } = useContext(SearchContext);
     const { translate: t } = useContext(AppContext);
 
-    // Sync local search term with context on mount
+    // Sync local search term with context on mount and when quickSearchTerm changes from external source
     useEffect(() => {
-        setLocalSearchTerm(quickSearchTerm || '');
+        // Only sync if quickSearchTerm is not empty (to avoid clearing input when we clear search results)
+        if (quickSearchTerm) {
+            setLocalSearchTerm(quickSearchTerm);
+        }
     }, [quickSearchTerm]);
 
     // Add keyboard shortcut for focusing search bar
@@ -54,6 +57,16 @@ const QuickSearchBar = () => {
         }
     };
 
+    const handleInputChange = (e) => {
+        const newValue = e.target.value;
+        setLocalSearchTerm(newValue);
+        
+        // Reset search results when user starts typing (but keep the input value)
+        if (quickSearchTerm) {
+            setQuickSearchTerm('');
+        }
+    };
+
     const clearQuickSearch = () => {
         setLocalSearchTerm('');
         setQuickSearchTerm('');
@@ -65,11 +78,18 @@ const QuickSearchBar = () => {
                  backgroundColor: 'var(--bg-primary)',
                  border: '1px solid var(--border-secondary)'
              }}>
-            <MagnifyingGlassIcon className="w-5 h-5 ml-3" style={{ color: 'var(--text-tertiary)' }} />
+            <div className="flex items-center ml-3">
+                <MagnifyingGlassIcon className="w-5 h-5" style={{ color: 'var(--text-tertiary)' }} />
+                <CheckIcon 
+                    className={`w-4 h-4 ml-1 transition-opacity duration-200 ${quickSearchTerm ? 'opacity-100' : 'opacity-0'}`} 
+                    style={{ color: 'var(--success-color, #22c55e)' }} 
+                    title={quickSearchTerm ? t('search completed') : ''} 
+                />
+            </div>
             <input
                 ref={searchInputRef}
                 value={localSearchTerm}
-                onChange={(e) => setLocalSearchTerm(e.target.value)}
+                onChange={handleInputChange}
                 className='flex-1 p-2 border-none outline-none bg-transparent'
                 style={{
                     color: 'var(--text-primary)'

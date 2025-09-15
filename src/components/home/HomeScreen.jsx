@@ -14,28 +14,37 @@ const HomeScreen = () => {
     const primaryButtonProps = {
         variant: 'contained',
         sx: {
-            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-            fontWeight: '600',
+            fontFamily: '"Orbitron", monospace, sans-serif',
+            fontWeight: '700',
             fontSize: '1.2rem',
-            letterSpacing: '0.025em',
+            letterSpacing: '0.05em',
             backgroundColor: '#e3c204ff', // gold
             color: '#222', // dark text for contrast
             '&:hover': {
-                backgroundColor: '#FFC300', // darker gold on hover
+                backgroundColor: '#d4af00', // richer, deeper gold on hover
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 12px rgba(227, 194, 4, 0.3)'
             }
         }
     };
     const secondaryButtonProps = {
         variant: 'contained',
         sx: {
-            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            fontFamily: '"Orbitron", monospace, sans-serif',
             fontWeight: '600',
-            fontSize: '1.2rem',
-            letterSpacing: '0.025em',
+            fontSize: { xs: '1rem', sm: '1.1rem' }, // Responsive font size
+            letterSpacing: '0.05em',
             backgroundColor: 'var(--border-primary)',
             color: '#f9fafb',
+            padding: '12px 16px', // Add more padding
+            minHeight: '48px', // Ensure minimum height
+            whiteSpace: 'nowrap', // Prevent text wrapping
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
             '&:hover': {
-                backgroundColor: '#2f4f0bff',
+                backgroundColor: '#4a6b1a', // lighter, more vibrant green
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 12px rgba(74, 107, 26, 0.3)'
             }
         }
     };
@@ -43,14 +52,16 @@ const HomeScreen = () => {
     const settingsButtonProps = {
         variant: 'contained',
         sx: {
-            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            fontFamily: '"Orbitron", monospace, sans-serif',
             fontWeight: '600',
             fontSize: '1.2rem',
-            letterSpacing: '0.025em',
+            letterSpacing: '0.05em',
             backgroundColor: '#B53A16',
             color: '#f9fafb',
             '&:hover': {
-                backgroundColor: '#991b1b'
+                backgroundColor: '#e11d48', // brighter, more vibrant red
+                transform: 'translateY(-1px)',
+                boxShadow: '0 4px 12px rgba(225, 29, 72, 0.3)'
             }
         }
     };
@@ -77,17 +88,18 @@ const HomeScreen = () => {
                 <div className='flex items-center gap-4 mb-4'>
                     <h1 className='text-5xl select-none' style={{
                         color: 'var(--border-primary)',
-                        fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-                        fontWeight: '300',
-                        letterSpacing: '0.05em',
-                        textShadow: '0 2px 4px var(--shadow)'
+                        fontFamily: '"Orbitron", monospace, sans-serif',
+                        fontWeight: '900',
+                        letterSpacing: '0.2em',
+                        textShadow: '0 2px 4px var(--shadow)',
+                        textTransform: 'uppercase'
                     }}>
                         bulutlar
                     </h1>
                 </div>
 
                 {/* Navigation buttons */}
-                <div className='flex flex-col gap-3 w-full max-w-md'>
+                <div className='flex flex-col gap-3 w-full max-w-lg'>
                     <Button size="large" fullWidth onClick={() => setActiveScreen('tabs')} {...primaryButtonProps}>
                         {t('all articles')}
                     </Button>

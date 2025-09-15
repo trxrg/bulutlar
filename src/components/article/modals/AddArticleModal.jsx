@@ -84,37 +84,48 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
         <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={t('add article')}>
 
             <div className='flex flex-col gap-2 h-full'>
-                {msg && <span className="text-red-400">{msg}</span>}
+                {msg && <span style={{ color: '#dc2626' }}>{msg}</span>}
                 <div>
-                    <label className="block text-gray-700 font-bold mb-2" htmlFor="title">{t('title') + '*'}</label>
+                    <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }} htmlFor="title">{t('title') + '*'}</label>
                     <input
                         id="title"
                         type="text"
                         value={dispTitle}
                         onChange={(e) => setDispTitle(e.target.value.trimStart())}
                         required
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="appearance-none rounded w-full py-2 px-3 leading-tight focus:outline-none"
+                        style={{
+                            backgroundColor: 'var(--bg-primary)',
+                            border: '1px solid var(--border-secondary)',
+                            color: 'var(--text-primary)',
+                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+                        }}
                     />
                 </div>
                 <div className='flex gap-2 min-w-full'>
                     <div className='flex flex-col flex-1'>
-                        <label className="block text-gray-700 font-bold mb-2">{t('category') + '*'}</label>
+                        <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('category') + '*'}</label>
                         <CategoryList onCategoryChange={setDispCategoryName}></CategoryList>
                     </div>
                     <div>
-                        <div className="border h-full border-gray-700 mx-2"></div>
+                        <div 
+                            className="h-full mx-2" 
+                            style={{ 
+                                border: '1px solid var(--border-secondary)' 
+                            }}
+                        ></div>
                     </div>
                     <div>
-                        <label className="block text-gray-700 font-bold mb-2">{t('date') + '*'}</label>
+                        <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('date') + '*'}</label>
                         <DateInput dispDate={dispDate} onDateChange={setDispDate}></DateInput>
                     </div>
                 </div>
                 <div className='flex flex-col flex-1'>
-                    <label className="block text-gray-700 font-bold mb-2">{t('owner')}</label>
+                    <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('owner')}</label>
                     <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
                 </div>
                 {/* <div>
-                    <label className="block text-gray-700 font-bold mb-2">{t('tag')}</label>
+                    <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('tag')}</label>
                     <TagList selectedTags={dispTags} onTagsChange={handleTagsChange}></TagList>
                 </div> */}
                 <div className='flex justify-end gap-2 mt-4'>

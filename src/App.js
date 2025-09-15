@@ -1,4 +1,5 @@
 import './App.css';
+import 'react-datepicker/dist/react-datepicker.css';
 import './styles/themes.css';
 import AppScreen from './components/app/AppScreen.jsx';
 import ErrorBoundary from './ErrorBoundary.jsx';

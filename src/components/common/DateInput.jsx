@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 import { registerLocale } from 'react-datepicker';
 import { enUS, tr } from 'date-fns/locale';
 import { AppContext } from '../../store/app-context';
@@ -21,14 +20,16 @@ const DateInput = ({ dispDate, onDateChange }) => {
             selected={dispDate}
             onChange={(date) => handleChanged(date)}
             required
-            className='rounded-md px-3 py-2 focus:outline-none focus:ring'
+            className='rounded-md px-3 py-2 focus:outline-none date-input-custom'
             style={{
                 border: '1px solid var(--border-secondary)',
                 backgroundColor: 'var(--bg-primary)',
-                color: 'var(--text-primary)'
+                color: 'var(--text-primary)',
+                width: '100%'
             }}
             locale={t('locale')}
             dateFormat="dd/MM/yyyy"
+            popperClassName="date-picker-popper"
         />
     );
 };

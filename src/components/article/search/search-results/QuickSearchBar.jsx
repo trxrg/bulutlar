@@ -60,20 +60,27 @@ const QuickSearchBar = () => {
     };
 
     return (
-        <div className='flex items-center bg-white border border-gray-300 rounded-lg shadow-sm min-w-60'>
-            <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 ml-3" />
+        <div className='flex items-center rounded-lg shadow-sm min-w-60' 
+             style={{
+                 backgroundColor: 'var(--bg-primary)',
+                 border: '1px solid var(--border-secondary)'
+             }}>
+            <MagnifyingGlassIcon className="w-5 h-5 ml-3" style={{ color: 'var(--text-tertiary)' }} />
             <input
                 ref={searchInputRef}
                 value={localSearchTerm}
                 onChange={(e) => setLocalSearchTerm(e.target.value)}
-                className='flex-1 p-2 border-none outline-none bg-transparent text-gray-700 placeholder-gray-400'
+                className='flex-1 p-2 border-none outline-none bg-transparent'
+                style={{
+                    color: 'var(--text-primary)'
+                }}
                 onKeyDown={handleQuickSearchKeyDown}
                 placeholder={t('quick search')}
             />
             {localSearchTerm && (
                 <div className='flex items-center'>
                     <FormatButton onClick={clearQuickSearch} title={t('clear search')}>
-                        <XMarkIcon className="w-4 h-4 text-gray-400" />
+                        <XMarkIcon className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />
                     </FormatButton>
                 </div>
             )}

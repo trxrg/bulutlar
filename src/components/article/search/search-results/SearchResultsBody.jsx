@@ -64,10 +64,31 @@ const SearchResultsBody = React.memo(() => {
         if (filtering.quickSearchTerm && filtering.quickSearchTerm.trim()) {
             const normalizedQuickSearch = normalizeText(filtering.quickSearchTerm.trim());
             localFilteredArticles = localFilteredArticles.filter(art => {
-                return (searchInTitle && normalizeText(htmlToText(art.title)).includes(normalizedQuickSearch)) ||
+                // Search in text content (existing functionality)
+                const textMatch = (searchInTitle && normalizeText(htmlToText(art.title)).includes(normalizedQuickSearch)) ||
                     (searchInMainText && normalizeText(htmlToText(art.text)).includes(normalizedQuickSearch)) ||
                     (searchInExplanation && normalizeText(htmlToText(art.explanation)).includes(normalizedQuickSearch)) ||
                     (searchInComments && (art.comments[0] && normalizeText(htmlToText(art.comments[0].text)).includes(normalizedQuickSearch)));
+                
+                // Search in tags
+                const tagMatch = art.tags && art.tags.some(tag => {
+                    const tagEntity = getTagById(tag.id);
+                    return tagEntity && normalizeText(tagEntity.name).includes(normalizedQuickSearch);
+                });
+                
+                // Search in category
+                const categoryMatch = art.categoryId && (() => {
+                    const categoryEntity = getCategoryById(art.categoryId);
+                    return categoryEntity && normalizeText(categoryEntity.name).includes(normalizedQuickSearch);
+                })();
+                
+                // Search in owner
+                const ownerMatch = art.ownerId && (() => {
+                    const ownerEntity = getOwnerById(art.ownerId);
+                    return ownerEntity && normalizeText(ownerEntity.name).includes(normalizedQuickSearch);
+                })();
+                
+                return textMatch || tagMatch || categoryMatch || ownerMatch;
             });
         }
 

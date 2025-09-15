@@ -3,7 +3,7 @@
 Bulutlar enables users to write, read and edit articles. It offers 
 - complex search and filtering,
 - rich text editing,
-- image insertion,
+- image/audio/video insertion,
 - adding persons, categories, comments, notes and tags,
 - relating articles to a person and to other articles,
 - multi-language support,
@@ -47,6 +47,9 @@ npm run package-linux
 ```
 
 ## Versions
+1.4.5
+- fix some styling issues
+
 1.4.4
 - quicksearch
 - collapsible tag and group panels

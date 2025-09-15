@@ -47,6 +47,11 @@ npm run package-linux
 ```
 
 ## Versions
+1.4.4
+- quicksearch
+- collapsible tag and group panels
+- styling fixes
+  
 1.4.3
 - efficiency fixes
 

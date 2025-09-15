@@ -30,7 +30,10 @@ const ArticlePreferencesModal = ({ isOpen, onRequestClose, onConfirm }) => {
                         type={'number'}
                         value={ordering || ''}
                         onChange={(e) => setOrdering(e.target.value)}
-                        className="rounded-md, p-1"
+                        className='p-2 border-none outline-none bg-transparent'
+                        style={{
+                            color: 'var(--text-primary)'
+                        }}
                     />
                 </div>
                 <div className='flex flex-row gap-4 items-center'>

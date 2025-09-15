@@ -23,15 +23,21 @@ const OrderBySelect = ({ onOrderChange, initialSelection }) => {
         <div className='flex items-center rounded-lg shadow-sm min-w-60' 
              style={{
                  backgroundColor: 'var(--bg-primary)',
-                 border: '1px solid var(--border-secondary)'
+                 border: '1px solid var(--border-secondary)',
+                 borderRadius: '0.25rem',
+                 padding: '0.25rem'
              }}>
-            <BarsArrowDownIcon className="w-5 h-5 ml-3" style={{ color: 'var(--text-tertiary)' }} />
+            <div className="flex items-center ml-3">
+                <BarsArrowDownIcon className="w-5 h-5" style={{ color: 'var(--text-tertiary)' }} />
+            </div>
             <select 
                 onChange={(e) => onOrderChange(JSON.parse(e.target.value))} 
-                className="flex-1 p-2 border-none outline-none bg-transparent cursor-pointer"
+                className="flex-1 p-2 border-none outline-none bg-transparent cursor-pointer appearance-none"
                 style={{
                     color: 'var(--text-primary)',
-                    backgroundColor: 'var(--bg-primary)'
+                    backgroundColor: 'var(--bg-primary)',
+                    WebkitAppearance: 'none',
+                    MozAppearance: 'none'
                 }}
                 value={JSON.stringify(initialSelection)}
                 label={getLabelByValue(initialSelection)}

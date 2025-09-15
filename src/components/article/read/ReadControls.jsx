@@ -152,7 +152,9 @@ const ReadControls = () => {
             className='flex flex-col gap-2 shadow-lg p-2 items-center'
             style={{ 
                 backgroundColor: fullScreen ? 'var(--bg-primary)' : 'var(--bg-secondary)', 
-                boxShadow: '0 10px 15px -3px var(--shadow), 0 4px 6px -2px var(--shadow)' 
+                boxShadow: '0 10px 15px -3px var(--shadow), 0 4px 6px -2px var(--shadow)',
+                position: 'relative',
+                zIndex: 10
             }}
         >
             <div className='flex justify-between w-full'>

@@ -53,6 +53,10 @@ const customStyles = {
         ...base,
         color: 'var(--text-tertiary)',
     }),
+    input: (base) => ({
+        ...base,
+        color: 'var(--text-primary)',
+    }),
 };
 
 const CategoryList = ({ initialValue, onCategoryChange }) => {

@@ -228,6 +228,34 @@ select option {
   color: var(--text-primary) !important;
 }
 
+/* React-select styling for dark mode */
+.react-select .select__control input {
+  color: var(--text-primary) !important;
+}
+
+.react-select .select__single-value {
+  color: var(--text-primary) !important;
+}
+
+.react-select .select__input-container {
+  color: var(--text-primary) !important;
+}
+
+.react-select .select__value-container {
+  color: var(--text-primary) !important;
+}
+
+.react-select .select__input input {
+  color: var(--text-primary) !important;
+}
+
+/* Additional react-select input styling */
+.react-select__control input,
+.react-select__input input,
+.react-select__value-container input {
+  color: var(--text-primary) !important;
+}
+
 /* Tab styling */
 .bg-stone-100 {
   background-color: var(--bg-secondary) !important;

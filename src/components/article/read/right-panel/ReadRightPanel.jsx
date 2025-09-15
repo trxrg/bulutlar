@@ -4,8 +4,8 @@ import GroupsPanel from './GroupsPanel';
 import RelatedArticlesPanel from './RelatedArticlesPanel';
 
 const ReadRightPanel = () => {
-    const [isTagsPanelCollapsed, setIsTagsPanelCollapsed] = useState(false);
-    const [isGroupsPanelCollapsed, setIsGroupsPanelCollapsed] = useState(false);
+    const [isTagsPanelCollapsed, setIsTagsPanelCollapsed] = useState(true);
+    const [isGroupsPanelCollapsed, setIsGroupsPanelCollapsed] = useState(true);
 
     return (
         <div className='flex flex-col h-full min-w-full'>

@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import BodyWithFixedHeader from '../../../common/BodyWithFixedHeader';
-import FormatButton from '../../../common/FormatButton';
+import CollapsiblePanel from '../../../common/CollapsiblePanel';
 import { AppContext } from '../../../../store/app-context';
 import { ReadContext } from '../../../../store/read-context';
 import { DBContext } from '../../../../store/db-context';
@@ -9,7 +8,7 @@ import { articleApi } from '../../../../backend-adapter/BackendAdapter';
 import GroupCard from './GroupCard';
 import GroupModal from '../../../group/GroupModal';
 
-const GroupsPanel = () => {
+const GroupsPanel = ({ isCollapsed, onToggleCollapse }) => {
     const { translate: t, setActiveScreen } = useContext(AppContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const { article } = useContext(ReadContext);
@@ -25,13 +24,23 @@ const GroupsPanel = () => {
         fetchAllGroups();
     }
 
+    const headerButtons = [
+        {
+            onClick: () => setIsModalOpen(true),
+            title: t('add to group'),
+            icon: <PlusIcon className="w-5 h-5" />
+        }
+    ];
+
     return (
-        <div className='h-full'>
-            <BodyWithFixedHeader>
-                <div className='flex flex-wrap justify-between p-2 shadow-lg items-center' style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                    <h2 className='ml-2 text-xl font-semibold cursor-pointer hover:underline' style={{ color: 'var(--text-primary)' }} onClick={handleTitleClick}>{t('groups')}</h2>
-                    <FormatButton onClick={() => setIsModalOpen(true)} title={t('add to group')}><PlusIcon className="w-5 h-5" /></FormatButton>
-                </div>
+        <>
+            <CollapsiblePanel
+                isCollapsed={isCollapsed}
+                onToggleCollapse={onToggleCollapse}
+                title={t('groups')}
+                onTitleClick={handleTitleClick}
+                headerButtons={headerButtons}
+            >
                 {article.groups.length > 0 ?
                     <div className='flex flex-col gap-2 p-2'>
                         {article.groups.map((group) => <GroupCard key={group.id} groupId={group.id} />)}
@@ -40,9 +49,9 @@ const GroupsPanel = () => {
                     <div className='flex justify-center p-2 h-full'>
                         <p style={{ color: 'var(--text-secondary)' }}>{t('no groups')}</p>
                     </div>}
-            </BodyWithFixedHeader>
+            </CollapsiblePanel>
             <GroupModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} onConfirm={addArticleToGroup}/>
-        </div>
+        </>
     );
 };
 

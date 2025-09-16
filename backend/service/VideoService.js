@@ -171,10 +171,10 @@ async function downloadVideoById(videoId) {
 
 function getVideoAbsPath(videoPath) {
     const absolutePath = path.join(videosFolderPath, videoPath);
-    console.log('🎬 getVideoAbsPath:');
-    console.log('  - videosFolderPath:', videosFolderPath);
-    console.log('  - videoPath:', videoPath);
-    console.log('  - absolutePath:', absolutePath);
+    // console.log('🎬 getVideoAbsPath:');
+    // console.log('  - videosFolderPath:', videosFolderPath);
+    // console.log('  - videoPath:', videoPath);
+    // console.log('  - absolutePath:', absolutePath);
     return absolutePath;
 }
 

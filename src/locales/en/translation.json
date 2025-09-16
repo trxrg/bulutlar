@@ -282,5 +282,9 @@
     "enter at least 2 characters": "Enter at least 2 characters",
 
     "switch to light mode": "Switch to Light Mode",
-    "switch to dark mode": "Switch to Dark Mode"
+    "switch to dark mode": "Switch to Dark Mode",
+
+    "read time": "Read Time",
+    "min read": "min read",
+    "mins read": "mins read"
   }

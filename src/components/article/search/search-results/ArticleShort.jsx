@@ -184,7 +184,7 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
                         )}
                     </div>
                 </div>
-                <ArticleInfo article={article} isEditable={false} />
+                <ArticleInfo article={article} isEditable={false} showReadTime={true} />
                 {keywords &&
                     <article className='my-2'>
                         {parse(highlightedExplanation)}

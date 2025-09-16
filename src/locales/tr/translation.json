@@ -288,6 +288,10 @@
     "switch to light mode": "Açık Temaya Geç",
     "switch to dark mode": "Koyu Temaya Geç",
 
+    "read time": "Okuma Süresi",
+    "min read": "dk okuma",
+    "mins read": "dk okuma",
+
     "play": "Oynat",
     "pause": "Duraklat"
 }

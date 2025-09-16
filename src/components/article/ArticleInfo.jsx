@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { DBContext } from '../../store/db-context.jsx';
 import { AppContext } from '../../store/app-context.jsx';
 
@@ -8,7 +8,7 @@ import CategoryModal from '../category/CategoryModal.jsx';
 import RichInput from '../common/RichInput.jsx';
 import toastr from 'toastr';
 
-const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true }) => {
+const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true, showReadTime = true }) => {
 
     const { translate: t } = useContext(AppContext);
     const { fetchAllData, getOwnerById, fetchArticleById, getCategoryById } = useContext(DBContext);
@@ -21,6 +21,16 @@ const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true }) => {
         const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         return t(weekdays[date.getDay()]);
     }
+
+    // Use persisted read time from database (stored in field1)
+    // If no persisted value exists, show a default of 1 minute
+    const readTime = useMemo(() => {
+        if (!showReadTime) return 0; // Skip if not needed
+        
+        // Use persisted read time from field1, or default to 1 minute
+        const persistedReadTime = article.field1 ? parseInt(article.field1, 10) : 1;
+        return isNaN(persistedReadTime) ? 1 : Math.max(1, persistedReadTime);
+    }, [article.field1, showReadTime]);
 
     const handleUpdateOwner = async (newOwnerName) => {
         try {
@@ -78,6 +88,14 @@ const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true }) => {
                     new Date(article.date2).toLocaleDateString('tr')}</span>
                 <span style={{ color: 'var(--text-primary)' }}>{" (" + article.number2 + ")"}</span>
             </>}
+            {showReadTime && (
+                <>
+                    <span style={{ color: 'var(--text-primary)' }}>{" | "}</span>
+                    <span style={{ color: 'var(--text-primary)' }}>
+                        {readTime} {readTime === 1 ? t('min read') : t('mins read')}
+                    </span>
+                </>
+            )}
             <OwnerModal isOpen={ownerModalIsOpen} onRequestClose={() => setOwnerModalIsOpen(false)} initialOwnerName={owner && owner.name} onConfirm={handleUpdateOwner}></OwnerModal>
             <CategoryModal isOpen={categoryModalIsOpen} onRequestClose={() => setCategoryModalIsOpen(false)} initialCategoryName={category && category.name} onConfirm={handleUpdateCategory}></CategoryModal>
         </div >

@@ -105,6 +105,10 @@ async function createArticle(article) { // Now transactional
         }
 
         await transaction.commit();
+        
+        // Calculate and store read time for the new article
+        await calculateAndUpdateReadTime(entity.dataValues.id);
+        
         return await getArticleById(entity.dataValues.id);
     } catch (e) {
         await transaction.rollback();
@@ -137,6 +141,9 @@ async function createArticleProgrammatically(article) {
         if (article.comments)
             for (const comment of article.comments)
                 await entity.addComment(await commentService.createComment(comment));
+
+        // Calculate and store read time for the new article
+        await calculateAndUpdateReadTime(entity.id);
 
     } catch (e) {
         console.error('Error adding article:', e);
@@ -183,6 +190,9 @@ async function updateArticleMainText(id, newMainText) {
             { where: { id: id } }
         );
 
+        // Calculate and update read time after content change
+        await calculateAndUpdateReadTime(id);
+
     } catch (error) {
         console.error('Error in updateArticleMainText', error);
         throw error;
@@ -198,6 +208,9 @@ async function updateArticleExplanation(id, newExplanation) {
             },
             { where: { id: id } }
         );
+
+        // Calculate and update read time after content change
+        // await calculateAndUpdateReadTime(id);
 
     } catch (error) {
         console.error('Error in updateArticleMainText', error);
@@ -216,9 +229,12 @@ async function updateFirstCommentText(id, newComment) {
         if (!comment) {
             comment = await commentService.createComment(newComment);
             await article.addComment(comment);
-            return;
+        } else {
+            await comment.update({ text: newComment.html, textJson: newComment.json });
         }
-        await comment.update({ text: newComment.html, textJson: newComment.json });
+
+        // Calculate and update read time after content change
+        // await calculateAndUpdateReadTime(id);
 
     } catch (error) {
         console.error('Error in updateFirstCommentText', error);
@@ -523,7 +539,10 @@ async function getArticleById(id) {
         });
     if (!entity)
         return { error: 'Article not found' };
-    return articleEntity2Json(entity);
+    
+    // Ensure read time is calculated for this article
+    const updatedEntity = await ensureReadTimeCalculated(entity);
+    return articleEntity2Json(updatedEntity || entity);
 }
 
 async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
@@ -543,7 +562,15 @@ async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
         order: [[order.field, order.direction]]
     });
 
-    return entities.map(entity => articleEntity2Json(entity));
+    // Ensure read time is calculated for all articles
+    const updatedEntities = await Promise.all(
+        entities.map(async (entity) => {
+            const updatedEntity = await ensureReadTimeCalculated(entity);
+            return updatedEntity || entity;
+        })
+    );
+
+    return updatedEntities.map(entity => articleEntity2Json(entity));
 }
 
 async function setIsStarred(id, isStarred) {
@@ -701,6 +728,114 @@ function commentEntity2Json(entity) {
         text: entity.dataValues.text,
         textJson: entity.dataValues.textJson
     };
+}
+
+// Function to calculate read time from article content and store in field1
+async function calculateAndUpdateReadTime(articleId) {
+    try {
+        const article = await sequelize.models.article.findByPk(articleId, {
+            include: [
+                {
+                    model: sequelize.models.comment,
+                    limit: 1
+                }
+            ]
+        });
+
+        if (!article) {
+            console.warn(`Article with id ${articleId} not found for read time calculation`);
+            return;
+        }
+
+        // Average reading speed for comprehension of substantive content
+        const wordsPerMinute = 150;
+        
+        // Combine all text content from the article
+        let totalText = '';
+        
+        // Add explanation text
+        if (article.explanation) {
+            totalText += htmlToPlainText(article.explanation) + ' ';
+        }
+        
+        // Add main text
+        if (article.text) {
+            totalText += htmlToPlainText(article.text) + ' ';
+        }
+        
+        // Add comment text
+        if (article.comments && article.comments[0] && article.comments[0].text) {
+            totalText += htmlToPlainText(article.comments[0].text) + ' ';
+        }
+        
+        // Early return for empty content
+        if (!totalText.trim()) {
+            await article.update({ field1: '1' }); // Minimum 1 minute for empty articles
+            return 1;
+        }
+        
+        // Count words (split by whitespace and filter empty strings)
+        const wordCount = totalText.trim().split(/\s+/).filter(word => word.length > 0).length;
+        
+        // Calculate read time in minutes
+        const readTimeMinutes = Math.ceil(wordCount / wordsPerMinute);
+        
+        // Store read time (minimum of 1 minute for very short content)
+        const finalReadTime = Math.max(1, readTimeMinutes);
+        await article.update({ field1: finalReadTime.toString() });
+        
+        console.log(`Updated read time for article ${articleId}: ${finalReadTime} minutes (${wordCount} words)`);
+        return finalReadTime;
+        
+    } catch (error) {
+        console.error('Error calculating read time for article', articleId, error);
+        return 1; // Return default if calculation fails
+    }
+}
+
+// Function to ensure read time is calculated for an article
+async function ensureReadTimeCalculated(article) {
+    // If field1 is empty or null, calculate and store read time
+    if (!article.field1 || article.field1.trim() === '') {
+        console.log(`Calculating read time for article ${article.id} (first time load)`);
+        await calculateAndUpdateReadTime(article.id);
+        // Reload the article to get the updated field1 value
+        return await sequelize.models.article.findByPk(article.id, {
+            include: [
+                { model: sequelize.models.owner },
+                { model: sequelize.models.category },
+                { model: sequelize.models.tag },
+                { model: sequelize.models.comment },
+                { model: sequelize.models.image },
+                { model: sequelize.models.audio },
+                { model: sequelize.models.video },
+                { model: sequelize.models.annotation },
+                { 
+                    model: sequelize.models.article, 
+                    as: 'relatedArticles',
+                    through: { attributes: [] }
+                }
+            ]
+        });
+    }
+    return article;
+}
+
+// Simple HTML to plain text converter
+function htmlToPlainText(html) {
+    if (!html) return '';
+    
+    // Remove HTML tags and decode HTML entities
+    return html
+        .replace(/<[^>]*>/g, ' ') // Remove HTML tags
+        .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces
+        .replace(/&amp;/g, '&') // Decode ampersands
+        .replace(/&lt;/g, '<') // Decode less than
+        .replace(/&gt;/g, '>') // Decode greater than
+        .replace(/&quot;/g, '"') // Decode quotes
+        .replace(/&#39;/g, "'") // Decode single quotes
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
 }
 
 function imageEntity2Json(entity) {

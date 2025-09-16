@@ -134,7 +134,7 @@ const Link = (props) => {
                 {article &&
                     <div className='flex flex-col'>
                         <p>{article.title}</p>
-                        <ArticleInfo article={article} isEditable={false}></ArticleInfo>
+                        <ArticleInfo article={article} isEditable={false} showReadTime={true}></ArticleInfo>
                     </div>}
             </ContextMenu>
         </>

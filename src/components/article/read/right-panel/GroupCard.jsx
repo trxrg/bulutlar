@@ -31,9 +31,9 @@ const GroupCard = ({ groupId }) => {
 
     return (
         <div className='relative' onContextMenu={handleRightClick}>
-            <div className='rounded-md bg-gray-100 hover:bg-white border-2
-        active:bg-gray-300 active:shadow-none shadow-xl cursor-pointer flex flex-row w-full overflow-hidden'>
-                <h2 className="text-xl text-gray-700 hover:text-gray-600 break-words p-2">{group.name}</h2>
+            <div className='rounded-md border-2 related-article-card
+                    active:shadow-none shadow-xl cursor-pointer flex flex-row w-full overflow-hidden'>
+                <h2 className="text-xl break-words p-2" style={{ color: 'var(--text-primary)' }}>{group.name}</h2>
             </div>
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                 <div className='flex flex-col'>

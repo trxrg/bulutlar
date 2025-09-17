@@ -8,6 +8,7 @@ import FormatButton from '../../../common/FormatButton.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
 import { DBContext } from '../../../../store/db-context.jsx';
 import AddArticleModal from '../../modals/AddArticleModal.jsx';
+import ExportModal from '../../modals/ExportModal.jsx';
 import ActionButton from '../../../common/ActionButton.jsx';
 import { groupApi } from '../../../../backend-adapter/BackendAdapter.js';
 import GroupModal from '../../../group/GroupModal.jsx';
@@ -19,6 +20,7 @@ const SearchResultsHeader = () => {
 
     const [isAddArticleModalOpen, setAddArticleModalOpen] = useState(false);
     const [isGroupModalOpen, setGroupModalOpen] = useState(false);
+    const [isExportModalOpen, setExportModalOpen] = useState(false);
     const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed,
         areArticlesSelectable, toggleArticlesSelectable,
         selectAllOrNone, generatePDFOfSelectedArticles, selectedArticles } = useContext(SearchContext);
@@ -52,6 +54,14 @@ const SearchResultsHeader = () => {
         }
     }
 
+    const handleExportSelectedClick = () => {
+        if (!selectedArticles || selectedArticles.length === 0) {
+            toastr.warning(t('no articles selected for export'));
+            return;
+        }
+        setExportModalOpen(true);
+    }
+
     return (
         <div className='flex flex-col gap-2 shadow-lg bg-white p-2'>
             <div className='flex justify-between w-full'>
@@ -65,8 +75,7 @@ const SearchResultsHeader = () => {
                         <FormatButton onClick={() => setSidePanelCollapsed(true)} title={t('hide left panel')}>
                             <ChevronLeftIcon className="w-5 h-5" />
                         </FormatButton>}
-                    <FormatButton onClick={() => toggleArticlesSelectable()} title={t('select articles')}><PencilSquareIcon className="w-5 h-5" /></FormatButton>
-                    {/* <FormatButton onClick={handleAddToGroupClick} title={t('add selected articles to group')}><FolderPlusIcon className="w-5 h-5" /></FormatButton> */}
+                    <FormatButton onClick={() => toggleArticlesSelectable()} title={t('select articles')}><PencilSquareIcon className="w-5 h-5" /></FormatButton>                    
                     <QuickSearchBar />
                 </div>
                 {/* center */}
@@ -75,8 +84,7 @@ const SearchResultsHeader = () => {
                 </div>
                 {/* right */}
                 <div className='flex flex-wrap gap-1 items-center'>
-                    <OrderBySelect onOrderChange={handleOrderChange} initialSelection={articleOrder} />
-                    {/* <FormatButton onClick={generatePDFOfSelectedArticles} title={t('download as pdf')}><DocumentArrowDownIcon className="w-5 h-5" /></FormatButton> */}
+                    <OrderBySelect onOrderChange={handleOrderChange} initialSelection={articleOrder} />                    
                     <FormatButton onClick={handleAddRandomTab} title={t('open random article')}><BoltIcon className="w-5 h-5" /></FormatButton>
                     <FormatButton onClick={() => setAddArticleModalOpen(true)} title={t('add article')}><PlusIcon className="w-5 h-5" /></FormatButton>
                 </div>
@@ -88,12 +96,19 @@ const SearchResultsHeader = () => {
                         <ActionButton onClick={() => selectAllOrNone(false)} color='blue'>{t('selectNone')}</ActionButton>
                     </div>
                     <div className='flex gap-1'>
-                        <ActionButton onClick={handleAddToGroupClick} color='blue'>{t('add to group')}</ActionButton>
+                        <ActionButton onClick={handleAddToGroupClick} color='blue'>{t('add selected articles to group')}</ActionButton>
+                        <ActionButton onClick={handleExportSelectedClick} color='blue'>{t('export selected articles')}</ActionButton>
                     </div>
                 </div>
             }
             <AddArticleModal isOpen={isAddArticleModalOpen} onRequestClose={() => setAddArticleModalOpen(false)} />
             <GroupModal isOpen={isGroupModalOpen} onRequestClose={() => setGroupModalOpen(false)} onConfirm={addSelectedArticlesToGroup} />
+            <ExportModal 
+                isOpen={isExportModalOpen} 
+                onRequestClose={() => setExportModalOpen(false)} 
+                articles={selectedArticles}
+                isMultiArticle={true}
+            />
         </div>
     );
 };

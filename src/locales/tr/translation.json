@@ -66,6 +66,7 @@
     "groups": "Koleksiyonlar",
     "add group": "Koleksiyon Ekle",
     "add to group": "Koleksiyona Ekle",
+    "add selected articles to group": "Seçili Yazıları Koleksiyona Ekle",
     "add new group": "Yeni Koleksiyon Ekle",
     "no groups": "Bu yazıyı bir koleksiyona eklemek için artı simgesine tıklayın",
     "no such group": "Böyle bir koleksiyon yok",
@@ -80,7 +81,6 @@
     "group name": "Koleksiyon Adı",
     "articles added to group": "Yazılar koleksiyona eklendi",
     "select a group": "Bir koleksiyon seçin",
-    "add selected articles to group": "Seçili yazıları koleksiyona ekle",
 
     "note": "Not",
     "notes": "Notlar",
@@ -296,12 +296,19 @@
     "pause": "Duraklat",
 
     "export article": "Yazıyı Dışa Aktar",
+    "export selected articles": "Seçili Yazıları Dışa Aktar",
     "content to include": "Dahil Edilecek İçerik",
     "text content": "Metin İçeriği",
     "relational information": "İlişkisel Bilgiler",
     "export format": "Dışa Aktarma Formatı",
     "images": "Resimler",
     "collections": "Koleksiyonlar",
+    "document title": "Belge Başlığı",
+    "enter document title (optional)": "Belge başlığını girin (isteğe bağlı)",
+    "if left empty, will use default title": "Boş bırakılırsa, varsayılan başlık kullanılır",
+    "merged articles": "Birleştirilmiş Yazılar",
+    "no articles selected for export": "Dışa aktarma için yazı seçilmedi",
+    "articles exported successfully": "Yazılar başarıyla dışa aktarıldı",
     "article exported successfully": "Yazı başarıyla dışa aktarıldı",
     "export failed": "Dışa aktarma başarısız"
 }

@@ -116,6 +116,7 @@ async function getAllCategories() {
 const CategoryService = {
     addCategory: createCategory,
     getCategoryWithNameAddIfNotPresent,
+    getCategoryById,
     initService
 };
 

@@ -27,6 +27,7 @@ contextBridge.exposeInMainWorld('api', {
     addVideo:          (id, video)          => ipcRenderer.invoke('article/addVideo', id, video),
     openDialogToAddVideos: (id)              => ipcRenderer.invoke('article/openDialogToAddVideos', id),
     exportArticle: (exportData)              => ipcRenderer.invoke('article/exportArticle', exportData),
+    exportMultipleArticles: (exportData)    => ipcRenderer.invoke('article/exportMultipleArticles', exportData),
     addAnnotation:     (id, annotation)     => ipcRenderer.invoke('article/addAnnotation', id, annotation),
     getAll:            (order)              => ipcRenderer.invoke('article/getAll', order),
     getById:           (id)                 => ipcRenderer.invoke('article/getById', id),

@@ -2,14 +2,12 @@ import React, { useState, useContext } from 'react';
 import GeneralModal from '../../common/GeneralModal.jsx';
 import ActionButton from '../../common/ActionButton.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
-import { DBContext } from '../../../store/db-context.jsx';
 import Checkbox from '@mui/material/Checkbox';
 import toastr from 'toastr';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 
-const ExportModal = ({ isOpen, onRequestClose, article }) => {
+const ExportModal = ({ isOpen, onRequestClose, article, articles, isMultiArticle = false }) => {
     const { translate: t } = useContext(AppContext);
-    const { getAnnotationById, getTagById, getArticleById, getCategoryById, getOwnerById, getGroupById } = useContext(DBContext);
 
     const [exportOptions, setExportOptions] = useState({
         explanation: true,
@@ -22,6 +20,8 @@ const ExportModal = ({ isOpen, onRequestClose, article }) => {
         collections: true,
         format: 'pdf'
     });
+
+    const [documentTitle, setDocumentTitle] = useState('');
 
     const handleOptionChange = (option) => {
         setExportOptions(prev => ({
@@ -39,61 +39,79 @@ const ExportModal = ({ isOpen, onRequestClose, article }) => {
 
     const handleExport = async () => {
         try {
-            // Prepare the article data with all related information
-            // Resolve IDs to full objects
-            const fullAnnotations = article.annotations ? article.annotations.map(ann => 
-                typeof ann === 'object' && ann.note !== undefined ? ann : getAnnotationById(ann.id || ann)
-            ).filter(Boolean) : [];
-            
-            const fullTags = article.tags ? article.tags.map(tag => 
-                typeof tag === 'object' && tag.name !== undefined ? tag : getTagById(tag.id || tag)
-            ).filter(Boolean) : [];
-            
-            const fullCollections = article.groups ? article.groups.map(group => 
-                typeof group === 'object' && group.name !== undefined ? group : getGroupById(group.id || group)
-            ).filter(Boolean) : [];
-
-            const exportData = {
-                article: article,
-                options: exportOptions,
-                // Get annotations (notes) - resolve to full objects
-                annotations: fullAnnotations,
-                // Get tags - resolve to full objects
-                tags: fullTags,
-                // Get related articles
-                relatedArticles: article.relatedArticles || [],
-                // Get collections (groups) - resolve to full objects
-                collections: fullCollections,
-                // Get category and owner info
-                category: article.categoryId ? getCategoryById(article.categoryId) : null,
-                owner: article.ownerId ? getOwnerById(article.ownerId) : null,
-                // Add translations
-                translations: {
-                    comment: t('comment'),
-                    images: t('images'),
-                    notes: t('notes'),
-                    tags: t('tags'),
-                    relatedArticles: t('related articles'),
-                    collections: t('collections'),
-                    minRead: t('min read'),
-                    minsRead: t('mins read'),
-                    sunday: t('sunday'),
-                    monday: t('monday'),
-                    tuesday: t('tuesday'),
-                    wednesday: t('wednesday'),
-                    thursday: t('thursday'),
-                    friday: t('friday'),
-                    saturday: t('saturday')
+            if (isMultiArticle) {
+                // Multi-article export
+                if (!articles || articles.length === 0) {
+                    toastr.warning(t('no articles selected for export'));
+                    return;
                 }
-            };
 
-            const result = await articleApi.exportArticle(exportData);
-            
-            if (result.success) {
-                toastr.success(t('article exported successfully'));
-                onRequestClose();
+                const exportData = {
+                    articles: articles,
+                    options: exportOptions,
+                    documentTitle: documentTitle.trim() || t('merged articles'),
+                    isMultiArticle: true,
+                    // Add translations
+                    translations: {
+                        comment: t('comment'),
+                        images: t('images'),
+                        notes: t('notes'),
+                        tags: t('tags'),
+                        relatedArticles: t('related articles'),
+                        collections: t('collections'),
+                        minRead: t('min read'),
+                        minsRead: t('mins read'),
+                        sunday: t('sunday'),
+                        monday: t('monday'),
+                        tuesday: t('tuesday'),
+                        wednesday: t('wednesday'),
+                        thursday: t('thursday'),
+                        friday: t('friday'),
+                        saturday: t('saturday')
+                    }
+                };
+
+                const result = await articleApi.exportMultipleArticles(exportData);
+                
+                if (result.success) {
+                    toastr.success(t('articles exported successfully'));
+                    onRequestClose();
+                } else {
+                    toastr.error(t('export failed'));
+                }
             } else {
-                toastr.error(t('export failed'));
+                // Single article export - let backend handle all ID resolution
+                const exportData = {
+                    article: article,
+                    options: exportOptions,
+                    // Add translations
+                    translations: {
+                        comment: t('comment'),
+                        images: t('images'),
+                        notes: t('notes'),
+                        tags: t('tags'),
+                        relatedArticles: t('related articles'),
+                        collections: t('collections'),
+                        minRead: t('min read'),
+                        minsRead: t('mins read'),
+                        sunday: t('sunday'),
+                        monday: t('monday'),
+                        tuesday: t('tuesday'),
+                        wednesday: t('wednesday'),
+                        thursday: t('thursday'),
+                        friday: t('friday'),
+                        saturday: t('saturday')
+                    }
+                };
+
+                const result = await articleApi.exportArticle(exportData);
+                
+                if (result.success) {
+                    toastr.success(t('article exported successfully'));
+                    onRequestClose();
+                } else {
+                    toastr.error(t('export failed'));
+                }
             }
         } catch (error) {
             console.error('Export error:', error);
@@ -101,20 +119,37 @@ const ExportModal = ({ isOpen, onRequestClose, article }) => {
         }
     };
 
-    const isHtmlStringEmpty = (htmlString) => {
-        if (!htmlString) return true;
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlString;
-        return !tempDiv.textContent.trim();
-    };
 
     return (
         <GeneralModal
             isOpen={isOpen}
             onRequestClose={onRequestClose}
-            title={t('export article')}
+            title={isMultiArticle ? t('export selected articles') : t('export article')}
         >
             <div className='flex flex-col gap-4 mb-4'>
+                {/* Document Title Input for Multi-Article Export */}
+                {isMultiArticle && (
+                    <div className='mb-4'>
+                        <h3 className='text-lg font-semibold mb-2' style={{ color: 'var(--text-primary)' }}>
+                            {t('document title')}:
+                        </h3>
+                        <input
+                            type="text"
+                            value={documentTitle}
+                            onChange={(e) => setDocumentTitle(e.target.value)}
+                            placeholder={t('enter document title (optional)')}
+                            className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                            style={{ 
+                                backgroundColor: 'var(--bg-secondary)', 
+                                color: 'var(--text-primary)',
+                                borderColor: 'var(--border-color)'
+                            }}
+                        />
+                        <p className='text-sm mt-1' style={{ color: 'var(--text-tertiary)' }}>
+                            {t('if left empty, will use default title')}
+                        </p>
+                    </div>
+                )}
                 {/* Text Content Section */}
                 <div className='mb-4'>
                     <h3 className='text-lg font-semibold mb-2' style={{ color: 'var(--text-primary)' }}>
@@ -127,10 +162,10 @@ const ExportModal = ({ isOpen, onRequestClose, article }) => {
                                 checked={exportOptions.explanation}
                                 onChange={() => handleOptionChange('explanation')}
                                 size="small"
-                                disabled={isHtmlStringEmpty(article.explanation)}
+                                disabled={false}
                             />
-                            <span style={{ color: isHtmlStringEmpty(article.explanation) ? 'var(--text-tertiary)' : 'var(--text-primary)' }}>
-                                {t('explanation')} {isHtmlStringEmpty(article.explanation) && '(empty)'}
+                            <span style={{ color: 'var(--text-primary)' }}>
+                                {t('explanation')}
                             </span>
                         </label>
 
@@ -140,10 +175,10 @@ const ExportModal = ({ isOpen, onRequestClose, article }) => {
                                 checked={exportOptions.mainText}
                                 onChange={() => handleOptionChange('mainText')}
                                 size="small"
-                                disabled={isHtmlStringEmpty(article.text)}
+                                disabled={false}
                             />
-                            <span style={{ color: isHtmlStringEmpty(article.text) ? 'var(--text-tertiary)' : 'var(--text-primary)' }}>
-                                {t('main text')} {isHtmlStringEmpty(article.text) && '(empty)'}
+                            <span style={{ color: 'var(--text-primary)' }}>
+                                {t('main text')}
                             </span>
                         </label>
 
@@ -153,10 +188,10 @@ const ExportModal = ({ isOpen, onRequestClose, article }) => {
                                 checked={exportOptions.comment}
                                 onChange={() => handleOptionChange('comment')}
                                 size="small"
-                                disabled={!article.comments || article.comments.length === 0 || isHtmlStringEmpty(article.comments[0]?.text)}
+                                disabled={false}
                             />
-                            <span style={{ color: (!article.comments || article.comments.length === 0 || isHtmlStringEmpty(article.comments[0]?.text)) ? 'var(--text-tertiary)' : 'var(--text-primary)' }}>
-                                {t('comment')} {(!article.comments || article.comments.length === 0 || isHtmlStringEmpty(article.comments[0]?.text)) && '(empty)'}
+                            <span style={{ color: 'var(--text-primary)' }}>
+                                {t('comment')}
                             </span>
                         </label>
 
@@ -166,25 +201,12 @@ const ExportModal = ({ isOpen, onRequestClose, article }) => {
                                 checked={exportOptions.images}
                                 onChange={() => handleOptionChange('images')}
                                 size="small"
-                                disabled={!article.images || article.images.length === 0}
+                                disabled={false}
                             />
-                            <span style={{ color: (!article.images || article.images.length === 0) ? 'var(--text-tertiary)' : 'var(--text-primary)' }}>
-                                {t('images')} {(!article.images || article.images.length === 0) && '(none)'}
+                            <span style={{ color: 'var(--text-primary)' }}>
+                                {t('images')}
                             </span>
-                        </label>
-
-                        {/* Notes */}
-                        <label className='flex items-center gap-2 cursor-pointer'>
-                            <Checkbox
-                                checked={exportOptions.notes}
-                                onChange={() => handleOptionChange('notes')}
-                                size="small"
-                                disabled={!article.annotations || article.annotations.length === 0}
-                            />
-                            <span style={{ color: (!article.annotations || article.annotations.length === 0) ? 'var(--text-tertiary)' : 'var(--text-primary)' }}>
-                                {t('notes')} {(!article.annotations || article.annotations.length === 0) && '(none)'}
-                            </span>
-                        </label>
+                        </label>                       
                     </div>
                 </div>
 
@@ -200,10 +222,10 @@ const ExportModal = ({ isOpen, onRequestClose, article }) => {
                                 checked={exportOptions.tags}
                                 onChange={() => handleOptionChange('tags')}
                                 size="small"
-                                disabled={!article.tags || article.tags.length === 0}
+                                disabled={false}
                             />
-                            <span style={{ color: (!article.tags || article.tags.length === 0) ? 'var(--text-tertiary)' : 'var(--text-primary)' }}>
-                                {t('tags')} {(!article.tags || article.tags.length === 0) && '(none)'}
+                            <span style={{ color: 'var(--text-primary)' }}>
+                                {t('tags')}
                             </span>
                         </label>
 
@@ -213,10 +235,10 @@ const ExportModal = ({ isOpen, onRequestClose, article }) => {
                                 checked={exportOptions.relatedArticles}
                                 onChange={() => handleOptionChange('relatedArticles')}
                                 size="small"
-                                disabled={!article.relatedArticles || article.relatedArticles.length === 0}
+                                disabled={false}
                             />
-                            <span style={{ color: (!article.relatedArticles || article.relatedArticles.length === 0) ? 'var(--text-tertiary)' : 'var(--text-primary)' }}>
-                                {t('related articles')} {(!article.relatedArticles || article.relatedArticles.length === 0) && '(none)'}
+                            <span style={{ color: 'var(--text-primary)' }}>
+                                {t('related articles')}
                             </span>
                         </label>
 
@@ -226,10 +248,23 @@ const ExportModal = ({ isOpen, onRequestClose, article }) => {
                                 checked={exportOptions.collections}
                                 onChange={() => handleOptionChange('collections')}
                                 size="small"
-                                disabled={!article.groups || article.groups.length === 0}
+                                disabled={false}
                             />
-                            <span style={{ color: (!article.groups || article.groups.length === 0) ? 'var(--text-tertiary)' : 'var(--text-primary)' }}>
-                                {t('collections')} {(!article.groups || article.groups.length === 0) && '(none)'}
+                            <span style={{ color: 'var(--text-primary)' }}>
+                                {t('collections')}
+                            </span>
+                        </label>
+
+                         {/* Notes */}
+                         <label className='flex items-center gap-2 cursor-pointer'>
+                            <Checkbox
+                                checked={exportOptions.notes}
+                                onChange={() => handleOptionChange('notes')}
+                                size="small"
+                                disabled={false}
+                            />
+                            <span style={{ color: 'var(--text-primary)' }}>
+                                {t('notes')}
                             </span>
                         </label>
                     </div>

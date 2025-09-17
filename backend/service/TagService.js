@@ -78,6 +78,7 @@ const TagService = {
     addTagIfNotPresent,
     getTagWithName,
     getTagWithNameAddIfNotPresent,
+    getTagWithId,
     initService
 };
 

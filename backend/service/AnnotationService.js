@@ -85,6 +85,7 @@ const AnnotationService = {
     initService,
     createAnnotation,
     deleteAnnotationsByArticleId,
+    getAnnotationById,
 };
 
 export default AnnotationService;

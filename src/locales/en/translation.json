@@ -66,6 +66,7 @@
     "groups": "Collections",
     "add group": "Add Collection",
     "add to group": "Add to Collection",
+    "add selected articles to group": "Add Selected Articles to Collection",
     "add new group": "Add New Collection",
     "no groups": "Click to plus icon to add this article a collection",
     "no such group": "No such collection",
@@ -80,7 +81,6 @@
     "group name": "Collection Name",
     "articles added to group": "Articles added to collection",
     "select a group": "Select a collection",
-    "add selected articles to group": "Add selected articles to collection",
 
     "note": "Note",
     "notes": "Notes",
@@ -289,12 +289,19 @@
     "mins read": "mins read",
 
     "export article": "Export Article",
+    "export selected articles": "Export Selected Articles",
     "content to include": "Content to Include",
     "text content": "Text Content",
     "relational information": "Relational Information",
     "export format": "Export Format",
     "images": "Images",
     "collections": "Collections",
+    "document title": "Document Title",
+    "enter document title (optional)": "Enter document title (optional)",
+    "if left empty, will use default title": "If left empty, will use default title",
+    "merged articles": "Merged Articles",
+    "no articles selected for export": "No articles selected for export",
+    "articles exported successfully": "Articles exported successfully",
     "article exported successfully": "Article exported successfully",
     "export failed": "Export failed"
   }

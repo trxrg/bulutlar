@@ -93,6 +93,7 @@ async function addArticlesToGroup(groupName, articleIds) {
 const GroupService = {
     addGroup: createGroup,
     getGroupWithNameAddIfNotPresent,
+    getGroupById,
     initService
 };
 

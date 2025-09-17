@@ -118,6 +118,7 @@ async function deleteOwnerById(id) {
 const OwnerService = {
     addOwner: createOwner,
     getOwnerWithNameAddIfNotPresent,
+    getOwnerById,
     initService
 };
 

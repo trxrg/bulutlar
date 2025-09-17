@@ -47,6 +47,10 @@ npm run package-linux
 ```
 
 ## Versions
+1.4.7
+- add read-time estimations for articles
+- fix layout and styling issues
+  
 1.4.6
 - fix layout issues
   

@@ -26,12 +26,10 @@
     "package-linux": "npm run build-react  && electron-packager . AppName --overwrite --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --asar --out=release-builds",
     "migrate": "npx sequelize-cli db:migrate",
     "electron-pack": "build --em.main=build/electron.js",
-    
     "package-mac-builder-universal": "npm run build-react && electron-builder --mac --universal",
     "package-mac-builder-arm64": "npm run build-react && electron-builder --mac --arm64",
     "package-mac-builder-x64": "npm run build-react && electron-builder --mac --x64",
     "dist": "npm run build-react && electron-builder"
-
   },
   "eslintConfig": {
     "extends": [
@@ -69,6 +67,7 @@
     "@mui/icons-material": "^5.15.4",
     "@mui/material": "^5.16.13",
     "date-fns": "^3.6.0",
+    "docx": "^9.5.1",
     "draft-js": "^0.11.7",
     "draft-js-export-html": "^1.4.1",
     "draft-js-import-html": "^1.4.1",
@@ -78,9 +77,11 @@
     "fs-extra": "^11.2.0",
     "hijri-date": "^0.2.2",
     "html-react-parser": "^5.0.11",
+    "html-to-text": "^9.0.5",
     "i18next": "^23.16.0",
     "lodash.debounce": "^4.0.8",
     "path-browserify": "^1.0.1",
+    "pdfkit": "^0.17.2",
     "react": "^18.2.0",
     "react-datepicker": "^7.5.0",
     "react-dom": "^18.2.0",
@@ -106,7 +107,7 @@
       "**/node_modules/sqlite3/**/*",
       "**/*.{node,dll,dylib,so}"
     ],
-  "compression": "store",
+    "compression": "store",
     "files": [
       "build/**/*",
       "backend/**/*",

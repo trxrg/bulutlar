@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, SpeakerWaveIcon, FilmIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, SpeakerWaveIcon, FilmIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon, DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
@@ -11,6 +11,7 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
 import ArticlePreferencesModal from '../modals/ArticlePreferencesModal.jsx';
+import ExportModal from '../modals/ExportModal.jsx';
 import toastr from 'toastr';
 
 const ReadControls = () => {
@@ -21,6 +22,7 @@ const ReadControls = () => {
 
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
     const [isPreferencesModalOpen, setPreferencesModalOpen] = useState(false);
+    const [isExportModalOpen, setExportModalOpen] = useState(false);
     const [searchBarOpen, setSearchBarOpen] = useState(false);
     const [localSearchTerm, setLocalSearchTerm] = useState('');
 
@@ -174,6 +176,11 @@ const ReadControls = () => {
                     <FormatButton onClick={increaseFontSize} title={t('increase font')}>
                         <span className="text-lg font-bold">A</span>
                     </FormatButton>
+                    <FormatButton
+                        onClick={() => setPreferencesModalOpen(true)}
+                        title={t('preferences')}>
+                        <EllipsisHorizontalIcon className="w-5 h-5" />
+                    </FormatButton>
                     {searchBarOpen && (
                         <>
                             <input
@@ -261,10 +268,10 @@ const ReadControls = () => {
                         </FormatButton>
                     }
                     <FormatButton
-                        onClick={() => setPreferencesModalOpen(true)}
-                        title={t('preferences')}>
-                        <EllipsisHorizontalIcon className="w-5 h-5" />
-                    </FormatButton>
+                        onClick={() => setExportModalOpen(true)}
+                        title={t('export article')}>
+                        <DocumentArrowDownIcon className="w-5 h-5" />
+                    </FormatButton>                    
                     {!leftPanelCollapsed || !rightPanelCollapsed ?
                         <FormatButton onClick={() => {
                             setLeftPanelCollapsed(true);
@@ -327,6 +334,7 @@ const ReadControls = () => {
                 isOpen={isDeleteConfirmModalOpen}
             />
             <ArticlePreferencesModal isOpen={isPreferencesModalOpen} onRequestClose={() => setPreferencesModalOpen(false)} onConfirm={handleSavePreferences} />
+            <ExportModal isOpen={isExportModalOpen} onRequestClose={() => setExportModalOpen(false)} article={article} />
         </div>
     );
 };

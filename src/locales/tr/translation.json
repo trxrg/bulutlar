@@ -293,5 +293,15 @@
     "mins read": "dk okuma",
 
     "play": "Oynat",
-    "pause": "Duraklat"
+    "pause": "Duraklat",
+
+    "export article": "Yazıyı Dışa Aktar",
+    "content to include": "Dahil Edilecek İçerik",
+    "text content": "Metin İçeriği",
+    "relational information": "İlişkisel Bilgiler",
+    "export format": "Dışa Aktarma Formatı",
+    "images": "Resimler",
+    "collections": "Koleksiyonlar",
+    "article exported successfully": "Yazı başarıyla dışa aktarıldı",
+    "export failed": "Dışa aktarma başarısız"
 }

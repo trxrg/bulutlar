@@ -286,5 +286,15 @@
 
     "read time": "Read Time",
     "min read": "min read",
-    "mins read": "mins read"
+    "mins read": "mins read",
+
+    "export article": "Export Article",
+    "content to include": "Content to Include",
+    "text content": "Text Content",
+    "relational information": "Relational Information",
+    "export format": "Export Format",
+    "images": "Images",
+    "collections": "Collections",
+    "article exported successfully": "Article exported successfully",
+    "export failed": "Export failed"
   }

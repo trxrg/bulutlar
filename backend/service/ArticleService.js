@@ -1,5 +1,6 @@
 import { ipcMain, dialog } from 'electron';
 import fs from 'fs/promises';
+import fsSync from 'fs';
 import path from 'path';
 import hijriSafe from 'hijri-date/lib/safe.js';
 import { sequelize } from '../sequelize/index.js';
@@ -12,6 +13,353 @@ import audioService from './AudioService.js';
 import videoService from './VideoService.js';
 import annotationService from './AnnotationService.js';
 import groupService from './GroupService.js';
+import { config } from '../config.js';
+import PDFDocument from 'pdfkit';
+import { Document, Packer, Paragraph, TextRun, ImageRun, HeadingLevel } from 'docx';
+import { convert } from 'html-to-text';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Configure html-to-text to preserve Turkish characters and fix newlines
+const htmlToTextOptions = {
+    wordwrap: null,
+    preserveNewlines: false,
+    uppercaseHeadings: false,
+    ignoreHref: true,
+    ignoreImage: true,
+    tables: true,
+    decodeEntities: true,
+    selectors: [
+        { selector: 'p', options: { leadingLineBreaks: 0, trailingLineBreaks: 1 } },
+        { selector: 'br', options: { leadingLineBreaks: 0, trailingLineBreaks: 1 } },
+        { selector: 'div', options: { leadingLineBreaks: 0, trailingLineBreaks: 1 } }
+    ]
+};
+
+// Helper function to clean up excessive newlines for PDF
+const cleanTextForPDF = (text) => {
+    if (!text) return '';
+    // Replace multiple consecutive newlines with single newlines
+    return text.replace(/\n\s*\n+/g, '\n').trim();
+};
+
+// Helper function to convert HTML to paragraphs for Word documents
+const htmlToParagraphs = (htmlContent) => {
+    if (!htmlContent) return [];
+    
+    // Convert HTML to text but preserve paragraph structure
+    const textWithParagraphs = convert(htmlContent, {
+        wordwrap: null,
+        preserveNewlines: true,
+        uppercaseHeadings: false,
+        ignoreHref: true,
+        ignoreImage: true,
+        tables: true,
+        decodeEntities: true,
+        selectors: [
+            { selector: 'p', options: { leadingLineBreaks: 0, trailingLineBreaks: 2 } },
+            { selector: 'br', options: { leadingLineBreaks: 1, trailingLineBreaks: 0 } },
+            { selector: 'div', options: { leadingLineBreaks: 0, trailingLineBreaks: 2 } }
+        ]
+    });
+    
+    // Split by double newlines to get paragraphs, filter empty ones
+    return textWithParagraphs
+        .split(/\n\s*\n/)
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
+};
+
+// Helper function to parse HTML and create formatted TextRuns for Word documents
+const htmlToFormattedRuns = (htmlContent) => {
+    if (!htmlContent) return [];
+    
+    // Simple regex-based approach to preserve bold formatting
+    // This handles basic <strong>, <b>, and <em>, <i> tags
+    let text = htmlContent
+        .replace(/<\/p>/gi, '\n\n')  // Paragraph breaks
+        .replace(/<br\s*\/?>/gi, '\n')  // Line breaks
+        .replace(/<div[^>]*>/gi, '\n')  // Div starts
+        .replace(/<\/div>/gi, '\n')  // Div ends
+        .replace(/<[^>]*>/g, (match) => {
+            // Preserve formatting tags, remove others
+            if (match.match(/<\/?(?:strong|b|em|i)>/i)) {
+                return match;
+            }
+            return '';
+        });
+    
+    // Split into paragraphs
+    const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim());
+    
+    return paragraphs.map(paragraph => {
+        const runs = [];
+        let currentText = '';
+        let isBold = false;
+        let isItalic = false;
+        
+        // Simple state machine to parse formatting
+        const tokens = paragraph.split(/(<\/?(?:strong|b|em|i)>)/gi);
+        
+        for (const token of tokens) {
+            if (token.match(/<(?:strong|b)>/i)) {
+                if (currentText) {
+                    runs.push(new TextRun({ 
+                        text: currentText, 
+                        bold: isBold, 
+                        italics: isItalic, 
+                        font: 'Arial' 
+                    }));
+                    currentText = '';
+                }
+                isBold = true;
+            } else if (token.match(/<\/(?:strong|b)>/i)) {
+                if (currentText) {
+                    runs.push(new TextRun({ 
+                        text: currentText, 
+                        bold: isBold, 
+                        italics: isItalic, 
+                        font: 'Arial' 
+                    }));
+                    currentText = '';
+                }
+                isBold = false;
+            } else if (token.match(/<(?:em|i)>/i)) {
+                if (currentText) {
+                    runs.push(new TextRun({ 
+                        text: currentText, 
+                        bold: isBold, 
+                        italics: isItalic, 
+                        font: 'Arial' 
+                    }));
+                    currentText = '';
+                }
+                isItalic = true;
+            } else if (token.match(/<\/(?:em|i)>/i)) {
+                if (currentText) {
+                    runs.push(new TextRun({ 
+                        text: currentText, 
+                        bold: isBold, 
+                        italics: isItalic, 
+                        font: 'Arial' 
+                    }));
+                    currentText = '';
+                }
+                isItalic = false;
+            } else if (token.trim()) {
+                currentText += token;
+            }
+        }
+        
+        // Add remaining text
+        if (currentText) {
+            runs.push(new TextRun({ 
+                text: currentText, 
+                bold: isBold, 
+                italics: isItalic, 
+                font: 'Arial' 
+            }));
+        }
+        
+        return runs;
+    });
+};
+
+// Helper function to parse HTML and create formatted text segments for PDF
+const htmlToFormattedSegmentsPDF = (htmlContent) => {
+    if (!htmlContent) return [];
+    
+    // Simple regex-based approach to preserve formatting
+    let text = htmlContent
+        .replace(/<\/p>/gi, '\n\n')  // Paragraph breaks
+        .replace(/<br\s*\/?>/gi, '\n')  // Line breaks
+        .replace(/<div[^>]*>/gi, '\n')  // Div starts
+        .replace(/<\/div>/gi, '\n')  // Div ends
+        .replace(/<[^>]*>/g, (match) => {
+            // Preserve formatting tags, remove others
+            if (match.match(/<\/?(?:strong|b|em|i)>/i)) {
+                return match;
+            }
+            return '';
+        });
+    
+    // Split into paragraphs
+    const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim());
+    
+    return paragraphs.map(paragraph => {
+        const segments = [];
+        let currentText = '';
+        let isBold = false;
+        let isItalic = false;
+        
+        // Simple state machine to parse formatting
+        const tokens = paragraph.split(/(<\/?(?:strong|b|em|i)>)/gi);
+        
+        for (const token of tokens) {
+            if (token.match(/<(?:strong|b)>/i)) {
+                if (currentText.trim()) {
+                    segments.push({ 
+                        text: currentText, 
+                        bold: isBold, 
+                        italic: isItalic 
+                    });
+                    currentText = '';
+                }
+                isBold = true;
+            } else if (token.match(/<\/(?:strong|b)>/i)) {
+                if (currentText.trim()) {
+                    segments.push({ 
+                        text: currentText, 
+                        bold: isBold, 
+                        italic: isItalic 
+                    });
+                    currentText = '';
+                }
+                isBold = false;
+            } else if (token.match(/<(?:em|i)>/i)) {
+                if (currentText.trim()) {
+                    segments.push({ 
+                        text: currentText, 
+                        bold: isBold, 
+                        italic: isItalic 
+                    });
+                    currentText = '';
+                }
+                isItalic = true;
+            } else if (token.match(/<\/(?:em|i)>/i)) {
+                if (currentText.trim()) {
+                    segments.push({ 
+                        text: currentText, 
+                        bold: isBold, 
+                        italic: isItalic 
+                    });
+                    currentText = '';
+                }
+                isItalic = false;
+            } else if (token.trim()) {
+                currentText += token;
+            }
+        }
+        
+        // Add remaining text
+        if (currentText.trim()) {
+            segments.push({ 
+                text: currentText, 
+                bold: isBold, 
+                italic: isItalic 
+            });
+        }
+        
+        return segments.filter(seg => seg.text.trim());
+    }).filter(segments => segments.length > 0);
+};
+
+// Helper function to render formatted text segments in PDF (simplified approach)
+const renderFormattedTextPDF = (doc, segments, options = {}) => {
+    const defaultOptions = {
+        lineGap: 6,
+        width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+        align: 'justify'
+    };
+    const renderOptions = { ...defaultOptions, ...options };
+    
+    segments.forEach((paragraphSegments, paragraphIndex) => {
+        if (paragraphIndex > 0) {
+            doc.moveDown(0.3); // Space between paragraphs
+        }
+        
+        // Build the paragraph text with proper formatting
+        let paragraphText = '';
+        
+        paragraphSegments.forEach((segment, segmentIndex) => {
+            const cleanText = segment.text.trim();
+            if (!cleanText) return;
+            
+            // For now, let's use a simpler approach - render each segment separately
+            if (segmentIndex > 0 && paragraphText) {
+                // Render previous text first
+                try {
+                    doc.font('NotoSans');
+                } catch (error) {
+                    doc.font('Helvetica');
+                }
+                doc.text(ensureUTF8(paragraphText), {
+                    continued: true,
+                    lineGap: renderOptions.lineGap,
+                    width: renderOptions.width,
+                    align: renderOptions.align
+                });
+                paragraphText = '';
+            }
+            
+            // Use proper NotoSans fonts for Turkish character support
+            try {
+                if (segment.bold && segment.italic) {
+                    // Use bold font for bold+italic (best we can do)
+                    doc.font('NotoSans-Bold');
+                } else if (segment.bold) {
+                    // Use proper bold font
+                    doc.font('NotoSans-Bold');
+                } else if (segment.italic) {
+                    // Use regular font for italic (NotoSans doesn't have italic variant)
+                    doc.font('NotoSans');
+                } else {
+                    // Regular text
+                    doc.font('NotoSans');
+                }
+            } catch (error) {
+                // Fallback to Helvetica variants
+                if (segment.bold && segment.italic) {
+                    doc.font('Helvetica-BoldOblique');
+                } else if (segment.bold) {
+                    doc.font('Helvetica-Bold');
+                } else if (segment.italic) {
+                    doc.font('Helvetica-Oblique');
+                } else {
+                    doc.font('Helvetica');
+                }
+            }
+            
+            // Render text with proper font
+            doc.text(ensureUTF8(cleanText), {
+                continued: segmentIndex < paragraphSegments.length - 1,
+                lineGap: renderOptions.lineGap,
+                width: renderOptions.width,
+                align: renderOptions.align
+            });
+        });
+        
+        // Finalize the paragraph
+        if (!paragraphSegments.length || paragraphSegments[paragraphSegments.length - 1]) {
+            doc.text(''); // End the paragraph
+        }
+    });
+    
+    // Reset font
+    try {
+        doc.font('NotoSans');
+    } catch (error) {
+        doc.font('Helvetica');
+    }
+};
+
+// Helper function to ensure proper UTF-8 encoding
+const ensureUTF8 = (text) => {
+    if (!text) return '';
+    // Ensure the text is properly encoded as UTF-8
+    try {
+        // Convert to Buffer and back to ensure proper encoding
+        return Buffer.from(text, 'utf8').toString('utf8');
+    } catch (error) {
+        console.warn('Error encoding text to UTF-8:', error);
+        return text;
+    }
+};
+
+let imagesFolderPath;
 
 function initService() {
     ipcMain.handle('article/create', async (event, article) => await createArticle(article));
@@ -29,6 +377,7 @@ function initService() {
     ipcMain.handle('article/openDialogToAddAudios', async (event, id) => await openDialogToAddAudios(id));
     ipcMain.handle('article/addVideo', async (event, id, video) => await addVideoToArticle(id, video));
     ipcMain.handle('article/openDialogToAddVideos', async (event, id) => await openDialogToAddVideos(id));
+    ipcMain.handle('article/exportArticle', async (event, exportData) => await exportArticle(exportData));
     ipcMain.handle('article/addAnnotation', async (event, id, annotation) => await addAnnotationToArticle(id, annotation));
     ipcMain.handle('article/getAll', async (event, order) => await getAllArticles(order));
     ipcMain.handle('article/getById', async (event, id) => await getArticleById(id));
@@ -42,6 +391,11 @@ function initService() {
     ipcMain.handle('article/setIsStarred', async (event, id, isStarred) => await setIsStarred(id, isStarred));
     ipcMain.handle('article/setIsDateUncertain', async (event, id, isDateUncertain) => await setIsDateUncertain(id, isDateUncertain));    
     ipcMain.handle('article/setOrdering', async (event, id, ordering) => await setOrdering(id, ordering));    
+    
+    // Initialize folder paths
+    imagesFolderPath = config.imagesFolderPath;
+    
+    console.info('ArticleService initialized');
 }
 
 async function createArticle(article) { // Now transactional
@@ -876,6 +1230,440 @@ function gregorianToHijri(gDate) {
     hijri = hijri.subtractDay(); // the library returns one day after the actual date, idk why
     const hDate = new Date(Date.UTC(hijri.year, hijri.month - 1, hijri.date));
     return hDate;
+}
+
+async function exportArticle(exportData) {
+    try {
+        const { article, options, annotations, tags, relatedArticles, collections, category, owner, translations } = exportData;
+        
+        // Show save dialog
+        const result = await dialog.showSaveDialog({
+            title: 'Export Article',
+            defaultPath: `${article.title || 'article'}.${options.format}`,
+            filters: [
+                options.format === 'pdf' 
+                    ? { name: 'PDF Files', extensions: ['pdf'] }
+                    : { name: 'Word Documents', extensions: ['docx'] }
+            ]
+        });
+
+        if (result.canceled || !result.filePath) {
+            return { success: false, canceled: true };
+        }
+
+        if (options.format === 'pdf') {
+            await generatePDF(exportData, result.filePath);
+        } else if (options.format === 'docx') {
+            await generateWordDocument(exportData, result.filePath);
+        }
+
+        return { success: true, filePath: result.filePath };
+
+    } catch (error) {
+        console.error('Error exporting article:', error);
+        throw error;
+    }
+}
+
+async function generatePDF(exportData, filePath) {
+    const { article, options, annotations, tags, relatedArticles, collections, category, owner, translations } = exportData;
+    
+    const doc = new PDFDocument({ 
+        margin: 50,
+        bufferPages: true,
+        info: {
+            Title: article.title || 'Article Export',
+            Producer: 'Bulutlar App',
+            Creator: 'Bulutlar App'
+        }
+    });
+    
+    // Create write stream with UTF-8 encoding
+    const writeStream = fsSync.createWriteStream(filePath);
+    doc.pipe(writeStream);
+    
+    // Set default line spacing to 1.5
+    const defaultLineSpacing = 1.5;
+    
+    // Register and use Noto Sans fonts which have excellent Unicode support
+    try {
+        const fontPathRegular = path.join(__dirname, '../fonts/NotoSans-Regular.ttf');
+        const fontPathBold = path.join(__dirname, '../fonts/NotoSans-Bold.ttf');
+        doc.registerFont('NotoSans', fontPathRegular);
+        doc.registerFont('NotoSans-Bold', fontPathBold);
+        doc.font('NotoSans');
+        console.log('Successfully loaded NotoSans fonts for Turkish character support');
+    } catch (error) {
+        console.error('Failed to load NotoSans fonts, falling back to Helvetica:', error);
+        doc.font('Helvetica');
+    }
+
+    // Title
+    doc.fontSize(20).text(ensureUTF8(article.title || 'Untitled Article'), { align: 'center' });
+    doc.moveDown();
+
+    // Article info (like ArticleInfo component)
+    const articleInfoParts = [];
+    if (owner) {
+        articleInfoParts.push(owner.name);
+    }
+    if (category) {
+        articleInfoParts.push(category.name);
+    }
+    if (!article.isDateUncertain && article.date) {
+        articleInfoParts.push(new Date(article.date).toLocaleDateString('tr'));
+        articleInfoParts.push(`(${article.number})`);
+        
+        // Day of week (translated)
+        const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const dayKey = weekdays[new Date(article.date).getDay()];
+        const dayOfWeek = translations?.[dayKey] || dayKey;
+        articleInfoParts.push(dayOfWeek);
+        
+        if (article.date2) {
+            articleInfoParts.push(new Date(article.date2).toLocaleDateString('tr'));
+            articleInfoParts.push(`(${article.number2})`);
+        }
+    }
+    
+    // Read time if available
+    if (article.field1 && article.field1.trim() !== '') {
+        const readTime = parseInt(article.field1, 10);
+        if (!isNaN(readTime) && readTime > 0) {
+            articleInfoParts.push(`${readTime} ${readTime === 1 ? (translations?.minRead || 'min read') : (translations?.minsRead || 'mins read')}`);
+        }
+    }
+    
+    if (articleInfoParts.length > 0) {
+        doc.fontSize(12).text(ensureUTF8(articleInfoParts.join(' | ')), { align: 'left', lineGap: 6 });
+        doc.moveDown();
+    }
+
+    // Content sections
+    if (options.explanation && article.explanation) {
+        const explanationSegments = htmlToFormattedSegmentsPDF(article.explanation);
+        if (explanationSegments.length > 0) {
+            // Add explanation text with italic styling and preserved bold formatting
+            doc.fontSize(12);
+            
+            renderFormattedTextPDF(doc, explanationSegments, {
+                lineGap: 6,
+                width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+                align: 'justify'
+            });
+            
+            doc.moveDown();
+        }
+    }
+
+    if (options.mainText && article.text) {
+        const mainTextSegments = htmlToFormattedSegmentsPDF(article.text);
+        if (mainTextSegments.length > 0) {
+            doc.fontSize(12);
+            
+            renderFormattedTextPDF(doc, mainTextSegments, {
+                lineGap: 6,
+                width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+                align: 'justify'
+            });
+            
+            doc.moveDown();
+        }
+    }
+
+    if (options.comment && article.comments && article.comments.length > 0 && article.comments[0].text) {
+        const commentSegments = htmlToFormattedSegmentsPDF(article.comments[0].text);
+        if (commentSegments.length > 0) {
+            doc.fontSize(16).text(translations?.comment || 'Comment', { underline: true });
+            doc.moveDown(0.5);
+            doc.fontSize(12);
+            
+            renderFormattedTextPDF(doc, commentSegments, {
+                lineGap: 6,
+                width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+                align: 'justify'
+            });
+            
+            doc.moveDown();
+        }
+    }
+
+    // Images
+    if (options.images && article.images && article.images.length > 0) {
+        for (const image of article.images) {
+            try {
+                const imagePath = path.join(imagesFolderPath, image.path);
+                const imageBuffer = await fs.readFile(imagePath);
+                doc.image(imageBuffer, { fit: [400, 300], align: 'center' });
+                doc.moveDown();
+            } catch (error) {
+                console.error('Error adding image to PDF:', error);
+                doc.fontSize(10).text(`[Image: ${image.name}]`, { align: 'center' });
+                doc.moveDown();
+            }
+        }
+    }
+
+    // Notes/Annotations
+    if (options.notes && annotations && annotations.length > 0) {
+        doc.fontSize(16).text(translations?.notes || 'Notes', { underline: true });
+        doc.moveDown(0.5);
+        annotations.forEach((annotation, index) => {
+            doc.fontSize(12).text(ensureUTF8(`${index + 1}. ${annotation.note || annotation.quote || ''}`), { 
+                lineGap: 6,
+                width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+                align: 'justify'
+            });
+            doc.moveDown(0.3);
+        });
+        doc.moveDown();
+    }
+
+    // Tags
+    if (options.tags && tags && tags.length > 0) {
+        doc.fontSize(16).text(translations?.tags || 'Tags', { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(12).text(ensureUTF8(tags.map(tag => tag.name).join(', ')), { 
+            lineGap: 6,
+            width: doc.page.width - doc.page.margins.left - doc.page.margins.right
+        });
+        doc.moveDown();
+    }
+
+    // Related Articles
+    if (options.relatedArticles && relatedArticles && relatedArticles.length > 0) {
+        doc.fontSize(16).text(translations?.relatedArticles || 'Related Articles', { underline: true });
+        doc.moveDown(0.5);
+        relatedArticles.forEach((relatedArticle, index) => {
+            doc.fontSize(12).text(ensureUTF8(`${index + 1}. ${relatedArticle.title}`), { 
+                lineGap: 6,
+                width: doc.page.width - doc.page.margins.left - doc.page.margins.right
+            });
+            doc.moveDown(0.3);
+        });
+        doc.moveDown();
+    }
+
+    // Collections
+    if (options.collections && collections && collections.length > 0) {
+        doc.fontSize(16).text(translations?.collections || 'Collections', { underline: true });
+        doc.moveDown(0.5);
+        doc.fontSize(12).text(ensureUTF8(collections.map(collection => collection.name).join(', ')), { 
+            lineGap: 6,
+            width: doc.page.width - doc.page.margins.left - doc.page.margins.right
+        });
+        doc.moveDown();
+    }
+
+    doc.end();
+}
+
+async function generateWordDocument(exportData, filePath) {
+    const { article, options, annotations, tags, relatedArticles, collections, category, owner, translations } = exportData;
+    
+    const children = [];
+
+    // Title
+    children.push(new Paragraph({
+        children: [new TextRun({ text: article.title || 'Untitled Article', bold: true, size: 32, font: 'Arial' })],
+        heading: HeadingLevel.TITLE,
+        alignment: 'center',
+        spacing: { after: 400 }  // Add space after title
+    }));
+
+    // Article info (like ArticleInfo component)
+    const articleInfoParts = [];
+    if (owner) {
+        articleInfoParts.push(owner.name);
+    }
+    if (category) {
+        articleInfoParts.push(category.name);
+    }
+    if (!article.isDateUncertain && article.date) {
+        articleInfoParts.push(new Date(article.date).toLocaleDateString('tr'));
+        articleInfoParts.push(`(${article.number})`);
+        
+        // Day of week (translated)
+        const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const dayKey = weekdays[new Date(article.date).getDay()];
+        const dayOfWeek = translations?.[dayKey] || dayKey;
+        articleInfoParts.push(dayOfWeek);
+        
+        if (article.date2) {
+            articleInfoParts.push(new Date(article.date2).toLocaleDateString('tr'));
+            articleInfoParts.push(`(${article.number2})`);
+        }
+    }
+    
+    // Read time if available
+    if (article.field1 && article.field1.trim() !== '') {
+        const readTime = parseInt(article.field1, 10);
+        if (!isNaN(readTime) && readTime > 0) {
+            articleInfoParts.push(`${readTime} ${readTime === 1 ? (translations?.minRead || 'min read') : (translations?.minsRead || 'mins read')}`);
+        }
+    }
+    
+    if (articleInfoParts.length > 0) {
+        children.push(new Paragraph({
+            children: [new TextRun({ text: articleInfoParts.join(' | '), italics: true, font: 'Arial' })],
+        }));
+        children.push(new Paragraph({ text: '' })); // Empty line
+    }
+
+    // Content sections
+    if (options.explanation && article.explanation) {
+        const formattedRuns = htmlToFormattedRuns(article.explanation);
+        if (formattedRuns.length > 0) {
+            formattedRuns.forEach((runs, index) => {
+                // Make all runs italic for explanation
+                const italicRuns = runs.map(run => new TextRun({ 
+                    ...run, 
+                    italics: true, 
+                    size: 22 
+                }));
+                children.push(new Paragraph({
+                    children: italicRuns,
+                    spacing: { 
+                        before: index === 0 ? 120 : 0, 
+                        after: index === formattedRuns.length - 1 ? 120 : 60, 
+                        line: 360, 
+                        lineRule: 'auto' 
+                    }
+                }));
+            });
+            children.push(new Paragraph({ text: '' })); // Empty line
+        }
+    }
+
+    if (options.mainText && article.text) {
+        const formattedRuns = htmlToFormattedRuns(article.text);
+        if (formattedRuns.length > 0) {
+            formattedRuns.forEach((runs, index) => {
+                children.push(new Paragraph({
+                    children: runs,
+                    spacing: { 
+                        after: index === formattedRuns.length - 1 ? 120 : 60, 
+                        line: 360, 
+                        lineRule: 'auto' 
+                    }
+                }));
+            });
+            children.push(new Paragraph({ text: '' })); // Empty line
+        }
+    }
+
+    if (options.comment && article.comments && article.comments.length > 0 && article.comments[0].text) {
+        const formattedRuns = htmlToFormattedRuns(article.comments[0].text);
+        if (formattedRuns.length > 0) {
+            children.push(new Paragraph({
+                children: [new TextRun({ text: translations?.comment || 'Comment', bold: true, size: 24, font: 'Arial' })],
+                heading: HeadingLevel.HEADING_1,
+                spacing: { before: 300, after: 200 }
+            }));
+            formattedRuns.forEach((runs, index) => {
+                children.push(new Paragraph({
+                    children: runs,
+                    spacing: { 
+                        after: index === formattedRuns.length - 1 ? 120 : 60, 
+                        line: 360, 
+                        lineRule: 'auto' 
+                    }
+                }));
+            });
+            children.push(new Paragraph({ text: '' })); // Empty line
+        }
+    }
+
+    // Images
+    if (options.images && article.images && article.images.length > 0) {
+        for (const image of article.images) {
+            try {
+                const imagePath = path.join(imagesFolderPath, image.path);
+                const imageBuffer = await fs.readFile(imagePath);
+                children.push(new Paragraph({
+                    children: [new ImageRun({
+                        data: imageBuffer,
+                        transformation: { width: 400, height: 300 }
+                    })]
+                }));
+            } catch (error) {
+                console.error('Error adding image to Word document:', error);
+                children.push(new Paragraph({
+                    children: [new TextRun({ text: `[Image: ${image.name}]`, italics: true, font: 'Arial' })]
+                }));
+            }
+        }
+        children.push(new Paragraph({ text: '' })); // Empty line
+    }
+
+    // Notes/Annotations
+    if (options.notes && annotations && annotations.length > 0) {
+        children.push(new Paragraph({
+            children: [new TextRun({ text: translations?.notes || 'Notes', bold: true, size: 24, font: 'Arial' })],
+            heading: HeadingLevel.HEADING_1,
+            spacing: { before: 300, after: 200 }
+        }));
+        annotations.forEach((annotation, index) => {
+            children.push(new Paragraph({
+                children: [new TextRun({ text: `${index + 1}. ${annotation.note || annotation.quote || ''}`, font: 'Arial' })],
+                spacing: { line: 360, lineRule: 'auto' }
+            }));
+        });
+        children.push(new Paragraph({ text: '' })); // Empty line
+    }
+
+    // Tags
+    if (options.tags && tags && tags.length > 0) {
+        children.push(new Paragraph({
+            children: [new TextRun({ text: translations?.tags || 'Tags', bold: true, size: 24, font: 'Arial' })],
+            heading: HeadingLevel.HEADING_1,
+            spacing: { before: 300, after: 200 }
+        }));
+        children.push(new Paragraph({
+            children: [new TextRun({ text: tags.map(tag => tag.name).join(', '), font: 'Arial' })],
+            spacing: { line: 360, lineRule: 'auto' }
+        }));
+        children.push(new Paragraph({ text: '' })); // Empty line
+    }
+
+    // Related Articles
+    if (options.relatedArticles && relatedArticles && relatedArticles.length > 0) {
+        children.push(new Paragraph({
+            children: [new TextRun({ text: translations?.relatedArticles || 'Related Articles', bold: true, size: 24, font: 'Arial' })],
+            heading: HeadingLevel.HEADING_1,
+            spacing: { before: 300, after: 200 }
+        }));
+        relatedArticles.forEach((relatedArticle, index) => {
+            children.push(new Paragraph({
+                children: [new TextRun({ text: `${index + 1}. ${relatedArticle.title}`, font: 'Arial' })],
+                spacing: { line: 360, lineRule: 'auto' }
+            }));
+        });
+        children.push(new Paragraph({ text: '' })); // Empty line
+    }
+
+    // Collections
+    if (options.collections && collections && collections.length > 0) {
+        children.push(new Paragraph({
+            children: [new TextRun({ text: translations?.collections || 'Collections', bold: true, size: 24, font: 'Arial' })],
+            heading: HeadingLevel.HEADING_1,
+            spacing: { before: 300, after: 200 }
+        }));
+        children.push(new Paragraph({
+            children: [new TextRun({ text: collections.map(collection => collection.name).join(', '), font: 'Arial' })],
+            spacing: { line: 360, lineRule: 'auto' }
+        }));
+    }
+
+    const doc = new Document({
+        sections: [{
+            properties: {},
+            children: children
+        }]
+    });
+
+    const buffer = await Packer.toBuffer(doc);
+    await fs.writeFile(filePath, buffer);
 }
 
 const ArticleService = {

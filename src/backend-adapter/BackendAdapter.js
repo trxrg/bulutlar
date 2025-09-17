@@ -17,6 +17,7 @@ export const articleApi = {
     openDialogToAddAudios: async (id)               => window.api.article.openDialogToAddAudios(id),
     addVideo:           async (id, video)           => window.api.article.addVideo(id, video),
     openDialogToAddVideos: async (id)               => window.api.article.openDialogToAddVideos(id),
+    exportArticle: async (exportData)               => window.api.article.exportArticle(exportData),
     addAnnotation:      async (id, annotation)      => window.api.article.addAnnotation(id, annotation),
     getAll:             async (order)               => window.api.article.getAll(order),
     getById:            async (id)                  => window.api.article.getById(id),

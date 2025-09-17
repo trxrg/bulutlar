@@ -106,7 +106,7 @@
       "**/node_modules/sqlite3/**/*",
       "**/*.{node,dll,dylib,so}"
     ],
-    "compression": "maximum",
+  "compression": "store",
     "files": [
       "build/**/*",
       "backend/**/*",

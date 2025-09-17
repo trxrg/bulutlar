@@ -562,9 +562,14 @@ async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
         order: [[order.field, order.direction]]
     });
 
-    // Don't calculate read time in getAllArticles - too expensive!
-    // Only calculate when individual articles are viewed
-    return entities.map(entity => articleEntity2Json(entity));
+    // Ensure read time is calculated for each article
+    // remove in further releases - too expensive
+    const updatedEntities = await Promise.all(
+        entities.map(async entity => {
+            return articleEntity2Json(await ensureReadTimeCalculated(entity));
+        })
+    );
+    return updatedEntities;
 }
 
 async function setIsStarred(id, isStarred) {

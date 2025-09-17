@@ -23,13 +23,15 @@ const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true, showRea
     }
 
     // Use persisted read time from database (stored in field1)
-    // If no persisted value exists, show a default of 1 minute
+    // If no persisted value exists, don't show read time
     const readTime = useMemo(() => {
-        if (!showReadTime) return 0; // Skip if not needed
+        if (!showReadTime) return null; // Skip if not needed
         
-        // Use persisted read time from field1, or default to 1 minute
-        const persistedReadTime = article.field1 ? parseInt(article.field1, 10) : 1;
-        return isNaN(persistedReadTime) ? 1 : Math.max(1, persistedReadTime);
+        // Only return read time if field1 exists and is valid
+        if (!article.field1 || article.field1.trim() === '') return null;
+        
+        const persistedReadTime = parseInt(article.field1, 10);
+        return isNaN(persistedReadTime) ? null : Math.max(1, persistedReadTime);
     }, [article.field1, showReadTime]);
 
     const handleUpdateOwner = async (newOwnerName) => {
@@ -88,7 +90,7 @@ const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true, showRea
                     new Date(article.date2).toLocaleDateString('tr')}</span>
                 <span style={{ color: 'var(--text-primary)' }}>{" (" + article.number2 + ")"}</span>
             </>}
-            {showReadTime && (
+            {showReadTime && readTime && (
                 <>
                     <span style={{ color: 'var(--text-primary)' }}>{" | "}</span>
                     <span style={{ color: 'var(--text-primary)' }}>

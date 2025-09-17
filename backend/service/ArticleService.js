@@ -562,15 +562,9 @@ async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
         order: [[order.field, order.direction]]
     });
 
-    // Ensure read time is calculated for all articles
-    const updatedEntities = await Promise.all(
-        entities.map(async (entity) => {
-            const updatedEntity = await ensureReadTimeCalculated(entity);
-            return updatedEntity || entity;
-        })
-    );
-
-    return updatedEntities.map(entity => articleEntity2Json(entity));
+    // Don't calculate read time in getAllArticles - too expensive!
+    // Only calculate when individual articles are viewed
+    return entities.map(entity => articleEntity2Json(entity));
 }
 
 async function setIsStarred(id, isStarred) {
@@ -798,25 +792,12 @@ async function ensureReadTimeCalculated(article) {
     // If field1 is empty or null, calculate and store read time
     if (!article.field1 || article.field1.trim() === '') {
         console.log(`Calculating read time for article ${article.id} (first time load)`);
-        await calculateAndUpdateReadTime(article.id);
-        // Reload the article to get the updated field1 value
-        return await sequelize.models.article.findByPk(article.id, {
-            include: [
-                { model: sequelize.models.owner },
-                { model: sequelize.models.category },
-                { model: sequelize.models.tag },
-                { model: sequelize.models.comment },
-                { model: sequelize.models.image },
-                { model: sequelize.models.audio },
-                { model: sequelize.models.video },
-                { model: sequelize.models.annotation },
-                { 
-                    model: sequelize.models.article, 
-                    as: 'relatedArticles',
-                    through: { attributes: [] }
-                }
-            ]
-        });
+        const calculatedReadTime = await calculateAndUpdateReadTime(article.id);
+        
+        // Update the current article object instead of reloading from database
+        article.field1 = calculatedReadTime.toString();
+        
+        return article;
     }
     return article;
 }

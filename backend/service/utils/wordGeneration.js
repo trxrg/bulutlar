@@ -1,6 +1,7 @@
 import { Document, Packer, Paragraph, TextRun, ImageRun, HeadingLevel } from 'docx';
 import fs from 'fs/promises';
 import path from 'path';
+import sizeOf from 'image-size';
 import { buildArticleInfoParts } from './documentHelpers.js';
 import { htmlToFormattedRuns, isHtmlStringEmpty } from './htmlProcessing.js';
 
@@ -22,7 +23,7 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
     const articleInfoParts = buildArticleInfoParts(article, category, owner, translations);
     if (articleInfoParts.length > 0) {
         children.push(new Paragraph({
-            children: [new TextRun({ text: articleInfoParts.join(' | '), italics: true, font: 'Arial' })],
+            children: [new TextRun({ text: articleInfoParts.join(' | '), font: 'Arial' })],
         }));
         children.push(new Paragraph({ text: '' })); // Empty line
     }
@@ -32,12 +33,12 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
         const formattedRuns = htmlToFormattedRuns(article.explanation);
         if (formattedRuns.length > 0) {
             formattedRuns.forEach((runs, index) => {
-                // Make all runs italic for explanation
-                const italicRuns = runs.map(run => new TextRun({ 
-                    ...run, 
-                    italics: true, 
-                    size: 22 
-                }));
+                // const italicRuns = runs.map(run => new TextRun({ 
+                //     ...run, 
+                //     italics: true, 
+                //     size: 22 
+                // }));
+                const italicRuns = runs;
                 children.push(new Paragraph({
                     children: italicRuns,
                     spacing: { 
@@ -97,11 +98,23 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
             try {
                 const imagePath = path.join(imagesFolderPath, image.path);
                 const imageBuffer = await fs.readFile(imagePath);
+                
+                // Get image dimensions and calculate aspect ratio
+                const dimensions = sizeOf(imageBuffer);
+                const aspectRatio = dimensions.height / dimensions.width;
+                const desiredWidth = 600; // Full text width in points (6 inches * 72 points/inch)
+                const calculatedHeight = Math.round(desiredWidth * aspectRatio);
+                
                 children.push(new Paragraph({
                     children: [new ImageRun({
                         data: imageBuffer,
-                        transformation: { width: 400, height: 300 }
-                    })]
+                        transformation: { 
+                            width: desiredWidth, 
+                            height: calculatedHeight 
+                        }
+                    })],
+                    alignment: 'center',
+                    spacing: { before: 200, after: 200 }
                 }));
             } catch (error) {
                 console.error('Error adding image to Word document:', error);
@@ -236,12 +249,13 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
             const formattedRuns = htmlToFormattedRuns(article.explanation);
             if (formattedRuns.length > 0) {
                 formattedRuns.forEach((runs, index) => {
-                    const italicRuns = runs.map(run => new TextRun({ 
-                        ...run, 
-                        italics: true, 
-                        size: 22,
-                        font: 'Arial'
-                    }));
+                    // const italicRuns = runs.map(run => new TextRun({ 
+                    //     ...run, 
+                    //     italics: true, 
+                    //     size: 22,
+                    //     font: 'Arial'
+                    // }));
+                    const italicRuns = runs;
                     children.push(new Paragraph({
                         children: italicRuns,
                         spacing: { 
@@ -300,12 +314,19 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
                 try {
                     const imagePath = path.join(imagesFolderPath, image.path);
                     const imageBuffer = await fs.readFile(imagePath);
+                    
+                    // Get image dimensions and calculate aspect ratio
+                    const dimensions = sizeOf(imageBuffer);
+                    const aspectRatio = dimensions.height / dimensions.width;
+                    const desiredWidth = 600; // Full text width in points (6 inches * 72 points/inch)
+                    const calculatedHeight = Math.round(desiredWidth * aspectRatio);
+                    
                     children.push(new Paragraph({
                         children: [new ImageRun({
                             data: imageBuffer,
                             transformation: {
-                                width: 500,
-                                height: 400,
+                                width: desiredWidth,
+                                height: calculatedHeight
                             },
                         })],
                         alignment: 'center',

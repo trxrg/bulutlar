@@ -37,85 +37,81 @@ const ExportModal = ({ isOpen, onRequestClose, article, articles, isMultiArticle
         }));
     };
 
-    const handleExport = async () => {
+    // translations for the document
+    const getTranslations = () => ({
+        comment: t('comment'),
+        images: t('images'),
+        notes: t('notes'),
+        tags: t('tags'),
+        relatedArticles: t('related articles'),
+        collections: t('collections'),
+        minRead: t('min read'),
+        minsRead: t('mins read'),
+        sunday: t('sunday'),
+        monday: t('monday'),
+        tuesday: t('tuesday'),
+        wednesday: t('wednesday'),
+        thursday: t('thursday'),
+        friday: t('friday'),
+        saturday: t('saturday')
+    });
+
+    const handleSingleArticleExport = async () => {
         try {
-            if (isMultiArticle) {
-                // Multi-article export
-                if (!articles || articles.length === 0) {
-                    toastr.warning(t('no articles selected for export'));
-                    return;
-                }
+            const exportData = {
+                article: article,
+                options: exportOptions,
+                translations: getTranslations()
+            };
 
-                const exportData = {
-                    articles: articles,
-                    options: exportOptions,
-                    documentTitle: documentTitle.trim() || t('merged articles'),
-                    isMultiArticle: true,
-                    // Add translations
-                    translations: {
-                        comment: t('comment'),
-                        images: t('images'),
-                        notes: t('notes'),
-                        tags: t('tags'),
-                        relatedArticles: t('related articles'),
-                        collections: t('collections'),
-                        minRead: t('min read'),
-                        minsRead: t('mins read'),
-                        sunday: t('sunday'),
-                        monday: t('monday'),
-                        tuesday: t('tuesday'),
-                        wednesday: t('wednesday'),
-                        thursday: t('thursday'),
-                        friday: t('friday'),
-                        saturday: t('saturday')
-                    }
-                };
-
-                const result = await articleApi.exportMultipleArticles(exportData);
-                
-                if (result.success) {
-                    toastr.success(t('articles exported successfully'));
-                    onRequestClose();
-                } else {
-                    toastr.error(t('export failed'));
-                }
+            const result = await articleApi.exportArticle(exportData);
+            
+            if (result.success) {
+                toastr.success(t('article exported successfully'));
+                onRequestClose();
             } else {
-                // Single article export - let backend handle all ID resolution
-                const exportData = {
-                    article: article,
-                    options: exportOptions,
-                    // Add translations
-                    translations: {
-                        comment: t('comment'),
-                        images: t('images'),
-                        notes: t('notes'),
-                        tags: t('tags'),
-                        relatedArticles: t('related articles'),
-                        collections: t('collections'),
-                        minRead: t('min read'),
-                        minsRead: t('mins read'),
-                        sunday: t('sunday'),
-                        monday: t('monday'),
-                        tuesday: t('tuesday'),
-                        wednesday: t('wednesday'),
-                        thursday: t('thursday'),
-                        friday: t('friday'),
-                        saturday: t('saturday')
-                    }
-                };
-
-                const result = await articleApi.exportArticle(exportData);
-                
-                if (result.success) {
-                    toastr.success(t('article exported successfully'));
-                    onRequestClose();
-                } else {
-                    toastr.error(t('export failed'));
-                }
+                toastr.error(t('export failed'));
             }
         } catch (error) {
-            console.error('Export error:', error);
+            console.error('Single article export error:', error);
             toastr.error(t('export failed'));
+        }
+    };
+
+    const handleMultiArticleExport = async () => {
+        try {
+            if (!articles || articles.length === 0) {
+                toastr.warning(t('no articles selected for export'));
+                return;
+            }
+
+            const exportData = {
+                articles: articles,
+                options: exportOptions,
+                documentTitle: documentTitle.trim() || t('merged articles'),
+                isMultiArticle: true,
+                translations: getTranslations()
+            };
+
+            const result = await articleApi.exportMultipleArticles(exportData);
+            
+            if (result.success) {
+                toastr.success(t('articles exported successfully'));
+                onRequestClose();
+            } else {
+                toastr.error(t('export failed'));
+            }
+        } catch (error) {
+            console.error('Multi-article export error:', error);
+            toastr.error(t('export failed'));
+        }
+    };
+
+    const handleExport = async () => {
+        if (isMultiArticle) {
+            await handleMultiArticleExport();
+        } else {
+            await handleSingleArticleExport();
         }
     };
 

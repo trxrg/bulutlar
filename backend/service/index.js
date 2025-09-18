@@ -1,6 +1,7 @@
 const servicePromises = [
     import('./OwnerService.js'),
     import('./ArticleService.js'),
+    import('./DocumentService.js'),
     import('./TagService.js'),
     import('./CategoryService.js'),
     import('./GroupService.js'),

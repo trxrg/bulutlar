@@ -5,7 +5,9 @@ import { config } from '../config.js';
 import articleService from './ArticleService.js';
 import { getEntityResolutionOptions } from './utils/documentHelpers.js';
 import { generatePDF, generateMergedPDF } from './utils/pdfGeneration.js';
+import { generateHTMLToPDF, generateMergedHTMLToPDF } from './utils/htmlToPdfGeneration.js';
 import { generateWordDocument, generateMergedWordDocument } from './utils/wordGeneration.js';
+import { generateHTMLDocument, generateMergedHTMLDocument } from './utils/htmlGeneration.js';
 
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -37,7 +39,9 @@ async function exportArticle(exportData) {
             filters: [
                 options.format === 'pdf' 
                     ? { name: 'PDF Files', extensions: ['pdf'] }
-                    : { name: 'Word Documents', extensions: ['docx'] }
+                    : options.format === 'docx'
+                    ? { name: 'Word Documents', extensions: ['docx'] }
+                    : { name: 'HTML Files', extensions: ['html'] }
             ]
         });
 
@@ -59,9 +63,17 @@ async function exportArticle(exportData) {
         };
 
         if (options.format === 'pdf') {
-            await generatePDF(updatedExportData, result.filePath, imagesFolderPath);
+            // Use new HTML-to-PDF generation for much better quality
+            try {
+                await generateHTMLToPDF(updatedExportData, result.filePath, imagesFolderPath);
+            } catch (htmlToPdfError) {
+                console.warn('HTML-to-PDF generation failed, falling back to legacy PDF generation:', htmlToPdfError);
+                await generatePDF(updatedExportData, result.filePath, imagesFolderPath);
+            }
         } else if (options.format === 'docx') {
             await generateWordDocument(updatedExportData, result.filePath, imagesFolderPath);
+        } else if (options.format === 'html') {
+            await generateHTMLDocument(updatedExportData, result.filePath, imagesFolderPath);
         }
 
         return { success: true, filePath: result.filePath };
@@ -97,7 +109,9 @@ async function exportMultipleArticles(exportData) {
             filters: [
                 options.format === 'pdf' 
                     ? { name: 'PDF Files', extensions: ['pdf'] }
-                    : { name: 'Word Documents', extensions: ['docx'] }
+                    : options.format === 'docx'
+                    ? { name: 'Word Documents', extensions: ['docx'] }
+                    : { name: 'HTML Files', extensions: ['html'] }
             ]
         });
 
@@ -113,9 +127,17 @@ async function exportMultipleArticles(exportData) {
 
         // Generate the merged document
         if (options.format === 'pdf') {
-            await generateMergedPDF(updatedExportData, result.filePath, imagesFolderPath, articleService);
-        } else {
+            // Use new HTML-to-PDF generation for much better quality
+            try {
+                await generateMergedHTMLToPDF(updatedExportData, result.filePath, imagesFolderPath, articleService);
+            } catch (htmlToPdfError) {
+                console.warn('HTML-to-PDF generation failed, falling back to legacy PDF generation:', htmlToPdfError);
+                await generateMergedPDF(updatedExportData, result.filePath, imagesFolderPath, articleService);
+            }
+        } else if (options.format === 'docx') {
             await generateMergedWordDocument(updatedExportData, result.filePath, imagesFolderPath, articleService);
+        } else if (options.format === 'html') {
+            await generateMergedHTMLDocument(updatedExportData, result.filePath, imagesFolderPath, articleService);
         }
 
         return { success: true, filePath: result.filePath };

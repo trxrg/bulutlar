@@ -18,7 +18,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         tags: true,
         relatedArticles: true,
         collections: true,
-        format: 'pdf'
+        format: 'html'
     });
 
     const [documentTitle, setDocumentTitle] = useState('');
@@ -273,6 +273,16 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                         {t('export format')}:
                     </h3>
                     <div className='flex gap-4'>
+                        <label className='flex items-center gap-2 cursor-pointer'>
+                            <input
+                                type="radio"
+                                name="format"
+                                value="html"
+                                checked={exportOptions.format === 'html'}
+                                onChange={() => handleFormatChange('html')}
+                            />
+                            <span style={{ color: 'var(--text-primary)' }}>HTML</span>
+                        </label>
                         <label className='flex items-center gap-2 cursor-pointer'>
                             <input
                                 type="radio"

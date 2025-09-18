@@ -23,7 +23,7 @@ const SearchResultsHeader = () => {
     const [isExportModalOpen, setExportModalOpen] = useState(false);
     const { filteredArticles, sidePanelCollapsed, setSidePanelCollapsed,
         areArticlesSelectable, toggleArticlesSelectable,
-        selectAllOrNone, generatePDFOfSelectedArticles, selectedArticles } = useContext(SearchContext);
+        selectAllOrNone, selectedArticleIds } = useContext(SearchContext);
     const { handleAddRandomTab, translate: t } = useContext(AppContext);
     const { articleOrder, setArticleOrder, fetchAllArticles } = useContext(DBContext);
 
@@ -39,11 +39,11 @@ const SearchResultsHeader = () => {
     }
 
     const addSelectedArticlesToGroup = async (groupName) => {
-        if (!selectedArticles || selectedArticles.length === 0)
+        if (!selectedArticleIds || selectedArticleIds.length === 0)
             return;
 
         try {
-            await groupApi.addArticles(groupName, selectedArticles);
+            await groupApi.addArticles(groupName, selectedArticleIds);
             setGroupModalOpen(false);
             fetchAllArticles();
             toggleArticlesSelectable();
@@ -55,7 +55,7 @@ const SearchResultsHeader = () => {
     }
 
     const handleExportSelectedClick = () => {
-        if (!selectedArticles || selectedArticles.length === 0) {
+        if (!selectedArticleIds || selectedArticleIds.length === 0) {
             toastr.warning(t('no articles selected for export'));
             return;
         }
@@ -80,7 +80,7 @@ const SearchResultsHeader = () => {
                 </div>
                 {/* center */}
                 <div className='flex gap-2 items-center'>
-                    <h3 className='text-xl text-gray-700 flex justify-center'>{(areArticlesSelectable ? selectedArticles.length + '/' : '') + filteredArticles.length + ' ' + t('articlesTR')}</h3>
+                    <h3 className='text-xl text-gray-700 flex justify-center'>{(areArticlesSelectable ? selectedArticleIds.length + '/' : '') + filteredArticles.length + ' ' + t('articlesTR')}</h3>
                 </div>
                 {/* right */}
                 <div className='flex flex-wrap gap-1 items-center'>
@@ -106,7 +106,7 @@ const SearchResultsHeader = () => {
             <ExportModal 
                 isOpen={isExportModalOpen} 
                 onRequestClose={() => setExportModalOpen(false)} 
-                articles={selectedArticles}
+                articleIds={selectedArticleIds}
                 isMultiArticle={true}
             />
         </div>

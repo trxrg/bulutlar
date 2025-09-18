@@ -6,7 +6,7 @@ import Checkbox from '@mui/material/Checkbox';
 import toastr from 'toastr';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 
-const ExportModal = ({ isOpen, onRequestClose, article, articles, isMultiArticle = false }) => {
+const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArticle = false }) => {
     const { translate: t } = useContext(AppContext);
 
     const [exportOptions, setExportOptions] = useState({
@@ -39,6 +39,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articles, isMultiArticle
 
     // translations for the document
     const getTranslations = () => ({
+        exportArticle: t('export article'),
         comment: t('comment'),
         images: t('images'),
         notes: t('notes'),
@@ -59,7 +60,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articles, isMultiArticle
     const handleSingleArticleExport = async () => {
         try {
             const exportData = {
-                article: article,
+                articleId: article.id,
                 options: exportOptions,
                 translations: getTranslations()
             };
@@ -80,13 +81,13 @@ const ExportModal = ({ isOpen, onRequestClose, article, articles, isMultiArticle
 
     const handleMultiArticleExport = async () => {
         try {
-            if (!articles || articles.length === 0) {
+            if (!articleIds || articleIds.length === 0) {
                 toastr.warning(t('no articles selected for export'));
                 return;
             }
 
             const exportData = {
-                articles: articles,
+                articleIds: articleIds,
                 options: exportOptions,
                 documentTitle: documentTitle.trim() || t('merged articles'),
                 isMultiArticle: true,

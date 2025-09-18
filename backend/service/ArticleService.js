@@ -901,61 +901,145 @@ async function exportArticle(exportData) {
     }
 }
 
-// Entity resolution functions for export
-async function resolveArticleEntities(article) {
-    const annotations = article.annotations ? await Promise.all(
+async function resolveArticleAnnotations(article) {
+    if (!article.annotations) return [];
+    
+    const annotations = await Promise.all(
         article.annotations.map(async ann => {
             if (typeof ann === 'object' && ann.note !== undefined) {
                 return ann;
             }
             return await annotationService.getAnnotationById(ann.id || ann);
         })
-    ).then(results => results.filter(Boolean)) : [];
+    );
+    return annotations.filter(Boolean);
+}
+
+async function resolveArticleTags(article) {
+    if (!article.tags) return [];
     
-    const tags = article.tags ? await Promise.all(
+    const tags = await Promise.all(
         article.tags.map(async tag => {
             if (typeof tag === 'object' && tag.name !== undefined) {
                 return tag;
             }
             return await tagService.getTagWithId(tag.id || tag);
         })
-    ).then(results => results.filter(Boolean)) : [];
+    );
+    return tags.filter(Boolean);
+}
+
+async function resolveArticleCollections(article) {
+    if (!article.groups) return [];
     
-    const collections = article.groups ? await Promise.all(
+    const collections = await Promise.all(
         article.groups.map(async group => {
             if (typeof group === 'object' && group.name !== undefined) {
                 return group;
             }
             return await groupService.getGroupById(group.id || group);
         })
-    ).then(results => results.filter(Boolean)) : [];
+    );
+    return collections.filter(Boolean);
+}
+
+async function resolveArticleRelatedArticles(article) {
+    if (!article.relatedArticles) return [];
     
-    const relatedArticles = article.relatedArticles ? await Promise.all(
+    const relatedArticles = await Promise.all(
         article.relatedArticles.map(async rel => {
             const relId = typeof rel === 'object' ? rel.id : rel;
             return await getArticleById(relId);
         })
-    ).then(results => results.filter(Boolean)) : [];
-    
-    const category = article.categoryId ? await categoryService.getCategoryById(article.categoryId) : null;
-    const owner = article.ownerId ? await ownerService.getOwnerById(article.ownerId) : null;
-    
-    return {
-        annotations,
-        tags,
-        collections,
-        relatedArticles,
-        category,
-        owner
-    };
+    );
+    return relatedArticles.filter(Boolean);
 }
 
+async function resolveArticleCategory(article) {
+    if (!article.categoryId) return null;
+    return await categoryService.getCategoryById(article.categoryId);
+}
+
+async function resolveArticleOwner(article) {
+    if (!article.ownerId) return null;
+    return await ownerService.getOwnerById(article.ownerId);
+}
+
+async function resolveArticleEntities(article, options = {}) {
+    const {
+        includeAnnotations = true,
+        includeTags = true,
+        includeCollections = true,
+        includeRelatedArticles = true,
+        includeCategory = true,
+        includeOwner = true
+    } = options;
+
+    // Only resolve the entities that are requested
+    const promises = [];
+    const entityKeys = [];
+
+    if (includeAnnotations) {
+        promises.push(resolveArticleAnnotations(article));
+        entityKeys.push('annotations');
+    }
+
+    if (includeTags) {
+        promises.push(resolveArticleTags(article));
+        entityKeys.push('tags');
+    }
+
+    if (includeCollections) {
+        promises.push(resolveArticleCollections(article));
+        entityKeys.push('collections');
+    }
+
+    if (includeRelatedArticles) {
+        promises.push(resolveArticleRelatedArticles(article));
+        entityKeys.push('relatedArticles');
+    }
+
+    if (includeCategory) {
+        promises.push(resolveArticleCategory(article));
+        entityKeys.push('category');
+    }
+
+    if (includeOwner) {
+        promises.push(resolveArticleOwner(article));
+        entityKeys.push('owner');
+    }
+
+    // Execute all requested promises in parallel
+    const results = await Promise.all(promises);
+
+    // Build the result object with only the requested entities
+    const resolvedEntities = {};
+    entityKeys.forEach((key, index) => {
+        resolvedEntities[key] = results[index];
+    });
+
+    // Always include default values for entities that weren't requested
+    return {
+        annotations: resolvedEntities.annotations || [],
+        tags: resolvedEntities.tags || [],
+        collections: resolvedEntities.collections || [],
+        relatedArticles: resolvedEntities.relatedArticles || [],
+        category: resolvedEntities.category || null,
+        owner: resolvedEntities.owner || null
+    };
+}
 
 const ArticleService = {
     initService,
     getArticleEntity,
     getArticleById,
     resolveArticleEntities,
+    resolveArticleAnnotations,
+    resolveArticleTags,
+    resolveArticleCollections,
+    resolveArticleRelatedArticles,
+    resolveArticleCategory,
+    resolveArticleOwner,
     createArticleProgrammatically,
     getAllArticles, //  TODO: remove
     updateArticleDate, // TODO: remove

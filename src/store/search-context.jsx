@@ -13,7 +13,7 @@ export default function SearchContextProvider({ children }) {
     const [filtering, setFiltering] = useState({});
     const [sidePanelCollapsed, setSidePanelCollapsed] = usePersistentState('sidePanelCollapsed', false);
     const [filteredArticles, setFilteredArticles] = useState([...allArticles]);
-    const [selectedArticles, setSelectedArticles] = useState([]);
+    const [selectedArticleIds, setSelectedArticleIds] = useState([]);
 
     const [selectedOwnerNames, setSelectedOwnerNames] = usePersistentState('selectedOwnerNames', []);
     const [selectedTagNames, setSelectedTagNames] = usePersistentState('selectedTagNames', []);
@@ -80,26 +80,22 @@ export default function SearchContextProvider({ children }) {
     const selectAllOrNone = (selectAll) => {
         setSelectAllOrNoneClicks(currentClicks => currentClicks + 1);
         setAllOrNoneSelected(selectAll);
-        setSelectedArticles(selectAll ? filteredArticles.map(art => art.id) : []);
+        setSelectedArticleIds(selectAll ? filteredArticles.map(art => art.id) : []);
     };    
 
     useEffect(() => {
         selectAllOrNone(false);
     }, [filteredArticles]);
 
-    const generatePDFOfSelectedArticles = () => {
-        console.log('generatePDFOfSelectedArticles not implemented yet');
-        toastr.warning(t('pdf not implemented yet'));
-    }
 
     const selectArticle = (articleId) => {
-        if (!selectedArticles.includes(articleId)) {
-            setSelectedArticles([...selectedArticles, articleId]);
+        if (!selectedArticleIds.includes(articleId)) {
+            setSelectedArticleIds([...selectedArticleIds, articleId]);
         }
     }
 
     const deselectArticle = (articleId) => {
-        setSelectedArticles(selectedArticles.filter(id => id !== articleId));
+        setSelectedArticleIds(selectedArticleIds.filter(id => id !== articleId));
     }
 
     useEffect(() => {
@@ -170,10 +166,9 @@ export default function SearchContextProvider({ children }) {
         setSearchInComments,
         filterStarred,
         setFilterStarred,
-        generatePDFOfSelectedArticles,
         selectArticle,
         deselectArticle,
-        selectedArticles,
+        selectedArticleIds,
         selectOnlyATag,
         selectOnlyAnOwner,
         selectOnlyACategory,

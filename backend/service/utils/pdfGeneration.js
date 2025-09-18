@@ -24,14 +24,14 @@ export const renderFormattedTextPDF = (doc, segments, options = {}) => {
             doc.moveDown(0.3); // Space between paragraphs
         }
         
-        // SIMPLE APPROACH: Just concatenate all text with ** markers for bold
+        
         let fullText = '';
         paragraphSegments.forEach((segment) => {
-            if (segment.bold) {
-                fullText += '**' + segment.text + '**';
-            } else {
+            // if (segment.bold) {
+            //     fullText += '**' + segment.text + '**';
+            // } else {
                 fullText += segment.text;
-            }
+            // }
         });
         
         // Set default font and render the full text

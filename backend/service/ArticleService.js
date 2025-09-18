@@ -905,12 +905,12 @@ async function resolveArticleAnnotations(article) {
     if (!article.annotations) return [];
     
     const annotations = await Promise.all(
-        article.annotations.map(async ann => {
-            if (typeof ann === 'object' && ann.note !== undefined) {
-                return ann;
-            }
-            return await annotationService.getAnnotationById(ann.id || ann);
-        })
+            article.annotations.map(async ann => {
+                if (typeof ann === 'object' && ann.note !== undefined) {
+                    return ann;
+                }
+                return await annotationService.getAnnotationById(ann.id || ann);
+            })
     );
     return annotations.filter(Boolean);
 }
@@ -919,38 +919,38 @@ async function resolveArticleTags(article) {
     if (!article.tags) return [];
     
     const tags = await Promise.all(
-        article.tags.map(async tag => {
-            if (typeof tag === 'object' && tag.name !== undefined) {
-                return tag;
-            }
-            return await tagService.getTagWithId(tag.id || tag);
-        })
+            article.tags.map(async tag => {
+                if (typeof tag === 'object' && tag.name !== undefined) {
+                    return tag;
+                }
+                return await tagService.getTagWithId(tag.id || tag);
+            })
     );
     return tags.filter(Boolean);
 }
-
+        
 async function resolveArticleCollections(article) {
     if (!article.groups) return [];
     
     const collections = await Promise.all(
-        article.groups.map(async group => {
-            if (typeof group === 'object' && group.name !== undefined) {
-                return group;
-            }
-            return await groupService.getGroupById(group.id || group);
-        })
+            article.groups.map(async group => {
+                if (typeof group === 'object' && group.name !== undefined) {
+                    return group;
+                }
+                return await groupService.getGroupById(group.id || group);
+            })
     );
     return collections.filter(Boolean);
 }
-
+        
 async function resolveArticleRelatedArticles(article) {
     if (!article.relatedArticles) return [];
     
     const relatedArticles = await Promise.all(
-        article.relatedArticles.map(async rel => {
-            const relId = typeof rel === 'object' ? rel.id : rel;
-            return await getArticleById(relId);
-        })
+            article.relatedArticles.map(async rel => {
+                const relId = typeof rel === 'object' ? rel.id : rel;
+                return await getArticleById(relId);
+            })
     );
     return relatedArticles.filter(Boolean);
 }

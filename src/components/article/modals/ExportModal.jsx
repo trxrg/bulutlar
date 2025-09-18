@@ -39,6 +39,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
 
     // translations for the document
     const getTranslations = () => ({
+        saveMergedArticles: t('export selected articles'),
         exportArticle: t('export article'),
         comment: t('comment'),
         images: t('images'),

@@ -169,7 +169,6 @@ async function buildContentSectionsHTML(article, options, imagesFolderPath, tran
                         <img src="data:${mimeType};base64,${base64Image}" 
                              alt="${escapeHtml(image.name || 'Image')}"
                              class="embedded-image" />
-                        ${image.name ? `<p class="image-caption">${escapeHtml(image.name)}</p>` : ''}
                     </div>`;
             } catch (error) {
                 console.error('Error embedding image:', error);
@@ -179,57 +178,6 @@ async function buildContentSectionsHTML(article, options, imagesFolderPath, tran
         contentHTML += `</section>`;
     }
     
-    // Audio section
-    if (options.audio && article.audios && article.audios.length > 0) {
-        contentHTML += `<section class="audio-section">`;
-        for (const audio of article.audios) {
-            try {
-                const audioPath = path.join(imagesFolderPath, audio.path);
-                const audioBuffer = await fs.readFile(audioPath);
-                const base64Audio = audioBuffer.toString('base64');
-                const mimeType = getAudioMimeType(audio.path);
-                
-                contentHTML += `
-                    <div class="audio-container">
-                        <audio controls class="embedded-audio">
-                            <source src="data:${mimeType};base64,${base64Audio}" type="${mimeType}">
-                            Your browser does not support the audio element.
-                        </audio>
-                        ${audio.name ? `<p class="audio-caption">${escapeHtml(audio.name)}</p>` : ''}
-                    </div>`;
-            } catch (error) {
-                console.error('Error embedding audio:', error);
-                contentHTML += `<p class="audio-placeholder">[Audio: ${escapeHtml(audio.name)}]</p>`;
-            }
-        }
-        contentHTML += `</section>`;
-    }
-    
-    // Video section  
-    if (options.video && article.videos && article.videos.length > 0) {
-        contentHTML += `<section class="video-section">`;
-        for (const video of article.videos) {
-            try {
-                const videoPath = path.join(imagesFolderPath, video.path);
-                const videoBuffer = await fs.readFile(videoPath);
-                const base64Video = videoBuffer.toString('base64');
-                const mimeType = getVideoMimeType(video.path);
-                
-                contentHTML += `
-                    <div class="video-container">
-                        <video controls class="embedded-video">
-                            <source src="data:${mimeType};base64,${base64Video}" type="${mimeType}">
-                            Your browser does not support the video element.
-                        </video>
-                        ${video.name ? `<p class="video-caption">${escapeHtml(video.name)}</p>` : ''}
-                    </div>`;
-            } catch (error) {
-                console.error('Error embedding video:', error);
-                contentHTML += `<p class="video-placeholder">[Video: ${escapeHtml(video.name)}]</p>`;
-            }
-        }
-        contentHTML += `</section>`;
-    }
     
     return contentHTML;
 }
@@ -307,7 +255,6 @@ function getEmbeddedCSS() {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
-            background-color: #fff;
         }
         
         .container {
@@ -337,7 +284,6 @@ function getEmbeddedCSS() {
         .article-info {
             font-size: 0.9rem;
             color: #666;
-            font-style: italic;
         }
         
         /* Content styles */
@@ -356,7 +302,7 @@ function getEmbeddedCSS() {
         
         /* Preserve Draft.js formatting */
         .content-html p {
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
         
         .content-html strong, .content-html b {
@@ -398,40 +344,23 @@ function getEmbeddedCSS() {
         }
         
         /* Media sections */
-        .images-section, .audio-section, .video-section {
+        .images-section {
             margin: 2rem 0;
         }
         
-        .image-container, .audio-container, .video-container {
+        .image-container {
             text-align: center;
             margin: 1.5rem 0;
         }
         
         .embedded-image {
-            max-width: 100%;
+            width: 100%;
             height: auto;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
-        .embedded-audio, .embedded-video {
-            max-width: 100%;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .embedded-video {
-            max-height: 400px;
-        }
-        
-        .image-caption, .audio-caption, .video-caption {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 0.5rem;
-            font-style: italic;
-        }
-        
-        .image-placeholder, .audio-placeholder, .video-placeholder {
+        .image-placeholder {
             font-style: italic;
             color: #999;
             text-align: center;
@@ -486,7 +415,7 @@ function getEmbeddedCSS() {
             .container {
                 max-width: none;
                 margin: 0;
-                padding: 0;
+                padding: 1rem;
             }
             
             .document-title, .article-title {
@@ -501,14 +430,10 @@ function getEmbeddedCSS() {
             }
             
             .embedded-image {
-                max-width: 100%;
+                width: 100%;
                 box-shadow: none;
                 page-break-inside: avoid;
                 margin: 1rem 0;
-            }
-            
-            .embedded-audio, .embedded-video {
-                page-break-inside: avoid;
             }
             
             .article-separator {
@@ -523,6 +448,7 @@ function getEmbeddedCSS() {
             .content-html p {
                 orphans: 3;
                 widows: 3;
+                margin-bottom: 0.5rem;
             }
             
             .notes-section, .tags-section, .related-articles-section, .collections-section {
@@ -537,13 +463,13 @@ function getEmbeddedCSS() {
         
         /* Puppeteer-specific optimizations */
         @page {
-            margin: 0;
+            margin: 1.5cm;
             size: A4;
         }
         
         body {
             margin: 0;
-            padding: 2rem;
+            padding: 0;
         }
         
         /* Responsive design */
@@ -590,28 +516,3 @@ function getMimeType(filePath) {
     return mimeTypes[ext] || 'image/jpeg';
 }
 
-function getAudioMimeType(filePath) {
-    const ext = path.extname(filePath).toLowerCase();
-    const mimeTypes = {
-        '.mp3': 'audio/mpeg',
-        '.wav': 'audio/wav',
-        '.ogg': 'audio/ogg',
-        '.m4a': 'audio/mp4',
-        '.aac': 'audio/aac',
-        '.flac': 'audio/flac'
-    };
-    return mimeTypes[ext] || 'audio/mpeg';
-}
-
-function getVideoMimeType(filePath) {
-    const ext = path.extname(filePath).toLowerCase();
-    const mimeTypes = {
-        '.mp4': 'video/mp4',
-        '.webm': 'video/webm',
-        '.ogg': 'video/ogg',
-        '.avi': 'video/x-msvideo',
-        '.mov': 'video/quicktime',
-        '.wmv': 'video/x-ms-wmv'
-    };
-    return mimeTypes[ext] || 'video/mp4';
-}

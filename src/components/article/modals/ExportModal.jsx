@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import GeneralModal from '../../common/GeneralModal.jsx';
 import ActionButton from '../../common/ActionButton.jsx';
+import LoadingToastr from '../../common/LoadingToastr.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import Checkbox from '@mui/material/Checkbox';
 import toastr from 'toastr';
@@ -8,6 +9,7 @@ import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 
 const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArticle = false }) => {
     const { translate: t } = useContext(AppContext);
+
 
     const [exportOptions, setExportOptions] = useState({
         explanation: true,
@@ -22,6 +24,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
     });
 
     const [documentTitle, setDocumentTitle] = useState('');
+    const [isExporting, setIsExporting] = useState(false);
 
     const handleOptionChange = (option) => {
         setExportOptions(prev => ({
@@ -60,13 +63,28 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
 
     const handleSingleArticleExport = async () => {
         try {
+            setIsExporting(true);
+            
             const exportData = {
                 articleId: article.id,
                 options: exportOptions,
                 translations: getTranslations()
             };
 
+            // Show loading toastr for PDF and Word exports
+            let loadingToastr = null;
+            if (exportOptions.format === 'pdf') {
+                loadingToastr = LoadingToastr.show(t('generating pdf') + '...');
+            } else if (exportOptions.format === 'docx') {
+                loadingToastr = LoadingToastr.show(t('generating word') + '...');
+            }
+
             const result = await articleApi.exportArticle(exportData);
+            
+            // Clear loading toastr
+            if (loadingToastr) {
+                loadingToastr.hide();
+            }
             
             if (result.success) {
                 toastr.success(t('article exported successfully'));
@@ -77,6 +95,8 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         } catch (error) {
             console.error('Single article export error:', error);
             toastr.error(t('export failed'));
+        } finally {
+            setIsExporting(false);
         }
     };
 
@@ -87,6 +107,8 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                 return;
             }
 
+            setIsExporting(true);
+
             const exportData = {
                 articleIds: articleIds,
                 options: exportOptions,
@@ -95,7 +117,20 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                 translations: getTranslations()
             };
 
+            // Show loading toastr for PDF and Word exports
+            let loadingToastr = null;
+            if (exportOptions.format === 'pdf') {
+                loadingToastr = LoadingToastr.show(t('generating pdf') + '...');
+            } else if (exportOptions.format === 'docx') {
+                loadingToastr = LoadingToastr.show(t('generating word') + '...');
+            }
+
             const result = await articleApi.exportMultipleArticles(exportData);
+            
+            // Clear loading toastr
+            if (loadingToastr) {
+                loadingToastr.hide();
+            }
             
             if (result.success) {
                 toastr.success(t('articles exported successfully'));
@@ -106,6 +141,8 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         } catch (error) {
             console.error('Multi-article export error:', error);
             toastr.error(t('export failed'));
+        } finally {
+            setIsExporting(false);
         }
     };
 
@@ -314,7 +351,13 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                 {/* Fixed Button Area */}
                 <div className='flex justify-end gap-2 mt-4 pt-4 border-t' style={{ borderColor: 'var(--border-color)' }}>
                     <ActionButton onClick={onRequestClose} color='red'>{t('cancel')}</ActionButton>
-                    <ActionButton onClick={handleExport} color='blue'>{t('export')}</ActionButton>
+                    <ActionButton 
+                    onClick={handleExport} 
+                    color='blue' 
+                    disabled={isExporting}
+                >
+                    {isExporting ? t('exporting') + '...' : t('export')}
+                </ActionButton>
                 </div>
             </div>
         </GeneralModal>

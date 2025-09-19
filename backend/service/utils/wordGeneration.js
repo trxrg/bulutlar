@@ -70,29 +70,7 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
         }
     }
 
-    if (options.comment && article.comments && article.comments.length > 0 && article.comments[0].text) {
-        const formattedRuns = htmlToFormattedRuns(article.comments[0].text);
-        if (formattedRuns.length > 0) {
-            children.push(new Paragraph({
-                children: [new TextRun({ text: translations?.comment || 'Comment', bold: true, size: 24, font: 'Arial' })],
-                heading: HeadingLevel.HEADING_1,
-                spacing: { before: 300, after: 200 }
-            }));
-            formattedRuns.forEach((runs, index) => {
-                children.push(new Paragraph({
-                    children: runs,
-                    spacing: { 
-                        after: index === formattedRuns.length - 1 ? 120 : 60, 
-                        line: 360, 
-                        lineRule: 'auto' 
-                    }
-                }));
-            });
-            children.push(new Paragraph({ text: '' })); // Empty line
-        }
-    }
-
-    // Images
+    // Images (moved after main text)
     if (options.images && article.images && article.images.length > 0) {
         for (const image of article.images) {
             try {
@@ -124,6 +102,29 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
             }
         }
         children.push(new Paragraph({ text: '' })); // Empty line
+    }
+
+    // Comment (moved after images)
+    if (options.comment && article.comments && article.comments.length > 0 && article.comments[0].text) {
+        const formattedRuns = htmlToFormattedRuns(article.comments[0].text);
+        if (formattedRuns.length > 0) {
+            children.push(new Paragraph({
+                children: [new TextRun({ text: translations?.comment || 'Comment', bold: true, size: 24, font: 'Arial' })],
+                heading: HeadingLevel.HEADING_1,
+                spacing: { before: 300, after: 200 }
+            }));
+            formattedRuns.forEach((runs, index) => {
+                children.push(new Paragraph({
+                    children: runs,
+                    spacing: { 
+                        after: index === formattedRuns.length - 1 ? 120 : 60, 
+                        line: 360, 
+                        lineRule: 'auto' 
+                    }
+                }));
+            });
+            children.push(new Paragraph({ text: '' })); // Empty line
+        }
     }
 
     // Notes/Annotations
@@ -286,29 +287,7 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
             }
         }
 
-        // Comment
-        if (options.comment && article.comments && article.comments.length > 0 && !isHtmlStringEmpty(article.comments[0]?.text)) {
-            const formattedRuns = htmlToFormattedRuns(article.comments[0].text);
-            if (formattedRuns.length > 0) {
-                children.push(new Paragraph({
-                    children: [new TextRun({ text: translations?.comment || 'Comment', bold: true, size: 24, font: 'Arial' })],
-                    heading: HeadingLevel.HEADING_1,
-                    spacing: { before: 300, after: 200 }
-                }));
-                formattedRuns.forEach((runs, index) => {
-                    children.push(new Paragraph({
-                        children: runs,
-                        spacing: { 
-                            after: index === formattedRuns.length - 1 ? 120 : 60, 
-                            line: 360, 
-                            lineRule: 'auto' 
-                        }
-                    }));
-                });
-            }
-        }
-
-        // Images
+        // Images (moved after main text)
         if (options.images && article.images && article.images.length > 0) {
             for (const image of article.images) {
                 try {
@@ -335,6 +314,28 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
                 } catch (error) {
                     console.error('Error adding image to Word:', error);
                 }
+            }
+        }
+
+        // Comment (moved after images)
+        if (options.comment && article.comments && article.comments.length > 0 && !isHtmlStringEmpty(article.comments[0]?.text)) {
+            const formattedRuns = htmlToFormattedRuns(article.comments[0].text);
+            if (formattedRuns.length > 0) {
+                children.push(new Paragraph({
+                    children: [new TextRun({ text: translations?.comment || 'Comment', bold: true, size: 24, font: 'Arial' })],
+                    heading: HeadingLevel.HEADING_1,
+                    spacing: { before: 300, after: 200 }
+                }));
+                formattedRuns.forEach((runs, index) => {
+                    children.push(new Paragraph({
+                        children: runs,
+                        spacing: { 
+                            after: index === formattedRuns.length - 1 ? 120 : 60, 
+                            line: 360, 
+                            lineRule: 'auto' 
+                        }
+                    }));
+                });
             }
         }
 

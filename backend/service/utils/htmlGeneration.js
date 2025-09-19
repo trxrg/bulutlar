@@ -145,16 +145,7 @@ async function buildContentSectionsHTML(article, options, imagesFolderPath, tran
             </section>`;
     }
     
-    // Comment section
-    if (options.comment && article.comments && article.comments.length > 0 && !isHtmlStringEmpty(article.comments[0]?.text)) {
-        contentHTML += `
-            <section class="comment-section">
-                <h3 class="section-title">${escapeHtml(translations?.comment || 'Comment')}</h3>
-                <div class="content-html">${article.comments[0].text}</div>
-            </section>`;
-    }
-    
-    // Images section
+    // Images section (moved after main text)
     if (options.images && article.images && article.images.length > 0) {
         contentHTML += `<section class="images-section">`;
         for (const image of article.images) {
@@ -176,6 +167,15 @@ async function buildContentSectionsHTML(article, options, imagesFolderPath, tran
             }
         }
         contentHTML += `</section>`;
+    }
+    
+    // Comment section (moved after images)
+    if (options.comment && article.comments && article.comments.length > 0 && !isHtmlStringEmpty(article.comments[0]?.text)) {
+        contentHTML += `
+            <section class="comment-section">
+                <h3 class="section-title">${escapeHtml(translations?.comment || 'Comment')}</h3>
+                <div class="content-html">${article.comments[0].text}</div>
+            </section>`;
     }
     
     

@@ -303,5 +303,8 @@
     "no articles selected for export": "No articles selected for export",
     "articles exported successfully": "Articles exported successfully",
     "article exported successfully": "Article exported successfully",
-    "export failed": "Export failed"
+    "export failed": "Export failed",
+    "generating pdf": "Generating PDF",
+    "generating word": "Generating Word",
+    "exporting": "Exporting"
   }

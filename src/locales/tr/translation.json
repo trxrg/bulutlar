@@ -310,5 +310,8 @@
     "no articles selected for export": "Dışa aktarma için yazı seçilmedi",
     "articles exported successfully": "Yazılar başarıyla dışa aktarıldı",
     "article exported successfully": "Yazı başarıyla dışa aktarıldı",
-    "export failed": "Dışa aktarma başarısız"
+    "export failed": "Dışa aktarma başarısız",
+    "generating pdf": "PDF Oluşturuluyor",
+    "generating word": "Word Oluşturuluyor",
+    "exporting": "Dışa Aktarılıyor"
 }

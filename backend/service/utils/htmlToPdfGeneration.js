@@ -120,7 +120,7 @@ export async function generateMergedHTMLToPDF(exportData, filePath, imagesFolder
         });
         
         // Wait a bit more for any dynamic content to load
-        await page.waitForTimeout(2000);
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Generate PDF with high quality settings
         await page.pdf({
@@ -221,7 +221,7 @@ export async function generateCustomHTMLToPDF(exportData, filePath, imagesFolder
         
         // Wait for fonts and images to load
         await page.evaluateHandle('document.fonts.ready');
-        await page.waitForTimeout(1000);
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Generate PDF
         await page.pdf({

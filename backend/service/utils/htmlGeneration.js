@@ -374,7 +374,6 @@ function getEmbeddedCSS() {
         .article-footer {
             margin-top: 3rem;
             padding-top: 2rem;
-            border-top: 1px solid #e5e5e5;
         }
         
         .notes-section, .tags-section, .related-articles-section, .collections-section {

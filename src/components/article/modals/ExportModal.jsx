@@ -79,6 +79,9 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                 loadingToastr = LoadingToastr.show(t('generating word') + '...');
             }
 
+            // Close modal after showing toastr message
+            onRequestClose();
+            
             const result = await articleApi.exportArticle(exportData);
             
             // Clear loading toastr
@@ -88,13 +91,15 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
             
             if (result.success) {
                 toastr.success(t('article exported successfully'));
-                onRequestClose();
             } else {
                 toastr.error(t('export failed'));
             }
+            
         } catch (error) {
             console.error('Single article export error:', error);
             toastr.error(t('export failed'));
+            // Close modal after showing error toastr message
+            onRequestClose();
         } finally {
             setIsExporting(false);
         }
@@ -104,6 +109,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         try {
             if (!articleIds || articleIds.length === 0) {
                 toastr.warning(t('no articles selected for export'));
+                onRequestClose();
                 return;
             }
 
@@ -125,6 +131,9 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                 loadingToastr = LoadingToastr.show(t('generating word') + '...');
             }
 
+            // Close modal after showing toastr message
+            onRequestClose();
+
             const result = await articleApi.exportMultipleArticles(exportData);
             
             // Clear loading toastr
@@ -134,13 +143,15 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
             
             if (result.success) {
                 toastr.success(t('articles exported successfully'));
-                onRequestClose();
             } else {
                 toastr.error(t('export failed'));
             }
+            
         } catch (error) {
             console.error('Multi-article export error:', error);
             toastr.error(t('export failed'));
+            // Close modal after showing error toastr message
+            onRequestClose();
         } finally {
             setIsExporting(false);
         }

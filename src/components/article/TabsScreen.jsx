@@ -53,7 +53,10 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
       className="group min-w-60 py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent tab-item focus:outline-none relative text-left"
       style={{
         backgroundColor: isActive ? 'var(--bg-primary)' : 'var(--bg-secondary)',
-        color: 'var(--text-primary)',
+        color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+        fontWeight: isActive ? '600' : '400',
+        transform: isActive ? 'translateY(-1px)' : 'translateY(0)',
+        boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
         ...style
       }}
       onClick={() => onTabClick(tab.id)}
@@ -152,6 +155,23 @@ const TabsScreen = () => {
             pointer-events: none;
           }
           .tab-container.dragging * {
+            pointer-events: none;
+          }
+          
+          .tab-item.active {
+            position: relative;
+            z-index: 10;
+          }
+          
+          .tab-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border-radius: 4px 4px 0 0;
             pointer-events: none;
           }
         `}

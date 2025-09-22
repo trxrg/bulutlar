@@ -12,18 +12,18 @@ import { articleApi } from '../../../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
 
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
 const RelatedArticlesPanel = () => {
@@ -64,7 +64,7 @@ const RelatedArticlesPanel = () => {
             // Make sure both indices are valid
             if (oldIndex !== -1 && newIndex !== -1) {
                 const newOrder = arrayMove(localRelatedArticles, oldIndex, newIndex);
-                
+
                 // Update local state immediately for smooth UI
                 setLocalRelatedArticles(newOrder);
 
@@ -75,7 +75,7 @@ const RelatedArticlesPanel = () => {
                         ordering: index
                     }));
                     await articleApi.updateRelatedArticleOrderings(article.id, orderings);
-                    
+
                     // Refresh the article to get the updated order from database
                     await fetchArticleById(article.id);
                 } catch (error) {
@@ -104,22 +104,24 @@ const RelatedArticlesPanel = () => {
                         >
                             <SortableContext items={localRelatedArticles.map(rel => rel.id).filter(id => id)} strategy={verticalListSortingStrategy}>
                                 {localRelatedArticles.map((relatedArticle) => (
-                                    <RelatedArticleCard 
-                                        key={relatedArticle.id} 
-                                        relatedArticle={relatedArticle} 
-                                        onClick={() => openViewArticleModal(relatedArticle.id)} 
+                                    <RelatedArticleCard
+                                        key={relatedArticle.id}
+                                        relatedArticle={relatedArticle}
+                                        onClick={() => openViewArticleModal(relatedArticle.id)}
                                     />
                                 ))}
                             </SortableContext>
                         </DndContext>
                     </div>
                     :
-                    <div className='flex justify-center p-2 h-full'>
-                        <p>{t('no related articles')}</p>
+                    <div className='h-full p-2'>
+                        <div className='flex items-start p-2' style={{ color: 'var(--text-secondary)' }}>
+                            <p>{t('no related articles')}</p>
+                        </div>
                     </div>}
             </BodyWithFixedHeader>
             <PickArticleModal isOpen={isPickArticleModalOpen} onRequestClose={() => setIsPickArticleModalOpen(false)} articleId={article.id} onViewClicked={(id) => openViewArticleModal(id)} />
-            <ViewArticleModal isOpen={isViewArticleModalOpen} onRequestClose={() => setIsViewArticleModalOpen(false)} viewedArticleId={viewedArticleId} afterViewInNewTab={()=>setIsPickArticleModalOpen(false)} ></ViewArticleModal>
+            <ViewArticleModal isOpen={isViewArticleModalOpen} onRequestClose={() => setIsViewArticleModalOpen(false)} viewedArticleId={viewedArticleId} afterViewInNewTab={() => setIsPickArticleModalOpen(false)} ></ViewArticleModal>
         </div>
     );
 };

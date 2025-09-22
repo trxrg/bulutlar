@@ -25,7 +25,10 @@ const OrderBySelect = ({ onOrderChange, initialSelection }) => {
                  backgroundColor: 'var(--bg-primary)',
                  border: '1px solid var(--border-secondary)',
                  borderRadius: '0.25rem',
-                 padding: '0.25rem'
+                 padding: '0.25rem',
+                 minWidth: '260px',
+                 maxWidth: '260px',
+                 width: '260px'
              }}>
             <div className="flex items-center ml-3">
                 <BarsArrowDownIcon className="w-5 h-5" style={{ color: 'var(--text-tertiary)' }} />

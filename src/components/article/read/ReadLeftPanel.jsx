@@ -176,7 +176,7 @@ const ReadLeftPanel = () => {
                             </SortableContext>
                         </DndContext>
                     ) : !isAddingNew && (
-                        <div className='flex justify-center items-center h-full'>
+                        <div className='flex items-start p-2'>
                             <p style={{ color: 'var(--text-secondary)' }}>{t('no notes')}</p>
                         </div>
                     )}

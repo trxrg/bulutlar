@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 const SearchHeader = () => {
@@ -10,7 +9,7 @@ const SearchHeader = () => {
                  backgroundColor: 'var(--bg-primary)', 
                  borderBottomColor: 'var(--border-primary)' 
              }}>
-            <h1 className='text-3xl' style={{ color: 'var(--text-primary)' }}>
+            <h1 className='flex text-3xl justify-center' style={{ color: 'var(--text-primary)' }}>
                 {t('search screen')}
             </h1>
         </div>

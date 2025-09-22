@@ -122,8 +122,25 @@
     transition: all 0.2s ease;
   }
 
+  .action-button:focus {
+    outline: none;
+    border: 2px solid var(--border-primary) !important;
+    box-shadow: 0 0 0 2px var(--border-secondary);
+    background-color: var(--bg-tertiary);
+  }
+
   .action-button:hover {
     filter: brightness(1.1);
+  }
+
+
+  /* Annotation textarea focus style */
+  textarea:focus {
+    outline: none;
+    border: 3px solid var(--border-primary) !important;
+    box-shadow: 0 0 0 3px var(--border-secondary);
+    background-color: var(--bg-tertiary);
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
   }
 
   /* Annotation card hover effect */

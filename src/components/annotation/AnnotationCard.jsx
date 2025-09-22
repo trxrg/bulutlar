@@ -51,17 +51,18 @@ const AnnotationCard = ({ annotation, articleId, onUpdate, onDelete, onCancel, i
     };
 
     const handleSave = async () => {
-        if (!noteText.trim()) {
+        const trimmedNote = noteText.trim();
+        if (!trimmedNote) {
             setMsg(t('note') + t('cannot be empty'));
             return;
         }
 
         try {
             if (isAdding) {
-                await articleApi.addAnnotation(articleId, { note: noteText });
+                await articleApi.addAnnotation(articleId, { note: trimmedNote });
                 toastr.success(t('note') + t('added'));
             } else {
-                await annotationApi.updateNote(annotation.id, noteText);
+                await annotationApi.updateNote(annotation.id, trimmedNote);
                 toastr.success(t('note') + t('updated'));
             }
             
@@ -90,42 +91,41 @@ const AnnotationCard = ({ annotation, articleId, onUpdate, onDelete, onCancel, i
             }}
         >
             {isEditing ? (
-                <div className="flex">
-                    <div className="flex-1">
-                        <div className="flex flex-col gap-2 text-xl">
-                            <textarea
-                                placeholder={isAdding ? t('write your note here') : ''}
-                                value={noteText}
-                                onChange={(e) => setNoteText(e.target.value)}
-                                rows="4"
-                                className="w-full p-2 rounded border resize-none"
-                                style={{
-                                    backgroundColor: 'var(--bg-primary)',
-                                    color: 'var(--text-primary)',
-                                    borderColor: 'var(--border-secondary)'
-                                }}
-                                autoFocus
-                            />
-                            {msg && (
-                                <div className="text-red-400 text-sm p-2 bg-red-50 dark:bg-red-900/20 rounded">
-                                    {msg}
-                                </div>
-                            )}
-                            <div className="flex justify-between items-center">
-                                {!isAdding && annotation && (
-                                    <div className="text-sm italic" style={{ color: 'var(--text-tertiary)' }}>
-                                        {t('last update')}: {new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}
-                                    </div>
-                                )}
-                                <div className={`flex gap-2 ${isAdding ? 'justify-end' : ''}`}>
-                                    <ActionButton color="red" onClick={handleCancel}>
-                                        {t('cancel')}
-                                    </ActionButton>
-                                    <ActionButton color="blue" onClick={handleSave}>
-                                        {isAdding ? t('add') : t('update')}
-                                    </ActionButton>
-                                </div>
+                <div className="flex flex-col w-full">
+                    <textarea
+                        placeholder={isAdding ? t('write your note here') : ''}
+                        value={noteText}
+                        onChange={(e) => setNoteText(e.target.value)}
+                        rows="4"
+                        className="w-full p-2 rounded border"
+                        style={{
+                            backgroundColor: 'var(--bg-primary)',
+                            color: 'var(--text-primary)',
+                            border: '2px solid var(--border-primary)',
+                            boxShadow: '0 0 0 2px var(--border-secondary)',
+                            resize: 'vertical',
+                            minWidth: 0,
+                        }}
+                        autoFocus
+                    />
+                    {msg && (
+                        <div className="text-red-400 text-sm p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                            {msg}
+                        </div>
+                    )}
+                    <div className="flex flex-wrap justify-between items-center mt-2 gap-2 w-full">
+                        {!isAdding && annotation && (
+                            <div className="text-sm italic" style={{ color: 'var(--text-tertiary)' }}>
+                                {t('last update')}: {new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}
                             </div>
+                        )}
+                        <div className={`flex flex-wrap gap-2 ${isAdding ? 'justify-end' : ''}`} style={{ minWidth: 0 }}>
+                            <ActionButton color="red" onClick={handleCancel}>
+                                {t('cancel')}
+                            </ActionButton>
+                            <ActionButton color="blue" onClick={handleSave}>
+                                {isAdding ? t('add') : t('update')}
+                            </ActionButton>
                         </div>
                     </div>
                 </div>
@@ -137,7 +137,7 @@ const AnnotationCard = ({ annotation, articleId, onUpdate, onDelete, onCancel, i
                             {...attributes}
                             {...listeners}
                         >
-                            <div className="w-1 h-6 rounded" style={{ backgroundColor: 'var(--text-secondary)' }}></div>
+                            <div className="w-1 h-8 rounded-full" style={{ backgroundColor: 'var(--text-secondary)' }}></div>
                         </div>
                     )}
                     <div className="flex-1">

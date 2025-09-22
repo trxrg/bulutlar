@@ -43,6 +43,7 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
     transform: transform ? `translate3d(${transform.x}px, 0, 0)` : undefined,
     transition,
     opacity: isDragging ? 0.5 : 1,
+    boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15), 0 0 8px rgba(0,0,0,0.10)' : 'none',
   };
 
   return (
@@ -54,7 +55,7 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
         color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
         fontWeight: isActive ? '600' : '400',
         transform: isActive ? 'translateY(-1px)' : 'translateY(0)',
-        boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+        zIndex: isActive ? 10 : 1,
         ...style
       }}
       onClick={() => onTabClick(tab.id)}

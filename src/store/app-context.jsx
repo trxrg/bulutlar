@@ -69,8 +69,17 @@ export default function AppContextProvider({ children }) {
     }, [isReadyToShow]);
 
     const cleanTabs = () => {
-        const validTabs = tabs.filter(tab => allArticles.some(article => article.id === tab.id));
-        setTabs([{ id: 'search', title: 'Search' }, ...validTabs]);
+        // Filter out invalid tabs but preserve the order
+        const validTabs = tabs.filter(tab => 
+            tab.id === 'search' || allArticles.some(article => article.id === tab.id)
+        );
+        
+        // Ensure search tab exists, but don't force it to be first
+        if (!validTabs.some(tab => tab.id === 'search')) {
+            validTabs.unshift({ id: 'search', title: 'Search' });
+        }
+        
+        setTabs(validTabs);
         if (!validTabs.map(tab => tab.id).includes(activeTabId))
             setActiveTabId('search');
     }
@@ -205,6 +214,13 @@ export default function AppContextProvider({ children }) {
         setActiveTabId('search');
     }
 
+    const reorderTabs = (startIndex, endIndex) => {
+        const newTabs = Array.from(tabs);
+        const [removed] = newTabs.splice(startIndex, 1);
+        newTabs.splice(endIndex, 0, removed);
+        setTabs(newTabs);
+    }
+
     const normalizeText = (text) => {
         if (!text)
             return '';
@@ -234,6 +250,7 @@ export default function AppContextProvider({ children }) {
         setActiveTabId,
         addTab: handleAddTab,
         closeTab: handleCloseTab,
+        reorderTabs,
         tabs,
         activeScreen,
         resetTabs,

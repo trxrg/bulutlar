@@ -47,6 +47,15 @@ npm run package-linux
 ```
 
 ## Versions
+1.4.9
+- make tabs and all cards orderable
+- fix bugs
+- improve styling
+  
+1.4.8
+- add export as word and pdf functionalities
+- improve styling
+  
 1.4.7
 - add read-time estimations for articles
 - fix layout and styling issues

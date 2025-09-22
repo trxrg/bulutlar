@@ -6,11 +6,10 @@ import BodyWithFixedHeader from '../../common/BodyWithFixedHeader';
 import ReadControls from './ReadControls';
 import ReadContent from './ReadContent';
 import ReadRightPanel from './right-panel/ReadRightPanel';
-import AnnotationModal from '../../annotation/AnnotationModal';
 
 const ReadBody = () => {
 
-  const { leftPanelCollapsed, rightPanelCollapsed, article, isAnnotationModalOpen, setAnnotationModalOpen, annotationIdForModal } = useContext(ReadContext);
+  const { leftPanelCollapsed, rightPanelCollapsed, article } = useContext(ReadContext);
 
   const [containerWidth, setContainerWidth] = useState(window.innerWidth);
 

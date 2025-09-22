@@ -17,7 +17,6 @@ const Quote = (props) => {
     const end = props.end;
 
     const { translate: t } = useContext(AppContext);
-    const { setAnnotationModalOpen, setAnnotationIdForModal } = useContext(ReadContext);
     const { fetchAllAnnotations } = useContext(DBContext);
 
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);

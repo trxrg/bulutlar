@@ -16,8 +16,6 @@ export default function ReadContextProvider({ children, article }) {
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
     const [searchTerm, setSearchTerm] = useState('');
-    const [isAnnotationModalOpen, setAnnotationModalOpen] = useState(false);
-    const [annotationIdForModal, setAnnotationIdForModal] = useState(null);
     const [currentHighlightIndex, setCurrentHighlightIndex] = useState(-1);
     const [allHighlightRefs, setAllHighlightRefs] = useState([]); // Combined refs from all editors
     const articleId = article.id;
@@ -221,10 +219,6 @@ export default function ReadContextProvider({ children, article }) {
         setContextMenuPosition,
         searchTerm,
         setSearchTerm,
-        isAnnotationModalOpen,
-        setAnnotationModalOpen,
-        annotationIdForModal,
-        setAnnotationIdForModal,
         setCurrentHighlightIndex,
         allHighlightRefs,
         setAllHighlightRefs,

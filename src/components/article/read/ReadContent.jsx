@@ -3,7 +3,6 @@ import { articleApi, commentApi } from '../../../backend-adapter/BackendAdapter.
 import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
 import AddLinkModal from "../modals/AddLinkModal.jsx";
-import AnnotationModal from "../../annotation/AnnotationModal.jsx";
 import RichEditor from "./editor/RichEditor.jsx";
 import ContextMenu from "../../common/ContextMenu.jsx";
 import InlineToolbar from "./editor/InlineToolbar.jsx";
@@ -18,8 +17,7 @@ const ReadContent = () => {
     const [activeEditorRef, setActiveEditorRef] = useState(mainTextEditorRef);
     const { article, readContentRef, fontSize, editable, syncArticleFromBE, 
         isAddLinkModalOpen, setAddLinkModalOpen, contextMenuIsOpen,
-         contextMenuPosition, setContextMenuIsOpen, 
-         isAnnotationModalOpen, setAnnotationModalOpen, annotationIdForModal } = useContext(ReadContext);
+         contextMenuPosition, setContextMenuIsOpen } = useContext(ReadContext);
 
     const { translate: t } = useContext(AppContext);
 
@@ -180,7 +178,6 @@ const ReadContent = () => {
                     </div>}
             </div>
             <AddLinkModal isOpen={isAddLinkModalOpen} onRequestClose={() => setAddLinkModalOpen(false)} handleAdd={handleAddLink} />
-            <AnnotationModal isOpen={isAnnotationModalOpen} onRequestClose={() => setAnnotationModalOpen(false)} annotationId={annotationIdForModal} articleId={article.id} />
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>
                 <InlineToolbar />
             </ContextMenu>

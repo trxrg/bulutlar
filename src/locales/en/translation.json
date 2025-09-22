@@ -88,6 +88,9 @@
     "error adding note": "Error adding note",
     "error updating note": "Error updating note",
     "error deleting note": "Error deleting note",
+    "confirm delete note": "Are you sure you want to delete this note?",
+    "edit note": "Edit Note",
+    "delete note": "Delete Note",
     "no notes": "Click to plus icon to add a note",
     "annotations": "Annotations",
     

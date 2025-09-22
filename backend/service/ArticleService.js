@@ -905,18 +905,22 @@ async function resolveArticleNotes(article) {
     if (!article.annotations) return [];
     
     const annotations = await Promise.all(
-            article.annotations.map(async ann => {
-                if (typeof ann === 'object' && ann.note !== undefined) {
-                    return ann;
-                }
-                return await annotationService.getAnnotationById(ann.id || ann);
-            })
+        article.annotations.map(async ann => {
+            if (typeof ann === 'object' && ann.note !== undefined) {
+                return ann;
+            }
+            return await annotationService.getAnnotationById(ann.id || ann);
+        })
     );
-    return annotations.filter(annotation => 
+    // Filter out empty notes
+    const filtered = annotations.filter(annotation => 
         annotation && 
         annotation.note && 
         annotation.note.trim() !== ''
     );
+    // Sort by updatedAt descending
+    filtered.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    return filtered;
 }
 
 async function resolveArticleTags(article) {

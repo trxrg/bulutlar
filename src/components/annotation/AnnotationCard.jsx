@@ -1,34 +1,134 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
+import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import FormatButton from '../common/FormatButton';
+import ActionButton from '../common/ActionButton';
 import { AppContext } from '../../store/app-context';
+import { DBContext } from '../../store/db-context';
+import { articleApi, annotationApi } from '../../backend-adapter/BackendAdapter';
+import toastr from 'toastr';
 
-const AnnotationCard = ({ annotation, onClick }) => {
-
+const AnnotationCard = ({ annotation, articleId, onUpdate, onDelete, onCancel, isAdding = false }) => {
     const { translate: t } = useContext(AppContext);
+    const { fetchArticleById, fetchAllAnnotations } = useContext(DBContext);
+    
+    const [isEditing, setIsEditing] = useState(isAdding);
+    const [noteText, setNoteText] = useState(annotation?.note || '');
+    const [msg, setMsg] = useState('');
 
-    const handleClick = () => {
-        onClick(annotation);
-    }
+    const handleEdit = () => {
+        setIsEditing(true);
+        setNoteText(annotation?.note || '');
+        setMsg('');
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        setNoteText(annotation?.note || '');
+        setMsg('');
+        if (isAdding) {
+            onCancel && onCancel();
+        }
+    };
+
+    const handleSave = async () => {
+        if (!noteText.trim()) {
+            setMsg(t('note') + t('cannot be empty'));
+            return;
+        }
+
+        try {
+            if (isAdding) {
+                await articleApi.addAnnotation(articleId, { note: noteText });
+                toastr.success(t('note') + t('added'));
+            } else {
+                await annotationApi.updateNote(annotation.id, noteText);
+                toastr.success(t('note') + t('updated'));
+            }
+            
+            await fetchArticleById(articleId || annotation.articleId);
+            await fetchAllAnnotations();
+            setIsEditing(false);
+            onUpdate && onUpdate();
+        } catch (error) {
+            toastr.error(isAdding ? t('error adding note') : t('error updating note'));
+        }
+    };
+
+    const handleDelete = () => {
+        onDelete && onDelete(annotation.id);
+    };
 
     return (
-        <div className="text-lg rounded-md border-4 annotation-card
-        active:shadow-none p-5 shadow-xl cursor-pointer flex flex-col w-full overflow-hidden"
+        <div 
+            className={`group rounded-md border-2 p-3 shadow-sm ${isAdding ? 'border-blue-300 bg-blue-50 dark:bg-blue-900/20' : ''}`}
             style={{
-                borderColor: 'var(--border-secondary)',
+                borderColor: isEditing ? 'var(--border-primary)' : (isAdding ? 'var(--border-primary)' : 'var(--border-secondary)'),
+                backgroundColor: isAdding ? 'var(--bg-secondary)' : 'var(--bg-secondary)',
                 color: 'var(--text-primary)'
             }}
-            onClick={handleClick}>
-            {annotation &&
-                <div>
-                    <div style={{ whiteSpace: 'pre-line' }}>
-                        {annotation.note}
-                    </div>
-                    <div className="text-sm italic mt-2" style={{ color: 'var(--text-tertiary)' }}>
-                        <div>                            
-                            <div>{t('last update')}: {new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}</div>
+        >
+            {isEditing ? (
+                <div className="flex flex-col gap-2 text-xl">
+                    <textarea
+                        placeholder={isAdding ? t('write your note here') : ''}
+                        value={noteText}
+                        onChange={(e) => setNoteText(e.target.value)}
+                        rows="4"
+                        className="w-full p-2 rounded border resize-none"
+                        style={{
+                            backgroundColor: 'var(--bg-primary)',
+                            color: 'var(--text-primary)',
+                            borderColor: 'var(--border-secondary)'
+                        }}
+                        autoFocus
+                    />
+                    {msg && (
+                        <div className="text-red-400 text-sm p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                            {msg}
+                        </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                        {!isAdding && annotation && (
+                            <div className="text-sm italic" style={{ color: 'var(--text-tertiary)' }}>
+                                {t('last update')}: {new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}
+                            </div>
+                        )}
+                        <div className={`flex gap-2 ${isAdding ? 'justify-end' : ''}`}>
+                            <ActionButton color="red" onClick={handleCancel}>
+                                {t('cancel')}
+                            </ActionButton>
+                            <ActionButton color="blue" onClick={handleSave}>
+                                {isAdding ? t('add') : t('update')}
+                            </ActionButton>
                         </div>
                     </div>
                 </div>
-            }
+            ) : (
+                <div>
+                    <div style={{ whiteSpace: 'pre-line' }} className="mb-2 text-xl">
+                        {annotation?.note}
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <div className="text-sm italic" style={{ color: 'var(--text-tertiary)' }}>
+                            {t('last update')}: {new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}
+                        </div>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <FormatButton 
+                                onClick={handleEdit}
+                                title={t('edit note')}
+                            >
+                                <PencilIcon className="w-4 h-4" />
+                            </FormatButton>
+                            <FormatButton 
+                                onClick={handleDelete}
+                                title={t('delete note')}
+                            >
+                                <TrashIcon className="w-4 h-4" />
+                            </FormatButton>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

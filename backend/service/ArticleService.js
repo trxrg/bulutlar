@@ -901,7 +901,7 @@ async function exportArticle(exportData) {
     }
 }
 
-async function resolveArticleAnnotations(article) {
+async function resolveArticleNotes(article) {
     if (!article.annotations) return [];
     
     const annotations = await Promise.all(
@@ -912,7 +912,11 @@ async function resolveArticleAnnotations(article) {
                 return await annotationService.getAnnotationById(ann.id || ann);
             })
     );
-    return annotations.filter(Boolean);
+    return annotations.filter(annotation => 
+        annotation && 
+        annotation.note && 
+        annotation.note.trim() !== ''
+    );
 }
 
 async function resolveArticleTags(article) {
@@ -980,7 +984,7 @@ async function resolveArticleEntities(article, options = {}) {
     const entityKeys = [];
 
     if (includeAnnotations) {
-        promises.push(resolveArticleAnnotations(article));
+        promises.push(resolveArticleNotes(article));
         entityKeys.push('annotations');
     }
 
@@ -1034,7 +1038,7 @@ const ArticleService = {
     getArticleEntity,
     getArticleById,
     resolveArticleEntities,
-    resolveArticleAnnotations,
+    resolveArticleAnnotations: resolveArticleNotes,
     resolveArticleTags,
     resolveArticleCollections,
     resolveArticleRelatedArticles,

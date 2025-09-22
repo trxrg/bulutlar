@@ -6,6 +6,8 @@ import { AppContext } from '../../store/app-context';
 import { DBContext } from '../../store/db-context';
 import { articleApi, annotationApi } from '../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const AnnotationCard = ({ annotation, articleId, onUpdate, onDelete, onCancel, isAdding = false }) => {
     const { translate: t } = useContext(AppContext);
@@ -14,6 +16,24 @@ const AnnotationCard = ({ annotation, articleId, onUpdate, onDelete, onCancel, i
     const [isEditing, setIsEditing] = useState(isAdding);
     const [noteText, setNoteText] = useState(annotation?.note || '');
     const [msg, setMsg] = useState('');
+
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ 
+        id: isAdding ? 'new-annotation' : annotation?.id,
+        disabled: isAdding || isEditing
+    });
+
+    const style = {
+        transform: transform ? `translate3d(0, ${transform.y}px, 0)` : undefined,
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
 
     const handleEdit = () => {
         setIsEditing(true);
@@ -60,12 +80,16 @@ const AnnotationCard = ({ annotation, articleId, onUpdate, onDelete, onCancel, i
 
     return (
         <div 
-            className={`group rounded-md border-2 p-3 shadow-sm ${isAdding ? 'border-blue-300 bg-blue-50 dark:bg-blue-900/20' : ''}`}
+            ref={setNodeRef}
+            className={`group rounded-md border-2 p-3 shadow-sm ${isAdding ? 'border-blue-300 bg-blue-50 dark:bg-blue-900/20' : ''} ${!isAdding && !isEditing ? 'cursor-grab' : ''}`}
             style={{
                 borderColor: isEditing ? 'var(--border-primary)' : (isAdding ? 'var(--border-primary)' : 'var(--border-secondary)'),
                 backgroundColor: isAdding ? 'var(--bg-secondary)' : 'var(--bg-secondary)',
-                color: 'var(--text-primary)'
+                color: 'var(--text-primary)',
+                ...style
             }}
+            {...(!isAdding && !isEditing ? attributes : {})}
+            {...(!isAdding && !isEditing ? listeners : {})}
         >
             {isEditing ? (
                 <div className="flex flex-col gap-2 text-xl">

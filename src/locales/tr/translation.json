@@ -88,6 +88,7 @@
     "error adding note": "Not eklerken hata oluştu",
     "error updating note": "Not güncellerken hata oluştu",
     "error deleting note": "Not silerken hata oluştu",
+    "error updating order": "Sıralama güncellenirken hata oluştu",
     "confirm delete note": "Bu notu silmek istediğinizden emin misiniz?",
     "edit note": "Notu Düzenle",
     "delete note": "Notu Sil",

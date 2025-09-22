@@ -10,6 +10,22 @@ import { ReadContext } from '../../../store/read-context';
 import { annotationApi } from '../../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
 
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+
+
 const ReadLeftPanel = () => {
 
     const { translate: t, setActiveScreen } = useContext(AppContext);
@@ -19,6 +35,13 @@ const ReadLeftPanel = () => {
     const [isAddingNew, setIsAddingNew] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [annotationToDelete, setAnnotationToDelete] = useState(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     const handleNotesClick = () => {
         setActiveScreen('annotations');
@@ -43,7 +66,7 @@ const ReadLeftPanel = () => {
 
     const confirmDeleteAnnotation = async () => {
         if (!annotationToDelete) return;
-        
+
         try {
             await annotationApi.deleteById(annotationToDelete);
             toastr.success(t('note') + t('deleted'));
@@ -57,11 +80,48 @@ const ReadLeftPanel = () => {
         }
     }
 
+    const handleDragEnd = async (event) => {
+        const { active, over } = event;
+
+        // Check if over exists and is different from active
+        if (over && active.id !== over.id) {
+            const oldIndex = filteredAnnotations.findIndex(annotation => annotation.id === active.id);
+            const newIndex = filteredAnnotations.findIndex(annotation => annotation.id === over.id);
+
+            // Make sure both indices are valid
+            if (oldIndex !== -1 && newIndex !== -1) {
+                const newOrder = arrayMove(filteredAnnotations, oldIndex, newIndex);
+                setFilteredAnnotations(newOrder);
+
+                // Update ordering in database
+                try {
+                    const orderings = newOrder.map((annotation, index) => ({
+                        id: annotation.id,
+                        ordering: index
+                    }));
+                    await annotationApi.updateOrderings(orderings);
+                } catch (error) {
+                    console.error('Error updating annotation orderings:', error);
+                    toastr.error(t('error updating order'));
+                    // Revert the local state on error
+                    await fetchArticleById(article.id);
+                    await fetchAllAnnotations();
+                }
+            }
+        }
+    }
+
     useEffect(() => {
         const filtered = article.annotations
             .map(ann => getAnnotationById(ann.id))
             .filter(annotation => annotation && annotation.note && annotation.note.trim().length > 0)
-            .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            .sort((a, b) => {
+                // Sort by ordering field if available, otherwise by updatedAt
+                if (a.ordering !== null && b.ordering !== null) {
+                    return a.ordering - b.ordering;
+                }
+                return new Date(b.updatedAt) - new Date(a.updatedAt);
+            });
         setFilteredAnnotations(filtered);
     }, [article, getAnnotationById]);
 
@@ -82,7 +142,7 @@ const ReadLeftPanel = () => {
                     </FormatButton>
                 </div>
 
-                <div className='flex flex-col gap-2 p-2 h-full overflow-y-auto'>
+                <div className="flex flex-col gap-2 p-2 h-full overflow-y-auto overflow-x-hidden">
                     {/* Add new note form */}
                     {isAddingNew && (
                         <AnnotationCard
@@ -95,18 +155,23 @@ const ReadLeftPanel = () => {
 
                     {/* Existing annotations */}
                     {filteredAnnotations.length > 0 ? (
-                        filteredAnnotations.map((ann) => {
-                            const annotation = getAnnotationById(ann.id);
-                            return (
-                                <AnnotationCard
-                                    key={annotation.id}
-                                    annotation={annotation}
-                                    articleId={article.id}
-                                    onUpdate={() => {}}
-                                    onDelete={handleDeleteAnnotation}
-                                />
-                            );
-                        })
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext items={filteredAnnotations.map(ann => ann.id).filter(id => id)} strategy={verticalListSortingStrategy}>
+                                {filteredAnnotations.map((annotation) => (
+                                    <AnnotationCard
+                                        key={annotation.id}
+                                        annotation={annotation}
+                                        articleId={article.id}
+                                        onUpdate={() => { }}
+                                        onDelete={handleDeleteAnnotation}
+                                    />
+                                ))}
+                            </SortableContext>
+                        </DndContext>
                     ) : !isAddingNew && (
                         <div className='flex justify-center items-center h-full'>
                             <p style={{ color: 'var(--text-secondary)' }}>{t('no notes')}</p>

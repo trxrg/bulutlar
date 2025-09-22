@@ -106,6 +106,8 @@ contextBridge.exposeInMainWorld('api', {
     getAll:           ()                      => ipcRenderer.invoke('annotation/getAll'),
     getById:          (annotationId)          => ipcRenderer.invoke('annotation/getById', annotationId),
     updateNote:       (annotationId, newNote) => ipcRenderer.invoke('annotation/updateNote', annotationId, newNote),
+    updateOrdering:   (annotationId, ordering) => ipcRenderer.invoke('annotation/updateOrdering', annotationId, ordering),
+    updateOrderings:  (orderings)             => ipcRenderer.invoke('annotation/updateOrderings', orderings),
   },
   db: {
     loadArticles: () => ipcRenderer.invoke('DB/loadArticles'),

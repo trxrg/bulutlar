@@ -17,10 +17,8 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragOverlay,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   horizontalListSortingStrategy,
@@ -42,7 +40,7 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
   } = useSortable({ id: tab.id });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: transform ? `translate3d(${transform.x}px, 0, 0)` : undefined,
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
@@ -80,8 +78,6 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
 };
 
 const TabsScreen = () => {
-  const [activeId, setActiveId] = React.useState(null);
-
   const { activeTabId, setActiveTabId, closeTab, reorderTabs, tabs, translate: t, setActiveScreen } = useContext(AppContext);
   const { allArticles, fetchAllData } = useContext(DBContext);
 
@@ -100,13 +96,8 @@ const TabsScreen = () => {
     setActiveTabId(tabId);
   };
 
-  const handleDragStart = (event) => {
-    setActiveId(event.active.id);
-  };
-
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    setActiveId(null);
 
     if (active.id !== over.id) {
       const oldIndex = tabs.findIndex(tab => tab.id === active.id);
@@ -150,14 +141,6 @@ const TabsScreen = () => {
     <>
       <style>
         {`
-          .tab-container.dragging {
-            overflow-y: hidden !important;
-            pointer-events: none;
-          }
-          .tab-container.dragging * {
-            pointer-events: none;
-          }
-          
           .tab-item.active {
             position: relative;
             z-index: 10;
@@ -180,7 +163,7 @@ const TabsScreen = () => {
         {/* Top-aligned tabs */}
         <div className='flex flex-shrink-0 justify-between' style={{ backgroundColor: 'var(--bg-tertiary)' }}>
           <div 
-            className={`flex flex-1 overflow-x-auto overflow-y-hidden relative tab-container ${activeId ? 'dragging' : ''}`}
+            className="flex flex-1 overflow-x-auto overflow-y-hidden relative tab-container"
             style={{ 
               scrollbarWidth: 'thin',
               scrollbarColor: 'var(--text-secondary) transparent'
@@ -189,7 +172,6 @@ const TabsScreen = () => {
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
-            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
             <SortableContext items={tabs.map(tab => tab.id)} strategy={horizontalListSortingStrategy}>
@@ -204,20 +186,6 @@ const TabsScreen = () => {
                 />
               ))}
             </SortableContext>
-            <DragOverlay>
-              {activeId ? (
-                <div className="group min-w-60 py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent tab-item focus:outline-none relative text-left opacity-90"
-                  style={{
-                    backgroundColor: 'var(--bg-primary)',
-                    color: 'var(--text-primary)',
-                    transform: 'rotate(5deg)',
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
-                  }}
-                >
-                  {getTitle(activeId)}
-                </div>
-              ) : null}
-            </DragOverlay>
           </DndContext>
         </div>
         <div className='flex flex-shrink-0 flex-row items-center px-2 gap-1'>

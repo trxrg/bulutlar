@@ -7,6 +7,8 @@ function initService() {
     ipcMain.handle('annotation/getById', (event, annotationId) => getAnnotationById(annotationId));
     ipcMain.handle('annotation/deleteById', (event, annotationId) => deleteAnnotationById(annotationId));
     ipcMain.handle('annotation/updateNote', (event, annotationId, newNote) => updateNote(annotationId, newNote));
+    ipcMain.handle('annotation/updateOrdering', (event, annotationId, ordering) => updateOrdering(annotationId, ordering));
+    ipcMain.handle('annotation/updateOrderings', (event, orderings) => updateOrderings(orderings));
 }
 
 async function getAllAnnotations() {
@@ -81,11 +83,39 @@ async function deleteAnnotationsByArticleId(articleId) {
     }
 }
 
+async function updateOrdering(annotationId, ordering) {
+    try {
+        await sequelize.models.annotation.update(
+            { ordering: ordering },
+            { where: { id: annotationId } }
+        );
+    } catch (error) {
+        console.error('Error in updateOrdering', error);
+    }
+}
+
+async function updateOrderings(orderings) {
+    try {
+        // Update multiple annotations with their new orderings
+        const updatePromises = orderings.map(({ id, ordering }) =>
+            sequelize.models.annotation.update(
+                { ordering: ordering },
+                { where: { id: id } }
+            )
+        );
+        await Promise.all(updatePromises);
+    } catch (error) {
+        console.error('Error in updateOrderings', error);
+    }
+}
+
 const AnnotationService = {
     initService,
     createAnnotation,
     deleteAnnotationsByArticleId,
     getAnnotationById,
+    updateOrdering,
+    updateOrderings,
 };
 
 export default AnnotationService;

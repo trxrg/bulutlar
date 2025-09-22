@@ -125,6 +125,8 @@ export const annotationApi = {
     getAll:             async ()                    => window.api.annotation.getAll(),
     getById:            async (id)                  => window.api.annotation.getById(id),    
     deleteById:         async (id)                  => window.api.annotation.deleteById(id),
+    updateOrdering:     async (id, ordering)        => window.api.annotation.updateOrdering(id, ordering),
+    updateOrderings:    async (orderings)           => window.api.annotation.updateOrderings(orderings),
 };
 
 export const storeApi = {

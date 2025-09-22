@@ -81,74 +81,87 @@ const AnnotationCard = ({ annotation, articleId, onUpdate, onDelete, onCancel, i
     return (
         <div 
             ref={setNodeRef}
-            className={`group rounded-md border-2 p-3 shadow-sm ${isAdding ? 'border-blue-300 bg-blue-50 dark:bg-blue-900/20' : ''} ${!isAdding && !isEditing ? 'cursor-grab' : ''}`}
+            className={`group rounded-md border-2 pt-3 pb-2 px-2 shadow-sm ${isAdding ? 'border-blue-300 bg-blue-50 dark:bg-blue-900/20' : ''}`}
             style={{
                 borderColor: isEditing ? 'var(--border-primary)' : (isAdding ? 'var(--border-primary)' : 'var(--border-secondary)'),
                 backgroundColor: isAdding ? 'var(--bg-secondary)' : 'var(--bg-secondary)',
                 color: 'var(--text-primary)',
                 ...style
             }}
-            {...(!isAdding && !isEditing ? attributes : {})}
-            {...(!isAdding && !isEditing ? listeners : {})}
         >
             {isEditing ? (
-                <div className="flex flex-col gap-2 text-xl">
-                    <textarea
-                        placeholder={isAdding ? t('write your note here') : ''}
-                        value={noteText}
-                        onChange={(e) => setNoteText(e.target.value)}
-                        rows="4"
-                        className="w-full p-2 rounded border resize-none"
-                        style={{
-                            backgroundColor: 'var(--bg-primary)',
-                            color: 'var(--text-primary)',
-                            borderColor: 'var(--border-secondary)'
-                        }}
-                        autoFocus
-                    />
-                    {msg && (
-                        <div className="text-red-400 text-sm p-2 bg-red-50 dark:bg-red-900/20 rounded">
-                            {msg}
-                        </div>
-                    )}
-                    <div className="flex justify-between items-center">
-                        {!isAdding && annotation && (
-                            <div className="text-sm italic" style={{ color: 'var(--text-tertiary)' }}>
-                                {t('last update')}: {new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}
+                <div className="flex">
+                    <div className="flex-1">
+                        <div className="flex flex-col gap-2 text-xl">
+                            <textarea
+                                placeholder={isAdding ? t('write your note here') : ''}
+                                value={noteText}
+                                onChange={(e) => setNoteText(e.target.value)}
+                                rows="4"
+                                className="w-full p-2 rounded border resize-none"
+                                style={{
+                                    backgroundColor: 'var(--bg-primary)',
+                                    color: 'var(--text-primary)',
+                                    borderColor: 'var(--border-secondary)'
+                                }}
+                                autoFocus
+                            />
+                            {msg && (
+                                <div className="text-red-400 text-sm p-2 bg-red-50 dark:bg-red-900/20 rounded">
+                                    {msg}
+                                </div>
+                            )}
+                            <div className="flex justify-between items-center">
+                                {!isAdding && annotation && (
+                                    <div className="text-sm italic" style={{ color: 'var(--text-tertiary)' }}>
+                                        {t('last update')}: {new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}
+                                    </div>
+                                )}
+                                <div className={`flex gap-2 ${isAdding ? 'justify-end' : ''}`}>
+                                    <ActionButton color="red" onClick={handleCancel}>
+                                        {t('cancel')}
+                                    </ActionButton>
+                                    <ActionButton color="blue" onClick={handleSave}>
+                                        {isAdding ? t('add') : t('update')}
+                                    </ActionButton>
+                                </div>
                             </div>
-                        )}
-                        <div className={`flex gap-2 ${isAdding ? 'justify-end' : ''}`}>
-                            <ActionButton color="red" onClick={handleCancel}>
-                                {t('cancel')}
-                            </ActionButton>
-                            <ActionButton color="blue" onClick={handleSave}>
-                                {isAdding ? t('add') : t('update')}
-                            </ActionButton>
                         </div>
                     </div>
                 </div>
             ) : (
-                <div>
-                    <div style={{ whiteSpace: 'pre-line' }} className="mb-2 text-xl">
-                        {annotation?.note}
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <div className="text-sm italic" style={{ color: 'var(--text-tertiary)' }}>
-                            {t('last update')}: {new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}
+                <div className="flex">
+                    {!isAdding && !isEditing && (
+                        <div 
+                            className="flex items-center pr-2 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            {...attributes}
+                            {...listeners}
+                        >
+                            <div className="w-1 h-6 rounded" style={{ backgroundColor: 'var(--text-secondary)' }}></div>
                         </div>
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <FormatButton 
-                                onClick={handleEdit}
-                                title={t('edit note')}
-                            >
-                                <PencilIcon className="w-4 h-4" />
-                            </FormatButton>
-                            <FormatButton 
-                                onClick={handleDelete}
-                                title={t('delete note')}
-                            >
-                                <TrashIcon className="w-4 h-4" />
-                            </FormatButton>
+                    )}
+                    <div className="flex-1">
+                        <div style={{ whiteSpace: 'pre-line' }} className="mb-2 text-xl">
+                            {annotation?.note}
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <div className="text-sm italic opacity-0 group-hover:opacity-100 transition-opacity duration-200" style={{ color: 'var(--text-tertiary)' }}>
+                                {t('last update')}: {new Date(annotation.updatedAt).toLocaleDateString(t('locale'))}
+                            </div>
+                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <FormatButton 
+                                    onClick={handleEdit}
+                                    title={t('edit note')}
+                                >
+                                    <PencilIcon className="w-4 h-4" />
+                                </FormatButton>
+                                <FormatButton 
+                                    onClick={handleDelete}
+                                    title={t('delete note')}
+                                >
+                                    <TrashIcon className="w-4 h-4" />
+                                </FormatButton>
+                            </div>
                         </div>
                     </div>
                 </div>

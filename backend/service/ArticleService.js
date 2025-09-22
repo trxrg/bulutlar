@@ -50,7 +50,9 @@ function initService() {
     ipcMain.handle('article/removeFromGroup', async (event, id, groupId) => await removeArticleFromGroup(id, groupId));
     ipcMain.handle('article/setIsStarred', async (event, id, isStarred) => await setIsStarred(id, isStarred));
     ipcMain.handle('article/setIsDateUncertain', async (event, id, isDateUncertain) => await setIsDateUncertain(id, isDateUncertain));    
-    ipcMain.handle('article/setOrdering', async (event, id, ordering) => await setOrdering(id, ordering));    
+    ipcMain.handle('article/setOrdering', async (event, id, ordering) => await setOrdering(id, ordering));
+    ipcMain.handle('article/updateRelatedArticleOrdering', async (event, articleId, relatedArticleId, ordering) => await updateRelatedArticleOrdering(articleId, relatedArticleId, ordering));
+    ipcMain.handle('article/updateRelatedArticleOrderings', async (event, articleId, orderings) => await updateRelatedArticleOrderings(articleId, orderings));    
     
     // Initialize folder paths
     imagesFolderPath = config.imagesFolderPath;
@@ -628,6 +630,56 @@ async function setOrdering(id, ordering) {
     }
 }
 
+async function updateRelatedArticleOrdering(articleId, relatedArticleId, ordering) {
+    try {
+        const ArticleArticleRel = sequelize.models.article_article_rel;
+        
+        await ArticleArticleRel.update(
+            { relatedArticleOrdering: ordering },
+            { 
+                where: { 
+                    articleId: articleId, 
+                    relatedArticleId: relatedArticleId 
+                } 
+            }
+        );
+    } catch (error) {
+        console.error('Error updating related article ordering', error);
+        throw error;
+    }
+}
+
+async function updateRelatedArticleOrderings(articleId, orderings) {
+    try {
+        const ArticleArticleRel = sequelize.models.article_article_rel;
+        
+        // Update multiple related article orderings in a transaction
+        const transaction = await sequelize.transaction();
+        
+        try {
+            for (const { relatedArticleId, ordering } of orderings) {
+                await ArticleArticleRel.update(
+                    { relatedArticleOrdering: ordering },
+                    { 
+                        where: { 
+                            articleId: articleId, 
+                            relatedArticleId: relatedArticleId 
+                        },
+                        transaction
+                    }
+                );
+            }
+            await transaction.commit();
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
+    } catch (error) {
+        console.error('Error updating related article orderings', error);
+        throw error;
+    }
+}
+
 async function openDialogToAddImages(articleId) {
 
     try {
@@ -715,18 +767,36 @@ async function openDialogToAddVideos(articleId) {
 function articleEntity2Json(entity) {
     if (entity.dataValues.tags)
         entity.dataValues.tags = entity.dataValues.tags.map(tag => ({ id: tag.id }));
-    if (entity.dataValues.groups)
+    if (entity.dataValues.groups) {
+        // Sort groups by ordering field, then by name as fallback
+        entity.dataValues.groups.sort((a, b) => {
+            if (a.ordering !== null && b.ordering !== null) {
+                return a.ordering - b.ordering;
+            }
+            if (a.ordering !== null) return -1;
+            if (b.ordering !== null) return 1;
+            return a.name.localeCompare(b.name);
+        });
         entity.dataValues.groups = entity.dataValues.groups.map(group => ({ id: group.id }));
-    if (entity.dataValues.groups)
-        entity.dataValues.groups = entity.dataValues.groups.map(group => ({ id: group.id }));
+    }
     if (entity.dataValues.images)
         entity.dataValues.images = entity.dataValues.images.map(image => imageEntity2Json(image));
     if (entity.dataValues.audios)
         entity.dataValues.audios = entity.dataValues.audios.map(audio => audioEntity2Json(audio));
     if (entity.dataValues.videos)
         entity.dataValues.videos = entity.dataValues.videos.map(video => videoEntity2Json(video));
-    if (entity.dataValues.annotations)
+    if (entity.dataValues.annotations) {
+        // Sort annotations by ordering field, then by updatedAt as fallback
+        entity.dataValues.annotations.sort((a, b) => {
+            if (a.ordering !== null && b.ordering !== null) {
+                return a.ordering - b.ordering;
+            }
+            if (a.ordering !== null) return -1;
+            if (b.ordering !== null) return 1;
+            return new Date(b.updatedAt) - new Date(a.updatedAt);
+        });
         entity.dataValues.annotations = entity.dataValues.annotations.map(annotation => ({ id: annotation.id }));
+    }
     if (entity.dataValues.comments)
         entity.dataValues.comments = entity.dataValues.comments.map(comment => commentEntity2Json(comment));
     if (entity.dataValues.relatedArticles)
@@ -892,15 +962,6 @@ function gregorianToHijri(gDate) {
     return hDate;
 }
 
-async function exportArticle(exportData) {
-    try {
-        return await documentService.exportArticle(exportData, getArticleById);
-    } catch (error) {
-        console.error('Error exporting article:', error);
-        throw error;
-    }
-}
-
 async function resolveArticleNotes(article) {
     if (!article.annotations) return [];
     
@@ -918,8 +979,12 @@ async function resolveArticleNotes(article) {
         annotation.note && 
         annotation.note.trim() !== ''
     );
-    // Sort by updatedAt descending
-    filtered.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    // Sort by ordering field (ascending), fallback to 0 if undefined
+    filtered.sort((a, b) => {
+        const orderA = typeof a.ordering === 'number' ? a.ordering : 0;
+        const orderB = typeof b.ordering === 'number' ? b.ordering : 0;
+        return orderA - orderB;
+    });
     return filtered;
 }
 
@@ -948,7 +1013,18 @@ async function resolveArticleCollections(article) {
                 return await groupService.getGroupById(group.id || group);
             })
     );
-    return collections.filter(Boolean);
+    
+    // Sort by ordering field, then by name as fallback
+    const sorted = collections.filter(Boolean).sort((a, b) => {
+        if (a.ordering !== null && b.ordering !== null) {
+            return a.ordering - b.ordering;
+        }
+        if (a.ordering !== null) return -1;
+        if (b.ordering !== null) return 1;
+        return a.name.localeCompare(b.name);
+    });
+    
+    return sorted;
 }
         
 async function resolveArticleRelatedArticles(article) {
@@ -957,10 +1033,24 @@ async function resolveArticleRelatedArticles(article) {
     const relatedArticles = await Promise.all(
             article.relatedArticles.map(async rel => {
                 const relId = typeof rel === 'object' ? rel.id : rel;
-                return await getArticleById(relId);
+                const relatedArticle = await getArticleById(relId);
+                // Include the ordering from the junction table
+                if (relatedArticle && typeof rel === 'object' && rel.ArticleArticleRel) {
+                    relatedArticle.relatedArticleOrdering = rel.ArticleArticleRel.relatedArticleOrdering;
+                }
+                return relatedArticle;
             })
     );
-    return relatedArticles.filter(Boolean);
+    
+    // Sort by relatedArticleOrdering, then by title as fallback
+    return relatedArticles.filter(Boolean).sort((a, b) => {
+        if (a.relatedArticleOrdering !== null && b.relatedArticleOrdering !== null) {
+            return a.relatedArticleOrdering - b.relatedArticleOrdering;
+        }
+        if (a.relatedArticleOrdering !== null) return -1;
+        if (b.relatedArticleOrdering !== null) return 1;
+        return a.title.localeCompare(b.title);
+    });
 }
 
 async function resolveArticleCategory(article) {
@@ -1049,6 +1139,8 @@ const ArticleService = {
     resolveArticleCategory,
     resolveArticleOwner,
     createArticleProgrammatically,
+    updateRelatedArticleOrdering,
+    updateRelatedArticleOrderings,
     getAllArticles, //  TODO: remove
     updateArticleDate, // TODO: remove
 };

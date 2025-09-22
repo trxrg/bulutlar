@@ -112,16 +112,19 @@ const ReadLeftPanel = () => {
     }
 
     useEffect(() => {
+        // Get full annotation data from cache, but preserve the order from article.annotations
+        const annotationMap = new Map();
+        article.annotations.forEach(ann => {
+            const fullAnnotation = getAnnotationById(ann.id);
+            if (fullAnnotation) {
+                annotationMap.set(ann.id, fullAnnotation);
+            }
+        });
+        
         const filtered = article.annotations
-            .map(ann => getAnnotationById(ann.id))
-            .filter(annotation => annotation && annotation.note && annotation.note.trim().length > 0)
-            .sort((a, b) => {
-                // Sort by ordering field if available, otherwise by updatedAt
-                if (a.ordering !== null && b.ordering !== null) {
-                    return a.ordering - b.ordering;
-                }
-                return new Date(b.updatedAt) - new Date(a.updatedAt);
-            });
+            .map(ann => annotationMap.get(ann.id))
+            .filter(annotation => annotation && annotation.note && annotation.note.trim().length > 0);
+        
         setFilteredAnnotations(filtered);
     }, [article, getAnnotationById]);
 

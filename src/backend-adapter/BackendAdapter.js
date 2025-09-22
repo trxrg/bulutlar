@@ -32,6 +32,8 @@ export const articleApi = {
     setIsStarred:       async (id, isStarred)         => window.api.article.setIsStarred(id, isStarred),
     setIsDateUncertain:       async (id, isDateUncertain)         => window.api.article.setIsDateUncertain(id, isDateUncertain),
     setOrdering:       async (id, ordering)         => window.api.article.setOrdering(id, ordering),
+    updateRelatedArticleOrdering: async (articleId, relatedArticleId, ordering) => window.api.article.updateRelatedArticleOrdering(articleId, relatedArticleId, ordering),
+    updateRelatedArticleOrderings: async (articleId, orderings) => window.api.article.updateRelatedArticleOrderings(articleId, orderings),
 };
 
 export const ownerApi = {
@@ -57,7 +59,9 @@ export const groupApi = {
     getAll:             async ()                    => window.api.group.getAll(),
     getById:            async (id)                  => window.api.group.getById(id),
     addArticles:        async (groupName, articleIds) => window.api.group.addArticles(groupName, articleIds),
-    deleteById:         async (id)                  => window.api.group.deleteById(id)
+    deleteById:         async (id)                  => window.api.group.deleteById(id),
+    updateOrdering:     async (groupId, ordering)   => window.api.group.updateOrdering(groupId, ordering),
+    updateOrderings:    async (orderings)           => window.api.group.updateOrderings(orderings)
 };
 
 export const commentApi = {

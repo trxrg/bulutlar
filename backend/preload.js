@@ -41,6 +41,8 @@ contextBridge.exposeInMainWorld('api', {
     setIsStarred:     (id, isStarred)         => ipcRenderer.invoke('article/setIsStarred', id, isStarred),
     setIsDateUncertain:     (id, isDateUncertain)         => ipcRenderer.invoke('article/setIsDateUncertain', id, isDateUncertain),
     setOrdering:     (id, ordering)         => ipcRenderer.invoke('article/setOrdering', id, ordering),
+    updateRelatedArticleOrdering: (articleId, relatedArticleId, ordering) => ipcRenderer.invoke('article/updateRelatedArticleOrdering', articleId, relatedArticleId, ordering),
+    updateRelatedArticleOrderings: (articleId, orderings) => ipcRenderer.invoke('article/updateRelatedArticleOrderings', articleId, orderings),
   },
   owner: {
     create:      (owner)        => ipcRenderer.invoke('owner/create', owner),
@@ -64,6 +66,8 @@ contextBridge.exposeInMainWorld('api', {
     getById:     (id)           => ipcRenderer.invoke('group/getById', id),
     addArticles: (groupName, articleIds) => ipcRenderer.invoke('group/addArticles', groupName, articleIds),
     deleteById:  (id)           => ipcRenderer.invoke('group/deleteById', id),
+    updateOrdering: (groupId, ordering) => ipcRenderer.invoke('group/updateOrdering', groupId, ordering),
+    updateOrderings: (orderings) => ipcRenderer.invoke('group/updateOrderings', orderings),
   },
   comment: {
     updateText: (id, newText) => ipcRenderer.invoke('comment/updateText', id, newText),

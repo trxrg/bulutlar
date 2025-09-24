@@ -28,8 +28,19 @@ to run react and electron concurrently
 ``` bash
 npm run dev
 ```
-to get executables
-for Windows:
+
+## Installers
+for Windows installer:
+``` bash
+npm run dist
+```
+for MacOs DMG:
+``` bash
+npm run package-mac-builder-arm64
+```
+
+## Portables
+to get executable for Windows:
 ``` bash
 npm run package-win
 ```
@@ -47,6 +58,10 @@ npm run package-linux
 ```
 
 ## Versions
+1.4.10
+- improve styling
+- fix bugs
+  
 1.4.9
 - make tabs and all cards orderable
 - fix bugs

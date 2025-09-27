@@ -110,6 +110,7 @@
   },
   "build": {
     "appId": "com.example.bulutlar",
+    "productName": "Bulutlar",
     "asar": true,
     "asarUnpack": [
       "**/node_modules/sqlite3/**/*",
@@ -134,12 +135,14 @@
     },
     "win": {
       "icon": "public/cloud.ico",
+      "forceCodeSigning": false,
       "target": [
         "nsis"
       ]
     },
     "mac": {
       "icon": "public/cloud.icns",
+      "identity": null,
       "target": [
         "dmg",
         "zip"

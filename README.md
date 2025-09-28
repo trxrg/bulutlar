@@ -57,8 +57,6 @@ to get executable for Linux
 npm run package-linux
 ```
 
-## Releases
-https://github.com/trxrg/bulutlar/releases
 
 ## Versions
 1.4.11

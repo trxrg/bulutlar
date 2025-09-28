@@ -1,6 +1,6 @@
 {
   "name": "bulutlar",
-  "version": "1.4.10",
+  "version": "1.4.11",
   "description": "",
   "main": "public/electron.js",
   "homepage": "./",
@@ -110,7 +110,6 @@
   },
   "build": {
     "appId": "com.example.bulutlar",
-    "productName": "Bulutlar",
     "asar": true,
     "asarUnpack": [
       "**/node_modules/sqlite3/**/*",

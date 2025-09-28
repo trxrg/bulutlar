@@ -61,6 +61,9 @@ npm run package-linux
 https://github.com/trxrg/bulutlar/releases
 
 ## Versions
+1.4.11
+- security fixes
+
 1.4.10
 - improve styling
 - fix bugs

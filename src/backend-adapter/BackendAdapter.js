@@ -137,3 +137,9 @@ export const storeApi = {
     set: async (key, value) => window.api.store.set(key, value),
     get: async (key) => window.api.store.get(key),
 };
+
+export const urlApi = {
+    fetchContent: async (url) => window.api.url.fetchContent(url),
+    fetchTweet: async (tweetUrl) => window.api.url.fetchTweet(tweetUrl),
+    validateUrl: async (url) => window.api.url.validateUrl(url),
+};

@@ -141,4 +141,9 @@ contextBridge.exposeInMainWorld('api', {
   deleteOwnerWithName:       (ownerName)   => ipcRenderer.invoke('deleteOwnerWithName', ownerName),
   getArticleWithTitleLike:   (titleLike)   => ipcRenderer.invoke('getArticleWithTitleLike', titleLike),
   getAllArticlesOfOwnerName: (ownerName)   => ipcRenderer.invoke('getAllArticlesOfOwnerName', ownerName),
+  url: {
+    fetchContent: (url) => ipcRenderer.invoke('url/fetchContent', url),
+    fetchTweet: (tweetUrl) => ipcRenderer.invoke('url/fetchTweet', tweetUrl),
+    validateUrl: (url) => ipcRenderer.invoke('url/validateUrl', url),
+  },
 })

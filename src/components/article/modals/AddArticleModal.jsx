@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 
 import GeneralModal from '../../common/GeneralModal.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
-import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
+import { articleApi, urlApi } from '../../../backend-adapter/BackendAdapter.js';
 import ActionButton from '../../common/ActionButton.jsx';
 import CategoryList from '../../category/CategoryList.jsx';
 import OwnerList from '../../owner/OwnerList.jsx';
@@ -20,6 +20,10 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
     const [dispCategoryName, setDispCategoryName] = useState('');
     const [dispTags, setDispTags] = useState([]);
     const [msg, setMsg] = useState('');
+    const [urlInput, setUrlInput] = useState('');
+    const [isFetching, setIsFetching] = useState(false);
+    const [fetchMode, setFetchMode] = useState('manual'); // 'manual' or 'url'
+    const [fetchedContent, setFetchedContent] = useState('');
 
     const handleTagsChange = (tags) => {
         setDispTags(tags);
@@ -31,12 +35,97 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
         setDispTags([]);
         setDispTitle(t('new article'));
         setMsg('');
-        setDispDate(format(new Date(), 'yyyy-MM-dd'))
+        setDispDate(format(new Date(), 'yyyy-MM-dd'));
+        setUrlInput('');
+        setFetchMode('manual');
+        setIsFetching(false);
+        setFetchedContent('');
     }, [isOpen]);
 
     useEffect(() => {
         setMsg('')
     }, [dispCategoryName, dispDate, dispOwnerName, dispTags, dispTitle]);
+
+    const handleUrlFetch = async () => {
+        if (!urlInput.trim()) {
+            setMsg(t('please enter a valid url'));
+            return;
+        }
+
+        setIsFetching(true);
+        setMsg('');
+
+        try {
+            // Check if it's a Twitter/X URL
+            const isTwitterUrl = urlInput.includes('twitter.com') || urlInput.includes('x.com');
+            
+            let result;
+            if (isTwitterUrl) {
+                result = await urlApi.fetchTweet(urlInput);
+            } else {
+                result = await urlApi.fetchContent(urlInput);
+            }
+
+            if (result.success) {
+                const data = result.data;
+                
+                // Handle tweets differently from articles
+                if (isTwitterUrl) {
+                    // For tweets, create a proper title and store the formatted tweet content
+                    const tweetTitle = data.author ? `${data.author}: Tweet` : 'Tweet';
+                    setDispTitle(tweetTitle);
+                    setFetchedContent(data.formattedContent || data.tweetText || '');
+                    
+                    if (data.author) {
+                        setDispOwnerName(data.author);
+                    }
+                } else {
+                    // For articles, use the actual title and store the content
+                    setDispTitle(data.title || t('fetched article'));
+                    setFetchedContent(data.content || '');
+                    
+                    if (data.author) {
+                        setDispOwnerName(data.author);
+                    }
+                }
+                
+                // Show warning if no content was fetched
+                if (isTwitterUrl && !data.formattedContent && !data.tweetText) {
+                    toastr.warning(t('no tweet content found at this url'));
+                } else if (!isTwitterUrl && !data.content) {
+                    toastr.warning(t('no article content found at this url'));
+                }
+                
+                // Try to parse date if available
+                if (data.publishedDate || data.timestamp) {
+                    try {
+                        const dateStr = data.publishedDate || data.timestamp;
+                        const date = new Date(dateStr);
+                        if (!isNaN(date.getTime())) {
+                            setDispDate(format(date, 'yyyy-MM-dd'));
+                        }
+                    } catch (e) {
+                        console.log('Could not parse date:', e);
+                    }
+                }
+
+                // Add URL as a tag
+                const urlTag = { name: 'URL' };
+                setDispTags(prev => [...prev, urlTag]);
+
+                toastr.success(t('content fetched successfully'));
+            } else {
+                setMsg(result.error || t('failed to fetch content'));
+                toastr.error(result.error || t('failed to fetch content'));
+            }
+        } catch (error) {
+            console.error('Error fetching URL:', error);
+            setMsg(error.message || t('error fetching content'));
+            toastr.error(error.message || t('error fetching content'));
+        } finally {
+            setIsFetching(false);
+        }
+    };
 
     const handleSubmit = async () => {
 
@@ -62,6 +151,7 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                 owner: { name: dispOwnerName },
                 category: { name: dispCategoryName },
                 tags: dispTags,
+                text: fetchedContent ? `<p>${fetchedContent.replace(/\n/g, '</p><p>')}</p>` : undefined,
             });
             if (result.error) {
                 console.error(result.error);
@@ -85,6 +175,95 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
 
             <div className='flex flex-col gap-2 h-full'>
                 {msg && <span style={{ color: '#dc2626' }}>{msg}</span>}
+                
+                {/* Tab Navigation */}
+                <div className="border-b border-gray-300 mb-4">
+                    <nav className="flex space-x-8">
+                        <button
+                            onClick={() => setFetchMode('manual')}
+                            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                                fetchMode === 'manual' 
+                                    ? 'border-blue-500 text-blue-600' 
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                            style={{
+                                color: fetchMode === 'manual' ? 'var(--accent-color)' : 'var(--text-secondary)',
+                                borderBottomColor: fetchMode === 'manual' ? 'var(--accent-color)' : 'transparent'
+                            }}
+                        >
+                            {t('manual entry')}
+                        </button>
+                        <button
+                            onClick={() => setFetchMode('url')}
+                            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                                fetchMode === 'url' 
+                                    ? 'border-blue-500 text-blue-600' 
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                            style={{
+                                color: fetchMode === 'url' ? 'var(--accent-color)' : 'var(--text-secondary)',
+                                borderBottomColor: fetchMode === 'url' ? 'var(--accent-color)' : 'transparent'
+                            }}
+                        >
+                            {t('fetch from url')}
+                        </button>
+                    </nav>
+                </div>
+
+                {/* Tab Content */}
+                {fetchMode === 'manual' && (
+                    <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)' }}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                            </svg>
+                            <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {t('manual entry')}
+                            </span>
+                        </div>
+                        <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            {t('manually enter article details and content')}
+                        </div>
+                    </div>
+                )}
+
+                {fetchMode === 'url' && (
+                    <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)' }}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd" />
+                            </svg>
+                            <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {t('fetch from url')}
+                            </span>
+                        </div>
+                        <div className="flex gap-2 mb-2">
+                            <input
+                                type="url"
+                                placeholder={t('enter url (article, tweet, etc.)')}
+                                value={urlInput}
+                                onChange={(e) => setUrlInput(e.target.value)}
+                                className="flex-1 py-2 px-3 rounded border"
+                                style={{
+                                    backgroundColor: 'var(--bg-primary)',
+                                    border: '1px solid var(--border-secondary)',
+                                    color: 'var(--text-primary)',
+                                }}
+                                disabled={isFetching}
+                            />
+                            <ActionButton 
+                                color={'green'} 
+                                onClick={handleUrlFetch}
+                                disabled={isFetching}
+                            >
+                                {isFetching ? t('fetching...') : t('fetch')}
+                            </ActionButton>
+                        </div>
+                        <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            {t('supports articles, tweets, and other web content')}
+                        </div>
+                    </div>
+                )}
                 <div>
                     <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }} htmlFor="title">{t('title') + '*'}</label>
                     <input
@@ -101,6 +280,11 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
                         }}
                     />
+                    {fetchedContent && (
+                        <div className="mt-1 text-sm text-green-600">
+                            ✓ {t('content will be included in article')}
+                        </div>
+                    )}
                 </div>
                 <div className='flex gap-2 min-w-full'>
                     <div className='flex flex-col flex-1'>

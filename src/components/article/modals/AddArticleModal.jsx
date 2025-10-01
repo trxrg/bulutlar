@@ -191,7 +191,7 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                                 borderBottomColor: fetchMode === 'manual' ? 'var(--accent-color)' : 'transparent'
                             }}
                         >
-                            {t('manual entry')}
+                            {t('Manual Entry')}
                         </button>
                         <button
                             onClick={() => setFetchMode('url')}
@@ -205,27 +205,12 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                                 borderBottomColor: fetchMode === 'url' ? 'var(--accent-color)' : 'transparent'
                             }}
                         >
-                            {t('fetch from url')}
+                            {t('Fetch From Url')}
                         </button>
                     </nav>
                 </div>
 
                 {/* Tab Content */}
-                {fetchMode === 'manual' && (
-                    <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)' }}>
-                        <div className="flex items-center gap-2 mb-2">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
-                            </svg>
-                            <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                                {t('manual entry')}
-                            </span>
-                        </div>
-                        <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                            {t('manually enter article details and content')}
-                        </div>
-                    </div>
-                )}
 
                 {fetchMode === 'url' && (
                     <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)' }}>

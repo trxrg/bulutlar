@@ -317,5 +317,8 @@
     "export failed": "Dışa aktarma başarısız",
     "generating pdf": "PDF Oluşturuluyor",
     "generating word": "Word Oluşturuluyor",
-    "exporting": "Dışa Aktarılıyor"
+    "exporting": "Dışa Aktarılıyor",
+
+    "Manual Entry": "Manuel Giriş",
+    "Fetch From Url": "URL'den Al"
 }

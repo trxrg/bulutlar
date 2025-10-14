@@ -30,15 +30,27 @@ const Link = (props) => {
     const handleClick = (e) => {
         e.preventDefault();
         try {
-            if (article) {
-                console.info('Link clicked for articleId:', article.id);
-                handleAddTab(e, article.id);
+            // Get fresh URL from Draft.js state instead of relying on component state
+            const entity = contentState.getEntity(entityKey);
+            const { url: currentUrl } = entity.getData();
+            
+            if (isArticleUrl(currentUrl)) {
+                const id = urlToArticleId(currentUrl);
+                const currentArticle = getArticleById(id);
+                
+                if (currentArticle) {
+                    handleAddTab(e, currentArticle.id);
+                } else {
+                    console.warn('Link clicked but article not found for URL:', currentUrl);
+                    toastr.warning(t('link not found'));
+                }
             } else {
-                console.warn('Link clicked but article is null url:', url);
+                console.warn('Link clicked but not an article URL:', currentUrl);
                 toastr.warning(t('link not found'));
             }
         } catch (error) {
             console.error('Error handling link click:', error);
+            toastr.warning(t('link not found'));
         }
     };
 
@@ -54,16 +66,24 @@ const Link = (props) => {
 
     useEffect(() => {
         try {
-            const { url } = contentState.getEntity(entityKey).getData();
+            const entity = contentState.getEntity(entityKey);
+            const { url } = entity.getData();
             setUrl(url);
+            
             if (isArticleUrl(url)) {
                 const id = urlToArticleId(url);
-                setArticle(getArticleById(id));
+                const articleData = getArticleById(id);
+                setArticle(articleData);
+            } else {
+                setArticle(null);
+                console.log('Link component - not an article URL');
             }
         } catch (error) {
             console.error('Error getting article id or title:', error);
+            setArticle(null);
+            setUrl(null);
         }
-    }, []);
+    }, [contentState, entityKey, getArticleById]);
 
     const handleMouseEnter = (e) => {
         calculateContextMenuPosition(e);

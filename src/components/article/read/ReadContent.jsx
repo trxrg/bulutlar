@@ -2,7 +2,7 @@ import React, { useRef, useState, useContext } from "react";
 import { articleApi, commentApi } from '../../../backend-adapter/BackendAdapter.js';
 import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
-import AddLinkModal from "../modals/AddLinkModal.jsx";
+import PickAndViewArticleModal from "../modals/PickAndViewArticleModal.jsx";
 import RichEditor from "./editor/RichEditor.jsx";
 import ContextMenu from "../../common/ContextMenu.jsx";
 import InlineToolbar from "./editor/InlineToolbar.jsx";
@@ -144,7 +144,8 @@ const ReadContent = () => {
         }
     }
 
-    const handleAddLink = async (url) => {
+    const handleAddLink = async (selectedArticleId) => {
+        const url = "article:" + selectedArticleId;
         addRelatedArticleWhenLinkAdded(url); // only relevant for article links
         addLink(url);
         setAddLinkModalOpen(false);
@@ -177,7 +178,14 @@ const ReadContent = () => {
                         </div>
                     </div>}
             </div>
-            <AddLinkModal isOpen={isAddLinkModalOpen} onRequestClose={() => setAddLinkModalOpen(false)} handleAdd={handleAddLink} />
+            <PickAndViewArticleModal 
+                isOpen={isAddLinkModalOpen} 
+                onRequestClose={() => setAddLinkModalOpen(false)} 
+                title={t('add link')}
+                showSelect={true}
+                excludedArticleIds={[article.id]}
+                onAdd={handleAddLink}
+            />
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>
                 <InlineToolbar />
             </ContextMenu>

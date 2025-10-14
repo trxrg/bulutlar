@@ -21,6 +21,7 @@
     "add link": "Add Link",
     "remove link": "Remove Link",
     "select an article": "Select an article",
+    "select an article to view its content": "Select an article to view its content",
 
     "add related article": "Add Related Article",
     "related articles": "Related Articles",
@@ -148,6 +149,7 @@
     "error": "Error",
     "update": "Update",
     "view": "View",
+    "view article": "View Article",
     "start reading": "Start Reading",
     "apply": "Apply",
 

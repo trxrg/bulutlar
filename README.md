@@ -59,6 +59,10 @@ npm run package-linux
 
 
 ## Versions
+1.4.12
+- layout improvements
+- bug fixes
+  
 1.4.11
 - security fixes
 

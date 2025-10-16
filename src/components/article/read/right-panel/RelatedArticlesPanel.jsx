@@ -5,8 +5,7 @@ import FormatButton from '../../../common/FormatButton';
 import { AppContext } from '../../../../store/app-context';
 import { ReadContext } from '../../../../store/read-context';
 import { DBContext } from '../../../../store/db-context';
-import PickArticleModal from '../../modals/PickArticleModal';
-import ViewArticleModal from '../../modals/ViewArticleModal';
+import PickAndViewArticleModal from '../../modals/PickAndViewArticleModal';
 import RelatedArticleCard from './RelatedArticleCard';
 import { articleApi } from '../../../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
@@ -28,8 +27,8 @@ import {
 
 const RelatedArticlesPanel = () => {
 
-    const [isPickArticleModalOpen, setIsPickArticleModalOpen] = useState(false);
-    const [isViewArticleModalOpen, setIsViewArticleModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState('add'); // 'add' or 'view'
     const [viewedArticleId, setViewedArticleId] = useState(null);
     const [localRelatedArticles, setLocalRelatedArticles] = useState([]);
     const { translate: t } = useContext(AppContext);
@@ -48,9 +47,16 @@ const RelatedArticlesPanel = () => {
         setLocalRelatedArticles(article.relatedArticles || []);
     }, [article.relatedArticles]);
 
-    const openViewArticleModal = (articleId) => {
+    const openAddModal = () => {
+        setModalMode('add');
+        setViewedArticleId(null);
+        setIsModalOpen(true);
+    }
+
+    const openViewModal = (articleId) => {
+        setModalMode('view');
         setViewedArticleId(articleId);
-        setIsViewArticleModalOpen(true);
+        setIsModalOpen(true);
     }
 
     const handleDragEnd = async (event) => {
@@ -93,7 +99,7 @@ const RelatedArticlesPanel = () => {
             <BodyWithFixedHeader >
                 <div className='flex flex-wrap justify-between p-2 shadow-lg bg-white items-center'>
                     <h2 className='ml-2 text-xl font-semibold text-gray-800'>{t('related articles')}</h2>
-                    <FormatButton onClick={() => setIsPickArticleModalOpen(true)} title={t('add related article')}><PlusIcon className="w-5 h-5" /></FormatButton>
+                    <FormatButton onClick={openAddModal} title={t('add related article')}><PlusIcon className="w-5 h-5" /></FormatButton>
                 </div>
                 {localRelatedArticles.length > 0 ?
                     <div className="flex flex-col gap-2 p-2 h-full overflow-y-auto overflow-x-hidden">
@@ -107,7 +113,7 @@ const RelatedArticlesPanel = () => {
                                     <RelatedArticleCard
                                         key={relatedArticle.id}
                                         relatedArticle={relatedArticle}
-                                        onClick={() => openViewArticleModal(relatedArticle.id)}
+                                        onClick={() => openViewModal(relatedArticle.id)}
                                     />
                                 ))}
                             </SortableContext>
@@ -120,8 +126,18 @@ const RelatedArticlesPanel = () => {
                         </div>
                     </div>}
             </BodyWithFixedHeader>
-            <PickArticleModal isOpen={isPickArticleModalOpen} onRequestClose={() => setIsPickArticleModalOpen(false)} articleId={article.id} onViewClicked={(id) => openViewArticleModal(id)} />
-            <ViewArticleModal isOpen={isViewArticleModalOpen} onRequestClose={() => setIsViewArticleModalOpen(false)} viewedArticleId={viewedArticleId} afterViewInNewTab={() => setIsPickArticleModalOpen(false)} ></ViewArticleModal>
+            <PickAndViewArticleModal 
+                isOpen={isModalOpen} 
+                onRequestClose={() => setIsModalOpen(false)} 
+                articleId={article.id} 
+                title={modalMode === 'add' ? t('add related article') : t('related article')}
+                showSelect={modalMode === 'add'}
+                initialArticleId={modalMode === 'view' ? viewedArticleId : null}
+                onAdd={modalMode === 'add' ? async (selectedArticleId) => {
+                    await articleApi.addRelatedArticle(article.id, selectedArticleId);
+                    fetchArticleById(article.id);
+                } : undefined}
+            />
         </div>
     );
 };

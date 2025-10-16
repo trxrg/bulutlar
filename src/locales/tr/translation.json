@@ -21,8 +21,10 @@
     "add link": "Link Ekle",
     "remove link": "Linki Kaldır",
     "select an article": "Bir yazı seçin",
+    "select an article to view its content": "İçeriğini görüntülemek için bir yazı seçin",
 
     "add related article": "Bağlantılı Yazı Ekle",
+    "related article": "Bağlantılı Yazı",
     "related articles": "Bağlantılı Yazılar",
     "no related articles": "Bağlantılı yazı eklemek için artı simgesine tıklayın",
     "explanation": "Açıklama",
@@ -152,6 +154,7 @@
     "error": "Hata",
     "update": "Güncelle",
     "view": "Görüntüle",
+    "view article": "Yazıyı Görüntüle",
     "start reading": "Okumaya Başla",
     "apply": "Uygula",
 

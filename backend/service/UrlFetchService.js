@@ -112,6 +112,7 @@ async function fetchContentFromUrl(url) {
             const contentSelectors = [
                 'article',
                 '.article-content',
+                '#renderBody',
                 '.post-content',
                 '.entry-content',
                 '.content',
@@ -158,7 +159,23 @@ async function fetchContentFromUrl(url) {
             
             // Extract text content
             if (mainElement) {
-                mainContent = mainElement.innerText || mainElement.textContent || '';
+                // Check for H1 tag within the main content to use as title
+                const h1InContent = mainElement.querySelector('h1');
+                if (h1InContent && h1InContent.textContent && h1InContent.textContent.trim()) {
+                    title = h1InContent.textContent.trim();
+                }
+                
+                // Extract content preserving <strong> tags but removing other HTML
+                let htmlContent = mainElement.innerHTML || '';
+                
+                // Remove all HTML tags except <strong> and <b>
+                htmlContent = htmlContent
+                    .replace(/<(?!\/?(?:strong|b)\b)[^>]*>/gi, '') // Remove all tags except strong/b
+                    .replace(/<\/?(?:b)\b[^>]*>/gi, '<strong>') // Convert <b> to <strong>
+                    .replace(/<strong[^>]*>/gi, '<strong>') // Clean <strong> attributes
+                    .replace(/<\/strong[^>]*>/gi, '</strong>'); // Clean </strong> attributes
+                
+                mainContent = htmlContent;
                 
                 // Clean up the content
                 mainContent = mainContent
@@ -183,13 +200,7 @@ async function fetchContentFromUrl(url) {
         content.description = cleanTextContent(content.description);
         content.author = cleanTextContent(content.author);
         
-        console.log('Successfully fetched content:', {
-            title: content.title,
-            contentLength: content.content.length,
-            author: content.author,
-            publishedDate: content.publishedDate,
-            contentPreview: content.content.substring(0, 200) + '...'
-        });
+        console.log('Successfully fetched content');
         
         return {
             success: true,

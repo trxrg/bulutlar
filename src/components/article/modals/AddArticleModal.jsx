@@ -7,10 +7,8 @@ import { articleApi, urlApi } from '../../../backend-adapter/BackendAdapter.js';
 import ActionButton from '../../common/ActionButton.jsx';
 import CategoryList from '../../category/CategoryList.jsx';
 import OwnerList from '../../owner/OwnerList.jsx';
-import TagList from '../../tag/TagList.jsx';
 import DateInput from '../../common/DateInput.jsx';
 import toastr from 'toastr';
-import { LinkIcon } from '@heroicons/react/24/outline';
 
 const AddArticleModal = ({ isOpen, onRequestClose }) => {
     const { translate: t, afterSubmitArticle2 } = useContext(AppContext);
@@ -23,7 +21,6 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
     const [msg, setMsg] = useState('');
     const [urlInput, setUrlInput] = useState('');
     const [isFetching, setIsFetching] = useState(false);
-    const [fetchMode, setFetchMode] = useState('manual'); // 'manual' or 'url'
     const [fetchedContent, setFetchedContent] = useState('');
 
     const handleTagsChange = (tags) => {
@@ -38,7 +35,6 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
         setMsg('');
         setDispDate(format(new Date(), 'yyyy-MM-dd'));
         setUrlInput('');
-        setFetchMode('manual');
         setIsFetching(false);
         setFetchedContent('');
     }, [isOpen]);
@@ -76,18 +72,10 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                     const tweetTitle = data.author ? `${data.author}: Tweet` : 'Tweet';
                     setDispTitle(tweetTitle);
                     setFetchedContent(data.formattedContent || data.tweetText || '');
-
-                    if (data.author) {
-                        setDispOwnerName(data.author);
-                    }
                 } else {
                     // For articles, use the actual title and store the content
                     setDispTitle(data.title || t('fetched article'));
                     setFetchedContent(data.content || '');
-
-                    if (data.author) {
-                        setDispOwnerName(data.author);
-                    }
                 }
 
                 // Show warning if no content was fetched
@@ -97,22 +85,6 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                     toastr.warning(t('no article content found at this url'));
                 }
 
-                // Try to parse date if available
-                if (data.publishedDate || data.timestamp) {
-                    try {
-                        const dateStr = data.publishedDate || data.timestamp;
-                        const date = new Date(dateStr);
-                        if (!isNaN(date.getTime())) {
-                            setDispDate(format(date, 'yyyy-MM-dd'));
-                        }
-                    } catch (e) {
-                        console.log('Could not parse date:', e);
-                    }
-                }
-
-                // Add URL as a tag
-                const urlTag = { name: 'URL' };
-                setDispTags(prev => [...prev, urlTag]);
 
                 toastr.success(t('content fetched successfully'));
             } else {
@@ -148,7 +120,15 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
         try {
             const result = await articleApi.create({
                 title: dispTitle,
-                date: dispDate,
+                date: (() => {
+                    // Combine the date from dispDate with the current time (HH:mm:ss)
+                    if (!dispDate) return '';
+                    const now = new Date();
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+                    
+                    return `${dispDate}T${currentTime}`;
+                })(),
                 owner: { name: dispOwnerName },
                 category: { name: dispCategoryName },
                 tags: dispTags,
@@ -158,8 +138,7 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                 console.error(result.error);
                 toastr.error(result.error.message || t('error'));
             } else {
-                console.log('article added:');
-                console.log(result);
+                console.log('article added');
                 toastr.success(t('article') + t('added'));
                 afterSubmitArticle2(result.id);
             }
@@ -172,132 +151,91 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
     };
 
     return (
-        <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={t('add article')}>
+        <GeneralModal isOpen={isOpen} onRequestClose={onRequestClose} title={t('add article')} style={{ width: '80%', height: '80%' }}>
 
-            <div className='flex flex-col gap-2 h-full overflow-hidden'>
-                {msg && <span style={{ color: '#dc2626' }}>{msg}</span>}
+            <div className='flex flex-col h-full'>
+                <div className='flex-1'>
+                    {msg && <span style={{ color: '#dc2626' }}>{msg}</span>}
 
-                {/* Tab Navigation */}
-                <div className="border-b border-gray-300 mb-4 flex-shrink-0">
-                    <nav className="flex space-x-8">
-                        <button
-                            onClick={() => setFetchMode('manual')}
-                            className={`py-2 px-1 border-b-2 font-medium text-sm ${fetchMode === 'manual'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                }`}
+                    {/* Form Fields */}
+                    <div className="space-y-6">
+                    {/* Title Field */}
+                    <div>
+                        <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }} htmlFor="title">{t('title') + '*'}</label>
+                        <input
+                            id="title"
+                            type="text"
+                            value={dispTitle}
+                            onChange={(e) => setDispTitle(e.target.value.trimStart())}
+                            required
+                            className="appearance-none rounded w-full py-2 px-3 leading-tight focus:outline-none"
                             style={{
-                                color: fetchMode === 'manual' ? 'var(--accent-color)' : 'var(--text-secondary)',
-                                borderBottomColor: fetchMode === 'manual' ? 'var(--accent-color)' : 'transparent'
+                                backgroundColor: 'var(--bg-primary)',
+                                border: '1px solid var(--border-secondary)',
+                                color: 'var(--text-primary)',
+                                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
                             }}
-                        >
-                            {t('Manual Entry')}
-                        </button>
-                        <button
-                            onClick={() => setFetchMode('url')}
-                            className={`py-2 px-1 border-b-2 font-medium text-sm ${fetchMode === 'url'
-                                ? 'border-blue-500 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                }`}
-                            style={{
-                                color: fetchMode === 'url' ? 'var(--accent-color)' : 'var(--text-secondary)',
-                                borderBottomColor: fetchMode === 'url' ? 'var(--accent-color)' : 'transparent'
-                            }}
-                        >
-                            {t('Fetch From Url')}
-                        </button>
-                    </nav>
-                </div>
+                        />
+                    </div>
 
-                {/* Tab Content */}
+                    {/* Category and Date Row */}
+                    <div className='flex w-full gap-6'>
+                        <div className='flex-1'>
+                            <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('category') + '*'}</label>
+                            <CategoryList onCategoryChange={setDispCategoryName}></CategoryList>
+                        </div>
+                        <div className="flex items-center justify-center">
+                            <div className="h-16 w-px" style={{ backgroundColor: 'var(--border-secondary)' }}></div>
+                        </div>
+                        <div className='flex-shrink-0'>
+                            <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('date') + '*'}</label>
+                            <DateInput dispDate={dispDate} onDateChange={setDispDate}></DateInput>
+                        </div>
+                    </div>
 
-                <div className="flex-1 overflow-y-auto">
-                    {fetchMode === 'url' ? (
-                        <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)' }}>
-                            <div className="flex items-center gap-2 mb-2">
-                                <LinkIcon className="w-5 h-5" />
-                                <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                                    {t('fetch from url')}
-                                </span>
-                            </div>
-                            <div className="flex gap-2 mb-2">
-                                <input
-                                    type="url"
-                                    placeholder={t('enter url (article, tweet, etc.)')}
-                                    value={urlInput}
-                                    onChange={(e) => setUrlInput(e.target.value)}
-                                    className="flex-1 py-2 px-3 rounded border"
-                                    style={{
-                                        backgroundColor: 'var(--bg-primary)',
-                                        border: '1px solid var(--border-secondary)',
-                                        color: 'var(--text-primary)',
-                                    }}
-                                    disabled={isFetching}
-                                />
-                                <ActionButton
-                                    color={'green'}
-                                    onClick={handleUrlFetch}
-                                    disabled={isFetching}
-                                >
-                                    {isFetching ? t('fetching...') : t('fetch')}
-                                </ActionButton>
-                            </div>
-                            <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                {t('supports articles, tweets, and other web content')}
-                            </div>
+                    {/* Owner Field */}
+                    <div>
+                        <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('owner')}</label>
+                        <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
+                    </div>
+
+                    {/* URL Input - Optional */}
+                    <div>
+                        <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('url (optional)')}</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="url"
+                                placeholder={t('enter url to fetch content')}
+                                value={urlInput}
+                                onChange={(e) => setUrlInput(e.target.value)}
+                                className="flex-1 py-2 px-3 rounded border"
+                                style={{
+                                    backgroundColor: 'var(--bg-primary)',
+                                    border: '1px solid var(--border-secondary)',
+                                    color: 'var(--text-primary)',
+                                }}
+                                disabled={isFetching}
+                            />
+                            <ActionButton
+                                onClick={handleUrlFetch}
+                                disabled={isFetching}
+                            >
+                                {isFetching ? t('fetching...') : t('fetch')}
+                            </ActionButton>
                         </div>
-                    ) : (
-                        <div>
-                            <div>
-                                <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }} htmlFor="title">{t('title') + '*'}</label>
-                                <input
-                                    id="title"
-                                    type="text"
-                                    value={dispTitle}
-                                    onChange={(e) => setDispTitle(e.target.value.trimStart())}
-                                    required
-                                    className="appearance-none rounded w-full py-2 px-3 leading-tight focus:outline-none"
-                                    style={{
-                                        backgroundColor: 'var(--bg-primary)',
-                                        border: '1px solid var(--border-secondary)',
-                                        color: 'var(--text-primary)',
-                                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-                                    }}
-                                />
-                                {fetchedContent && (
-                                    <div className="mt-1 text-sm text-green-600">
-                                        ✓ {t('content will be included in article')}
-                                    </div>
-                                )}
+                        {fetchedContent && (
+                            <div className="mt-2 text-sm text-green-600">
+                                ✓ {t('content will be included in article')}
                             </div>
-                            <div className='flex gap-2 min-w-full'>
-                                <div className='flex flex-col flex-1'>
-                                    <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('category') + '*'}</label>
-                                    <CategoryList onCategoryChange={setDispCategoryName}></CategoryList>
-                                </div>
-                                <div>
-                                    <div
-                                        className="h-full mx-2"
-                                        style={{
-                                            border: '1px solid var(--border-secondary)'
-                                        }}
-                                    ></div>
-                                </div>
-                                <div>
-                                    <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('date') + '*'}</label>
-                                    <DateInput dispDate={dispDate} onDateChange={setDispDate}></DateInput>
-                                </div>
-                            </div>
-                            <div className='flex flex-col flex-1'>
-                                <label className="block font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('owner')}</label>
-                                <OwnerList onOwnerChange={setDispOwnerName}></OwnerList>
-                            </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
+                    </div>
                 </div>
-                <div className='flex justify-end gap-2 mt-4'>
+                
+                {/* Buttons at bottom */}
+                <div className='flex justify-end gap-2 mt-4 flex-shrink-0'>
                     <ActionButton color={'red'} onClick={onRequestClose}>{t('cancel')}</ActionButton>
-                    <ActionButton color={'blue'} onClick={handleSubmit}>{t('add')}</ActionButton>
+                    <ActionButton color={'blue'} onClick={handleSubmit} disabled={isFetching}>{t('add')}</ActionButton>
                 </div>
             </div>
         </GeneralModal>

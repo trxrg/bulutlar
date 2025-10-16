@@ -12,7 +12,8 @@ const servicePromises = [
     import('./AnnotationService.js'),
     import('./LookupService.js'),
     import('./DBService.js'),
-    import('./StoreService.js')
+    import('./StoreService.js'),
+    import('./UrlFetchService.js')
 ];
 
 function initServices() {

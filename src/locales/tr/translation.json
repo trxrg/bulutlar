@@ -320,5 +320,16 @@
     "export failed": "Dışa aktarma başarısız",
     "generating pdf": "PDF Oluşturuluyor",
     "generating word": "Word Oluşturuluyor",
-    "exporting": "Dışa Aktarılıyor"
+    "exporting": "Dışa Aktarılıyor",
+
+    "Manual Entry": "Manuel Giriş",
+    "Fetch From Url": "URL'den Al",
+    "fetching...": "Alınıyor...",
+    "fetch": "Al",
+    "enter url (article, tweet, etc.)": "URL (yazı, tweet, vb.) girin",
+    "enter url": "URL (yazı, tweet, vb.) girin",
+    "url (optional)": "URL (isteğe bağlı)",
+    "enter url to fetch content": "İçerik almak için URL girin",
+    "content will be included in article": "İçerik yazıya dahil edilecek",
+    "content fetched successfully": "İçerik başarıyla alındı"
 }

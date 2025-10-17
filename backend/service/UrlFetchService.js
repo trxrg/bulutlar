@@ -8,6 +8,64 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function sanitizeHtml(html) {
+    if (!html) return '';
+    
+    // Split content by p tags to handle them individually
+    const parts = html.split(/(<\/?p>)/);
+    const result = [];
+    let inParagraph = false;
+    let currentParagraph = '';
+    
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        
+        if (part === '<p>') {
+            // Close any existing paragraph before starting a new one
+            if (inParagraph && currentParagraph.trim()) {
+                result.push(`<p>${currentParagraph.trim()}</p>`);
+            }
+            inParagraph = true;
+            currentParagraph = '';
+        } else if (part === '</p>') {
+            if (inParagraph && currentParagraph.trim()) {
+                result.push(`<p>${currentParagraph.trim()}</p>`);
+            }
+            inParagraph = false;
+            currentParagraph = '';
+        } else if (part.trim()) {
+            // This is content
+            if (inParagraph) {
+                currentParagraph += part;
+            } else {
+                // Content outside paragraphs - wrap in p tags
+                if (part.trim()) {
+                    result.push(`<p>${part.trim()}</p>`);
+                }
+            }
+        }
+    }
+    
+    // Handle any remaining content
+    if (inParagraph && currentParagraph.trim()) {
+        result.push(`<p>${currentParagraph.trim()}</p>`);
+    }
+    
+    // Join all paragraphs
+    let sanitized = result.join('');
+    
+    // Clean up any remaining issues
+    sanitized = sanitized
+        .replace(/<p>\s*<\/p>/g, '') // Remove empty paragraphs
+        .replace(/<p>\s*<p>/g, '<p>') // Fix nested opening p tags
+        .replace(/<\/p>\s*<\/p>/g, '</p>') // Fix nested closing p tags
+        .replace(/<p>\s*<br>\s*<\/p>/g, '<br>') // Convert empty paragraphs with br to just br
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+    
+    return sanitized;
+}
+
 function initService() {
     ipcMain.handle('url/fetchContent', async (event, url) => await fetchContentFromUrl(url));
     ipcMain.handle('url/fetchTweet', async (event, tweetUrl) => await fetchTweetContent(tweetUrl));
@@ -165,15 +223,18 @@ async function fetchContentFromUrl(url) {
                     title = h1InContent.textContent.trim();
                 }
                 
-                // Extract content preserving <strong> tags but removing other HTML
+                // Extract content preserving <strong>, <p>, and <br> tags but removing other HTML
                 let htmlContent = mainElement.innerHTML || '';
                 
-                // Remove all HTML tags except <strong> and <b>
+                // Remove all HTML tags except <strong>, <b>, <p>, and <br>
                 htmlContent = htmlContent
-                    .replace(/<(?!\/?(?:strong|b)\b)[^>]*>/gi, '') // Remove all tags except strong/b
+                    .replace(/<(?!\/?(?:strong|b|p|br)\b)[^>]*>/gi, '') // Remove all tags except strong/b/p/br
                     .replace(/<\/?(?:b)\b[^>]*>/gi, '<strong>') // Convert <b> to <strong>
                     .replace(/<strong[^>]*>/gi, '<strong>') // Clean <strong> attributes
-                    .replace(/<\/strong[^>]*>/gi, '</strong>'); // Clean </strong> attributes
+                    .replace(/<\/strong[^>]*>/gi, '</strong>') // Clean </strong> attributes
+                    .replace(/<p[^>]*>/gi, '<p>') // Clean <p> attributes
+                    .replace(/<\/p[^>]*>/gi, '</p>') // Clean </p> attributes
+                    .replace(/<br[^>]*>/gi, '<br>'); // Clean <br> attributes
                 
                 mainContent = htmlContent;
                 
@@ -193,6 +254,9 @@ async function fetchContentFromUrl(url) {
                 url: window.location.href
             };
         });
+        
+        // Sanitize HTML to fix unclosed and nested p tags
+        content.content = sanitizeHtml(content.content);
         
         // Clean up content
         content.content = cleanTextContent(content.content);

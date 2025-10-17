@@ -11,8 +11,8 @@ const __dirname = path.dirname(__filename);
 function sanitizeHtml(html) {
     if (!html) return '';
     
-    // Split content by p tags to handle them individually
-    const parts = html.split(/(<\/?p>)/);
+    // Split content by p tags and heading tags to handle them individually
+    const parts = html.split(/(<\/?p>|<\/?h[1-6]>)/);
     const result = [];
     let inParagraph = false;
     let currentParagraph = '';
@@ -33,14 +33,37 @@ function sanitizeHtml(html) {
             }
             inParagraph = false;
             currentParagraph = '';
+        } else if (/^<h[1-6]>$/.test(part)) {
+            // Handle opening heading tags
+            if (inParagraph && currentParagraph.trim()) {
+                result.push(`<p>${currentParagraph.trim()}</p>`);
+            }
+            inParagraph = false;
+            currentParagraph = '';
+            result.push(part);
+        } else if (/^<\/h[1-6]>$/.test(part)) {
+            // Handle closing heading tags
+            if (inParagraph && currentParagraph.trim()) {
+                result.push(`<p>${currentParagraph.trim()}</p>`);
+            }
+            inParagraph = false;
+            currentParagraph = '';
+            result.push(part);
         } else if (part.trim()) {
             // This is content
             if (inParagraph) {
                 currentParagraph += part;
             } else {
-                // Content outside paragraphs - wrap in p tags
-                if (part.trim()) {
-                    result.push(`<p>${part.trim()}</p>`);
+                // Content outside paragraphs - check if it's part of a heading
+                const prevPart = parts[i - 1];
+                if (prevPart && /^<h[1-6]>$/.test(prevPart)) {
+                    // This content belongs to a heading, add it directly
+                    result.push(part);
+                } else {
+                    // Content outside paragraphs and headings - wrap in p tags
+                    if (part.trim()) {
+                        result.push(`<p>${part.trim()}</p>`);
+                    }
                 }
             }
         }
@@ -51,7 +74,7 @@ function sanitizeHtml(html) {
         result.push(`<p>${currentParagraph.trim()}</p>`);
     }
     
-    // Join all paragraphs
+    // Join all paragraphs and headings
     let sanitized = result.join('');
     
     // Clean up any remaining issues
@@ -223,18 +246,20 @@ async function fetchContentFromUrl(url) {
                     title = h1InContent.textContent.trim();
                 }
                 
-                // Extract content preserving <strong>, <p>, and <br> tags but removing other HTML
+                // Extract content preserving <strong>, <p>, <br>, and heading tags but removing other HTML
                 let htmlContent = mainElement.innerHTML || '';
                 
-                // Remove all HTML tags except <strong>, <b>, <p>, and <br>
+                // Remove all HTML tags except <strong>, <b>, <p>, <br>, and heading tags (h1-h6)
                 htmlContent = htmlContent
-                    .replace(/<(?!\/?(?:strong|b|p|br)\b)[^>]*>/gi, '') // Remove all tags except strong/b/p/br
+                    .replace(/<(?!\/?(?:strong|b|p|br|h[1-6])\b)[^>]*>/gi, '') // Remove all tags except strong/b/p/br/h1-h6
                     .replace(/<\/?(?:b)\b[^>]*>/gi, '<strong>') // Convert <b> to <strong>
                     .replace(/<strong[^>]*>/gi, '<strong>') // Clean <strong> attributes
                     .replace(/<\/strong[^>]*>/gi, '</strong>') // Clean </strong> attributes
                     .replace(/<p[^>]*>/gi, '<p>') // Clean <p> attributes
                     .replace(/<\/p[^>]*>/gi, '</p>') // Clean </p> attributes
-                    .replace(/<br[^>]*>/gi, '<br>'); // Clean <br> attributes
+                    .replace(/<br[^>]*>/gi, '<br>') // Clean <br> attributes
+                    .replace(/<(h[1-6])[^>]*>/gi, '<$1>') // Clean heading tag attributes
+                    .replace(/<\/(h[1-6])[^>]*>/gi, '</$1>'); // Clean closing heading tag attributes
                 
                 mainContent = htmlContent;
                 

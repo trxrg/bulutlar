@@ -27,8 +27,8 @@ let mainWindow;
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 900,
+    width: 1280,
+    height: 720,
     title: 'Bulutlar',
     backgroundColor: '#000000', // Set window background to black immediately
     show: false, // Don't show window until ready

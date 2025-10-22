@@ -30,7 +30,7 @@ export default function AppContextProvider({ children }) {
     useEffect(() => {
         if (allDataFetched && dataIsCleaned) {
             const elapsedTime = Date.now() - loadingStartTime;
-            const minDisplayTime = 3000; // 2 seconds minimum
+            const minDisplayTime = 7000; // 7 seconds minimum
 
             if (elapsedTime >= minDisplayTime) {
                 // Enough time has passed, show immediately
@@ -52,8 +52,33 @@ export default function AppContextProvider({ children }) {
         if (isReadyToShow) {
             const initialLoader = document.getElementById('initial-loader');
             if (initialLoader) {
+                const video = initialLoader.querySelector('video');
+                if (video) {
+                    // Disable loop to prevent restart glitch
+                    video.loop = false;
+                    
+                    // Create smooth audio fade out
+                    const fadeOutDuration = 1000; // 1 second fade out
+                    const fadeOutSteps = 20;
+                    const stepDuration = fadeOutDuration / fadeOutSteps;
+                    let currentStep = 0;
+                    
+                    const fadeOutInterval = setInterval(() => {
+                        currentStep++;
+                        const volume = Math.max(0, 1 - (currentStep / fadeOutSteps));
+                        video.volume = volume;
+                        
+                        if (currentStep >= fadeOutSteps) {
+                            clearInterval(fadeOutInterval);
+                            video.pause();
+                            // Don't reset currentTime to avoid glitch
+                            video.volume = 1; // Reset volume for next time
+                        }
+                    }, stepDuration);
+                }
+                
                 // Apply transition first
-                initialLoader.style.transition = 'opacity 0.5s ease-out';
+                initialLoader.style.transition = 'opacity 1s ease-out';
                 
                 // Small delay to ensure transition is applied
                 setTimeout(() => {
@@ -63,7 +88,7 @@ export default function AppContextProvider({ children }) {
                 // Remove completely after fade completes
                 setTimeout(() => {
                     initialLoader.style.display = 'none';
-                }, 510); // 500ms transition + 10ms delay
+                }, 1010); // 1000ms transition + 10ms delay
             }
         }
     }, [isReadyToShow]);

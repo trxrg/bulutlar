@@ -88,6 +88,11 @@ export default function AppContextProvider({ children }) {
                 // Remove completely after fade completes
                 setTimeout(() => {
                     initialLoader.style.display = 'none';
+                    // Remove video element to free memory
+                    const video = initialLoader.querySelector('video');
+                    if (video) {
+                        video.remove(); // Remove from DOM to free memory
+                    }
                 }, 1010); // 1000ms transition + 10ms delay
             }
         }

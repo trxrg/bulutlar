@@ -30,7 +30,7 @@ export default function AppContextProvider({ children }) {
     useEffect(() => {
         if (allDataFetched && dataIsCleaned) {
             const elapsedTime = Date.now() - loadingStartTime;
-            const minDisplayTime = 7000; // 7 seconds minimum
+            const minDisplayTime = 5000; // 7 seconds minimum
 
             if (elapsedTime >= minDisplayTime) {
                 // Enough time has passed, show immediately
@@ -58,8 +58,8 @@ export default function AppContextProvider({ children }) {
                     video.loop = false;
                     
                     // Create smooth audio fade out
-                    const fadeOutDuration = 1000; // 1 second fade out
-                    const fadeOutSteps = 20;
+                    const fadeOutDuration = 2000; // 2 second fade out
+                    const fadeOutSteps = 40;
                     const stepDuration = fadeOutDuration / fadeOutSteps;
                     let currentStep = 0;
                     
@@ -93,7 +93,7 @@ export default function AppContextProvider({ children }) {
                     if (video) {
                         video.remove(); // Remove from DOM to free memory
                     }
-                }, 1010); // 1000ms transition + 10ms delay
+                }, 2010); // 2000ms transition + 10ms delay
             }
         }
     }, [isReadyToShow]);

@@ -11,7 +11,7 @@ const TagList2 = ({ showInput = true }) => {
 
     const { allTags, fetchAllTags, fetchArticleById, getTagById } = useContext(DBContext);
     const { article } = useContext(ReadContext);
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, normalizeText } = useContext(AppContext);
 
     const suggestedTagNumber = 5;
     const tags = article.tags.map(tag => getTagById(tag.id));
@@ -70,7 +70,7 @@ const TagList2 = ({ showInput = true }) => {
                 <div>
                     <span style={{ color: 'var(--text-primary)' }}>{t('suggested tags')}: </span>
                     {suggestedTags
-                        .filter(tag => tag.name.toLowerCase().includes(inputValue.toLowerCase()))
+                        .filter(tag => normalizeText(tag.name).includes(normalizeText(inputValue)))
                         .filter(tag => !tags.map(t => t.name).includes(tag.name))
                         .slice(0, suggestedTagNumber)
                         .map(tag => (

@@ -23,6 +23,48 @@ export async function generateHTMLDocument(exportData, filePath, imagesFolderPat
     <style>
         ${getEmbeddedCSS()}
     </style>
+    <script>
+        // Wait for all images to load and handle page breaks for images
+        window.addEventListener('load', function() {
+            const images = document.querySelectorAll('img');
+            Promise.all(Array.from(images).map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                });
+            })).then(() => {
+                // After images load, wrap them in tables for better page break handling
+                wrapImagesInTables();
+                document.body.classList.add('ready-for-pdf');
+            });
+        });
+        
+        function wrapImagesInTables() {
+            const imageWrappers = document.querySelectorAll('.image-wrapper');
+            imageWrappers.forEach(wrapper => {
+                const img = wrapper.querySelector('img');
+                if (!img) return;
+                
+                // Check image height
+                const imgHeight = img.naturalHeight || img.height;
+                const imgWidth = img.naturalWidth || img.width;
+                
+                // If image is tall (more than 450px), ensure it starts on a new page if near bottom
+                if (imgHeight > 450) {
+                    const rect = wrapper.getBoundingClientRect();
+                    const pageHeight = 1123; // Approximate A4 height in pixels
+                    const positionInPage = rect.top % pageHeight;
+                    
+                    // If we're past 60% of the page, force a page break before
+                    if (positionInPage > pageHeight * 0.6) {
+                        wrapper.style.pageBreakBefore = 'always';
+                        wrapper.style.breakBefore = 'page';
+                    }
+                }
+            });
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -67,6 +109,48 @@ export async function generateMergedHTMLDocument(exportData, filePath, imagesFol
             border-bottom: none;
         }
     </style>
+    <script>
+        // Wait for all images to load and handle page breaks for images
+        window.addEventListener('load', function() {
+            const images = document.querySelectorAll('img');
+            Promise.all(Array.from(images).map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                });
+            })).then(() => {
+                // After images load, wrap them in tables for better page break handling
+                wrapImagesInTables();
+                document.body.classList.add('ready-for-pdf');
+            });
+        });
+        
+        function wrapImagesInTables() {
+            const imageWrappers = document.querySelectorAll('.image-wrapper');
+            imageWrappers.forEach(wrapper => {
+                const img = wrapper.querySelector('img');
+                if (!img) return;
+                
+                // Check image height
+                const imgHeight = img.naturalHeight || img.height;
+                const imgWidth = img.naturalWidth || img.width;
+                
+                // If image is tall (more than 450px), ensure it starts on a new page if near bottom
+                if (imgHeight > 450) {
+                    const rect = wrapper.getBoundingClientRect();
+                    const pageHeight = 1123; // Approximate A4 height in pixels
+                    const positionInPage = rect.top % pageHeight;
+                    
+                    // If we're past 60% of the page, force a page break before
+                    if (positionInPage > pageHeight * 0.6) {
+                        wrapper.style.pageBreakBefore = 'always';
+                        wrapper.style.breakBefore = 'page';
+                    }
+                }
+            });
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -133,7 +217,7 @@ async function buildContentSectionsHTML(article, options, imagesFolderPath, tran
     if (options.explanation && article.explanation && !isHtmlStringEmpty(article.explanation)) {
         contentHTML += `
             <section class="explanation-section">
-                <div class="content-html">${article.explanation}</div>
+                <div class="content-html">${decodeHtmlEntities(article.explanation)}</div>
             </section>`;
     }
     
@@ -141,7 +225,7 @@ async function buildContentSectionsHTML(article, options, imagesFolderPath, tran
     if (options.mainText && article.text && !isHtmlStringEmpty(article.text)) {
         contentHTML += `
             <section class="main-text-section">
-                <div class="content-html">${article.text}</div>
+                <div class="content-html">${decodeHtmlEntities(article.text)}</div>
             </section>`;
     }
     
@@ -156,11 +240,17 @@ async function buildContentSectionsHTML(article, options, imagesFolderPath, tran
                 const mimeType = getMimeType(image.path);
                 
                 contentHTML += `
-                    <div class="image-container">
-                        <img src="data:${mimeType};base64,${base64Image}" 
-                             alt="${escapeHtml(image.name || 'Image')}"
-                             class="embedded-image" />
-                    </div>`;
+                    <table class="image-wrapper" style="page-break-inside: avoid; break-inside: avoid; margin: 2rem auto; width: 100%;">
+                        <tr>
+                            <td style="text-align: center; padding: 1rem;">
+                                <div class="image-container">
+                                    <img src="data:${mimeType};base64,${base64Image}" 
+                                         alt="${escapeHtml(image.name || 'Image')}"
+                                         class="embedded-image" />
+                                </div>
+                            </td>
+                        </tr>
+                    </table>`;
             } catch (error) {
                 console.error('Error embedding image:', error);
                 contentHTML += `<p class="image-placeholder">[Image: ${escapeHtml(image.name)}]</p>`;
@@ -174,7 +264,7 @@ async function buildContentSectionsHTML(article, options, imagesFolderPath, tran
         contentHTML += `
             <section class="comment-section">
                 <h3 class="section-title">${escapeHtml(translations?.comment || 'Comment')}</h3>
-                <div class="content-html">${article.comments[0].text}</div>
+                <div class="content-html">${decodeHtmlEntities(article.comments[0].text)}</div>
             </section>`;
     }
     
@@ -348,16 +438,36 @@ function getEmbeddedCSS() {
             margin: 2rem 0;
         }
         
+        .image-wrapper {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            page-break-before: auto;
+            page-break-after: auto;
+            margin: 2rem auto !important;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .image-wrapper td {
+            text-align: center;
+            padding: 1rem;
+        }
+        
         .image-container {
             text-align: center;
-            margin: 1.5rem 0;
+            display: inline-block;
+            max-width: 100%;
         }
         
         .embedded-image {
-            width: 100%;
+            max-width: 85%;
+            max-height: 550px;
             height: auto;
+            width: auto;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: block;
+            margin: 0 auto;
         }
         
         .image-placeholder {
@@ -428,11 +538,39 @@ function getEmbeddedCSS() {
                 margin-top: 1.5rem;
             }
             
+            .images-section {
+                page-break-inside: auto;
+            }
+            
+            .image-wrapper {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                page-break-before: auto;
+                page-break-after: auto;
+                margin: 2rem auto !important;
+            }
+            
+            .image-wrapper td {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            
+            .image-container {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                display: inline-block;
+            }
+            
             .embedded-image {
-                width: 100%;
+                max-width: 85%;
+                max-height: 600px;
+                height: auto;
+                width: auto;
                 box-shadow: none;
-                page-break-inside: avoid;
-                margin: 1rem 0;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin: 0 auto;
+                display: block;
             }
             
             .article-separator {
@@ -462,7 +600,6 @@ function getEmbeddedCSS() {
         
         /* Puppeteer-specific optimizations */
         @page {
-            margin: 1.5cm;
             size: A4;
         }
         
@@ -499,6 +636,25 @@ function escapeHtml(text) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+}
+
+// Decode HTML entities if the content has been double-escaped or contains literal entity strings
+function decodeHtmlEntities(text) {
+    if (!text) return '';
+    
+    // First, handle double-escaped entities (like &amp;nbsp; instead of &nbsp;)
+    let result = text;
+    if (result.includes('&amp;')) {
+        result = result
+            .replace(/&amp;nbsp;/g, '&nbsp;')
+            .replace(/&amp;lt;/g, '&lt;')
+            .replace(/&amp;gt;/g, '&gt;')
+            .replace(/&amp;quot;/g, '&quot;')
+            .replace(/&amp;#39;/g, '&#39;')
+            .replace(/&amp;/g, '&');
+    }
+    
+    return result;
 }
 
 function getMimeType(filePath) {

@@ -42,6 +42,14 @@ export async function generateHTMLToPDF(exportData, filePath, imagesFolderPath) 
             timeout: 30000
         });
         
+        // Wait for all images to be loaded
+        await page.waitForSelector('body.ready-for-pdf', { timeout: 10000 }).catch(() => {
+            console.log('Timeout waiting for images, continuing anyway...');
+        });
+        
+        // Additional wait for rendering
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         // Generate PDF with high quality settings
         await page.pdf({
             path: filePath,
@@ -53,9 +61,9 @@ export async function generateHTMLToPDF(exportData, filePath, imagesFolderPath) 
                 left: '15mm'
             },
             printBackground: true,
-            preferCSSPageSize: false,
+            preferCSSPageSize: true,
             displayHeaderFooter: false,
-            scale: 0.8, // Slightly smaller scale for better fit
+            scale: 1.0,
             timeout: 30000
         });
         
@@ -69,12 +77,16 @@ export async function generateHTMLToPDF(exportData, filePath, imagesFolderPath) 
         if (browser) {
             await browser.close();
         }
+        // Keep temp HTML file for debugging - comment out to enable cleanup
+        // if (tempHtmlPath) {
+        //     try {
+        //         await fs.unlink(tempHtmlPath);
+        //     } catch (cleanupError) {
+        //         console.warn('Could not delete temporary HTML file:', cleanupError);
+        //     }
+        // }
         if (tempHtmlPath) {
-            try {
-                await fs.unlink(tempHtmlPath);
-            } catch (cleanupError) {
-                console.warn('Could not delete temporary HTML file:', cleanupError);
-            }
+            console.log('Temporary HTML file saved at:', tempHtmlPath);
         }
     }
 }
@@ -119,6 +131,11 @@ export async function generateMergedHTMLToPDF(exportData, filePath, imagesFolder
             timeout: 60000 // Longer timeout for merged documents
         });
         
+        // Wait for all images to be loaded
+        await page.waitForSelector('body.ready-for-pdf', { timeout: 15000 }).catch(() => {
+            console.log('Timeout waiting for images, continuing anyway...');
+        });
+        
         // Wait a bit more for any dynamic content to load
         await new Promise(resolve => setTimeout(resolve, 2000));
         
@@ -133,9 +150,9 @@ export async function generateMergedHTMLToPDF(exportData, filePath, imagesFolder
                 left: '15mm'
             },
             printBackground: true,
-            preferCSSPageSize: false,
+            preferCSSPageSize: true,
             displayHeaderFooter: false,
-            scale: 0.8,
+            scale: 1.0,
             timeout: 60000
         });
         
@@ -149,12 +166,16 @@ export async function generateMergedHTMLToPDF(exportData, filePath, imagesFolder
         if (browser) {
             await browser.close();
         }
+        // Keep temp HTML file for debugging - comment out to enable cleanup
+        // if (tempHtmlPath) {
+        //     try {
+        //         await fs.unlink(tempHtmlPath);
+        //     } catch (cleanupError) {
+        //         console.warn('Could not delete temporary HTML file:', cleanupError);
+        //     }
+        // }
         if (tempHtmlPath) {
-            try {
-                await fs.unlink(tempHtmlPath);
-            } catch (cleanupError) {
-                console.warn('Could not delete temporary HTML file:', cleanupError);
-            }
+            console.log('Temporary HTML file saved at:', tempHtmlPath);
         }
     }
 }
@@ -221,6 +242,9 @@ export async function generateCustomHTMLToPDF(exportData, filePath, imagesFolder
         
         // Wait for fonts and images to load
         await page.evaluateHandle('document.fonts.ready');
+        await page.waitForSelector('body.ready-for-pdf', { timeout: 10000 }).catch(() => {
+            console.log('Timeout waiting for images, continuing anyway...');
+        });
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Generate PDF
@@ -229,9 +253,9 @@ export async function generateCustomHTMLToPDF(exportData, filePath, imagesFolder
             format: pdfOptions.format,
             margin: pdfOptions.margin,
             printBackground: pdfOptions.printBackground,
-            preferCSSPageSize: false,
+            preferCSSPageSize: true,
             displayHeaderFooter: false,
-            scale: pdfOptions.scale,
+            scale: pdfOptions.scale || 1.0,
             timeout: pdfOptions.timeout
         });
         
@@ -245,12 +269,16 @@ export async function generateCustomHTMLToPDF(exportData, filePath, imagesFolder
         if (browser) {
             await browser.close();
         }
+        // Keep temp HTML file for debugging - comment out to enable cleanup
+        // if (tempHtmlPath) {
+        //     try {
+        //         await fs.unlink(tempHtmlPath);
+        //     } catch (cleanupError) {
+        //         console.warn('Could not delete temporary HTML file:', cleanupError);
+        //     }
+        // }
         if (tempHtmlPath) {
-            try {
-                await fs.unlink(tempHtmlPath);
-            } catch (cleanupError) {
-                console.warn('Could not delete temporary HTML file:', cleanupError);
-            }
+            console.log('Temporary HTML file saved at:', tempHtmlPath);
         }
     }
 }

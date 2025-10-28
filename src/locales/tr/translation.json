@@ -331,5 +331,8 @@
     "url (optional)": "URL (isteğe bağlı)",
     "enter url to fetch content": "İçerik almak için URL girin",
     "content will be included in article": "İçerik yazıya dahil edilecek",
-    "content fetched successfully": "İçerik başarıyla alındı"
+    "content fetched successfully": "İçerik başarıyla alındı",
+    "show panels": "Genişlet",
+    "Expand panel": "Paneli Göster",
+    "Collapse panel": "Paneli Küçült"
 }

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import BodyWithFixedHeader from './BodyWithFixedHeader';
 import FormatButton from './FormatButton';
+import { AppContext } from '../../store/app-context';
 
 const CollapsiblePanel = ({ 
     isCollapsed, 
@@ -11,6 +12,7 @@ const CollapsiblePanel = ({
     headerButtons = [], 
     children
 }) => {
+    const { translate: t } = useContext(AppContext);
     return (
         <div className='h-full'>
             <BodyWithFixedHeader>
@@ -29,7 +31,7 @@ const CollapsiblePanel = ({
                             </FormatButton>
                         ))}
                         {onToggleCollapse && (
-                            <FormatButton onClick={onToggleCollapse} title={isCollapsed ? 'Expand panel' : 'Collapse panel'}>
+                            <FormatButton onClick={onToggleCollapse} title={isCollapsed ? t('Expand panel') : t('Collapse panel')}>
                                 {isCollapsed ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
                             </FormatButton>
                         )}

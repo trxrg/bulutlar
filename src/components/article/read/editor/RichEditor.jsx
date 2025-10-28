@@ -682,7 +682,9 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
                 style={{
                     borderColor: editable ? 'var(--border-secondary)' : 'transparent',
                     backgroundColor: 'var(--bg-primary)',
-                    color: 'var(--text-editor)'
+                    color: 'var(--text-editor)',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word'
                 }}
             >
                 {editorState.getCurrentContent().hasText() || !editable ? null : (

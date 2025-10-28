@@ -225,6 +225,15 @@
     background-color: #2563eb; /* hover:bg-blue-600 */
   }
 
+  /* Draft.js word breaking for long words */
+  .DraftEditor-root,
+  .DraftEditor-editorContainer,
+  .public-DraftEditor-content,
+  .public-DraftStyleDefault-block {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
   /* COLORS 
   #6D9773 light green
   #0C3B2E dark green

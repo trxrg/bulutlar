@@ -686,7 +686,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
                 }}
             >
                 {editorState.getCurrentContent().hasText() || !editable ? null : (
-                    <div className="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none">
+                    <div className="absolute top-0 left-0 right-0 bottom-0 z-10 flex items-center justify-center pointer-events-none">
                         <span style={{ color: 'var(--text-tertiary)' }}>{prompt}</span>
                     </div>
                 )}

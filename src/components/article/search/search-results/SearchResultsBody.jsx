@@ -1,4 +1,6 @@
-import React, { useEffect, useContext, useMemo } from 'react';
+import React, { useEffect, useContext, useMemo, useState, useRef } from 'react';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import Tooltip from '@mui/material/Tooltip';
 
 import ArticleShort from './ArticleShort.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
@@ -12,6 +14,9 @@ const SearchResultsBody = React.memo(() => {
     const { filtering, filteredArticles, setFilteredArticles,
         searchInTitle, searchInExplanation,
         searchInMainText, searchInComments } = useContext(SearchContext);
+    
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    const containerRef = useRef(null);
 
     useEffect(() => {
         setFilteredArticles([...allArticles]);
@@ -20,6 +25,32 @@ const SearchResultsBody = React.memo(() => {
     useEffect(() => {
         applyFiltering(allArticles, filtering);
     }, [allArticles, filtering]);
+
+    // Handle scroll event to show/hide scroll-to-top button
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const scrollableParent = container.parentElement;
+        if (!scrollableParent) return;
+
+        const handleScroll = (e) => {
+            setShowScrollTop(e.target.scrollTop > 200);
+        };
+
+        scrollableParent.addEventListener('scroll', handleScroll);
+        return () => scrollableParent.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const scrollToTop = () => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const scrollableParent = container.parentElement;
+        if (scrollableParent) {
+            scrollableParent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
     const applyFiltering = (allArticles, filtering) => {
         let localFilteredArticles = allArticles;
@@ -224,8 +255,24 @@ const SearchResultsBody = React.memo(() => {
                 <div className='flex justify-center p-2 h-full'>
                     <p>{t('no articles')}</p>
                 </div> :
-                <div className='flex flex-col gap-5 p-5 relative'>
+                <div ref={containerRef} className='flex flex-col gap-5 p-5 relative'>
                     {articlesList}
+                    
+                    {/* Scroll to top button */}
+                    <Tooltip title={t('Scroll to top') || 'Scroll to top'} arrow placement="left">
+                        <button
+                            onClick={scrollToTop}
+                            className={`fixed bottom-6 right-6 rounded-full p-2 shadow-lg transition-all duration-300 z-[9999] hover:scale-110 ${showScrollTop ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            style={{
+                                backgroundColor: 'var(--bg-secondary)',
+                                color: 'var(--text-primary)',
+                                border: '1px solid var(--border-primary)',
+                                boxShadow: '0 10px 15px -3px var(--shadow), 0 4px 6px -2px var(--shadow)'
+                            }}
+                        >
+                            <KeyboardArrowUpIcon style={{ fontSize: '2rem' }} />
+                        </button>
+                    </Tooltip>
                 </div>}
         </>
     );

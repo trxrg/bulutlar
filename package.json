@@ -30,7 +30,7 @@
     "package-mac-builder-arm64": "npm run build-react && electron-builder --mac --arm64",
     "package-mac-builder-x64": "npm run build-react && electron-builder --mac --x64",
     "dist": "npm run build-react && electron-builder",
-    "postinstall": "node postInstall.js"
+    "postinstall2": "node postInstall.js"
   },
   "eslintConfig": {
     "extends": [

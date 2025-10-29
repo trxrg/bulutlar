@@ -323,5 +323,13 @@
     "deselect all": "Deselect All",
     "backup dir changed to": "Backup directory changed to",
     "backup dir change error": "Error changing backup directory",
-    "db backup error": "Error backing up database"
+    "db backup error": "Error backing up database",
+
+    "articleContentError": "Cannot Read Article Content",
+    "articleContentErrorDescription": "This article's content is corrupted or contains invalid HTML. You can delete this article or close the tab.",
+    "confirmDeleteArticle": "Are you sure you want to delete this article? This action cannot be undone.",
+    "closeTab": "Close Tab",
+    "articleId": "Article ID",
+    "articleTitle": "Article Title",
+    "untitled": "Untitled"
   }

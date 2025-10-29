@@ -346,5 +346,13 @@
     "deselect all": "Hiçbirini Seçme",
     "backup dir changed to": "Yedekleme klasörü şu dizine değiştirildi",
     "backup dir change error": "Yedekleme klasörü değiştirilirken hata oluştu",
-    "db backup error": "Veritabanı yedeklenirken hata oluştu"
+    "db backup error": "Veritabanı yedeklenirken hata oluştu",
+
+    "articleContentError": "Yazı İçeriği Okunamıyor",
+    "articleContentErrorDescription": "Bu yazının içeriği okunamayan HTML içeriyor. Bu yazıyı silebilir veya sekmeyi kapatabilirsiniz.",
+    "confirmDeleteArticle": "Bu yazıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "closeTab": "Sekmeyi Kapat",
+    "articleId": "Yazı ID",
+    "articleTitle": "Yazı Başlığı",
+    "untitled": "Başlıksız"
 }

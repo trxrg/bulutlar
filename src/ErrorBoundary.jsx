@@ -5,12 +5,12 @@ class ErrorBoundary extends Component {
     
     constructor(props) {
         super(props);
-        this.state = { hasError: false };
+        this.state = { hasError: false, error: null };
     }
 
     static getDerivedStateFromError(error) {
         // Update state so the next render will show the fallback UI.
-        return { hasError: true };
+        return { hasError: true, error };
     }
 
     componentDidCatch(error, errorInfo) {
@@ -18,10 +18,23 @@ class ErrorBoundary extends Component {
         console.error("ErrorBoundary caught an error", error, errorInfo);
     }
 
+    componentDidUpdate(prevProps) {
+        // Reset error state when children change (e.g., switching tabs)
+        if (this.props.children !== prevProps.children && this.state.hasError) {
+            this.setState({ hasError: false, error: null });
+        }
+    }
+
     render() {
-        const { t } = this.props;
+        const { t, fallback } = this.props;
+        
         if (this.state.hasError) {
-            // You can render any custom fallback UI
+            // Use custom fallback if provided
+            if (fallback) {
+                return fallback;
+            }
+            
+            // Default fallback UI
             return (
                 <div className="text-center mt-10">
                     <h1>{t("something went wrong")}</h1>

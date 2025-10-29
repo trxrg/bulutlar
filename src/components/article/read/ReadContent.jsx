@@ -1,11 +1,13 @@
-import React, { useRef, useState, useContext } from "react";
+import React, { useRef, useState, useContext, useEffect } from "react";
 import { articleApi, commentApi } from '../../../backend-adapter/BackendAdapter.js';
 import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
+import { DBContext } from "../../../store/db-context.jsx";
 import PickAndViewArticleModal from "../modals/PickAndViewArticleModal.jsx";
 import RichEditor from "./editor/RichEditor.jsx";
 import ContextMenu from "../../common/ContextMenu.jsx";
 import InlineToolbar from "./editor/InlineToolbar.jsx";
+import ArticleErrorFallback from "./ArticleErrorFallback.jsx";
 import toastr from "toastr";
 
 const ReadContent = () => {
@@ -15,11 +17,14 @@ const ReadContent = () => {
     const commentEditorRef = useRef(null);
 
     const [activeEditorRef, setActiveEditorRef] = useState(mainTextEditorRef);
+    const [hasContentError, setHasContentError] = useState(false);
+    
     const { article, readContentRef, fontSize, editable, syncArticleFromBE, 
         isAddLinkModalOpen, setAddLinkModalOpen, contextMenuIsOpen,
          contextMenuPosition, setContextMenuIsOpen } = useContext(ReadContext);
 
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, closeTab } = useContext(AppContext);
+    const { fetchAllData } = useContext(DBContext);
 
     const updateMainText = async (html, json) => {
         await articleApi.updateMainText(article.id, { html, json });
@@ -157,6 +162,44 @@ const ReadContent = () => {
 
         // Check if the text content is empty
         return !tempDiv.textContent.trim();
+    }
+
+    // Check if any editor has errors after component mounts
+    useEffect(() => {
+        // Small delay to ensure refs are populated
+        const checkErrors = setTimeout(() => {
+            const hasError = 
+                (mainTextEditorRef.current?.hasError && mainTextEditorRef.current.hasError()) ||
+                (explanationEditorRef.current?.hasError && explanationEditorRef.current.hasError()) ||
+                (commentEditorRef.current?.hasError && commentEditorRef.current.hasError());
+            
+            if (hasError) {
+                setHasContentError(true);
+            }
+        }, 100);
+
+        return () => clearTimeout(checkErrors);
+    }, [article.id]);
+
+    const handleDeleteArticle = async () => {
+        try {
+            await articleApi.deleteArticle(article.id);
+            closeTab(article.id);
+            await fetchAllData();
+        } catch (error) {
+            console.error('Failed to delete article:', error);
+        }
+    };
+
+    // If there's a content error, show the error UI
+    if (hasContentError) {
+        return (
+            <ArticleErrorFallback 
+                article={article} 
+                onDelete={handleDeleteArticle}
+                onClose={() => closeTab(article.id)}
+            />
+        );
     }
 
     return (

@@ -42,8 +42,15 @@ const withCustomProps = (Component, customProps) => (props) => (customProps && p
 ) : '';
 
 const createEditorStateFromHTMLAndDecorator = (html, decorator) => {
-    if (!html) return EditorState.createEmpty();
-    return EditorState.createWithContent(stateFromHTML(html), decorator);
+    if (!html) return { editorState: EditorState.createEmpty(), error: null };
+    
+    try {
+        return { editorState: EditorState.createWithContent(stateFromHTML(html), decorator), error: null };
+    } catch (error) {
+        console.error('Failed to parse article HTML:', error);
+        // Return the error so we can handle it gracefully
+        return { editorState: EditorState.createEmpty(), error };
+    }
 };
 
 const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleContentChange, editable, editorId = 'default' }, ref) => {
@@ -54,6 +61,9 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
 
     // Local state for this editor's highlights
     const [localHighlightRefs, setLocalHighlightRefs] = useState([]);
+    
+    // Store initialization result (including any errors)
+    const initResultRef = useRef(null);
 
     const Highlight = ({ children, offsetKey }) => {
         const highlightRef = useRef(null);
@@ -112,9 +122,22 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         },
     ]);
 
-    const [editorState, setEditorState] = useState(rawContent
-        ? EditorState.createWithContent(convertFromRaw(rawContent), decorator)
-        : createEditorStateFromHTMLAndDecorator(htmlContent, decorator));
+    const [editorState, setEditorState] = useState(() => {
+        try {
+            if (rawContent) {
+                const state = EditorState.createWithContent(convertFromRaw(rawContent), decorator);
+                initResultRef.current = { editorState: state, error: null };
+                return state;
+            }
+            const result = createEditorStateFromHTMLAndDecorator(htmlContent, decorator);
+            initResultRef.current = result;
+            return result.editorState;
+        } catch (error) {
+            console.error('Failed to initialize editor state:', error);
+            initResultRef.current = { editorState: EditorState.createEmpty(), error };
+            return EditorState.createEmpty();
+        }
+    });
     // const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     // const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
 
@@ -547,6 +570,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         resetContent,
         toggleInlineStyle,
         toggleBlockType,
+        hasError: () => initResultRef.current?.error != null,
     }));
 
     const handleEditorChange = (newEditorState) => {
@@ -666,6 +690,12 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
 
         return getDefaultKeyBinding(e);
     };
+
+    // If there's a content error, return null (ReadContent will detect and show error UI)
+    // This check is placed after all hooks to avoid React hooks rules violation
+    if (initResultRef.current?.error) {
+        return null;
+    }
 
     return (
         <div 

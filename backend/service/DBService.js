@@ -8,6 +8,52 @@ import { mainWindow } from '../main.js';
 import { initDB, stopSequelize, startSequelize } from '../sequelize/index.js';
 import { config, changeDbBackupFolderPath } from '../config.js';
 
+function stripRichFormattingKeepMedia(jsonString) {
+    try {
+        const content = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+        
+        // Strip only HIGHLIGHT from inline styles in all blocks
+        const strippedBlocks = content.blocks.map(block => {
+            // Keep atomic blocks (images, audio, video) as-is
+            if (block.type === 'atomic') {
+                return block;
+            }
+            
+            // For text blocks, remove only HIGHLIGHT from inline styles
+            const filteredInlineStyles = (block.inlineStyleRanges || []).filter(
+                style => style.style !== 'HIGHLIGHT'
+            );
+            
+            return {
+                ...block,
+                inlineStyleRanges: filteredInlineStyles, // Keep all styles except HIGHLIGHT
+                entityRanges: [] // Remove entity ranges (links, etc.) - media is in atomic blocks
+            };
+        });
+        
+        // Filter entities to keep only IMAGE, AUDIO, VIDEO
+        const mediaEntityKeys = new Set();
+        Object.entries(content.entityMap || {}).forEach(([key, entity]) => {
+            if (['IMAGE', 'AUDIO', 'VIDEO'].includes(entity.type)) {
+                mediaEntityKeys.add(key);
+            }
+        });
+        
+        const strippedEntityMap = {};
+        mediaEntityKeys.forEach(key => {
+            strippedEntityMap[key] = content.entityMap[key];
+        });
+        
+        return {
+            blocks: strippedBlocks,
+            entityMap: strippedEntityMap
+        };
+    } catch (error) {
+        console.error('Error stripping rich formatting:', error);
+        return null; // If parsing fails, return null to clear the field
+    }
+}
+
 function initService() {
     ipcMain.handle('DB/handleExport', () => handleExport());
     ipcMain.handle('DB/handleAdvancedExport', (event, options) => handleAdvancedExport(options));
@@ -219,10 +265,44 @@ async function modifyExportedDatabase(dbPath, options) {
 
         // 5. Handle rich edits
         if (!options.includeRichEdits) {
-            // Clear JSON fields in articles
-            await db.run('UPDATE articles SET explanationJson = NULL, textJson = NULL');
-            // Clear JSON fields in comments
-            await db.run('UPDATE comments SET textJson = NULL');
+            // For articles with explanationJson
+            const articlesWithExplanationJson = await db.all('SELECT id, explanationJson FROM articles WHERE explanationJson IS NOT NULL');
+            for (const article of articlesWithExplanationJson) {
+                if (article.explanationJson) {
+                    const stripped = stripRichFormattingKeepMedia(article.explanationJson);
+                    if (stripped) {
+                        await db.run('UPDATE articles SET explanationJson = ? WHERE id = ?', [JSON.stringify(stripped), article.id]);
+                    } else {
+                        await db.run('UPDATE articles SET explanationJson = NULL WHERE id = ?', [article.id]);
+                    }
+                }
+            }
+            
+            // For articles with textJson
+            const articlesWithTextJson = await db.all('SELECT id, textJson FROM articles WHERE textJson IS NOT NULL');
+            for (const article of articlesWithTextJson) {
+                if (article.textJson) {
+                    const stripped = stripRichFormattingKeepMedia(article.textJson);
+                    if (stripped) {
+                        await db.run('UPDATE articles SET textJson = ? WHERE id = ?', [JSON.stringify(stripped), article.id]);
+                    } else {
+                        await db.run('UPDATE articles SET textJson = NULL WHERE id = ?', [article.id]);
+                    }
+                }
+            }
+            
+            // For comments with textJson
+            const commentsWithTextJson = await db.all('SELECT id, textJson FROM comments WHERE textJson IS NOT NULL');
+            for (const comment of commentsWithTextJson) {
+                if (comment.textJson) {
+                    const stripped = stripRichFormattingKeepMedia(comment.textJson);
+                    if (stripped) {
+                        await db.run('UPDATE comments SET textJson = ? WHERE id = ?', [JSON.stringify(stripped), comment.id]);
+                    } else {
+                        await db.run('UPDATE comments SET textJson = NULL WHERE id = ?', [comment.id]);
+                    }
+                }
+            }
         }
 
         // 6. Clean up orphaned tags (tags not associated with any article)

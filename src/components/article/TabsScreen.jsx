@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import SearchScreen from './search/SearchScreen.jsx';
 import { AppContext } from '../../store/app-context.jsx'
 import { DBContext } from '../../store/db-context.jsx';
@@ -81,6 +81,9 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
 const TabsScreen = () => {
   const { activeTabId, setActiveTabId, closeTab, reorderTabs, tabs, translate: t, setActiveScreen } = useContext(AppContext);
   const { allArticles, fetchAllData } = useContext(DBContext);
+  
+  // Track the previous tab to enable toggling back from search
+  const previousTabIdRef = useRef(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -137,6 +140,38 @@ const TabsScreen = () => {
   const handleRefresh = async () => {
     await fetchAllData();
   }
+
+  // Track previous tab (excluding search tab)
+  useEffect(() => {
+    if (activeTabId !== 'search') {
+      previousTabIdRef.current = activeTabId;
+    }
+  }, [activeTabId]);
+
+  // Keyboard shortcut for toggling search tab: Ctrl+G / Cmd+G
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ctrl+G or Cmd+G to toggle between search tab and previous tab
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'g' || e.key === 'G')) {
+        e.preventDefault();
+        
+        if (activeTabId === 'search') {
+          // If in search tab, go back to previous tab if it exists
+          if (previousTabIdRef.current && tabs.some(tab => tab.id === previousTabIdRef.current)) {
+            setActiveTabId(previousTabIdRef.current);
+          }
+        } else {
+          // If not in search tab, go to search tab
+          setActiveTabId('search');
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeTabId, setActiveTabId, tabs]);
 
   return (
     <>

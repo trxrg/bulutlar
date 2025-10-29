@@ -312,5 +312,16 @@
     "export failed": "Export failed",
     "generating pdf": "Generating PDF",
     "generating word": "Generating Word",
-    "exporting": "Exporting"
+    "exporting": "Exporting",
+
+    "advanced export": "Advanced Export",
+    "simple": "Simple",
+    "advanced": "Advanced",
+    "include in export": "Include in Export",
+    "rich text formatting": "Rich Text Formatting",
+    "select all": "Select All",
+    "deselect all": "Deselect All",
+    "backup dir changed to": "Backup directory changed to",
+    "backup dir change error": "Error changing backup directory",
+    "db backup error": "Error backing up database"
   }

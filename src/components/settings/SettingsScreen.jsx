@@ -8,11 +8,13 @@ import { AppContext } from '../../store/app-context';
 import { DBContext } from '../../store/db-context';
 import { dbApi } from '../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
+import AdvancedExportDialog from './AdvancedExportDialog';
 
 const SettingsScreen = () => {
     const { translate: t, resetTabs, changeLanguage, getLanguage } = useContext(AppContext);
     const { fetchAllData } = useContext(DBContext);
     const [backupDir, setBackupDir] = useState('');
+    const [showAdvancedExport, setShowAdvancedExport] = useState(false);
 
     const language = getLanguage();
 
@@ -130,6 +132,20 @@ const SettingsScreen = () => {
         }
     }
 
+    const handleAdvancedExport = async (options) => {
+        console.log('Advanced exporting database with options:', options);
+        try {
+            const result = await dbApi.handleAdvancedExport(options);
+            if (result) {
+                console.log('Database exported successfully to ', result);
+                toastr.success(t('db exported to') + ' ' + result);
+            }
+        } catch (err) {
+            console.error('Error exporting database', err);
+            toastr.error(t('db export error'));
+        }
+    };
+
     return (
         <div className='max-w-6xl w-full min-h-screen p-4' style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
             <Accordion defaultExpanded sx={{ 
@@ -221,7 +237,10 @@ const SettingsScreen = () => {
                                 {t('backup')}
                             </Button>
                             <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={handleExportDb}>
-                                {t('export')}
+                                {t('export')} ({t('simple')})
+                            </Button>
+                            <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={() => setShowAdvancedExport(true)}>
+                                {t('export')} ({t('advanced')})
                             </Button>
                             <Button startIcon={<FileDownloadIcon />} {...primaryButtonProps} onClick={handleImportDb}>
                                 {t('import')}
@@ -238,6 +257,12 @@ const SettingsScreen = () => {
                     </div>
                 </AccordionDetails>
             </Accordion>
+            
+            <AdvancedExportDialog 
+                isOpen={showAdvancedExport}
+                onClose={() => setShowAdvancedExport(false)}
+                onExport={handleAdvancedExport}
+            />
         </div>
     );
 };

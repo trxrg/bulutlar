@@ -335,5 +335,16 @@
     "show panels": "Genişlet",
     "hide panels": "Daralt",
     "Expand panel": "Paneli Göster",
-    "Collapse panel": "Paneli Küçült"
+    "Collapse panel": "Paneli Küçült",
+
+    "advanced export": "Gelişmiş Dışa Aktarım",
+    "simple": "Basit",
+    "advanced": "Gelişmiş",
+    "include in export": "Dışa Aktarıma Dahil Et",
+    "rich text formatting": "Zengin Metin Biçimlendirmesi",
+    "select all": "Tümünü Seç",
+    "deselect all": "Hiçbirini Seçme",
+    "backup dir changed to": "Yedekleme klasörü şu dizine değiştirildi",
+    "backup dir change error": "Yedekleme klasörü değiştirilirken hata oluştu",
+    "db backup error": "Veritabanı yedeklenirken hata oluştu"
 }

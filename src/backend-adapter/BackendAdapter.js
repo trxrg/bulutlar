@@ -111,6 +111,7 @@ export const dbApi = {
     loadArticles: async () => window.api.db.loadArticles(),
     loadArticlesFromTxt: async () => window.api.db.loadArticlesFromTxt(),
     handleExport: async () => window.api.db.handleExport(),
+    handleAdvancedExport: async (options) => window.api.db.handleAdvancedExport(options),
     handleImport: async () => window.api.db.handleImport(),
     handleBackup: async () => window.api.db.handleBackup(),
     changeBackupDir: async () => window.api.db.changeBackupDir(),

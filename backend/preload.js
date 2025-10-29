@@ -117,6 +117,7 @@ contextBridge.exposeInMainWorld('api', {
     loadArticles: () => ipcRenderer.invoke('DB/loadArticles'),
     loadArticlesFromTxt: () => ipcRenderer.invoke('DB/loadArticlesFromTxt'),
     handleExport: () => ipcRenderer.invoke('DB/handleExport'),
+    handleAdvancedExport: (options) => ipcRenderer.invoke('DB/handleAdvancedExport', options),
     handleImport: () => ipcRenderer.invoke('DB/handleImport'),
     handleBackup: () => ipcRenderer.invoke('DB/handleBackup'),
     changeBackupDir: () => ipcRenderer.invoke('DB/changeBackupDir'),

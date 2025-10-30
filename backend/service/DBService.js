@@ -109,7 +109,27 @@ async function handleImport() {
         await stopSequelize(); // we can stop sequelize
         await fs.copy(dirOfNewData, dirOfActive); // we can copy the files
         console.info(`Imported database copied from ${dirOfNewData}`);
-        await startSequelize(); // TODO problem in restarting sequelize
+        
+        // Restart sequelize with retry logic
+        let retries = 3;
+        let lastError;
+        while (retries > 0) {
+            try {
+                await startSequelize();
+                console.info('Database connection verified after import');
+                break;
+            } catch (err) {
+                lastError = err;
+                retries--;
+                if (retries === 0) {
+                    console.error('Failed to restart database after all retries');
+                    throw err;
+                }
+                console.warn(`Database connection failed, retrying... (${retries} attempts left)`);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+        
         return dirOfNewData;
     } catch (err) {
         console.error('Error in DBService handleImport ', err);

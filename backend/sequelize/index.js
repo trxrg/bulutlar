@@ -37,6 +37,15 @@ const startSequelize = async () => {
     });
 
     await initDB();
+    
+    // Add health check to ensure database is ready
+    try {
+        await sequelize.authenticate();
+        console.info('Database connection has been established successfully.');
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+        throw error;
+    }
 };
 
 const stopSequelize = async () => {

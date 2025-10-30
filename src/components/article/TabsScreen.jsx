@@ -148,7 +148,7 @@ const TabsScreen = () => {
     }
   }, [activeTabId]);
 
-  // Keyboard shortcut for toggling search tab: Ctrl+G / Cmd+G
+  // Keyboard shortcuts for tab navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
       // Ctrl+G or Cmd+G to toggle between search tab and previous tab
@@ -163,6 +163,24 @@ const TabsScreen = () => {
         } else {
           // If not in search tab, go to search tab
           setActiveTabId('search');
+        }
+      }
+
+      // Alt+ArrowLeft or Option+ArrowLeft (Mac) to go to previous tab
+      if (e.altKey && e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const currentIndex = tabs.findIndex(tab => tab.id === activeTabId);
+        if (currentIndex > 0) {
+          setActiveTabId(tabs[currentIndex - 1].id);
+        }
+      }
+
+      // Alt+ArrowRight or Option+ArrowRight (Mac) to go to next tab
+      if (e.altKey && e.key === 'ArrowRight') {
+        e.preventDefault();
+        const currentIndex = tabs.findIndex(tab => tab.id === activeTabId);
+        if (currentIndex < tabs.length - 1) {
+          setActiveTabId(tabs[currentIndex + 1].id);
         }
       }
     };

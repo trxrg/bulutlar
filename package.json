@@ -1,6 +1,6 @@
 {
   "name": "bulutlar",
-  "version": "1.4.17",
+  "version": "1.4.18",
   "description": "",
   "main": "public/electron.js",
   "homepage": "./",

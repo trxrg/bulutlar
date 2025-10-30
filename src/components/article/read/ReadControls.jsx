@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, SpeakerWaveIcon, FilmIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon, DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
@@ -25,6 +25,8 @@ const ReadControls = () => {
     const [isExportModalOpen, setExportModalOpen] = useState(false);
     const [searchBarOpen, setSearchBarOpen] = useState(false);
     const [localSearchTerm, setLocalSearchTerm] = useState('');
+    
+    const searchInputRef = useRef(null);
 
     const handleToggleBlockType = (event, blockType) => {
         event.preventDefault();
@@ -76,16 +78,29 @@ const ReadControls = () => {
             // Ctrl+F or Cmd+F to open search
             if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
                 e.preventDefault();
+                
+                // Get selected text if any
+                const selection = window.getSelection();
+                const selectedText = selection && !selection.isCollapsed 
+                    ? selection.toString().trim() 
+                    : '';
+                
+                // If there's selected text, use it as the search term
+                if (selectedText) {
+                    setLocalSearchTerm(selectedText);
+                }
+                
                 if (!searchBarOpen) {
                     setSearchBarOpen(true);
                 }
-                // Focus the search input after a brief delay to ensure it's rendered
+                
+                // Focus the search input and select all text
                 setTimeout(() => {
-                    const searchInput = document.querySelector('input[placeholder*="' + t('search') + '"]');
-                    if (searchInput) {
-                        searchInput.focus();
+                    if (searchInputRef.current) {
+                        searchInputRef.current.focus();
+                        searchInputRef.current.select(); // Select all text so user can immediately type
                     }
-                }, 10);
+                }, 50); // Increased timeout to ensure rendering is complete
             }
             
             // Escape to close search
@@ -184,6 +199,7 @@ const ReadControls = () => {
                     {searchBarOpen && (
                         <>
                             <input
+                                ref={searchInputRef}
                                 type="text"
                                 className="border rounded p-1"
                                 style={{

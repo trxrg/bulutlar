@@ -635,7 +635,31 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
 
     const keyBindingFn = (e) => {
 
-        if (!editable && !((e.metaKey || e.ctrlKey) && e.key === 'c')) return 'handled';
+        // Allow common shortcuts and navigation even when not editable
+        if (!editable) {
+            const isCtrlOrCmd = e.metaKey || e.ctrlKey;
+            
+            // For Ctrl+F specifically, let Draft.js use default binding to allow it to pass through
+            if (isCtrlOrCmd && (e.key === 'f' || e.key === 'F')) {
+                return getDefaultKeyBinding(e);
+            }
+            
+            const allowedShortcutKeys = ['c', 'a']; // Copy, Select All
+            const navigationKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'];
+            
+            // Allow Ctrl+C, Ctrl+A
+            if (isCtrlOrCmd && allowedShortcutKeys.includes(e.key)) {
+                return getDefaultKeyBinding(e);
+            }
+            
+            // Allow navigation keys
+            if (navigationKeys.includes(e.key)) {
+                return getDefaultKeyBinding(e);
+            }
+            
+            // Block everything else
+            return 'handled';
+        }
 
         if (e.keyCode === 9 /* Tab */) {
             const maxDepth = 4; // Maximum depth of nested lists
@@ -697,10 +721,20 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         return null;
     }
 
+    // Intercept Ctrl+F before Draft.js can consume it
+    const handleKeyDownCapture = (e) => {
+        if (!editable && (e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+            // Let the event bubble up to document level (where ReadControls listens)
+            // by not calling stopPropagation and not preventing default here
+            // Draft.js will still see it, but it won't do anything with Ctrl+F
+        }
+    };
+
     return (
         <div 
             className='relative flex justify-center cursor-text' 
             onMouseUp={handleMouseUp}
+            onKeyDownCapture={handleKeyDownCapture}
             style={{ 
                 backgroundColor: 'var(--bg-primary)',
                 color: 'var(--text-editor)'

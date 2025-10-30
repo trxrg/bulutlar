@@ -113,7 +113,7 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
     const toggleStar = useCallback(async (e) => {
         e.stopPropagation();
         try {
-            await articleApi.updateArticle(article.id, { isStarred: !article.isStarred });
+            await articleApi.setIsStarred(article.id, !article.isStarred);
             await fetchArticleById(article.id);
         } catch (error) {
             console.error('Error updating star status:', error);

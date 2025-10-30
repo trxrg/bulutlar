@@ -12,6 +12,7 @@ const AdvancedExportDialog = ({ isOpen, onClose, onExport }) => {
     const [includeNotes, setIncludeNotes] = useState(true);
     const [includeQuotes, setIncludeQuotes] = useState(true);
     const [includeTags, setIncludeTags] = useState(true);
+    const [includeGroups, setIncludeGroups] = useState(true);
     const [includeRelatedArticles, setIncludeRelatedArticles] = useState(true);
     const [includeRichEdits, setIncludeRichEdits] = useState(true);
 
@@ -46,6 +47,7 @@ const AdvancedExportDialog = ({ isOpen, onClose, onExport }) => {
             includeNotes,
             includeQuotes,
             includeTags,
+            includeGroups,
             includeRelatedArticles,
             includeRichEdits,
         };
@@ -131,6 +133,15 @@ const AdvancedExportDialog = ({ isOpen, onClose, onExport }) => {
                                 className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
                             />
                             <span className="text-gray-700">{t('tags')}</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={includeGroups}
+                                onChange={(e) => setIncludeGroups(e.target.checked)}
+                                className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+                            />
+                            <span className="text-gray-700">{t('groups')}</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer">
                             <input

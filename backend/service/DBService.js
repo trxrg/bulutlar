@@ -258,12 +258,18 @@ async function modifyExportedDatabase(dbPath, options) {
             await db.run('DELETE FROM tags');
         }
 
-        // 4. Handle related articles
+        // 4. Handle groups
+        if (!options.includeGroups) {
+            await db.run('DELETE FROM article_group_rels');
+            await db.run('DELETE FROM groups');
+        }
+
+        // 5. Handle related articles
         if (!options.includeRelatedArticles) {
             await db.run('DELETE FROM article_article_rels');
         }
 
-        // 5. Handle rich edits
+        // 6. Handle rich edits
         if (!options.includeRichEdits) {
             // For articles with explanationJson
             const articlesWithExplanationJson = await db.all('SELECT id, explanationJson FROM articles WHERE explanationJson IS NOT NULL');
@@ -305,7 +311,7 @@ async function modifyExportedDatabase(dbPath, options) {
             }
         }
 
-        // 6. Clean up orphaned tags (tags not associated with any article)
+        // 7. Clean up orphaned tags (tags not associated with any article)
         await db.run(`
             DELETE FROM tags 
             WHERE id NOT IN (
@@ -313,7 +319,7 @@ async function modifyExportedDatabase(dbPath, options) {
             )
         `);
 
-        // 7. Clean up orphaned groups
+        // 8. Clean up orphaned groups
         await db.run(`
             DELETE FROM groups 
             WHERE id NOT IN (

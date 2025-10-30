@@ -212,11 +212,17 @@ const ReadContent = () => {
                     <RichEditor prompt={t('maintext prompt')} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef} editorId="mainText"></RichEditor>
                 </div>
                 {((article.comments[0] && !isHtmlStringEmpty(article.comments[0].text)) || editable) &&
-                    <div>
+                    <div className="mt-8">
                         <div>
                             <h3 onClick={() => setActiveEditorRef()} className={"text-center font-semibold my-4 pt-2 border-t border-gray-500 " + fontSize}>{t('comment')}</h3>
                         </div>
-                        <div onClick={() => setActiveEditorRef(commentEditorRef)} >
+                        <div 
+                            onClick={() => setActiveEditorRef(commentEditorRef)} 
+                            className="px-2 rounded-md"
+                            style={{                                 
+                                border: '4px solid rgba(128, 128, 128, 0.5)'
+                            }}
+                        >
                             <RichEditor prompt={t('comment prompt')} htmlContent={article.comments[0]?.text} rawContent={article.comments[0]?.textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef} editorId="comment"></RichEditor>
                         </div>
                     </div>}

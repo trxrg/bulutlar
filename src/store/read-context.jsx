@@ -142,11 +142,17 @@ export default function ReadContextProvider({ children, article }) {
         
         const targetRef = allHighlightRefs[index]?.ref;
         if (targetRef) {
+            // Get theme-aware colors from CSS variables
+            const rootStyles = getComputedStyle(document.documentElement);
+            const inactiveBg = rootStyles.getPropertyValue('--search-highlight-bg').trim();
+            const activeBg = rootStyles.getPropertyValue('--search-highlight-active-bg').trim();
+            const activeOutline = rootStyles.getPropertyValue('--search-highlight-active-outline').trim();
+            
             // Remove previous highlight styling
             allHighlightRefs.forEach((item, i) => {
                 if (item.ref) {
-                    item.ref.style.backgroundColor = i === index ? '#66bb6a' : '#a5d6a7';
-                    item.ref.style.outline = i === index ? '2px solid #4caf50' : 'none';
+                    item.ref.style.backgroundColor = i === index ? activeBg : inactiveBg;
+                    item.ref.style.outline = i === index ? `2px solid ${activeOutline}` : 'none';
                 }
             });
             

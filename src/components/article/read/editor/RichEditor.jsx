@@ -93,7 +93,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
             <span
                 ref={highlightRef}
                 style={{ 
-                    backgroundColor: '#a5d6a7',
+                    backgroundColor: 'var(--search-highlight-bg)',
                     color: 'var(--text-editor)'
                 }}>
                 {children}

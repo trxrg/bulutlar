@@ -25,6 +25,21 @@ const styleMap = {
         color: 'var(--text-editor)',
         borderRadius: '3px'
     },
+    'HIGHLIGHT_GREEN': {
+        backgroundColor: 'var(--highlight-green-bg)',
+        color: 'var(--text-editor)',
+        borderRadius: '3px'
+    },
+    'HIGHLIGHT_BLUE': {
+        backgroundColor: 'var(--highlight-blue-bg)',
+        color: 'var(--text-editor)',
+        borderRadius: '3px'
+    },
+    'HIGHLIGHT_PINK': {
+        backgroundColor: 'var(--highlight-pink-bg)',
+        color: 'var(--text-editor)',
+        borderRadius: '3px'
+    },
     'SUPERSCRIPT': {
         verticalAlign: 'super',
         fontSize: 'medium',

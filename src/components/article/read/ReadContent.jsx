@@ -23,8 +23,20 @@ const ReadContent = () => {
         isAddLinkModalOpen, setAddLinkModalOpen, contextMenuIsOpen,
          contextMenuPosition, setContextMenuIsOpen } = useContext(ReadContext);
 
-    const { translate: t, closeTab } = useContext(AppContext);
+    const { translate: t, closeTab, editorSettings } = useContext(AppContext);
     const { fetchAllData } = useContext(DBContext);
+
+    // Map editor settings to Tailwind classes
+    const lineHeightMap = {
+        'tight': 'leading-tight',
+        'normal': 'leading-normal',
+        'relaxed': 'leading-relaxed',
+        'loose': 'leading-loose',
+        'very loose': 'leading-loose'
+    };
+
+    const lineHeight = lineHeightMap[editorSettings?.lineHeight] || 'leading-loose';
+    const fontFamily = editorSettings?.fontFamily || 'system-ui';
 
     const updateMainText = async (html, json) => {
         await articleApi.updateMainText(article.id, { html, json });
@@ -204,7 +216,10 @@ const ReadContent = () => {
 
     return (
         <div className="flex flex-col items-center">
-            <div className={`leading-loose w-full ${fontSize} pb-5 px-2`}>
+            <div 
+                className={`w-full ${fontSize} ${lineHeight} pb-5 px-2`}
+                style={{ fontFamily: fontFamily }}
+            >
                 {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border-b border-gray-700 p-4'>
                     <RichEditor prompt={t('explanation prompt')} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef} editorId="explanation"></RichEditor>
                 </div>}

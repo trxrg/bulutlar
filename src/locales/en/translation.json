@@ -331,5 +331,18 @@
     "closeTab": "Close Tab",
     "articleId": "Article ID",
     "articleTitle": "Article Title",
-    "untitled": "Untitled"
+    "untitled": "Untitled",
+
+    "text editor settings": "Text Editor Settings",
+    "font family": "Font Family",
+    "font size": "Font Size",
+    "line height": "Line Height",
+    "preview": "Preview",
+    "tight": "Tight",
+    "normal": "Normal",
+    "relaxed": "Relaxed",
+    "loose": "Loose",
+    "very loose": "Very Loose",
+    "export all": "Export All",
+    "export selected": "Export Selected"
   }

@@ -355,5 +355,18 @@
     "articleId": "Yazı ID",
     "articleTitle": "Yazı Başlığı",
     "untitled": "Başlıksız",
-    "Scroll to top": "En Yukarı Git"
-}
+    "Scroll to top": "En Yukarı Git",
+
+    "text editor settings": "Metin Görünümü Ayarları",
+    "font family": "Yazı Tipi",
+    "font size": "Yazı Boyutu",
+    "line height": "Satır Aralığı",
+    "preview": "Önizleme",
+    "tight": "Dar",
+    "normal": "Normal",
+    "relaxed": "Rahat",
+    "loose": "Geniş",
+    "very loose": "Çok Geniş",
+    "export all": "Tümünü Dışa Aktar",
+    "export selected": "Seçerek Dışa Aktar"
+  }

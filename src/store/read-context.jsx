@@ -7,9 +7,16 @@ export const ReadContext = createContext();
 export default function ReadContextProvider({ children, article }) {
 
     const { getOwnerById, getCategoryById, fetchArticleById } = useContext(DBContext);
-    const { fullScreen } = useContext(AppContext);
-    const [fontSize, setFontSize] = useState('text-3xl');
+    const { fullScreen, editorSettings } = useContext(AppContext);
+    const [fontSize, setFontSize] = useState(editorSettings?.fontSize || 'text-3xl');
     const [editable, setEditable] = useState(false);
+
+    // Update fontSize when editorSettings changes
+    useEffect(() => {
+        if (editorSettings?.fontSize) {
+            setFontSize(editorSettings.fontSize);
+        }
+    }, [editorSettings?.fontSize]);
     const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
     const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
     const [isAddLinkModalOpen, setAddLinkModalOpen] = useState(false);

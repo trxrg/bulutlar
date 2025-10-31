@@ -26,9 +26,9 @@ const InlineToolbar = () => {
             <div className='flex flex-wrap gap-1 p-2'>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'BOLD')}><BoldIcon className='w-4 h-4' /></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT')} title={t('highlight')}><span className='w-4 h-4' style={{ backgroundColor: 'var(--highlight-bg)' }}></span></FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT_GREEN')} title={t('highlight green')}><span className='w-4 h-4' style={{ backgroundColor: 'var(--highlight-green-bg)' }}></span></FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT_BLUE')} title={t('highlight blue')}><span className='w-4 h-4' style={{ backgroundColor: 'var(--highlight-blue-bg)' }}></span></FormatButton>
-                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT_PINK')} title={t('highlight pink')}><span className='w-4 h-4' style={{ backgroundColor: 'var(--highlight-pink-bg)' }}></span></FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT_GREEN')} title={t('highlight')}><span className='w-4 h-4' style={{ backgroundColor: 'var(--highlight-green-bg)' }}></span></FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT_BLUE')} title={t('highlight')}><span className='w-4 h-4' style={{ backgroundColor: 'var(--highlight-blue-bg)' }}></span></FormatButton>
+                <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'HIGHLIGHT_PINK')} title={t('highlight')}><span className='w-4 h-4' style={{ backgroundColor: 'var(--highlight-pink-bg)' }}></span></FormatButton>
                 <FormatButton onClick={(e) => setAddLinkModalOpen(true)} title={t('add link')}><LinkIcon className="w-6 h-6" /></FormatButton>
                 <FormatButton onMouseDown={handleAddQuote} title={t('add quote')}><BookmarkIcon className="w-6 h-6" /></FormatButton>
                 <FormatButton onMouseDown={(e) => handleToggleStyle(e, 'ITALIC')}><ItalicIcon className='w-4 h-4' /></FormatButton>

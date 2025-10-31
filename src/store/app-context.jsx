@@ -14,6 +14,11 @@ export default function AppContextProvider({ children }) {
     const [fullScreen, setFullScreen] = usePersistentState('fullscreen', false);
     const [activeTabId, setActiveTabId] = usePersistentState('activeTabId', 'search');
     const [tabs, setTabs] = usePersistentState('tabs', [{ id: 'search', title: 'Search' }]);
+    const [editorSettings, setEditorSettings] = usePersistentState('editorSettings', {
+        fontFamily: 'system-ui',
+        fontSize: 'text-3xl',
+        lineHeight: 'loose'
+    });
     const [dataIsCleaned, setDataIsCleaned] = useState(false);
     const [isReadyToShow, setIsReadyToShow] = useState(false);
     const [loadingStartTime] = useState(Date.now());
@@ -300,7 +305,9 @@ export default function AppContextProvider({ children }) {
         getLanguage,
         translate: t,
         normalizeText,
-        htmlToText
+        htmlToText,
+        editorSettings,
+        setEditorSettings
     };
 
     return (

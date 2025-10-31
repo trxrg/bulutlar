@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import AnnotationModal from './AnnotationModal';
+import PickAndViewArticleModal from '../article/modals/PickAndViewArticleModal';
 
 const AnnotationScreen = () => {
 
@@ -9,15 +10,19 @@ const AnnotationScreen = () => {
 
     const [annotationModalOpen, setAnnotationModalOpen] = useState(false);
     const [annotationForModal, setAnnotationForModal] = useState(null);
+    
+    const [articleModalOpen, setArticleModalOpen] = useState(false);
+    const [viewedArticleId, setViewedArticleId] = useState(null);
+    
     const { allAnnotations, getArticleById } = useContext(DBContext);
-    const { translate: t, handleAddTab, setActiveScreen, normalizeText } = useContext(AppContext);
+    const { translate: t, normalizeText } = useContext(AppContext);
 
     const [sortOrder, setSortOrder] = useState('asc');
     const [sortBy, setSortBy] = useState('title');
 
     const handleOpenArticle = (article) => {
-        handleAddTab(null, article.id);
-        setActiveScreen('tabs');
+        setViewedArticleId(article.id);
+        setArticleModalOpen(true);
     }
 
     const handleNoteClicked = (annotation) => {
@@ -138,6 +143,14 @@ const AnnotationScreen = () => {
                 </tbody>
             </table>
             <AnnotationModal isOpen={annotationModalOpen} onRequestClose={() => setAnnotationModalOpen(false)} annotationId={annotationForModal?.id} articleId={annotationForModal?.articleId} />
+            <PickAndViewArticleModal 
+                isOpen={articleModalOpen} 
+                onRequestClose={() => setArticleModalOpen(false)} 
+                articleId={null}
+                title={t('article')}
+                showSelect={false}
+                initialArticleId={viewedArticleId}
+            />
         </div>
     );
 };

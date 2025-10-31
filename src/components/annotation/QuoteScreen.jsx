@@ -3,19 +3,23 @@ import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import ActionButton from '../common/ActionButton';
 import { annotationApi } from '../../backend-adapter/BackendAdapter';
+import PickAndViewArticleModal from '../article/modals/PickAndViewArticleModal';
 
 const QuoteScreen = () => {
 
     const [filterTerm, setFilterTerm] = useState('');
     const [sortOrder, setSortOrder] = useState('asc');
     const [sortBy, setSortBy] = useState('title');
+    
+    const [articleModalOpen, setArticleModalOpen] = useState(false);
+    const [viewedArticleId, setViewedArticleId] = useState(null);
 
     const { allAnnotations, getArticleById, fetchAllAnnotations, fetchArticleById } = useContext(DBContext);
-    const { translate: t, handleAddTab, setActiveScreen, normalizeText } = useContext(AppContext);
+    const { translate: t, normalizeText } = useContext(AppContext);
 
     const handleOpenArticle = (article) => {
-        handleAddTab(null, article.id);
-        setActiveScreen('tabs');
+        setViewedArticleId(article.id);
+        setArticleModalOpen(true);
     }
 
     const filteredAnnotations = React.useMemo(() => {
@@ -136,6 +140,14 @@ const QuoteScreen = () => {
                     })}
                 </tbody>
             </table>
+            <PickAndViewArticleModal 
+                isOpen={articleModalOpen} 
+                onRequestClose={() => setArticleModalOpen(false)} 
+                articleId={null}
+                title={t('article')}
+                showSelect={false}
+                initialArticleId={viewedArticleId}
+            />
         </div>
     );
 };

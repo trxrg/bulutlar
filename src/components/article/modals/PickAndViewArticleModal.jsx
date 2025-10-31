@@ -11,9 +11,10 @@ import toastr from 'toastr';
 
 const PickAndViewArticleModal = ({ isOpen, onRequestClose, articleId, onAdd, title, excludedArticleIds, showSelect = true, initialArticleId = null }) => {
     const [selectedArticleId, setSelectedArticleId] = useState(initialArticleId);
-    const { translate: t, handleAddTab, htmlToText } = useContext(AppContext);
+    const { translate: t, handleAddTab, htmlToText, setActiveScreen } = useContext(AppContext);
     const { getRelatedArticlesByArticleId, getArticleById } = useContext(DBContext);
-    const { fontSize } = useContext(ReadContext);
+    const readContext = useContext(ReadContext);
+    const fontSize = readContext?.fontSize || 'text-base';
 
     const selectedArticle = getArticleById(selectedArticleId);
     const relatedArticles = getRelatedArticlesByArticleId(articleId);
@@ -56,6 +57,7 @@ const PickAndViewArticleModal = ({ isOpen, onRequestClose, articleId, onAdd, tit
     const handleViewInNewTab = (e) => {
         console.log('view in new tab clicked');
         handleAddTab(e, selectedArticleId);
+        setActiveScreen('tabs');
         onRequestClose();
     }
 

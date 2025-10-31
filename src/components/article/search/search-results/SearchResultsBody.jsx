@@ -96,10 +96,10 @@ const SearchResultsBody = React.memo(() => {
             const normalizedQuickSearch = normalizeText(filtering.quickSearchTerm.trim());
             localFilteredArticles = localFilteredArticles.filter(art => {
                 // Search in text content (existing functionality)
-                const textMatch = (searchInTitle && normalizeText(htmlToText(art.title)).includes(normalizedQuickSearch)) ||
-                    (searchInMainText && normalizeText(htmlToText(art.text)).includes(normalizedQuickSearch)) ||
-                    (searchInExplanation && normalizeText(htmlToText(art.explanation)).includes(normalizedQuickSearch)) ||
-                    (searchInComments && (art.comments[0] && normalizeText(htmlToText(art.comments[0].text)).includes(normalizedQuickSearch)));
+                const textMatch = (normalizeText(htmlToText(art.title)).includes(normalizedQuickSearch)) ||
+                    (normalizeText(htmlToText(art.text)).includes(normalizedQuickSearch)) ||
+                    (normalizeText(htmlToText(art.explanation)).includes(normalizedQuickSearch)) ||
+                    ((art.comments[0] && normalizeText(htmlToText(art.comments[0].text)).includes(normalizedQuickSearch)));
                 
                 // Search in tags
                 const tagMatch = art.tags && art.tags.some(tag => {

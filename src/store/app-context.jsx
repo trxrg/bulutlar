@@ -5,6 +5,9 @@ import { DBContext } from './db-context';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useEffect } from 'react';
 
+// Detect if running on Mac (only checked once when module loads)
+const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
+
 export const AppContext = createContext();
 
 export default function AppContextProvider({ children }) {
@@ -307,7 +310,8 @@ export default function AppContextProvider({ children }) {
         normalizeText,
         htmlToText,
         editorSettings,
-        setEditorSettings
+        setEditorSettings,
+        isMac
     };
 
     return (

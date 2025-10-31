@@ -79,7 +79,7 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
 };
 
 const TabsScreen = () => {
-  const { activeTabId, setActiveTabId, closeTab, reorderTabs, tabs, translate: t, setActiveScreen } = useContext(AppContext);
+  const { activeTabId, setActiveTabId, closeTab, reorderTabs, tabs, translate: t, setActiveScreen, isMac } = useContext(AppContext);
   const { allArticles, fetchAllData } = useContext(DBContext);
   
   // Track the previous tab to enable toggling back from search
@@ -166,8 +166,9 @@ const TabsScreen = () => {
         }
       }
 
-      // Alt+ArrowLeft or Option+ArrowLeft (Mac) to go to previous tab
-      if (e.altKey && e.key === 'ArrowLeft') {
+      // Cmd+ArrowLeft (Mac) or Alt+ArrowLeft (Windows) to go to previous tab
+      const modifierKey = isMac ? e.metaKey : e.altKey;
+      if (modifierKey && e.key === 'ArrowLeft') {
         e.preventDefault();
         const currentIndex = tabs.findIndex(tab => tab.id === activeTabId);
         if (currentIndex > 0) {
@@ -175,8 +176,8 @@ const TabsScreen = () => {
         }
       }
 
-      // Alt+ArrowRight or Option+ArrowRight (Mac) to go to next tab
-      if (e.altKey && e.key === 'ArrowRight') {
+      // Cmd+ArrowRight (Mac) or Alt+ArrowRight (Windows) to go to next tab
+      if (modifierKey && e.key === 'ArrowRight') {
         e.preventDefault();
         const currentIndex = tabs.findIndex(tab => tab.id === activeTabId);
         if (currentIndex < tabs.length - 1) {

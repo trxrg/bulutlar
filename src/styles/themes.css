@@ -21,9 +21,9 @@
   --highlight-green-bg: #86efac;
   --highlight-blue-bg: #93c5fd;
   --highlight-pink-bg: #f9a8d4;
-  --search-highlight-bg: #a5d6a7;
-  --search-highlight-active-bg: #66bb6a;
-  --search-highlight-active-outline: #4caf50;
+  --search-highlight-bg: #fdba74;
+  --search-highlight-active-bg: #fb923c;
+  --search-highlight-active-outline: #f97316;
   --close-button-hover-bg: #fecaca;
   
   /* Quote colors for light theme */
@@ -54,9 +54,9 @@
   --highlight-green-bg: #166534;
   --highlight-blue-bg: #1e3a8a;
   --highlight-pink-bg: #831843;
-  --search-highlight-bg: #2a3d2b;
-  --search-highlight-active-bg: #203421;
-  --search-highlight-active-outline: #4a5f4b;
+  --search-highlight-bg: #7c2d12;
+  --search-highlight-active-bg: #9a3412;
+  --search-highlight-active-outline: #c2410c;
   --close-button-hover-bg: #7f1d1d;
   
   /* Quote colors for dark theme */

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import Select, { components } from 'react-select';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
@@ -64,6 +64,7 @@ const OwnerList = ({ initialValue, onOwnerChange }) => {
     const { allOwners } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [pendingOwnerName, setPendingOwnerName] = useState(null);
 
     const ownerOptions = [
         { value: null, label: t('select owner') },
@@ -75,6 +76,18 @@ const OwnerList = ({ initialValue, onOwnerChange }) => {
 
     const [selectedOwner, setSelectedOwner] = useState(ownerOptions.find(option => option.label === initialValue));
 
+    // Effect to select newly created owner once it appears in the list
+    useEffect(() => {
+        if (pendingOwnerName) {
+            const newOption = ownerOptions.find(option => option.label === pendingOwnerName);
+            if (newOption) {
+                setSelectedOwner(newOption);
+                onOwnerChange(newOption.value);
+                setPendingOwnerName(null);
+            }
+        }
+    }, [allOwners, pendingOwnerName]);
+
     const handleChange = (selectedOption) => {
         setSelectedOwner(selectedOption);
         onOwnerChange(selectedOption.value);
@@ -83,6 +96,13 @@ const OwnerList = ({ initialValue, onOwnerChange }) => {
     const handleNewClicked = (event) => {
         event.preventDefault();
         setIsModalOpen(true);
+    };
+
+    const handleOwnerAdded = (newOwnerName) => {
+        setIsModalOpen(false);
+        if (newOwnerName) {
+            setPendingOwnerName(newOwnerName);
+        }
     }
 
     return (
@@ -102,7 +122,7 @@ const OwnerList = ({ initialValue, onOwnerChange }) => {
                 <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>
             <GeneralModal title={t('Add New Owner')} isOpen={isModalOpen} onRequestClose={()=>setIsModalOpen(false)}>
-                <AddOwner onClose={()=>setIsModalOpen(false)}></AddOwner>
+                <AddOwner onClose={handleOwnerAdded}></AddOwner>
             </GeneralModal>
         </div>
     );

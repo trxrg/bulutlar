@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import Select, { components } from 'react-select';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
@@ -64,6 +64,7 @@ const CategoryList = ({ initialValue, onCategoryChange }) => {
     const { allCategories } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [pendingCategoryName, setPendingCategoryName] = useState(null);
 
     const categoryOptions = [
         { value: null, label: t('select category') },
@@ -77,6 +78,18 @@ const CategoryList = ({ initialValue, onCategoryChange }) => {
 
     const [selectedCategory, setSelectedCategory] = useState(categoryOptions.find(option => option.label === initialValue));
 
+    // Effect to select newly created category once it appears in the list
+    useEffect(() => {
+        if (pendingCategoryName) {
+            const newOption = categoryOptions.find(option => option.label === pendingCategoryName);
+            if (newOption) {
+                setSelectedCategory(newOption);
+                onCategoryChange(newOption.value);
+                setPendingCategoryName(null);
+            }
+        }
+    }, [allCategories, pendingCategoryName]);
+
     const handleChange = (selectedOption) => {
         setSelectedCategory(selectedOption);
         onCategoryChange(selectedOption.value);
@@ -85,6 +98,13 @@ const CategoryList = ({ initialValue, onCategoryChange }) => {
     const handleNewClicked = (event) => {
         event.preventDefault();
         setIsModalOpen(true);
+    };
+
+    const handleCategoryAdded = (newCategoryName) => {
+        setIsModalOpen(false);
+        if (newCategoryName) {
+            setPendingCategoryName(newCategoryName);
+        }
     }
 
     return (
@@ -103,8 +123,8 @@ const CategoryList = ({ initialValue, onCategoryChange }) => {
                 />
                 <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>
-            <GeneralModal title={'Add New Category'} isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
-                <AddCategory onClose={() => setIsModalOpen(false)}></AddCategory>
+            <GeneralModal title={t('Add New Category')} isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
+                <AddCategory onClose={handleCategoryAdded}></AddCategory>
             </GeneralModal>
         </div>
     );

@@ -37,8 +37,9 @@ const AddCategory = ({ onClose }) => {
             setMsg(result.error.message || 'validation error');
             return;
         }
+        const createdName = name;
         fetchAllCategories();
-        onClose();
+        onClose(createdName);
         setName('');
         setColor(generateRandomColor());
     }

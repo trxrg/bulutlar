@@ -27,9 +27,10 @@ const AddOwner = ({ onClose }) => {
             setMsg(result.error.message || 'validation error');
             return;
         }
+        const createdName = name;
         setName('');
         fetchAllOwners();
-        onClose();
+        onClose(createdName);
     }
 
     const handleTextChange = (e) => {

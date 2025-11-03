@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import Select, { components } from 'react-select';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
@@ -64,6 +64,7 @@ const GroupList = ({ onGroupChange }) => {
     const { allGroups } = useContext(DBContext);
     const { translate: t } = useContext(AppContext);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [pendingGroupName, setPendingGroupName] = useState(null);
 
     const groupOptions = [
         { value: null, label: t('select group') },
@@ -75,6 +76,18 @@ const GroupList = ({ onGroupChange }) => {
 
     const [selectedGroup, setSelectedGroup] = useState();
 
+    // Effect to select newly created group once it appears in the list
+    useEffect(() => {
+        if (pendingGroupName) {
+            const newOption = groupOptions.find(option => option.label === pendingGroupName);
+            if (newOption) {
+                setSelectedGroup(newOption);
+                onGroupChange(newOption.value);
+                setPendingGroupName(null);
+            }
+        }
+    }, [allGroups, pendingGroupName]);
+
     const handleChange = (selectedOption) => {
         setSelectedGroup(selectedOption);
         onGroupChange(selectedOption.value);
@@ -83,6 +96,13 @@ const GroupList = ({ onGroupChange }) => {
     const handleNewClicked = (event) => {
         event.preventDefault();
         setIsModalOpen(true);
+    };
+
+    const handleGroupAdded = (newGroupName) => {
+        setIsModalOpen(false);
+        if (newGroupName) {
+            setPendingGroupName(newGroupName);
+        }
     }
 
     return (
@@ -102,7 +122,7 @@ const GroupList = ({ onGroupChange }) => {
                 <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>
             <GeneralModal title={t('add new group')} isOpen={isModalOpen} onRequestClose={()=>setIsModalOpen(false)}>
-                <AddGroup onClose={()=>setIsModalOpen(false)} />
+                <AddGroup onClose={handleGroupAdded} />
             </GeneralModal>
         </div>
     );

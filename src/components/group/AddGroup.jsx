@@ -35,9 +35,10 @@ const AddGroup = ({ onClose }) => {
             return;
         }
         toastr.success(t('group created'));
+        const createdName = name;
         setName('');
         fetchAllGroups();
-        onClose();
+        onClose(createdName);
     }
 
     const handleTextChange = (e) => {

@@ -3,7 +3,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import GeneralModal from '../../common/GeneralModal.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
-import { ReadContext } from '../../../store/read-context.jsx';
 import ActionButton from '../../common/ActionButton.jsx';
 import ArticleList from '../ArticleList.jsx';
 import ArticleInfo from '../ArticleInfo.jsx';
@@ -11,10 +10,20 @@ import toastr from 'toastr';
 
 const PickAndViewArticleModal = ({ isOpen, onRequestClose, articleId, onAdd, title, excludedArticleIds, showSelect = true, initialArticleId = null }) => {
     const [selectedArticleId, setSelectedArticleId] = useState(initialArticleId);
-    const { translate: t, handleAddTab, htmlToText, setActiveScreen } = useContext(AppContext);
+    const { translate: t, handleAddTab, htmlToText, setActiveScreen, editorSettings } = useContext(AppContext);
     const { getRelatedArticlesByArticleId, getArticleById } = useContext(DBContext);
-    const readContext = useContext(ReadContext);
-    const fontSize = readContext?.fontSize || 'text-base';
+    
+    // Get font settings from editor settings
+    const fontFamily = editorSettings?.fontFamily || 'system-ui';
+    const fontSize = editorSettings?.fontSize || 'text-3xl';
+    const lineHeight = editorSettings?.lineHeight || 'loose';
+    
+    // Convert lineHeight to Tailwind class
+    const lineHeightClass = lineHeight === 'tight' ? 'leading-tight' :
+                           lineHeight === 'normal' ? 'leading-normal' :
+                           lineHeight === 'relaxed' ? 'leading-relaxed' :
+                           lineHeight === 'very loose' ? 'leading-loose' :
+                           'leading-loose';
 
     const selectedArticle = getArticleById(selectedArticleId);
     const relatedArticles = getRelatedArticlesByArticleId(articleId);
@@ -83,7 +92,7 @@ const PickAndViewArticleModal = ({ isOpen, onRequestClose, articleId, onAdd, tit
             isOpen={isOpen} 
             onRequestClose={onRequestClose} 
             title={getModalTitle()}
-            style={{ width: '80%', height: '80%' }}
+            style={{ width: '90%', height: '90%' }}
         >
             <div className="flex flex-col h-full max-h-full overflow-hidden">
                 {/* Top - Article Selection (conditional) */}
@@ -104,12 +113,12 @@ const PickAndViewArticleModal = ({ isOpen, onRequestClose, articleId, onAdd, tit
                         <div className="h-full flex flex-col min-h-0">
                             {/* Article Header */}
                             <div className='flex-shrink-0 rounded-lg shadow-sm p-3 mb-3' style={{ backgroundColor: 'var(--bg-primary)' }}>
-                                {showSelect && <h2 className={fontSize + " font-bold pb-2"}>{selectedArticle.title}</h2>}
+                                {showSelect && <h2 className={`${fontSize} ${lineHeightClass} font-bold pb-2`} style={{ fontFamily }}>{selectedArticle.title}</h2>}
                                 <ArticleInfo article={selectedArticle} isEditable={false}></ArticleInfo>
                             </div>
                             
                             {/* Article Content */}
-                            <div className={'flex-1 overflow-y-auto p-4 rounded-lg leading-relaxed ' + fontSize} style={{ backgroundColor: 'var(--bg-primary)' }}>
+                            <div className={`flex-1 overflow-y-auto p-4 rounded-lg ${fontSize} ${lineHeightClass}`} style={{ backgroundColor: 'var(--bg-primary)', fontFamily }}>
                                 <article>
                                     {htmlToText(selectedArticle.text)}
                                 </article>

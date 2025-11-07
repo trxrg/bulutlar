@@ -88,8 +88,8 @@ const SettingsScreen = () => {
     // Button styling to match HomeScreen
     const primaryButtonProps = {
         variant: 'contained',
-        sx: { 
-            fontWeight: '600', 
+        sx: {
+            fontWeight: '600',
             fontSize: '1rem',
             backgroundColor: '#059669',
             color: '#f9fafb',
@@ -101,8 +101,8 @@ const SettingsScreen = () => {
 
     const secondaryButtonProps = {
         variant: 'contained',
-        sx: { 
-            fontWeight: '600', 
+        sx: {
+            fontWeight: '600',
             fontSize: '1rem',
             backgroundColor: 'var(--border-primary)',
             color: '#f9fafb',
@@ -114,8 +114,8 @@ const SettingsScreen = () => {
 
     const dangerButtonProps = {
         variant: 'contained',
-        sx: { 
-            fontWeight: '600', 
+        sx: {
+            fontWeight: '600',
             fontSize: '1rem',
             backgroundColor: '#B53A16',
             color: '#f9fafb',
@@ -216,309 +216,308 @@ const SettingsScreen = () => {
     return (
         <div className='w-full h-full overflow-y-auto' style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
             <div className='max-w-6xl w-full mx-auto p-4'>
-            <Accordion sx={{ 
-                backgroundColor: 'var(--bg-secondary)', 
-                color: 'var(--text-primary)',
-                '&:before': {
-                    display: 'none',
-                }
-            }}>
-                <AccordionSummary 
-                    expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
-                    sx={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-                >
-                    <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>{t('general')}</Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ backgroundColor: 'var(--bg-secondary)' }}>
-                    <div className='flex flex-col gap-5'>
-                        <FormControl variant="outlined" fullWidth>
-                            <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('language')}</InputLabel>
-                            <Select
-                                value={language}
-                                onChange={changeLanguage}
-                                label={t('language')}
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            backgroundColor: 'var(--bg-primary)',
-                                            color: 'var(--text-primary)',
+                <Accordion sx={{
+                    backgroundColor: 'var(--bg-secondary)',
+                    color: 'var(--text-primary)',
+                    '&:before': {
+                        display: 'none',
+                    }
+                }}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
+                        sx={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                    >
+                        <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>{t('general')}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ backgroundColor: 'var(--bg-secondary)' }}>
+                        <div className='flex flex-col gap-5'>
+                            <FormControl variant="outlined" fullWidth>
+                                <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('language')}</InputLabel>
+                                <Select
+                                    value={language}
+                                    onChange={changeLanguage}
+                                    label={t('language')}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            sx: {
+                                                backgroundColor: 'var(--bg-primary)',
+                                                color: 'var(--text-primary)',
+                                            }
                                         }
-                                    }
-                                }}
-                                sx={{
-                                    color: 'var(--text-primary)',
-                                    '.MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'var(--border-secondary)',
-                                    },
-                                    '.MuiSvgIcon-root': {
+                                    }}
+                                    sx={{
                                         color: 'var(--text-primary)',
-                                    },
+                                        '.MuiOutlinedInput-notchedOutline': {
+                                            borderColor: 'var(--border-secondary)',
+                                        },
+                                        '.MuiSvgIcon-root': {
+                                            color: 'var(--text-primary)',
+                                        },
+                                        backgroundColor: 'var(--bg-primary)',
+                                    }}
+                                >
+                                    <MenuItem
+                                        value="en"
+                                        sx={{
+                                            color: 'var(--text-primary)',
+                                            backgroundColor: 'var(--bg-primary)',
+                                            '&:hover': {
+                                                backgroundColor: 'var(--bg-secondary)',
+                                            }
+                                        }}
+                                    >
+                                        {t('english')}
+                                    </MenuItem>
+                                    <MenuItem
+                                        value="tr"
+                                        sx={{
+                                            color: 'var(--text-primary)',
+                                            backgroundColor: 'var(--bg-primary)',
+                                            '&:hover': {
+                                                backgroundColor: 'var(--bg-secondary)',
+                                            }
+                                        }}
+                                    >
+                                        {t('turkish')}
+                                    </MenuItem>
+                                </Select>
+                            </FormControl>
+                        </div>
+                    </AccordionDetails>
+                </Accordion>
+
+                <Accordion sx={{
+                    backgroundColor: 'var(--bg-secondary)',
+                    color: 'var(--text-primary)',
+                    '&:before': {
+                        display: 'none',
+                    }
+                }}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
+                        sx={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                    >
+                        <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>{t('text editor settings')}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ backgroundColor: 'var(--bg-secondary)' }}>
+                        <div className='flex flex-col gap-5'>
+                            <FormControl variant="outlined" fullWidth>
+                                <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('font family')}</InputLabel>
+                                <Select
+                                    value={editorSettings?.fontFamily || 'system-ui'}
+                                    onChange={(e) => handleEditorSettingChange('fontFamily', e.target.value)}
+                                    label={t('font family')}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            sx: {
+                                                backgroundColor: 'var(--bg-primary)',
+                                                color: 'var(--text-primary)',
+                                            }
+                                        }
+                                    }}
+                                    sx={{
+                                        color: 'var(--text-primary)',
+                                        '.MuiOutlinedInput-notchedOutline': {
+                                            borderColor: 'var(--border-secondary)',
+                                        },
+                                        '.MuiSvgIcon-root': {
+                                            color: 'var(--text-primary)',
+                                        },
+                                        backgroundColor: 'var(--bg-primary)',
+                                    }}
+                                >
+                                    {fontOptions.map(option => (
+                                        <MenuItem
+                                            key={option.value}
+                                            value={option.value}
+                                            sx={{
+                                                color: 'var(--text-primary)',
+                                                backgroundColor: 'var(--bg-primary)',
+                                                fontFamily: option.value,
+                                                fontSize: '1.1rem',
+                                                padding: '12px 16px',
+                                                '&:hover': {
+                                                    backgroundColor: 'var(--bg-secondary)',
+                                                }
+                                            }}
+                                        >
+                                            <span style={{ fontFamily: option.value }}>
+                                                {option.label}
+                                            </span>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            <FormControl variant="outlined" fullWidth>
+                                <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('font size')}</InputLabel>
+                                <Select
+                                    value={editorSettings?.fontSize || 'text-3xl'}
+                                    onChange={(e) => handleEditorSettingChange('fontSize', e.target.value)}
+                                    label={t('font size')}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            sx: {
+                                                backgroundColor: 'var(--bg-primary)',
+                                                color: 'var(--text-primary)',
+                                            }
+                                        }
+                                    }}
+                                    sx={{
+                                        color: 'var(--text-primary)',
+                                        '.MuiOutlinedInput-notchedOutline': {
+                                            borderColor: 'var(--border-secondary)',
+                                        },
+                                        '.MuiSvgIcon-root': {
+                                            color: 'var(--text-primary)',
+                                        },
+                                        backgroundColor: 'var(--bg-primary)',
+                                    }}
+                                >
+                                    {fontSizeOptions.map(option => (
+                                        <MenuItem
+                                            key={option.value}
+                                            value={option.value}
+                                            sx={{
+                                                color: 'var(--text-primary)',
+                                                backgroundColor: 'var(--bg-primary)',
+                                                '&:hover': {
+                                                    backgroundColor: 'var(--bg-secondary)',
+                                                }
+                                            }}
+                                        >
+                                            {option.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            <FormControl variant="outlined" fullWidth>
+                                <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('line height')}</InputLabel>
+                                <Select
+                                    value={editorSettings?.lineHeight || 'loose'}
+                                    onChange={(e) => handleEditorSettingChange('lineHeight', e.target.value)}
+                                    label={t('line height')}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            sx: {
+                                                backgroundColor: 'var(--bg-primary)',
+                                                color: 'var(--text-primary)',
+                                            }
+                                        }
+                                    }}
+                                    sx={{
+                                        color: 'var(--text-primary)',
+                                        '.MuiOutlinedInput-notchedOutline': {
+                                            borderColor: 'var(--border-secondary)',
+                                        },
+                                        '.MuiSvgIcon-root': {
+                                            color: 'var(--text-primary)',
+                                        },
+                                        backgroundColor: 'var(--bg-primary)',
+                                    }}
+                                >
+                                    {lineHeightOptions.map(option => (
+                                        <MenuItem
+                                            key={option.value}
+                                            value={option.value}
+                                            sx={{
+                                                color: 'var(--text-primary)',
+                                                backgroundColor: 'var(--bg-primary)',
+                                                '&:hover': {
+                                                    backgroundColor: 'var(--bg-secondary)',
+                                                }
+                                            }}
+                                        >
+                                            {option.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            {/* Sample Text Preview */}
+                            <div
+                                className='p-6 rounded-lg border-2'
+                                style={{
                                     backgroundColor: 'var(--bg-primary)',
+                                    borderColor: 'var(--border-secondary)',
                                 }}
                             >
-                                <MenuItem 
-                                    value="en" 
-                                    sx={{ 
-                                        color: 'var(--text-primary)', 
-                                        backgroundColor: 'var(--bg-primary)',
-                                        '&:hover': {
-                                            backgroundColor: 'var(--bg-secondary)',
-                                        }
+                                <Typography
+                                    variant='subtitle2'
+                                    sx={{
+                                        color: 'var(--text-secondary)',
+                                        marginBottom: 2,
+                                        fontWeight: 600
                                     }}
                                 >
-                                    {t('english')}
-                                </MenuItem>
-                                <MenuItem 
-                                    value="tr" 
-                                    sx={{ 
-                                        color: 'var(--text-primary)', 
-                                        backgroundColor: 'var(--bg-primary)',
-                                        '&:hover': {
-                                            backgroundColor: 'var(--bg-secondary)',
-                                        }
+                                    {t('preview')}:
+                                </Typography>
+                                <div
+                                    className={`${editorSettings?.fontSize || 'text-3xl'} ${editorSettings?.lineHeight === 'tight' ? 'leading-tight' :
+                                            editorSettings?.lineHeight === 'normal' ? 'leading-normal' :
+                                                editorSettings?.lineHeight === 'relaxed' ? 'leading-relaxed' :
+                                                    editorSettings?.lineHeight === 'very loose' ? 'leading-loose' :
+                                                        'leading-loose'
+                                        }`}
+                                    style={{
+                                        fontFamily: editorSettings?.fontFamily || 'system-ui',
+                                        color: 'var(--text-primary)'
                                     }}
                                 >
-                                    {t('turkish')}
-                                </MenuItem>
-                            </Select>
-                        </FormControl>
-                    </div>
-                </AccordionDetails>
-            </Accordion>
-            
-            <Accordion sx={{ 
-                backgroundColor: 'var(--bg-secondary)', 
-                color: 'var(--text-primary)',
-                '&:before': {
-                    display: 'none',
-                }
-            }}>
-                <AccordionSummary 
-                    expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
-                    sx={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-                >
-                    <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>{t('text editor settings')}</Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ backgroundColor: 'var(--bg-secondary)' }}>
-                    <div className='flex flex-col gap-5'>
-                        {/* Sample Text Preview */}
-                        <div 
-                            className='p-6 rounded-lg border-2'
-                            style={{ 
-                                backgroundColor: 'var(--bg-primary)',
-                                borderColor: 'var(--border-secondary)',
-                            }}
-                        >
-                            <Typography 
-                                variant='subtitle2' 
-                                sx={{ 
-                                    color: 'var(--text-secondary)', 
-                                    marginBottom: 2,
-                                    fontWeight: 600 
-                                }}
-                            >
-                                {t('preview')}:
-                            </Typography>
-                            <div 
-                                className={`${editorSettings?.fontSize || 'text-3xl'} ${
-                                    editorSettings?.lineHeight === 'tight' ? 'leading-tight' :
-                                    editorSettings?.lineHeight === 'normal' ? 'leading-normal' :
-                                    editorSettings?.lineHeight === 'relaxed' ? 'leading-relaxed' :
-                                    editorSettings?.lineHeight === 'very loose' ? 'leading-loose' :
-                                    'leading-loose'
-                                }`}
-                                style={{ 
-                                    fontFamily: editorSettings?.fontFamily || 'system-ui',
-                                    color: 'var(--text-primary)'
-                                }}
-                            >
-                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+                                </div>
                             </div>
                         </div>
+                    </AccordionDetails>
+                </Accordion>
 
-                        <FormControl variant="outlined" fullWidth>
-                            <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('font family')}</InputLabel>
-                            <Select
-                                value={editorSettings?.fontFamily || 'system-ui'}
-                                onChange={(e) => handleEditorSettingChange('fontFamily', e.target.value)}
-                                label={t('font family')}
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            backgroundColor: 'var(--bg-primary)',
-                                            color: 'var(--text-primary)',
-                                        }
-                                    }
-                                }}
-                                sx={{
-                                    color: 'var(--text-primary)',
-                                    '.MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'var(--border-secondary)',
-                                    },
-                                    '.MuiSvgIcon-root': {
-                                        color: 'var(--text-primary)',
-                                    },
-                                    backgroundColor: 'var(--bg-primary)',
-                                }}
-                            >
-                                {fontOptions.map(option => (
-                                    <MenuItem 
-                                        key={option.value}
-                                        value={option.value}
-                                        sx={{ 
-                                            color: 'var(--text-primary)', 
-                                            backgroundColor: 'var(--bg-primary)',
-                                            fontFamily: option.value,
-                                            fontSize: '1.1rem',
-                                            padding: '12px 16px',
-                                            '&:hover': {
-                                                backgroundColor: 'var(--bg-secondary)',
-                                            }
-                                        }}
-                                    >
-                                        <span style={{ fontFamily: option.value }}>
-                                            {option.label}
-                                        </span>
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
-                        <FormControl variant="outlined" fullWidth>
-                            <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('font size')}</InputLabel>
-                            <Select
-                                value={editorSettings?.fontSize || 'text-3xl'}
-                                onChange={(e) => handleEditorSettingChange('fontSize', e.target.value)}
-                                label={t('font size')}
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            backgroundColor: 'var(--bg-primary)',
-                                            color: 'var(--text-primary)',
-                                        }
-                                    }
-                                }}
-                                sx={{
-                                    color: 'var(--text-primary)',
-                                    '.MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'var(--border-secondary)',
-                                    },
-                                    '.MuiSvgIcon-root': {
-                                        color: 'var(--text-primary)',
-                                    },
-                                    backgroundColor: 'var(--bg-primary)',
-                                }}
-                            >
-                                {fontSizeOptions.map(option => (
-                                    <MenuItem 
-                                        key={option.value}
-                                        value={option.value}
-                                        sx={{ 
-                                            color: 'var(--text-primary)', 
-                                            backgroundColor: 'var(--bg-primary)',
-                                            '&:hover': {
-                                                backgroundColor: 'var(--bg-secondary)',
-                                            }
-                                        }}
-                                    >
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
-                        <FormControl variant="outlined" fullWidth>
-                            <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('line height')}</InputLabel>
-                            <Select
-                                value={editorSettings?.lineHeight || 'loose'}
-                                onChange={(e) => handleEditorSettingChange('lineHeight', e.target.value)}
-                                label={t('line height')}
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            backgroundColor: 'var(--bg-primary)',
-                                            color: 'var(--text-primary)',
-                                        }
-                                    }
-                                }}
-                                sx={{
-                                    color: 'var(--text-primary)',
-                                    '.MuiOutlinedInput-notchedOutline': {
-                                        borderColor: 'var(--border-secondary)',
-                                    },
-                                    '.MuiSvgIcon-root': {
-                                        color: 'var(--text-primary)',
-                                    },
-                                    backgroundColor: 'var(--bg-primary)',
-                                }}
-                            >
-                                {lineHeightOptions.map(option => (
-                                    <MenuItem 
-                                        key={option.value}
-                                        value={option.value}
-                                        sx={{ 
-                                            color: 'var(--text-primary)', 
-                                            backgroundColor: 'var(--bg-primary)',
-                                            '&:hover': {
-                                                backgroundColor: 'var(--bg-secondary)',
-                                            }
-                                        }}
-                                    >
-                                        {option.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </div>
-                </AccordionDetails>
-            </Accordion>
-
-            <Accordion sx={{ 
-                backgroundColor: 'var(--bg-secondary)', 
-                color: 'var(--text-primary)',
-                '&:before': {
-                    display: 'none',
-                }
-            }}>
-                <AccordionSummary 
-                    expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
-                    sx={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-                >
-                    <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>{t('database')}</Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ backgroundColor: 'var(--bg-secondary)' }}>
-                    <div className='flex flex-row gap-3'>
-                        <div className='flex flex-col gap-3 w-fit'>
-                            <Button startIcon={<FileUploadIcon />} {...secondaryButtonProps} onClick={handleBackupDb}>
-                                {t('backup')}
-                            </Button>
-                            <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={handleExportDb}>
-                                {t('export all')}
-                            </Button>
-                            <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={() => setShowAdvancedExport(true)}>
-                                {t('export selected')}
-                            </Button>
-                            <Button startIcon={<FileDownloadIcon />} {...primaryButtonProps} onClick={handleImportDb}>
-                                {t('import')}
-                            </Button>
+                <Accordion sx={{
+                    backgroundColor: 'var(--bg-secondary)',
+                    color: 'var(--text-primary)',
+                    '&:before': {
+                        display: 'none',
+                    }
+                }}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
+                        sx={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+                    >
+                        <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>{t('database')}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ backgroundColor: 'var(--bg-secondary)' }}>
+                        <div className='flex flex-row gap-3'>
+                            <div className='flex flex-col gap-3 w-fit'>
+                                <Button startIcon={<FileUploadIcon />} {...secondaryButtonProps} onClick={handleBackupDb}>
+                                    {t('backup')}
+                                </Button>
+                                <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={handleExportDb}>
+                                    {t('export all')}
+                                </Button>
+                                <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={() => setShowAdvancedExport(true)}>
+                                    {t('export selected')}
+                                </Button>
+                                <Button startIcon={<FileDownloadIcon />} {...primaryButtonProps} onClick={handleImportDb}>
+                                    {t('import')}
+                                </Button>
+                            </div>
+                            <div className='h-fit flex flex-row'>
+                                <Typography variant="body1" className='p-1' sx={{ color: 'var(--text-primary)' }}>{t('backup folder')}: </Typography>
+                                <Typography variant="body2" onClick={handleChangeBackupDir}
+                                    className='border-4 border-blue-500 rounded-lg p-1 cursor-pointer'
+                                    sx={{ color: 'var(--text-primary)' }}>
+                                    {backupDir}
+                                </Typography>
+                            </div>
                         </div>
-                        <div className='h-fit flex flex-row'>
-                            <Typography variant="body1" className='p-1' sx={{ color: 'var(--text-primary)' }}>{t('backup folder')}: </Typography>
-                            <Typography variant="body2" onClick={handleChangeBackupDir}
-                                className='border-4 border-blue-500 rounded-lg p-1 cursor-pointer'
-                                sx={{ color: 'var(--text-primary)' }}>
-                                {backupDir}
-                            </Typography>
-                        </div>
-                    </div>
-                </AccordionDetails>
-            </Accordion>
-            
-            <AdvancedExportDialog 
-                isOpen={showAdvancedExport}
-                onClose={() => setShowAdvancedExport(false)}
-                onExport={handleAdvancedExport}
-            />
+                    </AccordionDetails>
+                </Accordion>
+
+                <AdvancedExportDialog
+                    isOpen={showAdvancedExport}
+                    onClose={() => setShowAdvancedExport(false)}
+                    onExport={handleAdvancedExport}
+                />
             </div>
         </div>
     );

@@ -217,7 +217,7 @@ const ReadContent = () => {
     return (
         <div className="flex flex-col items-center">
             <div 
-                className={`w-full ${fontSize} ${lineHeight} pb-5 px-2`}
+                className={`read-content-container w-full ${fontSize} ${lineHeight} pb-5 px-2`}
                 style={{ fontFamily: fontFamily }}
             >
                 {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border-b border-gray-700 p-4'>

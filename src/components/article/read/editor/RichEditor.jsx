@@ -472,7 +472,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         if (selection.rangeCount > 0 && !selection.isCollapsed) {
             // Find the main ReadContent container instead of using hardcoded DOM traversal
             let readContentContainer = e.currentTarget;
-            while (readContentContainer && !readContentContainer.classList.contains('leading-loose')) {
+            while (readContentContainer && !readContentContainer.classList.contains('read-content-container')) {
                 readContentContainer = readContentContainer.parentElement;
             }
             

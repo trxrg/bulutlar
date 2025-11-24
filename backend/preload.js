@@ -132,6 +132,9 @@ contextBridge.exposeInMainWorld('api', {
   store: {
     set: (key, value) => ipcRenderer.invoke('store/set', key, value),
     get: (key) => ipcRenderer.invoke('store/get', key),
+    delete: (key) => ipcRenderer.invoke('store/delete', key),
+    clear: () => ipcRenderer.invoke('store/clear'),
+    deleteMany: (keys) => ipcRenderer.invoke('store/deleteMany', keys),
   },
   getOwnerWithName:          (ownerName)   => ipcRenderer.invoke('getOwnerWithName', ownerName),
   getOwnerWithNameLike:      (nameLike)    => ipcRenderer.invoke('getOwnerWithNameLike', nameLike),

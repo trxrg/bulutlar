@@ -158,6 +158,11 @@
 
     "something went wrong": "Something went wrong",	
     "reload page": "Reload Page",
+    "error may be caused by corrupted state": "The error may be caused by corrupted application state. Try resetting the state if a simple reload doesn't work.",
+    "reset search related state and reload": "Reset Search Related State & Reload",
+    "clear all settings and reload": "Clear All Settings & Reload",
+    "resetting...": "Resetting...",
+    "show error details": "Show Error Details",
     "cannot be empty": " cannot be empty",
     "added": " added",
     "updated": " updated",

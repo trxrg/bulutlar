@@ -163,6 +163,11 @@
 
     "something went wrong": "Bir hata oluştu",
     "reload page": "Sayfayı Yeniden Yükle",
+    "error may be caused by corrupted state": "Hata, bozuk uygulama durumundan kaynaklanıyor olabilir. Basit yenileme işe yaramazsa durumu sıfırlamayı deneyin.",
+    "reset search related state and reload": "Arama İlgili Durumu Sıfırla ve Yeniden Yükle",
+    "clear all settings and reload": "Tüm Ayarları Temizle ve Yeniden Yükle",
+    "resetting...": "Sıfırlanıyor...",
+    "show error details": "Hata Detaylarını Göster",
     "cannot be empty": " boş olamaz",
     "added": " eklendi",
     "updated": " güncellendi",

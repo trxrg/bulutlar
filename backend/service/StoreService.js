@@ -12,6 +12,9 @@ function initService() {
     
     ipcMain.handle('store/set', (event, key, value) => setState(key, value));
     ipcMain.handle('store/get', (event, key) => getState(key));
+    ipcMain.handle('store/delete', (event, key) => deleteState(key));
+    ipcMain.handle('store/clear', () => clearState());
+    ipcMain.handle('store/deleteMany', (event, keys) => deleteManyStates(keys));
 }
 
 function setState(key, value) {
@@ -20,6 +23,18 @@ function setState(key, value) {
 
 function getState(key) {
     return store.get(key);
+}
+
+function deleteState(key) {
+    store.delete(key);
+}
+
+function clearState() {
+    store.clear();
+}
+
+function deleteManyStates(keys) {
+    keys.forEach(key => store.delete(key));
 }
 
 const storeService = {

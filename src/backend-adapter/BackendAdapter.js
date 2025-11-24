@@ -137,6 +137,9 @@ export const annotationApi = {
 export const storeApi = {
     set: async (key, value) => window.api.store.set(key, value),
     get: async (key) => window.api.store.get(key),
+    delete: async (key) => window.api.store.delete(key),
+    clear: async () => window.api.store.clear(),
+    deleteMany: async (keys) => window.api.store.deleteMany(keys),
 };
 
 export const urlApi = {

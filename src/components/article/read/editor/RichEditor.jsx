@@ -71,7 +71,7 @@ const createEditorStateFromHTMLAndDecorator = (html, decorator) => {
 const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleContentChange, editable, editorId = 'default' }, ref) => {
 
     const { setContextMenuIsOpen, setContextMenuPosition, searchTerm, articleId, updateAllHighlightRefs } = useContext(ReadContext);
-    const { normalizeText, translate: t } = useContext(AppContext);
+    const { normalizeText, escapeRegExp, translate: t } = useContext(AppContext);
     const { fetchAllAnnotations, fetchArticleById } = useContext(DBContext);
 
     // Local state for this editor's highlights
@@ -129,7 +129,8 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
             strategy: (contentBlock, callback, contentState) => {
                 if (searchTerm) {
                     const normalizedSearchTerm = normalizeText(searchTerm);
-                    const regex = new RegExp(normalizedSearchTerm, 'gi');
+                    const escapedSearchTerm = escapeRegExp(normalizedSearchTerm);
+                    const regex = new RegExp(escapedSearchTerm, 'gi');
                     findWithRegex(regex, contentBlock, callback);
                 }
             },

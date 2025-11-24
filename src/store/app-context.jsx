@@ -282,6 +282,11 @@ export default function AppContextProvider({ children }) {
         return doc.body.textContent || "";
     };
 
+    const escapeRegExp = (string) => {
+        if (!string || typeof string !== 'string') return '';
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    };
+
     const ctxValue = {
         linkClicked: handleLinkClicked,
         activeTabId,
@@ -309,6 +314,7 @@ export default function AppContextProvider({ children }) {
         translate: t,
         normalizeText,
         htmlToText,
+        escapeRegExp,
         editorSettings,
         setEditorSettings,
         isMac

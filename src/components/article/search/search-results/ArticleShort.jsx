@@ -13,7 +13,7 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
 
     const [isSelected, setIsSelected] = useState(false);
     const { getCategoryById, getTagById, fetchArticleById } = useContext(DBContext);
-    const { translate: t, normalizeText, htmlToText } = useContext(AppContext);
+    const { translate: t, normalizeText, htmlToText, escapeRegExp } = useContext(AppContext);
     const { areArticlesSelectable, allOrNoneSelected, selectAllOrNoneClicks, selectArticle, deselectArticle } = useContext(SearchContext);
 
     const numberOfTags = 3;
@@ -36,7 +36,8 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
 
         keywords.forEach(keyword => {
             const normalizedKeyword = normalizeText(keyword);
-            const regex = new RegExp(`(${normalizedKeyword})`, 'gi');
+            const escapedKeyword = escapeRegExp(normalizedKeyword);
+            const regex = new RegExp(`(${escapedKeyword})`, 'gi');
             let match;
             while ((match = regex.exec(normalizedText)) !== null) {
                 matches.push({ start: match.index, end: regex.lastIndex });
@@ -56,12 +57,13 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
         });
 
         return highlightedText;
-    }, [normalizeText]);
+    }, [normalizeText, escapeRegExp]);
 
     const getToBeHighlightedParts = useCallback((text, keywords, contextLength = 50) => {
         const normalizedKeywords = keywords.map(keyword => normalizeText(keyword));
+        const escapedKeywords = normalizedKeywords.map(keyword => escapeRegExp(keyword));
         const normalizedText = normalizeText(text);
-        const regex = new RegExp(`(${normalizedKeywords.join('|')})`, 'gi');
+        const regex = new RegExp(`(${escapedKeywords.join('|')})`, 'gi');
         const matches = [];
         let match;
 
@@ -102,7 +104,7 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
 
         });
         return highlightedParts;
-    }, [normalizeText]);
+    }, [normalizeText, escapeRegExp]);
 
     const handleCheckboxChange = useCallback((e) => {
         const checked = e.target.checked;

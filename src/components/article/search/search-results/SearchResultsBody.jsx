@@ -15,7 +15,7 @@ const SearchResultsBody = React.memo(() => {
     const { filtering, filteredArticles, setFilteredArticles,
         searchInTitle, searchInExplanation,
         searchInMainText, searchInComments } = useContext(SearchContext);
-    
+
     const [showScrollTop, setShowScrollTop] = useState(false);
     const containerRef = useRef(null);
 
@@ -101,26 +101,32 @@ const SearchResultsBody = React.memo(() => {
                     (normalizeText(htmlToText(art.text)).includes(normalizedQuickSearch)) ||
                     (normalizeText(htmlToText(art.explanation)).includes(normalizedQuickSearch)) ||
                     ((art.comments[0] && normalizeText(htmlToText(art.comments[0].text)).includes(normalizedQuickSearch)));
-                
+
                 // Search in tags
                 const tagMatch = art.tags && art.tags.some(tag => {
                     const tagEntity = getTagById(tag.id);
                     return tagEntity && normalizeText(tagEntity.name).includes(normalizedQuickSearch);
                 });
-                
+
                 // Search in category
                 const categoryMatch = art.categoryId && (() => {
                     const categoryEntity = getCategoryById(art.categoryId);
                     return categoryEntity && normalizeText(categoryEntity.name).includes(normalizedQuickSearch);
                 })();
-                
+
                 // Search in owner
                 const ownerMatch = art.ownerId && (() => {
                     const ownerEntity = getOwnerById(art.ownerId);
                     return ownerEntity && normalizeText(ownerEntity.name).includes(normalizedQuickSearch);
                 })();
-                
-                return textMatch || tagMatch || categoryMatch || ownerMatch;
+
+                // Add groupMatch for searching within group name
+                const groupMatch = art.groups && art.groups.some(group => {
+                    const groupEntity = getGroupById(group.id);
+                    return groupEntity && normalizeText(groupEntity.name).includes(normalizedQuickSearch);
+                });
+
+                return textMatch || tagMatch || categoryMatch || ownerMatch || groupMatch;
             });
         }
 
@@ -144,7 +150,7 @@ const SearchResultsBody = React.memo(() => {
                         const articleDate = new Date(art[field]);
                         return !art.isDateUncertain && articleDate >= startDateObj;
                     });
-                // compare field by field
+                    // compare field by field
                 } else if ((yearPresent || monthPresent || dayPresent) && !(monthPresent && dayPresent)) {
                     localFilteredArticles = localFilteredArticles.filter(art => {
                         if (art.isDateUncertain) return false;
@@ -158,14 +164,14 @@ const SearchResultsBody = React.memo(() => {
                             result &&= articleDate.getDate() >= startDate.day;
                         return result;
                     });
-                // a specific solution for the case of only month and day present
+                    // a specific solution for the case of only month and day present
                 } else if (monthPresent && dayPresent) {
                     localFilteredArticles = localFilteredArticles.filter(art => {
                         if (art.isDateUncertain) return false;
                         const articleDate = new Date(art[field]);
-                        const articleMonth = articleDate.getMonth() +1;
+                        const articleMonth = articleDate.getMonth() + 1;
                         const articleDay = articleDate.getDate();
-                        
+
                         if (articleMonth == startDate.month) {
                             return articleDay >= startDate.day;
                         } else {
@@ -188,7 +194,7 @@ const SearchResultsBody = React.memo(() => {
                         const articleDate = new Date(art[field]);
                         return !art.isDateUncertain && articleDate <= endDateObj;
                     });
-                // compare field by field
+                    // compare field by field
                 } else if ((yearPresent || monthPresent || dayPresent) && !(monthPresent && dayPresent)) {
                     localFilteredArticles = localFilteredArticles.filter(art => {
                         if (art.isDateUncertain) return false;
@@ -202,15 +208,15 @@ const SearchResultsBody = React.memo(() => {
                             result &&= articleDate.getDate() <= endDate.day;
                         return result;
                     });
-                // a specific solution for the case of only month and day present
+                    // a specific solution for the case of only month and day present
                 } else if (monthPresent && dayPresent) {
                     localFilteredArticles = localFilteredArticles.filter(art => {
                         if (art.isDateUncertain) return false;
-                        
+
                         const articleDate = new Date(art[field]);
-                        const articleMonth = articleDate.getMonth() +1;
+                        const articleMonth = articleDate.getMonth() + 1;
                         const articleDay = articleDate.getDate();
-                                                
+
                         if (articleMonth == endDate.month) {
                             return articleDay <= endDate.day;
                         } else {
@@ -238,7 +244,7 @@ const SearchResultsBody = React.memo(() => {
         if (filtering.quickSearchTerm && filtering.quickSearchTerm.trim()) {
             allKeywords.push(filtering.quickSearchTerm.trim());
         }
-        
+
         return filteredArticles.map(art => (
             <ArticleShort
                 handleClick={handleAddTab}
@@ -258,7 +264,7 @@ const SearchResultsBody = React.memo(() => {
                 </div> :
                 <div ref={containerRef} className='flex flex-col gap-5 p-5 relative'>
                     {articlesList}
-                    
+
                     {/* Scroll to top button */}
                     <Tooltip title={t('Scroll to top') || 'Scroll to top'} arrow placement="left">
                         <button

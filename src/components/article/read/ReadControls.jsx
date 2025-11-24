@@ -16,7 +16,7 @@ import toastr from 'toastr';
 
 const ReadControls = () => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, getHighlightInfo, searchTerm } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs } = useContext(ReadContext);
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
     const { fetchArticleById } = useContext(DBContext);
 
@@ -25,8 +25,17 @@ const ReadControls = () => {
     const [isExportModalOpen, setExportModalOpen] = useState(false);
     const [searchBarOpen, setSearchBarOpen] = useState(false);
     const [localSearchTerm, setLocalSearchTerm] = useState('');
+    const [shouldScrollToFirst, setShouldScrollToFirst] = useState(false);
     
     const searchInputRef = useRef(null);
+
+    // Effect to scroll to first highlight when highlights become available
+    useEffect(() => {
+        if (shouldScrollToFirst && allHighlightRefs.length > 0) {
+            scrollToHighlight(0);
+            setShouldScrollToFirst(false);
+        }
+    }, [allHighlightRefs, shouldScrollToFirst, scrollToHighlight]);
 
     const handleToggleBlockType = (event, blockType) => {
         event.preventDefault();
@@ -50,6 +59,8 @@ const ReadControls = () => {
                 setTimeout(() => {
                     setSearchTerm(localSearchTerm);
                     setCurrentHighlightIndex(0);
+                    // Mark that we should scroll to first highlight when refs are ready
+                    setShouldScrollToFirst(true);
                 }, 50);
             }
         } else {
@@ -62,6 +73,7 @@ const ReadControls = () => {
         setSearchTerm('');
         setLocalSearchTerm('');
         setCurrentHighlightIndex(-1);
+        setShouldScrollToFirst(false);
     }
 
     const handleNextHighlight = () => {
@@ -85,9 +97,17 @@ const ReadControls = () => {
                     ? selection.toString().trim() 
                     : '';
                 
-                // If there's selected text, use it as the search term
+                // If there's selected text, use it as the search term and trigger search
                 if (selectedText) {
                     setLocalSearchTerm(selectedText);
+                    // Trigger the search automatically
+                    setSearchTerm('');
+                    setCurrentHighlightIndex(-1);
+                    setTimeout(() => {
+                        setSearchTerm(selectedText);
+                        setCurrentHighlightIndex(0);
+                        setShouldScrollToFirst(true);
+                    }, 50);
                 }
                 
                 if (!searchBarOpen) {
@@ -140,6 +160,8 @@ const ReadControls = () => {
                     setTimeout(() => {
                         setSearchTerm(localSearchTerm);
                         setCurrentHighlightIndex(0);
+                        // Mark that we should scroll to first highlight when refs are ready
+                        setShouldScrollToFirst(true);
                     }, 50);
                 } else {
                     // If search term is already set, go to next highlight

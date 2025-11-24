@@ -30,7 +30,7 @@ const SavedFiltersAccordion = () => {
                     savedFilters.map((filter) => (
                         <div
                             key={filter.id}
-                            className='flex items-center justify-between p-3 rounded cursor-pointer hover:opacity-80 transition-opacity'
+                            className='flex items-center justify-between p-3 rounded cursor-pointer hover:opacity-80 transition-opacity gap-2'
                             style={{ 
                                 backgroundColor: 'var(--bg-secondary)', 
                                 color: 'var(--text-primary)',
@@ -38,12 +38,13 @@ const SavedFiltersAccordion = () => {
                             }}
                         >
                             <span 
-                                className='flex-1 select-none'
+                                className='flex-1 select-none overflow-hidden text-ellipsis whitespace-nowrap'
                                 onClick={() => handleApplyFilter(filter.id)}
+                                title={filter.name}
                             >
                                 {filter.name}
                             </span>
-                            <div className='flex gap-1'>
+                            <div className='flex gap-1 flex-shrink-0'>
                                 <IconButton
                                     size="small"
                                     onClick={() => handleApplyFilter(filter.id)}

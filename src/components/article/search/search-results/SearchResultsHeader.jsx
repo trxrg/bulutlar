@@ -63,7 +63,7 @@ const SearchResultsHeader = () => {
     }
 
     return (
-        <div className='flex flex-col gap-2 shadow-lg bg-white p-2'>
+        <div className='flex flex-col gap-2 shadow-lg bg-white p-2' style={{ minHeight: '70px' }}>
             <div className='flex justify-between w-full'>
                 {/* left */}
                 <div className='flex flex-wrap gap-1 items-center'>

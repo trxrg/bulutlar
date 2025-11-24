@@ -13,7 +13,8 @@ import Number2Filtering from './Number2Filtering.jsx';
 import FilterAccordion from './FilterAccordion.jsx';
 import SavedFiltersAccordion from './SavedFiltersAccordion.jsx';
 import SaveFilterModal from './SaveFilterModal.jsx';
-import ActionButton from '../../../common/ActionButton.jsx';
+import BodyWithFixedHeader from '../../../common/BodyWithFixedHeader';
+import SearchFilteringsHeader from './SearchFilteringsHeader.jsx';
 import Checkbox from '@mui/material/Checkbox';
 
 const SearchFilterings = () => {
@@ -50,62 +51,76 @@ const SearchFilterings = () => {
         saveFilter(filterName);
     };
 
+    const handleClearAllFilters = () => {
+        setKeywords([]);
+        setSelectedCategoryNames([]);
+        setSelectedGroupNames([]);
+        setSelectedOwnerNames([]);
+        setSelectedTagNames([]);
+        clearDate1();
+        clearDate2();
+        setSelectedNumbers1([]);
+        setSelectedNumbers2([]);
+        setFilterStarred(false);
+    };
+
     return (
-        <>
-            <div className='flex flex-col p-3' style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-                <label className={'select-none cursor-pointer'}>
-                    <Checkbox
-                        checked={filterStarred}
-                        onChange={(e) => setFilterStarred(e.target.checked)}
-                        sx={{
-                            color: 'var(--text-primary)',
-                        }}
-                    />
-                    {t('starred')}
-                </label>
-            </div>
-            <SavedFiltersAccordion />
-            <FilterAccordion title={t('keyword')} isFilterActive={keywords && keywords.length > 0} clearFilter={() => setKeywords([])}>
-                <KeywordFiltering />
-            </FilterAccordion>
-            <FilterAccordion title={t('category')} isFilterActive={selectedCategoryNames && selectedCategoryNames.length > 0} clearFilter={() => setSelectedCategoryNames([])}>
-                <CategoryFiltering />
-            </FilterAccordion>
-            <FilterAccordion title={t('group')} isFilterActive={selectedGroupNames && selectedGroupNames.length > 0} clearFilter={() => setSelectedGroupNames([])}>
-                <GroupFiltering />
-            </FilterAccordion>
-            <FilterAccordion title={t('owner')} isFilterActive={selectedOwnerNames && selectedOwnerNames.length > 0} clearFilter={() => setSelectedOwnerNames([])}>
-                <OwnerFiltering />
-            </FilterAccordion>
-            <FilterAccordion title={t('tag')} isFilterActive={selectedTagNames && selectedTagNames.length > 0} clearFilter={() => setSelectedTagNames([])}>
-                <TagFiltering />
-            </FilterAccordion>
-            <FilterAccordion title={t('gregorian date')} isFilterActive={isDate1Active} clearFilter={clearDate1}>
-                <Date1Filtering />
-            </FilterAccordion>
-            <FilterAccordion title={t('hijri date')} isFilterActive={isDate2Active} clearFilter={clearDate2}>
-                <Date2Filtering />
-            </FilterAccordion>
-            <FilterAccordion title={t('gregorian number')} isFilterActive={selectedNumbers1 && selectedNumbers1.length > 0} clearFilter={() => setSelectedNumbers1([])}>
-                <Number1Filtering />
-            </FilterAccordion>
-            <FilterAccordion title={t('hijri number')} isFilterActive={selectedNumbers2 && selectedNumbers2.length > 0} clearFilter={() => setSelectedNumbers2([])}>
-                <Number2Filtering />
-            </FilterAccordion>
-            <div className='flex justify-center p-4' style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                <ActionButton
-                    onClick={() => setIsSaveFilterModalOpen(true)}
-                    color='blue'
-                >
-                    {t('save current filter')}
-                </ActionButton>
-            </div>
+        <div className='h-full'>
+            <BodyWithFixedHeader>
+                <SearchFilteringsHeader 
+                    onSaveFilter={() => setIsSaveFilterModalOpen(true)}
+                    onClearAll={handleClearAllFilters}
+                />
+
+                <div className="h-full overflow-y-auto overflow-x-hidden">
+                    <div className='flex flex-col p-3' style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+                        <label className={'select-none cursor-pointer'}>
+                            <Checkbox
+                                checked={filterStarred}
+                                onChange={(e) => setFilterStarred(e.target.checked)}
+                                sx={{
+                                    color: 'var(--text-primary)',
+                                }}
+                            />
+                            {t('starred')}
+                        </label>
+                    </div>
+                    <SavedFiltersAccordion />
+                    <FilterAccordion title={t('keyword')} isFilterActive={keywords && keywords.length > 0} clearFilter={() => setKeywords([])}>
+                        <KeywordFiltering />
+                    </FilterAccordion>
+                    <FilterAccordion title={t('category')} isFilterActive={selectedCategoryNames && selectedCategoryNames.length > 0} clearFilter={() => setSelectedCategoryNames([])}>
+                        <CategoryFiltering />
+                    </FilterAccordion>
+                    <FilterAccordion title={t('group')} isFilterActive={selectedGroupNames && selectedGroupNames.length > 0} clearFilter={() => setSelectedGroupNames([])}>
+                        <GroupFiltering />
+                    </FilterAccordion>
+                    <FilterAccordion title={t('owner')} isFilterActive={selectedOwnerNames && selectedOwnerNames.length > 0} clearFilter={() => setSelectedOwnerNames([])}>
+                        <OwnerFiltering />
+                    </FilterAccordion>
+                    <FilterAccordion title={t('tag')} isFilterActive={selectedTagNames && selectedTagNames.length > 0} clearFilter={() => setSelectedTagNames([])}>
+                        <TagFiltering />
+                    </FilterAccordion>
+                    <FilterAccordion title={t('gregorian date')} isFilterActive={isDate1Active} clearFilter={clearDate1}>
+                        <Date1Filtering />
+                    </FilterAccordion>
+                    <FilterAccordion title={t('hijri date')} isFilterActive={isDate2Active} clearFilter={clearDate2}>
+                        <Date2Filtering />
+                    </FilterAccordion>
+                    <FilterAccordion title={t('gregorian number')} isFilterActive={selectedNumbers1 && selectedNumbers1.length > 0} clearFilter={() => setSelectedNumbers1([])}>
+                        <Number1Filtering />
+                    </FilterAccordion>
+                    <FilterAccordion title={t('hijri number')} isFilterActive={selectedNumbers2 && selectedNumbers2.length > 0} clearFilter={() => setSelectedNumbers2([])}>
+                        <Number2Filtering />
+                    </FilterAccordion>
+                </div>
+            </BodyWithFixedHeader>
             <SaveFilterModal
                 isOpen={isSaveFilterModalOpen}
                 onRequestClose={() => setIsSaveFilterModalOpen(false)}
                 onConfirm={handleSaveFilter}
             />
-        </>
+        </div>
     );
 };
 

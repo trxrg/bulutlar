@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import OwnerFiltering from './OwnerFiltering.jsx';
 import TagFiltering from './TagFiltering.jsx';
 import CategoryFiltering from './CategoryFiltering.jsx';
@@ -11,6 +11,9 @@ import Date2Filtering from './Date2Filtering.jsx';
 import Number1Filtering from './Number1Filtering.jsx';
 import Number2Filtering from './Number2Filtering.jsx';
 import FilterAccordion from './FilterAccordion.jsx';
+import SavedFiltersAccordion from './SavedFiltersAccordion.jsx';
+import SaveFilterModal from './SaveFilterModal.jsx';
+import ActionButton from '../../../common/ActionButton.jsx';
 import Checkbox from '@mui/material/Checkbox';
 
 const SearchFilterings = () => {
@@ -27,7 +30,10 @@ const SearchFilterings = () => {
         endDate2, setEndDate2,
         selectedNumbers1, setSelectedNumbers1,
         selectedNumbers2, setSelectedNumbers2,
-        filterStarred, setFilterStarred } = useContext(SearchContext);
+        filterStarred, setFilterStarred,
+        saveFilter } = useContext(SearchContext);
+
+    const [isSaveFilterModalOpen, setIsSaveFilterModalOpen] = useState(false);
 
     const isDate1Active = startDate.day || startDate.month || startDate.year || endDate.day || endDate.month || endDate.year;
     const isDate2Active = startDate2.day || startDate2.month || startDate2.year || endDate2.day || endDate2.month || endDate2.year;
@@ -39,6 +45,10 @@ const SearchFilterings = () => {
         setStartDate2({ day: '', month: '', year: '' });
         setEndDate2({ day: '', month: '', year: '' });
     }
+
+    const handleSaveFilter = (filterName) => {
+        saveFilter(filterName);
+    };
 
     return (
         <>
@@ -54,6 +64,7 @@ const SearchFilterings = () => {
                     {t('starred')}
                 </label>
             </div>
+            <SavedFiltersAccordion />
             <FilterAccordion title={t('keyword')} isFilterActive={keywords && keywords.length > 0} clearFilter={() => setKeywords([])}>
                 <KeywordFiltering />
             </FilterAccordion>
@@ -81,6 +92,19 @@ const SearchFilterings = () => {
             <FilterAccordion title={t('hijri number')} isFilterActive={selectedNumbers2 && selectedNumbers2.length > 0} clearFilter={() => setSelectedNumbers2([])}>
                 <Number2Filtering />
             </FilterAccordion>
+            <div className='flex justify-center p-4' style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                <ActionButton
+                    onClick={() => setIsSaveFilterModalOpen(true)}
+                    color='blue'
+                >
+                    {t('save current filter')}
+                </ActionButton>
+            </div>
+            <SaveFilterModal
+                isOpen={isSaveFilterModalOpen}
+                onRequestClose={() => setIsSaveFilterModalOpen(false)}
+                onConfirm={handleSaveFilter}
+            />
         </>
     );
 };

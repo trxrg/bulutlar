@@ -32,6 +32,7 @@ export default function SearchContextProvider({ children }) {
     const [startDate2, setStartDate2] = usePersistentState('startDate2', { day: '', month: '', year: '' });
     const [endDate2, setEndDate2] = usePersistentState('endDate2', { day: '', month: '', year: '' });
     const [filterStarred, setFilterStarred] = usePersistentState('filterStarred', false);
+    const [savedFilters, setSavedFilters] = usePersistentState('savedFilters', []);
 
     const [areArticlesSelectable, setArticlesSelectable] = useState(false);
     const [allOrNoneSelected, setAllOrNoneSelected] = useState(false);
@@ -71,6 +72,56 @@ export default function SearchContextProvider({ children }) {
         setStartDate2({ day: '', month: '', year: '' });
         setEndDate2({ day: '', month: '', year: '' });
         setFilterStarred(false);
+    };
+
+    const saveFilter = (filterName) => {
+        const newFilter = {
+            id: Date.now(),
+            name: filterName,
+            filters: {
+                selectedOwnerNames,
+                selectedTagNames,
+                selectedCategoryNames,
+                selectedGroupNames,
+                selectedNumbers1,
+                selectedNumbers2,
+                keywords,
+                startDate,
+                endDate,
+                startDate2,
+                endDate2,
+                filterStarred,
+            }
+        };
+        setSavedFilters([...savedFilters, newFilter]);
+        toastr.success(t('filter saved successfully'));
+    };
+
+    const applyFilter = (filterId) => {
+        const filter = savedFilters.find(f => f.id === filterId);
+        if (filter) {
+            // First reset all filters
+            resetFilters();
+            // Then apply the saved filter
+            setSelectedOwnerNames(filter.filters.selectedOwnerNames || []);
+            setSelectedTagNames(filter.filters.selectedTagNames || []);
+            setSelectedCategoryNames(filter.filters.selectedCategoryNames || []);
+            setSelectedGroupNames(filter.filters.selectedGroupNames || []);
+            setSelectedNumbers1(filter.filters.selectedNumbers1 || []);
+            setSelectedNumbers2(filter.filters.selectedNumbers2 || []);
+            setKeywords(filter.filters.keywords || []);
+            setStartDate(filter.filters.startDate || { day: '', month: '', year: '' });
+            setEndDate(filter.filters.endDate || { day: '', month: '', year: '' });
+            setStartDate2(filter.filters.startDate2 || { day: '', month: '', year: '' });
+            setEndDate2(filter.filters.endDate2 || { day: '', month: '', year: '' });
+            setFilterStarred(filter.filters.filterStarred || false);
+            toastr.success(t('filter applied'));
+        }
+    };
+
+    const deleteFilter = (filterId) => {
+        setSavedFilters(savedFilters.filter(f => f.id !== filterId));
+        toastr.success(t('filter deleted'));
     };
 
     const toggleArticlesSelectable = () => {
@@ -173,6 +224,11 @@ export default function SearchContextProvider({ children }) {
         selectOnlyAnOwner,
         selectOnlyACategory,
         selectOnlyAGroup,
+        savedFilters,
+        saveFilter,
+        applyFilter,
+        deleteFilter,
+        resetFilters,
     };
 
     return (

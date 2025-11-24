@@ -6,10 +6,11 @@ import ArticleShort from './ArticleShort.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
 import { DBContext } from '../../../../store/db-context.jsx';
 import { SearchContext } from '../../../../store/search-context.jsx';
+import { normalizeText, htmlToText } from '../../../../utils/textUtils.js';
 import toastr from 'toastr';
 
 const SearchResultsBody = React.memo(() => {
-    const { handleAddTab, translate: t, normalizeText, htmlToText } = useContext(AppContext);
+    const { handleAddTab, translate: t } = useContext(AppContext);
     const { allArticles, getOwnerById, getTagById, getCategoryById, getGroupById } = useContext(DBContext);
     const { filtering, filteredArticles, setFilteredArticles,
         searchInTitle, searchInExplanation,

@@ -259,34 +259,6 @@ export default function AppContextProvider({ children }) {
         setTabs(newTabs);
     }
 
-    const normalizeText = (text) => {
-        if (!text)
-            return '';
-        if (typeof text !== 'string') return text;
-        const turkishMap = {
-            'ç': 'c', 'Ç': 'C',
-            'ğ': 'g', 'Ğ': 'G',
-            'ı': 'i', 'İ': 'I',
-            'ö': 'o', 'Ö': 'O',
-            'ş': 's', 'Ş': 'S',
-            'ü': 'u', 'Ü': 'U'
-        };
-        const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
-        return result;
-    };
-
-    const htmlToText = (html) => {
-        if (!html)
-            return '';
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        return doc.body.textContent || "";
-    };
-
-    const escapeRegExp = (string) => {
-        if (!string || typeof string !== 'string') return '';
-        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    };
-
     const ctxValue = {
         linkClicked: handleLinkClicked,
         activeTabId,
@@ -312,9 +284,6 @@ export default function AppContextProvider({ children }) {
         changeLanguage,
         getLanguage,
         translate: t,
-        normalizeText,
-        htmlToText,
-        escapeRegExp,
         editorSettings,
         setEditorSettings,
         isMac

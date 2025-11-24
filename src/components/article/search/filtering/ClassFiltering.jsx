@@ -1,10 +1,11 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../../../../store/app-context';
+import { normalizeText } from '../../../../utils/textUtils.js';
 import Checkbox from '@mui/material/Checkbox';
 
 const ClassFiltering = ({ allNames, selectedNames, setSelectedNames }) => {
 
-    const { translate: t, normalizeText } = useContext(AppContext);
+    const { translate: t } = useContext(AppContext);
     const [filterText, setFilterText] = useState('');
 
     const handleChange = (name) => (event) => {

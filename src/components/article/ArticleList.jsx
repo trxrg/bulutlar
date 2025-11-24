@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import Select, { components } from 'react-select';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
+import { normalizeText } from '../../utils/textUtils.js';
 import ActionButton from '../common/ActionButton';
 
 const ArticleList = ({ onArticleChange, excludedArticleIds, onViewClicked, clearSearch }) => {
@@ -73,7 +74,7 @@ const ArticleList = ({ onArticleChange, excludedArticleIds, onViewClicked, clear
     };
 
     const { allArticles, getOwnerById } = useContext(DBContext);
-    const { translate: t, normalizeText } = useContext(AppContext);
+    const { translate: t } = useContext(AppContext);
 
     const articleOptions = [
         ...allArticles.filter(article => !excludedArticleIds || !excludedArticleIds.includes(article.id)).map(article => {

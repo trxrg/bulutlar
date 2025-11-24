@@ -3,6 +3,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import GeneralModal from '../../common/GeneralModal.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
+import { htmlToText } from '../../../utils/textUtils.js';
 import ActionButton from '../../common/ActionButton.jsx';
 import ArticleList from '../ArticleList.jsx';
 import ArticleInfo from '../ArticleInfo.jsx';
@@ -10,7 +11,7 @@ import toastr from 'toastr';
 
 const PickAndViewArticleModal = ({ isOpen, onRequestClose, articleId, onAdd, title, excludedArticleIds, showSelect = true, initialArticleId = null }) => {
     const [selectedArticleId, setSelectedArticleId] = useState(initialArticleId);
-    const { translate: t, handleAddTab, htmlToText, setActiveScreen, editorSettings } = useContext(AppContext);
+    const { translate: t, handleAddTab, setActiveScreen, editorSettings } = useContext(AppContext);
     const { getRelatedArticlesByArticleId, getArticleById } = useContext(DBContext);
     
     // Get font settings from editor settings

@@ -4,13 +4,14 @@ import { tagApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import { SearchContext } from '../../store/search-context';
+import { normalizeText } from '../../utils/textUtils.js';
 import ActionButton from '../common/ActionButton';
 import ConfirmModal from '../common/ConfirmModal';
 import toastr from 'toastr';
 
 const TagScreen = () => {
 
-    const { translate: t, normalizeText, setActiveScreen, setActiveTabId } = useContext(AppContext);
+    const { translate: t, setActiveScreen, setActiveTabId } = useContext(AppContext);
     const { allTags, fetchTagById, fetchAllTags, fetchAllData } = useContext(DBContext);
     const { selectOnlyATag } = useContext(SearchContext);
 

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
+import { normalizeText } from '../../utils/textUtils.js';
 import AnnotationModal from './AnnotationModal';
 import PickAndViewArticleModal from '../article/modals/PickAndViewArticleModal';
 
@@ -15,7 +16,7 @@ const AnnotationScreen = () => {
     const [viewedArticleId, setViewedArticleId] = useState(null);
     
     const { allAnnotations, getArticleById } = useContext(DBContext);
-    const { translate: t, normalizeText } = useContext(AppContext);
+    const { translate: t } = useContext(AppContext);
 
     const [sortOrder, setSortOrder] = useState('asc');
     const [sortBy, setSortBy] = useState('title');

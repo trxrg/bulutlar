@@ -10,6 +10,7 @@ import { imageApi, audioApi, videoApi, articleApi } from '../../../../backend-ad
 import { ReadContext } from '../../../../store/read-context';
 import { AppContext } from '../../../../store/app-context';
 import { DBContext } from '../../../../store/db-context';
+import { normalizeText, escapeRegExp } from '../../../../utils/textUtils.js';
 import Link from './Link';
 import Quote from './Quote';
 import Image from './Image';
@@ -71,7 +72,7 @@ const createEditorStateFromHTMLAndDecorator = (html, decorator) => {
 const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleContentChange, editable, editorId = 'default' }, ref) => {
 
     const { setContextMenuIsOpen, setContextMenuPosition, searchTerm, articleId, updateAllHighlightRefs } = useContext(ReadContext);
-    const { normalizeText, escapeRegExp, translate: t } = useContext(AppContext);
+    const { translate: t } = useContext(AppContext);
     const { fetchAllAnnotations, fetchArticleById } = useContext(DBContext);
 
     // Local state for this editor's highlights

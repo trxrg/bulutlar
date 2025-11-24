@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
+import { normalizeText } from '../../utils/textUtils.js';
 import ActionButton from '../common/ActionButton';
 import { annotationApi } from '../../backend-adapter/BackendAdapter';
 import PickAndViewArticleModal from '../article/modals/PickAndViewArticleModal';
@@ -15,7 +16,7 @@ const QuoteScreen = () => {
     const [viewedArticleId, setViewedArticleId] = useState(null);
 
     const { allAnnotations, getArticleById, fetchAllAnnotations, fetchArticleById } = useContext(DBContext);
-    const { translate: t, normalizeText } = useContext(AppContext);
+    const { translate: t } = useContext(AppContext);
 
     const handleOpenArticle = (article) => {
         setViewedArticleId(article.id);

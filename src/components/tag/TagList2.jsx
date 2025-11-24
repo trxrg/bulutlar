@@ -4,6 +4,7 @@ import { articleApi } from '../../backend-adapter/BackendAdapter.js';
 import { DBContext } from '../../store/db-context.jsx';
 import { AppContext } from '../../store/app-context.jsx';
 import { ReadContext } from '../../store/read-context.jsx';
+import { normalizeText } from '../../utils/textUtils.js';
 import ActionButton from '../common/ActionButton.jsx';
 import toastr from 'toastr';
 
@@ -11,7 +12,7 @@ const TagList2 = ({ showInput = true }) => {
 
     const { allTags, fetchAllTags, fetchArticleById, getTagById } = useContext(DBContext);
     const { article } = useContext(ReadContext);
-    const { translate: t, normalizeText } = useContext(AppContext);
+    const { translate: t } = useContext(AppContext);
 
     const suggestedTagNumber = 5;
     const tags = article.tags.map(tag => getTagById(tag.id));

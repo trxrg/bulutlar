@@ -4,11 +4,12 @@ import { ownerApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import { SearchContext } from '../../store/search-context';
+import { normalizeText } from '../../utils/textUtils.js';
 import AddOwner from './AddOwner';
 import ActionButton from '../common/ActionButton';
 
 const OwnerScreen = () => {
-    const { translate: t, normalizeText, setActiveScreen, setActiveTabId } = useContext(AppContext);
+    const { translate: t, setActiveScreen, setActiveTabId } = useContext(AppContext);
     const { allOwners, fetchOwnerById, fetchAllOwners } = useContext(DBContext);
     const { selectOnlyAnOwner } = useContext(SearchContext);
     

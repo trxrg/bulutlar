@@ -4,6 +4,7 @@ import React, { useContext, useState, useEffect, useMemo, useCallback } from 're
 import { DBContext } from '../../../../store/db-context';
 import { AppContext } from '../../../../store/app-context';
 import { SearchContext } from '../../../../store/search-context';
+import { normalizeText, htmlToText, escapeRegExp } from '../../../../utils/textUtils.js';
 import { articleApi } from '../../../../backend-adapter/BackendAdapter';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
@@ -13,7 +14,7 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
 
     const [isSelected, setIsSelected] = useState(false);
     const { getCategoryById, getTagById, fetchArticleById } = useContext(DBContext);
-    const { translate: t, normalizeText, htmlToText, escapeRegExp } = useContext(AppContext);
+    const { translate: t } = useContext(AppContext);
     const { areArticlesSelectable, allOrNoneSelected, selectAllOrNoneClicks, selectArticle, deselectArticle } = useContext(SearchContext);
 
     const numberOfTags = 3;

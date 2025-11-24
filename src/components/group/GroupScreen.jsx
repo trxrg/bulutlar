@@ -4,13 +4,14 @@ import { groupApi } from '../../backend-adapter/BackendAdapter';
 import { DBContext } from '../../store/db-context';
 import { AppContext } from '../../store/app-context';
 import { SearchContext } from '../../store/search-context';
+import { normalizeText } from '../../utils/textUtils.js';
 import ActionButton from '../common/ActionButton';
 import AddGroup from './AddGroup';
 import ConfirmModal from '../common/ConfirmModal';
 import toastr from 'toastr';
 
 const GroupScreen = () => {
-    const { translate: t, normalizeText, setActiveScreen, setActiveTabId } = useContext(AppContext);
+    const { translate: t, setActiveScreen, setActiveTabId } = useContext(AppContext);
     const { allGroups, fetchGroupById, fetchAllGroups, fetchAllData } = useContext(DBContext);
     const { selectOnlyAGroup } = useContext(SearchContext);
 

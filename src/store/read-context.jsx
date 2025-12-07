@@ -1,13 +1,14 @@
 import { createContext, useRef, useState, useContext, useEffect } from 'react';
 import { DBContext } from './db-context';
 import { AppContext } from './app-context';
+import toastr from 'toastr';
 
 export const ReadContext = createContext();
 
 export default function ReadContextProvider({ children, article }) {
 
     const { getOwnerById, getCategoryById, fetchArticleById } = useContext(DBContext);
-    const { fullScreen, editorSettings, registerEditableTab, unregisterEditableTab } = useContext(AppContext);
+    const { fullScreen, editorSettings, registerEditableTab, unregisterEditableTab, translate: t } = useContext(AppContext);
     const [fontSize, setFontSize] = useState(editorSettings?.fontSize || 'text-3xl');
     const [editable, setEditable] = useState(false);
 
@@ -140,6 +141,26 @@ export default function ReadContextProvider({ children, article }) {
             unregisterEditableTab(article.id);
         };
     }, [editable, article.id, registerEditableTab, unregisterEditableTab]);
+
+    // Autosave functionality
+    useEffect(() => {
+        if (!editable || !editorSettings?.autosaveEnabled) {
+            return;
+        }
+
+        const intervalMs = (editorSettings?.autosaveInterval || 30) * 1000;
+        
+        const autosaveInterval = setInterval(() => {
+            if (readContentRef && readContentRef.current) {
+                readContentRef.current.saveContent();
+                toastr.info(t('autosaved'), '', { timeOut: 2000 });
+            }
+        }, intervalMs);
+
+        return () => {
+            clearInterval(autosaveInterval);
+        };
+    }, [editable, editorSettings?.autosaveEnabled, editorSettings?.autosaveInterval, t]);
 
     // Navigation methods
     const scrollToNextHighlight = () => {

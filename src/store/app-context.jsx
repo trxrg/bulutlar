@@ -20,7 +20,9 @@ export default function AppContextProvider({ children }) {
     const [editorSettings, setEditorSettings] = usePersistentState('editorSettings', {
         fontFamily: 'system-ui',
         fontSize: 'text-3xl',
-        lineHeight: 'loose'
+        lineHeight: 'loose',
+        autosaveEnabled: false,
+        autosaveInterval: 30 // seconds
     });
     const [dataIsCleaned, setDataIsCleaned] = useState(false);
     const [isReadyToShow, setIsReadyToShow] = useState(false);

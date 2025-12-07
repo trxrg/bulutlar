@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, SpeakerWaveIcon, FilmIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon, DocumentArrowDownIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, SpeakerWaveIcon, FilmIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon, DocumentArrowDownIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
@@ -17,7 +17,7 @@ import toastr from 'toastr';
 const ReadControls = () => {
 
     const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs } = useContext(ReadContext);
-    const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t } = useContext(AppContext);
+    const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings } = useContext(AppContext);
     const { fetchArticleById } = useContext(DBContext);
 
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
@@ -348,7 +348,21 @@ const ReadControls = () => {
             {editable &&
                 <div className='flex gap-1 justify-between w-full'>
                     <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
-                    <div className='flex gap-1'>
+                    <div className='flex gap-1 items-center'>
+                        {editorSettings?.autosaveEnabled && (
+                            <div 
+                                className='flex items-center gap-1 px-2 py-1 rounded text-sm'
+                                style={{ 
+                                    backgroundColor: 'var(--bg-primary)', 
+                                    color: 'var(--text-secondary)',
+                                    border: '1px solid var(--border-secondary)'
+                                }}
+                                title={t('autosaveActive')}
+                            >
+                                <ArrowPathIcon className="w-4 h-4 animate-spin" style={{ animationDuration: '3s' }} />
+                                <span>{t('autosave')}</span>
+                            </div>
+                        )}
                         <ActionButton
                             onClick={() => { resetContent(); setEditable(false); }}
                             color={'red'}>

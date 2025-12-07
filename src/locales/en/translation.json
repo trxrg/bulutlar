@@ -152,6 +152,8 @@
     "remove": "Remove",
     "delete": "Delete",
     "save": "Save",
+    "dontSave": "Don't Save",
+    "saveChangesMessage": "Do you want to save the changes before closing?",
     "cancel": "Cancel",
     "ok": "OK",
     "yes": "Yes",

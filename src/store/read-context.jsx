@@ -7,7 +7,7 @@ export const ReadContext = createContext();
 export default function ReadContextProvider({ children, article }) {
 
     const { getOwnerById, getCategoryById, fetchArticleById } = useContext(DBContext);
-    const { fullScreen, editorSettings } = useContext(AppContext);
+    const { fullScreen, editorSettings, registerEditableTab, unregisterEditableTab } = useContext(AppContext);
     const [fontSize, setFontSize] = useState(editorSettings?.fontSize || 'text-3xl');
     const [editable, setEditable] = useState(false);
 
@@ -126,6 +126,20 @@ export default function ReadContextProvider({ children, article }) {
             setAllHighlightRefs([]);
         }
     }, [searchTerm]);
+
+    // Register/unregister editable state with AppContext for close confirmation
+    useEffect(() => {
+        if (editable) {
+            registerEditableTab(article.id, saveContent);
+        } else {
+            unregisterEditableTab(article.id);
+        }
+        
+        // Cleanup on unmount
+        return () => {
+            unregisterEditableTab(article.id);
+        };
+    }, [editable, article.id, registerEditableTab, unregisterEditableTab]);
 
     // Navigation methods
     const scrollToNextHighlight = () => {

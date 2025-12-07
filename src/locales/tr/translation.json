@@ -157,6 +157,8 @@
     "remove": "Kaldır",
     "delete": "Sil",
     "save": "Kaydet",
+    "dontSave": "Kaydetme",
+    "saveChangesMessage": "Kapatmadan önce değişiklikleri kaydetmek ister misiniz?",
     "cancel": "İptal",
     "ok": "Tamam",
     "yes": "Evet",

@@ -9,6 +9,7 @@ import { XMarkIcon } from '@heroicons/react/24/solid';
 import ReadScreen from './read/ReadScreen.jsx';
 import FormatButton from '../common/FormatButton.jsx';
 import ThemeToggle from '../common/ThemeToggle.jsx';
+import SaveConfirmModal from '../common/SaveConfirmModal.jsx';
 
 import {
   DndContext,
@@ -79,7 +80,10 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
 };
 
 const TabsScreen = () => {
-  const { activeTabId, setActiveTabId, closeTab, reorderTabs, tabs, translate: t, setActiveScreen, isMac } = useContext(AppContext);
+  const { 
+    activeTabId, setActiveTabId, closeTab, reorderTabs, tabs, translate: t, setActiveScreen, isMac,
+    saveConfirmModal, handleSaveAndClose, handleDiscardAndClose, handleCancelClose
+  } = useContext(AppContext);
   const { allArticles, fetchAllData } = useContext(DBContext);
   
   // Track the previous tab to enable toggling back from search
@@ -264,6 +268,14 @@ const TabsScreen = () => {
           </div>
         ))}
       </div>
+      
+      {/* Save confirmation modal */}
+      <SaveConfirmModal
+        isOpen={saveConfirmModal.isOpen}
+        onClose={handleCancelClose}
+        onSave={handleSaveAndClose}
+        onDiscard={handleDiscardAndClose}
+      />
     </div>
     </>
   );

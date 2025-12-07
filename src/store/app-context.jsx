@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useRef, useCallback } from 'react';
 import i18n from '../i18n';
 import { useTranslation } from 'react-i18next';
 import { DBContext } from './db-context';
@@ -25,6 +25,10 @@ export default function AppContextProvider({ children }) {
     const [dataIsCleaned, setDataIsCleaned] = useState(false);
     const [isReadyToShow, setIsReadyToShow] = useState(false);
     const [loadingStartTime] = useState(Date.now());
+
+    // Registry for tabs in edit mode with their save callbacks
+    const editableTabsRef = useRef({});
+    const [saveConfirmModal, setSaveConfirmModal] = useState({ isOpen: false, tabId: null });
 
     const { t } = useTranslation();
 
@@ -161,7 +165,18 @@ export default function AppContextProvider({ children }) {
         handleAddTab(e, randomArticle.id);
     };
 
-    const handleCloseTab = (tabId) => {
+    // Register a tab as editable with its save callback
+    const registerEditableTab = useCallback((tabId, saveCallback) => {
+        editableTabsRef.current[tabId] = { saveCallback };
+    }, []);
+
+    // Unregister a tab from editable registry
+    const unregisterEditableTab = useCallback((tabId) => {
+        delete editableTabsRef.current[tabId];
+    }, []);
+
+    // Directly close a tab without confirmation
+    const closeTabDirectly = (tabId) => {
         let updatedTabs = [...tabs];
         updatedTabs = updatedTabs.filter(tab => tab.id !== tabId);
         setTabs(updatedTabs);
@@ -169,6 +184,45 @@ export default function AppContextProvider({ children }) {
         if (activeTabId === tabId && updatedTabs.length > 0) {
             setActiveTabId(updatedTabs[updatedTabs.length - 1].id);
         }
+    };
+
+    // Handle close tab - check if confirmation is needed
+    const handleCloseTab = (tabId) => {
+        // Check if tab is in edit mode
+        if (editableTabsRef.current[tabId]) {
+            // Show confirmation modal
+            setSaveConfirmModal({ isOpen: true, tabId });
+            return;
+        }
+        
+        closeTabDirectly(tabId);
+    };
+
+    // Handle save and close from confirmation modal
+    const handleSaveAndClose = async () => {
+        const tabId = saveConfirmModal.tabId;
+        const tabInfo = editableTabsRef.current[tabId];
+        
+        if (tabInfo && tabInfo.saveCallback) {
+            await tabInfo.saveCallback();
+        }
+        
+        unregisterEditableTab(tabId);
+        setSaveConfirmModal({ isOpen: false, tabId: null });
+        closeTabDirectly(tabId);
+    };
+
+    // Handle discard and close from confirmation modal
+    const handleDiscardAndClose = () => {
+        const tabId = saveConfirmModal.tabId;
+        unregisterEditableTab(tabId);
+        setSaveConfirmModal({ isOpen: false, tabId: null });
+        closeTabDirectly(tabId);
+    };
+
+    // Handle cancel from confirmation modal
+    const handleCancelClose = () => {
+        setSaveConfirmModal({ isOpen: false, tabId: null });
     };
 
     const handleLinkClicked = (articleCode) => {
@@ -286,7 +340,14 @@ export default function AppContextProvider({ children }) {
         translate: t,
         editorSettings,
         setEditorSettings,
-        isMac
+        isMac,
+        // Editable tab confirmation
+        registerEditableTab,
+        unregisterEditableTab,
+        saveConfirmModal,
+        handleSaveAndClose,
+        handleDiscardAndClose,
+        handleCancelClose
     };
 
     return (

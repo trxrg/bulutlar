@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../../../../store/app-context';
 
-const DateSectionHeader = React.memo(({ month, year, isSticky = false }) => {
+const DateSectionHeader = React.memo(({ month, year, isSticky = false, centerPosition }) => {
     const { translate: t } = useContext(AppContext);
 
     const monthNames = [
@@ -15,9 +15,11 @@ const DateSectionHeader = React.memo(({ month, year, isSticky = false }) => {
     if (isSticky) {
         return (
             <div 
-                className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-full shadow-lg transition-all duration-300"
+                className="fixed z-50 px-4 py-2 rounded-full shadow-lg transition-all duration-300"
                 style={{
                     top: '190px',
+                    left: centerPosition ? `${centerPosition}px` : '50%',
+                    transform: 'translateX(-50%)',
                     backgroundColor: 'var(--bg-secondary)',
                     color: 'var(--text-primary)',
                     border: '1px solid var(--border-primary)',

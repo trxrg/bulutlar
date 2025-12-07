@@ -20,6 +20,7 @@ const SearchResultsBody = React.memo(() => {
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [currentDateSection, setCurrentDateSection] = useState(null);
     const [showStickyDate, setShowStickyDate] = useState(false);
+    const [stickyDateCenter, setStickyDateCenter] = useState(null);
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -82,6 +83,10 @@ const SearchResultsBody = React.memo(() => {
                 const [year, month] = currentSection.split('-').map(Number);
                 setCurrentDateSection({ month, year });
                 setShowStickyDate(true);
+                
+                // Calculate center position of the container for the sticky header
+                const containerRect = scrollableParent.getBoundingClientRect();
+                setStickyDateCenter(containerRect.left + containerRect.width / 2);
             } else {
                 setShowStickyDate(false);
             }
@@ -359,6 +364,7 @@ const SearchResultsBody = React.memo(() => {
                             month={currentDateSection.month} 
                             year={currentDateSection.year}
                             isSticky={true}
+                            centerPosition={stickyDateCenter}
                         />
                     )}
 

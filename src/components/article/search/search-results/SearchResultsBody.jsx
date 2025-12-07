@@ -1,8 +1,9 @@
-import React, { useEffect, useContext, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useContext, useMemo, useState, useRef, useCallback } from 'react';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Tooltip from '@mui/material/Tooltip';
 
 import ArticleShort from './ArticleShort.jsx';
+import DateSectionHeader from './DateSectionHeader.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
 import { DBContext } from '../../../../store/db-context.jsx';
 import { SearchContext } from '../../../../store/search-context.jsx';
@@ -11,12 +12,14 @@ import toastr from 'toastr';
 
 const SearchResultsBody = React.memo(() => {
     const { handleAddTab, translate: t } = useContext(AppContext);
-    const { allArticles, getOwnerById, getTagById, getCategoryById, getGroupById } = useContext(DBContext);
+    const { allArticles, getOwnerById, getTagById, getCategoryById, getGroupById, articleOrder } = useContext(DBContext);
     const { filtering, filteredArticles, setFilteredArticles,
         searchInTitle, searchInExplanation,
         searchInMainText, searchInComments } = useContext(SearchContext);
 
     const [showScrollTop, setShowScrollTop] = useState(false);
+    const [currentDateSection, setCurrentDateSection] = useState(null);
+    const [showStickyDate, setShowStickyDate] = useState(false);
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -27,7 +30,15 @@ const SearchResultsBody = React.memo(() => {
         applyFiltering(allArticles, filtering);
     }, [allArticles, filtering]);
 
-    // Handle scroll event to show/hide scroll-to-top button
+    // Helper function to get month/year from article date
+    const getMonthYear = useCallback((dateString) => {
+        if (!dateString) return null;
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return null;
+        return { month: date.getMonth(), year: date.getFullYear() };
+    }, []);
+
+    // Handle scroll event to show/hide scroll-to-top button and update sticky date
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
@@ -36,12 +47,41 @@ const SearchResultsBody = React.memo(() => {
         if (!scrollableParent) return;
 
         const handleScroll = (e) => {
-            setShowScrollTop(e.target.scrollTop > 200);
+            const scrollTop = e.target.scrollTop;
+            setShowScrollTop(scrollTop > 200);
+
+            // Only show sticky date when sorting by date and scrolled down
+            if (articleOrder?.field !== 'date') {
+                setShowStickyDate(false);
+                return;
+            }
+
+            // Find which date section is currently in view
+            const sections = container.querySelectorAll('[data-date-section]');
+            let currentSection = null;
+
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                const containerRect = scrollableParent.getBoundingClientRect();
+                
+                // Check if section is at or above the top of the visible area
+                if (rect.top <= containerRect.top + 100) {
+                    currentSection = section.getAttribute('data-date-section');
+                }
+            });
+
+            if (currentSection && scrollTop > 100) {
+                const [year, month] = currentSection.split('-').map(Number);
+                setCurrentDateSection({ month, year });
+                setShowStickyDate(true);
+            } else {
+                setShowStickyDate(false);
+            }
         };
 
         scrollableParent.addEventListener('scroll', handleScroll);
         return () => scrollableParent.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [articleOrder]);
 
     const scrollToTop = () => {
         const container = containerRef.current;
@@ -245,6 +285,44 @@ const SearchResultsBody = React.memo(() => {
             allKeywords.push(filtering.quickSearchTerm.trim());
         }
 
+        // If sorting by date, group articles by month/year
+        if (articleOrder?.field === 'date') {
+            const result = [];
+            let lastMonthYear = null;
+
+            filteredArticles.forEach((art) => {
+                const monthYear = getMonthYear(art.date);
+                
+                // Add date section header when month/year changes
+                if (monthYear) {
+                    const currentKey = `${monthYear.year}-${monthYear.month}`;
+                    if (lastMonthYear !== currentKey) {
+                        result.push(
+                            <DateSectionHeader 
+                                key={`section-${currentKey}`} 
+                                month={monthYear.month} 
+                                year={monthYear.year}
+                            />
+                        );
+                        lastMonthYear = currentKey;
+                    }
+                }
+
+                result.push(
+                    <ArticleShort
+                        handleClick={handleAddTab}
+                        key={art.id}
+                        article={art}
+                        keywords={allKeywords.length > 0 ? allKeywords : null}
+                        dangerouslySetInnerHTML={{ __html: art.title }}
+                    />
+                );
+            });
+
+            return result;
+        }
+
+        // Default rendering without date grouping
         return filteredArticles.map(art => (
             <ArticleShort
                 handleClick={handleAddTab}
@@ -254,7 +332,7 @@ const SearchResultsBody = React.memo(() => {
                 dangerouslySetInnerHTML={{ __html: art.title }}
             />
         ));
-    }, [filteredArticles, handleAddTab, filtering.keywords, filtering.quickSearchTerm]);
+    }, [filteredArticles, handleAddTab, filtering.keywords, filtering.quickSearchTerm, articleOrder, getMonthYear]);
 
     return (
         <>
@@ -264,6 +342,15 @@ const SearchResultsBody = React.memo(() => {
                 </div> :
                 <div ref={containerRef} className='flex flex-col gap-5 p-5 relative'>
                     {articlesList}
+
+                    {/* Sticky date header - shows current month/year while scrolling */}
+                    {showStickyDate && currentDateSection && (
+                        <DateSectionHeader 
+                            month={currentDateSection.month} 
+                            year={currentDateSection.year}
+                            isSticky={true}
+                        />
+                    )}
 
                     {/* Scroll to top button */}
                     <Tooltip title={t('Scroll to top') || 'Scroll to top'} arrow placement="left">

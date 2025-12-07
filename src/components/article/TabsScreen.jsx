@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import SearchScreen from './search/SearchScreen.jsx';
 import { AppContext } from '../../store/app-context.jsx'
 import { DBContext } from '../../store/db-context.jsx';
@@ -29,8 +29,75 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+// Tab Context Menu Component
+const TabContextMenu = ({ x, y, onClose, onCloseTab, onCloseOthers, onCloseAll, onCloseToRight, isSearchTab, t }) => {
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onClose]);
+
+  const menuItems = [
+    { label: t('close tab'), action: onCloseTab, disabled: isSearchTab },
+    { label: t('close other tabs'), action: onCloseOthers },
+    { label: t('close tabs to the right'), action: onCloseToRight },
+    { type: 'divider' },
+    { label: t('close all tabs'), action: onCloseAll },
+  ];
+
+  return (
+    <div
+      ref={menuRef}
+      className="fixed z-50 min-w-48 py-1 rounded-md shadow-lg"
+      style={{
+        left: x,
+        top: y,
+        backgroundColor: 'var(--bg-primary)',
+        border: '1px solid var(--border-color)',
+      }}
+    >
+      {menuItems.map((item, index) => (
+        item.type === 'divider' ? (
+          <div key={index} className="my-1 border-t" style={{ borderColor: 'var(--border-color)' }} />
+        ) : (
+          <button
+            key={index}
+            className="w-full px-4 py-2 text-left text-sm hover:bg-opacity-10 hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ color: 'var(--text-primary)' }}
+            onClick={() => {
+              item.action();
+              onClose();
+            }}
+            disabled={item.disabled}
+          >
+            {item.label}
+          </button>
+        )
+      ))}
+    </div>
+  );
+};
+
 // Sortable Tab Component
-const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
+const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, onContextMenu, getTitle }) => {
   const {
     attributes,
     listeners,
@@ -47,9 +114,15 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
     boxShadow: isActive ? '0 2px 8px rgba(0,0,0,0.15), 0 0 8px rgba(0,0,0,0.10)' : 'none',
   };
 
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    onContextMenu(e, tab.id);
+  };
+
   return (
     <div
       ref={setNodeRef}
+      data-tab-id={tab.id}
       className="group min-w-60 py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent tab-item focus:outline-none relative text-left"
       style={{
         backgroundColor: isActive ? 'var(--bg-primary)' : 'var(--bg-secondary)',
@@ -60,6 +133,7 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
         ...style
       }}
       onClick={() => onTabClick(tab.id)}
+      onContextMenu={handleContextMenu}
       {...attributes}
       {...listeners}
     >
@@ -81,13 +155,23 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, getTitle }) => {
 
 const TabsScreen = () => {
   const { 
-    activeTabId, setActiveTabId, closeTab, reorderTabs, tabs, translate: t, setActiveScreen, isMac,
+    activeTabId, setActiveTabId, closeTab, closeAllTabs, closeOtherTabs, closeTabsToRight,
+    reorderTabs, tabs, translate: t, setActiveScreen, isMac,
     saveConfirmModal, handleSaveAndClose, handleDiscardAndClose, handleCancelClose
   } = useContext(AppContext);
   const { allArticles, fetchAllData } = useContext(DBContext);
   
   // Track the previous tab to enable toggling back from search
   const previousTabIdRef = useRef(null);
+  
+  // Ref for the tab container to enable scrolling
+  const tabContainerRef = useRef(null);
+  
+  // Track previous tabs count to detect new tabs
+  const prevTabsCountRef = useRef(tabs.length);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState({ isOpen: false, x: 0, y: 0, tabId: null });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -145,10 +229,68 @@ const TabsScreen = () => {
     await fetchAllData();
   }
 
+  // Context menu handlers
+  const handleContextMenu = (e, tabId) => {
+    setContextMenu({
+      isOpen: true,
+      x: e.clientX,
+      y: e.clientY,
+      tabId
+    });
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu({ isOpen: false, x: 0, y: 0, tabId: null });
+  };
+
+  const handleCloseTabFromMenu = () => {
+    if (contextMenu.tabId && contextMenu.tabId !== 'search') {
+      closeTab(contextMenu.tabId);
+    }
+  };
+
+  const handleCloseOthers = () => {
+    closeOtherTabs(contextMenu.tabId);
+  };
+
+  const handleCloseAll = () => {
+    closeAllTabs();
+  };
+
+  const handleCloseToRight = () => {
+    closeTabsToRight(contextMenu.tabId);
+  };
+
   // Track previous tab (excluding search tab)
   useEffect(() => {
     if (activeTabId !== 'search') {
       previousTabIdRef.current = activeTabId;
+    }
+  }, [activeTabId]);
+
+  // Scroll to new tab when tabs are added
+  useEffect(() => {
+    if (tabs.length > prevTabsCountRef.current && tabContainerRef.current) {
+      // A new tab was added, scroll to the end
+      tabContainerRef.current.scrollTo({
+        left: tabContainerRef.current.scrollWidth,
+        behavior: 'smooth'
+      });
+    }
+    prevTabsCountRef.current = tabs.length;
+  }, [tabs.length]);
+
+  // Scroll to active tab when it changes (for keyboard navigation)
+  useEffect(() => {
+    if (!tabContainerRef.current || !activeTabId) return;
+    
+    const activeTabElement = tabContainerRef.current.querySelector(`[data-tab-id="${activeTabId}"]`);
+    if (activeTabElement) {
+      activeTabElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest'
+      });
     }
   }, [activeTabId]);
 
@@ -222,6 +364,7 @@ const TabsScreen = () => {
         {/* Top-aligned tabs */}
         <div className='flex flex-shrink-0 justify-between' style={{ backgroundColor: 'var(--bg-tertiary)' }}>
           <div 
+            ref={tabContainerRef}
             className="flex flex-1 overflow-x-auto overflow-y-hidden relative tab-container"
             style={{ 
               scrollbarWidth: 'thin',
@@ -241,6 +384,7 @@ const TabsScreen = () => {
                   isActive={activeTabId === tab.id}
                   onTabClick={handleTabClick}
                   onCloseTab={closeTab}
+                  onContextMenu={handleContextMenu}
                   getTitle={getTitle}
                 />
               ))}
@@ -276,6 +420,21 @@ const TabsScreen = () => {
         onSave={handleSaveAndClose}
         onDiscard={handleDiscardAndClose}
       />
+
+      {/* Tab context menu */}
+      {contextMenu.isOpen && (
+        <TabContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={closeContextMenu}
+          onCloseTab={handleCloseTabFromMenu}
+          onCloseOthers={handleCloseOthers}
+          onCloseAll={handleCloseAll}
+          onCloseToRight={handleCloseToRight}
+          isSearchTab={contextMenu.tabId === 'search'}
+          t={t}
+        />
+      )}
     </div>
     </>
   );

@@ -315,12 +315,45 @@ export default function AppContextProvider({ children }) {
         setTabs(newTabs);
     }
 
+    // Close all tabs except search
+    const closeAllTabs = () => {
+        const searchTab = tabs.find(tab => tab.id === 'search');
+        setTabs(searchTab ? [searchTab] : [{ id: 'search', title: 'Search' }]);
+        setActiveTabId('search');
+    }
+
+    // Close all tabs except the specified one and search
+    const closeOtherTabs = (keepTabId) => {
+        const newTabs = tabs.filter(tab => tab.id === 'search' || tab.id === keepTabId);
+        setTabs(newTabs);
+        // If the kept tab exists, make it active
+        if (keepTabId && newTabs.some(tab => tab.id === keepTabId)) {
+            setActiveTabId(keepTabId);
+        }
+    }
+
+    // Close tabs to the right of the specified tab
+    const closeTabsToRight = (tabId) => {
+        const tabIndex = tabs.findIndex(tab => tab.id === tabId);
+        if (tabIndex === -1) return;
+        
+        // Keep tabs up to and including the specified tab, but also keep search if it's to the right
+        const newTabs = tabs.filter((tab, index) => {
+            if (tab.id === 'search') return true;
+            return index <= tabIndex;
+        });
+        setTabs(newTabs);
+    }
+
     const ctxValue = {
         linkClicked: handleLinkClicked,
         activeTabId,
         setActiveTabId,
         addTab: handleAddTab,
         closeTab: handleCloseTab,
+        closeAllTabs,
+        closeOtherTabs,
+        closeTabsToRight,
         reorderTabs,
         tabs,
         activeScreen,

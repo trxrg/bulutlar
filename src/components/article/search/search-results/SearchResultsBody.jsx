@@ -38,6 +38,14 @@ const SearchResultsBody = React.memo(() => {
         return { month: date.getMonth(), year: date.getFullYear() };
     }, []);
 
+    // Reset sticky date state when sorting method changes
+    useEffect(() => {
+        if (articleOrder?.field !== 'date') {
+            setShowStickyDate(false);
+            setCurrentDateSection(null);
+        }
+    }, [articleOrder]);
+
     // Handle scroll event to show/hide scroll-to-top button and update sticky date
     useEffect(() => {
         const container = containerRef.current;
@@ -289,8 +297,9 @@ const SearchResultsBody = React.memo(() => {
         if (articleOrder?.field === 'date') {
             const result = [];
             let lastMonthYear = null;
+            let sectionIndex = 0;
 
-            filteredArticles.forEach((art) => {
+            filteredArticles.forEach((art, index) => {
                 const monthYear = getMonthYear(art.date);
                 
                 // Add date section header when month/year changes
@@ -299,12 +308,13 @@ const SearchResultsBody = React.memo(() => {
                     if (lastMonthYear !== currentKey) {
                         result.push(
                             <DateSectionHeader 
-                                key={`section-${currentKey}`} 
+                                key={`section-${sectionIndex}-${currentKey}`} 
                                 month={monthYear.month} 
                                 year={monthYear.year}
                             />
                         );
                         lastMonthYear = currentKey;
+                        sectionIndex++;
                     }
                 }
 

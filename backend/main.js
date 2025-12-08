@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { app, BrowserWindow, protocol } from 'electron';
+import { app, BrowserWindow, protocol, session } from 'electron';
 import { readFile } from 'fs/promises';
 import fs from 'fs';
 import isDev from 'electron-is-dev';
@@ -40,6 +40,7 @@ const createWindow = () => {
       sandbox: true, // Re-enable sandbox for security
       webSecurity: true, // Keep web security disabled
       nodeIntegration: false,
+      cache: false, // Disable cache completely
     },
   })
 
@@ -107,6 +108,12 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 app.whenReady().then(async () => {
+  // Clear all cache and storage data on startup to prevent stale content
+  console.log('🧹 Clearing cache and storage data...');
+  await session.defaultSession.clearCache();
+  await session.defaultSession.clearStorageData();
+  console.log('✅ Cache cleared successfully');
+
   // Register a modern file protocol handler using protocol.handle with streaming support
   protocol.handle('media-file', async (request) => {
     try {

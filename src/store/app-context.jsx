@@ -255,6 +255,7 @@ export default function AppContextProvider({ children }) {
     }
 
     const beforeDeleteArticle = async (id) => {
+        unregisterEditableTab(id); // Unregister from edit mode before closing to avoid save confirmation
         handleCloseTab(id);
         setActiveScreen('tabs');
     }

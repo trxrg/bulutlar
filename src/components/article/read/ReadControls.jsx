@@ -16,8 +16,14 @@ import toastr from 'toastr';
 
 const ReadControls = () => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef } = useContext(ReadContext);
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings } = useContext(AppContext);
+    
+    // Wrapper to capture scroll before toggling fullscreen
+    const toggleFullScreen = (newFullScreen) => {
+        beforeFullScreenToggleRef.current?.();
+        setFullScreen(newFullScreen);
+    };
     const { fetchArticleById } = useContext(DBContext);
 
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
@@ -328,11 +334,11 @@ const ReadControls = () => {
                         </FormatButton>
                     }
                     {fullScreen ?
-                        <FormatButton onClick={() => setFullScreen(false)} title={t('exit full screen')}>
+                        <FormatButton onClick={() => toggleFullScreen(false)} title={t('exit full screen')}>
                             <ArrowsPointingInIcon className="w-5 h-5" />
                         </FormatButton>
                         :
-                        <FormatButton onClick={() => setFullScreen(true)} title={t('full screen')}>
+                        <FormatButton onClick={() => toggleFullScreen(true)} title={t('full screen')}>
                             <ArrowsPointingOutIcon className="w-5 h-5" />
                         </FormatButton>}
                     {rightPanelCollapsed ?

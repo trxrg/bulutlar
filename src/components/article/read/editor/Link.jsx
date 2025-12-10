@@ -21,6 +21,7 @@ const Link = (props) => {
 
     const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
+    const [rightClickPosition, setRightClickPosition] = useState({ x: 10, y: 10 });
     const [infoMenuIsOpen, setInfoMenuIsOpen] = useState(false);
     const [article, setArticle] = useState(null);
     const [url, setUrl] = useState(null);
@@ -56,6 +57,7 @@ const Link = (props) => {
 
     const handleRightClick = (e) => {
         e.preventDefault();
+        setRightClickPosition({ x: e.clientX, y: e.clientY });
         setContextMenuIsOpen(true);
     };
 
@@ -94,37 +96,18 @@ const Link = (props) => {
         setInfoMenuIsOpen(false);
     };
 
-    const calculateContextMenuPosition = (e) => {
+    const calculateContextMenuPosition = () => {
         if (linkRef.current) {
             const rect = linkRef.current.getBoundingClientRect();
-            const rectParent = linkRef.current.parentElement.getBoundingClientRect();
             
-            // Calculate initial position
-            let x = rect.left - rectParent.left;
-            const y = rect.top - rectParent.top + rect.height;
+            // Use viewport coordinates for fixed positioning
+            let x = rect.left;
+            const y = rect.bottom;
             
-            // Find the content container (the middle pane in splitpane layout)
-            // Look for the BodyWithFixedHeader container which represents the content area
-            let contentContainer = linkRef.current;
-            while (contentContainer && !contentContainer.querySelector('[class*="leading-loose"]')) {
-                contentContainer = contentContainer.parentElement;
-                // Stop if we reach the body to avoid infinite loop
-                if (contentContainer === document.body) break;
-            }
-            
-            // Get the available width of the content area
-            const contentBounds = contentContainer ? contentContainer.getBoundingClientRect() : rectParent;
-            const availableWidth = contentBounds.width;
-            
-            // Estimate menu width (you can adjust this value based on your typical menu content)
+            // Estimate menu width and ensure it doesn't go off-screen
             const estimatedMenuWidth = 300;
-            
-            // Check if menu would extend beyond the right edge of the content area
-            if (rect.left - contentBounds.left + estimatedMenuWidth > availableWidth) {
-                // Position menu to the left of the link instead
-                x = rect.right - rectParent.left - estimatedMenuWidth;
-                // Ensure it doesn't go beyond the left edge
-                x = Math.max(0, x);
+            if (x + estimatedMenuWidth > window.innerWidth) {
+                x = Math.max(10, window.innerWidth - estimatedMenuWidth - 10);
             }
             
             setContextMenuPosition({ x, y });
@@ -140,7 +123,7 @@ const Link = (props) => {
                 </span>
                 <ContextMenu isOpen={contextMenuIsOpen}
                     onClose={() => setContextMenuIsOpen(false)}
-                    position={{ top: 20, left: 0 }}>
+                    position={{ top: rightClickPosition.y, left: rightClickPosition.x }}>
                     <div className='flex flex-col'>
                         <ActionButton color={'red'} onClick={handleRemoveLink}>
                             {t('remove link')}

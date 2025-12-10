@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import SplitPane from 'react-split-pane';
 import ReadLeftPanel from './ReadLeftPanel';
 import { ReadContext } from '../../../store/read-context';
@@ -15,12 +15,45 @@ import { DBContext } from '../../../store/db-context';
 
 const ReadBody = () => {
 
-  const { leftPanelCollapsed, rightPanelCollapsed, article, getOwnerName, getCategoryName } = useContext(ReadContext);
+  const { leftPanelCollapsed, rightPanelCollapsed, article, getOwnerName, getCategoryName, beforeFullScreenToggleRef } = useContext(ReadContext);
   const { fullScreen, setFullScreen, translate: t } = useContext(AppContext);
   const { fetchArticleById } = useContext(DBContext);
 
   const [containerWidth, setContainerWidth] = useState(window.innerWidth);
   const [headerVisible, setHeaderVisible] = useState(false);
+  
+  // Refs for scroll containers
+  const fullscreenScrollRef = useRef(null);
+  const normalScrollRef = useRef(null);
+  
+  // Store scroll position info when switching modes
+  const scrollPositionRef = useRef({ scrollRatio: 0 });
+
+  // Function to capture scroll position (simple ratio-based)
+  const captureScrollPosition = () => {
+    const container = fullScreen ? fullscreenScrollRef.current : normalScrollRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const maxScroll = scrollHeight - clientHeight;
+    scrollPositionRef.current = {
+      scrollRatio: maxScroll > 0 ? scrollTop / maxScroll : 0
+    };
+  };
+
+  // Set the callback in context so ReadControls can call it
+  useEffect(() => {
+    beforeFullScreenToggleRef.current = captureScrollPosition;
+    return () => {
+      beforeFullScreenToggleRef.current = null;
+    };
+  }, [fullScreen]);
+
+  // Wrapper to capture scroll before toggling fullscreen
+  const toggleFullScreen = (newFullScreen) => {
+    captureScrollPosition();
+    setFullScreen(newFullScreen);
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -37,7 +70,7 @@ const ReadBody = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && fullScreen) {
-        setFullScreen(false);
+        toggleFullScreen(false);
       }
     };
 
@@ -45,7 +78,37 @@ const ReadBody = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [fullScreen, setFullScreen]);
+  }, [fullScreen]);
+
+  // Restore scroll position after fullscreen change
+  useEffect(() => {
+    const container = fullScreen ? fullscreenScrollRef.current : normalScrollRef.current;
+    const { scrollRatio } = scrollPositionRef.current;
+    
+    if (!container || scrollRatio === 0) return;
+
+    // Restore scroll position using ratio
+    const restoreScroll = () => {
+      const { scrollHeight, clientHeight } = container;
+      const maxScroll = scrollHeight - clientHeight;
+      container.scrollTop = scrollRatio * maxScroll;
+    };
+
+    // Initial restore
+    restoreScroll();
+
+    // Keep adjusting as images load (content size changes)
+    const observer = new ResizeObserver(restoreScroll);
+    observer.observe(container);
+
+    // Stop observing after 2 seconds (images should be loaded by then)
+    const timeoutId = setTimeout(() => observer.disconnect(), 2000);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeoutId);
+    };
+  }, [fullScreen]);
 
   // Handle mouse move for hover header
   const handleMouseMove = (e) => {
@@ -118,7 +181,7 @@ const ReadBody = () => {
             
             {/* Right - Exit button */}
             <button
-              onClick={() => setFullScreen(false)}
+              onClick={() => toggleFullScreen(false)}
               className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors hover:bg-opacity-80'
               style={{ 
                 backgroundColor: 'var(--bg-primary)',
@@ -134,13 +197,13 @@ const ReadBody = () => {
         </div>
 
         {/* Main content */}
-        <div className='h-full overflow-auto pt-4 px-4'>
+        <div ref={fullscreenScrollRef} className='h-full overflow-auto pt-4 px-4'>
           <ReadContent />
         </div>
 
         {/* Floating exit button at bottom right (always visible) */}
         <button
-          onClick={() => setFullScreen(false)}
+          onClick={() => toggleFullScreen(false)}
           className='fixed bottom-6 right-6 p-3 rounded-full shadow-lg transition-all hover:scale-110'
           style={{ 
             backgroundColor: 'var(--bg-secondary)',
@@ -176,7 +239,7 @@ const ReadBody = () => {
             <ReadLeftPanel />
           </div>
           <div className='h-full'>
-            <BodyWithFixedHeader >
+            <BodyWithFixedHeader scrollRef={normalScrollRef}>
               <ReadControls />
               <ReadContent />
             </BodyWithFixedHeader>

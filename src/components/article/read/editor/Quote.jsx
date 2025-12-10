@@ -27,7 +27,7 @@ const Quote = (props) => {
 
     const handleRightClick = (e) => {
         e.preventDefault();
-        // setContextMenuPosition({ x: e.clientX, y: e.clientY });
+        setContextMenuPosition({ x: e.clientX, y: e.clientY });
         setContextMenuIsOpen(true);
     };
 
@@ -61,7 +61,7 @@ const Quote = (props) => {
                 </span>
                 <ContextMenu isOpen={contextMenuIsOpen}
                     onClose={() => setContextMenuIsOpen(false)}
-                    position={{ top: contextMenuPosition.y, left: 0 }}>
+                    position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                     <div className='flex flex-col'>
                         <ActionButton color={'red'} onClick={handleRemoveQuote}>
                             {t('remove quote')}

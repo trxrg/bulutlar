@@ -29,6 +29,8 @@ export default function ReadContextProvider({ children, article }) {
     const articleId = article.id;
 
     const readContentRef = useRef();
+    // Ref to store callback for capturing scroll before fullscreen toggle
+    const beforeFullScreenToggleRef = useRef(null);
 
     const fontSizes = ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl', 'text-4xl', 'text-5xl', 'text-6xl', 'text-7xl'];
 
@@ -274,7 +276,8 @@ export default function ReadContextProvider({ children, article }) {
         scrollToNextHighlight,
         scrollToPreviousHighlight,
         scrollToHighlight,
-        getHighlightInfo
+        getHighlightInfo,
+        beforeFullScreenToggleRef
     };
 
     return <ReadContext.Provider value={ctxValue}>

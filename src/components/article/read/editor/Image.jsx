@@ -39,14 +39,8 @@ const Image = (props) => {
 
     const handleRightClick = (e) => {
         e.preventDefault();
-
-        const grandParentRect = e.currentTarget.getBoundingClientRect();
-
-        const posx = e.clientX - grandParentRect.left;
-        const posy = e.clientY - grandParentRect.top;
-
         setContextMenuIsOpen(true);
-        setContextMenuPosition({ x: posx, y: posy });
+        setContextMenuPosition({ x: e.clientX, y: e.clientY });
     }
 
     const handleDeleteImage = async () => {

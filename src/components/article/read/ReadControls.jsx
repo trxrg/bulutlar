@@ -9,6 +9,8 @@ import ConfirmModal from '../../common/ConfirmModal.jsx';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
 import ArticlePreferencesModal from '../modals/ArticlePreferencesModal.jsx';
 import ExportModal from '../modals/ExportModal.jsx';
@@ -17,7 +19,7 @@ import toastr from 'toastr';
 const ReadControls = () => {
 
     const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef } = useContext(ReadContext);
-    const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings } = useContext(AppContext);
+    const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings, activeTabId } = useContext(AppContext);
     
     // Wrapper to capture scroll before toggling fullscreen
     const toggleFullScreen = (newFullScreen) => {
@@ -51,6 +53,12 @@ const ReadControls = () => {
     const handleStarClick = async (e) => {
         e.stopPropagation();
         await articleApi.setIsStarred(article.id, !article.isStarred);
+        fetchArticleById(article.id);
+    }
+
+    const handleIsReadClick = async (e) => {
+        e.stopPropagation();
+        await articleApi.setIsRead(article.id, !article.isRead);
         fetchArticleById(article.id);
     }
 
@@ -93,8 +101,8 @@ const ReadControls = () => {
     // Keyboard event handler
     useEffect(() => {
         const handleKeyDown = (e) => {
-            // Ctrl+F or Cmd+F to open search
-            if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F')) {
+            // Ctrl+F or Cmd+F to open search - only if this tab is active
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F') && activeTabId === article.id) {
                 e.preventDefault();
                 
                 // Get selected text if any
@@ -139,7 +147,7 @@ const ReadControls = () => {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [searchBarOpen, t]);
+    }, [searchBarOpen, t, activeTabId, article.id]);
 
     const handleSearchInputChange = (e) => {
         const newValue = e.target.value;
@@ -297,11 +305,18 @@ const ReadControls = () => {
                 </div>
                 {/* right */}
                 <div className={'flex gap-1 ' + (fullScreen || ' flex-wrap')}>
-                    {fullScreen && <div onClick={handleStarClick} className='flex items-center px-1'>
+                    {fullScreen && <div onClick={handleStarClick} className='flex items-center px-1' title={article.isStarred ? t('starred') : t('starred')}>
                         {article.isStarred ? (
                             <StarIcon style={{ fontSize: '1.7rem', color: '#FFD700' }} className="hover:scale-125" />
                         ) : (
                             <StarBorderIcon style={{ fontSize: '1.7rem', color: '#B0B0B0' }} className="hover:scale-125" />
+                        )}
+                    </div>}
+                    {fullScreen && <div onClick={handleIsReadClick} className='flex items-center px-1' title={article.isRead ? t('mark as unread') : t('mark as read')}>
+                        {article.isRead ? (
+                            <CheckCircleIcon style={{ fontSize: '1.7rem', color: '#4CAF50' }} className="hover:scale-125" />
+                        ) : (
+                            <CheckCircleOutlineIcon style={{ fontSize: '1.7rem', color: '#B0B0B0' }} className="hover:scale-125" />
                         )}
                     </div>}
                     {!editable &&

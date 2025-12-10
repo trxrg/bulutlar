@@ -32,6 +32,8 @@ export default function SearchContextProvider({ children }) {
     const [startDate2, setStartDate2] = usePersistentState('startDate2', { day: '', month: '', year: '' });
     const [endDate2, setEndDate2] = usePersistentState('endDate2', { day: '', month: '', year: '' });
     const [filterStarred, setFilterStarred] = usePersistentState('filterStarred', false);
+    const [filterShowRead, setFilterShowRead] = usePersistentState('filterShowRead', false);
+    const [filterShowUnread, setFilterShowUnread] = usePersistentState('filterShowUnread', false);
     const [savedFilters, setSavedFilters] = usePersistentState('savedFilters', []);
 
     const [areArticlesSelectable, setArticlesSelectable] = useState(false);
@@ -72,6 +74,8 @@ export default function SearchContextProvider({ children }) {
         setStartDate2({ day: '', month: '', year: '' });
         setEndDate2({ day: '', month: '', year: '' });
         setFilterStarred(false);
+        setFilterShowRead(false);
+        setFilterShowUnread(false);
     };
 
     const saveFilter = (filterName) => {
@@ -91,6 +95,8 @@ export default function SearchContextProvider({ children }) {
                 startDate2,
                 endDate2,
                 filterStarred,
+                filterShowRead,
+                filterShowUnread,
             }
         };
         setSavedFilters([...savedFilters, newFilter]);
@@ -115,6 +121,8 @@ export default function SearchContextProvider({ children }) {
             setStartDate2(filter.filters.startDate2 || { day: '', month: '', year: '' });
             setEndDate2(filter.filters.endDate2 || { day: '', month: '', year: '' });
             setFilterStarred(filter.filters.filterStarred || false);
+            setFilterShowRead(filter.filters.filterShowRead || false);
+            setFilterShowUnread(filter.filters.filterShowUnread || false);
             toastr.success(t('filter applied'));
         }
     };
@@ -164,10 +172,12 @@ export default function SearchContextProvider({ children }) {
             numbers1: selectedNumbers1,
             numbers2: selectedNumbers2,
             filterStarred: filterStarred,
+            filterShowRead: filterShowRead,
+            filterShowUnread: filterShowUnread,
         });
     }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames,
         selectedGroupNames, selectedNumbers1, selectedNumbers2, keywords, quickSearchTerm, startDate,
-        endDate, startDate2, endDate2, filterStarred,
+        endDate, startDate2, endDate2, filterStarred, filterShowRead, filterShowUnread,
         searchInTitle, searchInExplanation, searchInMainText, searchInComments]);
 
     const ctxValue = {
@@ -217,6 +227,10 @@ export default function SearchContextProvider({ children }) {
         setSearchInComments,
         filterStarred,
         setFilterStarred,
+        filterShowRead,
+        setFilterShowRead,
+        filterShowUnread,
+        setFilterShowUnread,
         selectArticle,
         deselectArticle,
         selectedArticleIds,

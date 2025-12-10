@@ -9,7 +9,7 @@ const QuickSearchBar = () => {
     const [localSearchTerm, setLocalSearchTerm] = useState('');
     const searchInputRef = useRef(null);
     const { quickSearchTerm, setQuickSearchTerm } = useContext(SearchContext);
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, activeTabId } = useContext(AppContext);
 
     // Sync local search term with context on mount and when quickSearchTerm changes from external source
     useEffect(() => {
@@ -22,10 +22,11 @@ const QuickSearchBar = () => {
     // Add keyboard shortcut for focusing search bar
     useEffect(() => {
         const handleKeyDown = (e) => {
-            // Check for Ctrl+F (Windows/Linux) or Cmd+F (Mac)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            // Check for Ctrl+F (Windows/Linux) or Cmd+F (Mac) - only if search tab is active
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f' && activeTabId === 'search') {
                 e.preventDefault();
                 searchInputRef.current?.focus();
+                searchInputRef.current?.select();
             }
         };
 
@@ -33,7 +34,7 @@ const QuickSearchBar = () => {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, []);
+    }, [activeTabId]);
 
     const handleQuickSearch = () => {
         if (!localSearchTerm.trim()) {

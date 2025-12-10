@@ -49,6 +49,7 @@ function initService() {
     ipcMain.handle('article/addToGroup', async (event, id, groupName) => await addArticleToGroup(id, groupName));
     ipcMain.handle('article/removeFromGroup', async (event, id, groupId) => await removeArticleFromGroup(id, groupId));
     ipcMain.handle('article/setIsStarred', async (event, id, isStarred) => await setIsStarred(id, isStarred));
+    ipcMain.handle('article/setIsRead', async (event, id, isRead) => await setIsRead(id, isRead));
     ipcMain.handle('article/setIsDateUncertain', async (event, id, isDateUncertain) => await setIsDateUncertain(id, isDateUncertain));    
     ipcMain.handle('article/setOrdering', async (event, id, ordering) => await setOrdering(id, ordering));
     ipcMain.handle('article/updateRelatedArticleOrdering', async (event, articleId, relatedArticleId, ordering) => await updateRelatedArticleOrdering(articleId, relatedArticleId, ordering));
@@ -598,6 +599,20 @@ async function setIsStarred(id, isStarred) {
         await article.update({ isStarred });
     } catch (error) {
         console.error('Error in setIsStarred', error);
+        throw error;
+    }
+}
+
+async function setIsRead(id, isRead) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+
+        if (!article)
+            throw ('no article found with id: ' + id);
+
+        await article.update({ isRead });
+    } catch (error) {
+        console.error('Error in setIsRead', error);
         throw error;
     }
 }

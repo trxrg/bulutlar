@@ -32,6 +32,8 @@ const SearchFilterings = () => {
         selectedNumbers1, setSelectedNumbers1,
         selectedNumbers2, setSelectedNumbers2,
         filterStarred, setFilterStarred,
+        filterShowRead, setFilterShowRead,
+        filterShowUnread, setFilterShowUnread,
         saveFilter } = useContext(SearchContext);
 
     const [isSaveFilterModalOpen, setIsSaveFilterModalOpen] = useState(false);
@@ -62,6 +64,8 @@ const SearchFilterings = () => {
         setSelectedNumbers1([]);
         setSelectedNumbers2([]);
         setFilterStarred(false);
+        setFilterShowRead(false);
+        setFilterShowUnread(false);
     };
 
     return (
@@ -73,7 +77,7 @@ const SearchFilterings = () => {
                 />
 
                 <div className="h-full overflow-y-auto overflow-x-hidden">
-                    <div className='flex flex-col p-3' style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+                    <div className='flex flex-row flex-wrap p-3 gap-x-2' style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
                         <label className={'select-none cursor-pointer'}>
                             <Checkbox
                                 checked={filterStarred}
@@ -83,6 +87,32 @@ const SearchFilterings = () => {
                                 }}
                             />
                             {t('starred')}
+                        </label>
+                        <label className={'select-none cursor-pointer'}>
+                            <Checkbox
+                                checked={filterShowRead}
+                                onChange={(e) => {
+                                    setFilterShowRead(e.target.checked);
+                                    if (e.target.checked) setFilterShowUnread(false);
+                                }}
+                                sx={{
+                                    color: 'var(--text-primary)',
+                                }}
+                            />
+                            {t('read')}
+                        </label>
+                        <label className={'select-none cursor-pointer'}>
+                            <Checkbox
+                                checked={filterShowUnread}
+                                onChange={(e) => {
+                                    setFilterShowUnread(e.target.checked);
+                                    if (e.target.checked) setFilterShowRead(false);
+                                }}
+                                sx={{
+                                    color: 'var(--text-primary)',
+                                }}
+                            />
+                            {t('unread')}
                         </label>
                     </div>
                     <SavedFiltersAccordion />

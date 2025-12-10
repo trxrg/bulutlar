@@ -30,6 +30,7 @@ export const articleApi = {
     addToGroup:         async (id, groupName)           => window.api.article.addToGroup(id, groupName),
     removeFromGroup:    async (id, groupId)           => window.api.article.removeFromGroup(id, groupId),
     setIsStarred:       async (id, isStarred)         => window.api.article.setIsStarred(id, isStarred),
+    setIsRead:          async (id, isRead)            => window.api.article.setIsRead(id, isRead),
     setIsDateUncertain:       async (id, isDateUncertain)         => window.api.article.setIsDateUncertain(id, isDateUncertain),
     setOrdering:       async (id, ordering)         => window.api.article.setOrdering(id, ordering),
     updateRelatedArticleOrdering: async (articleId, relatedArticleId, ordering) => window.api.article.updateRelatedArticleOrdering(articleId, relatedArticleId, ordering),

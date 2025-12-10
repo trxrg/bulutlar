@@ -39,6 +39,7 @@ contextBridge.exposeInMainWorld('api', {
     addToGroup:       (id, groupName)         => ipcRenderer.invoke('article/addToGroup', id, groupName),
     removeFromGroup:  (id, groupId)           => ipcRenderer.invoke('article/removeFromGroup', id, groupId),
     setIsStarred:     (id, isStarred)         => ipcRenderer.invoke('article/setIsStarred', id, isStarred),
+    setIsRead:        (id, isRead)            => ipcRenderer.invoke('article/setIsRead', id, isRead),
     setIsDateUncertain:     (id, isDateUncertain)         => ipcRenderer.invoke('article/setIsDateUncertain', id, isDateUncertain),
     setOrdering:     (id, ordering)         => ipcRenderer.invoke('article/setOrdering', id, ordering),
     updateRelatedArticleOrdering: (articleId, relatedArticleId, ordering) => ipcRenderer.invoke('article/updateRelatedArticleOrdering', articleId, relatedArticleId, ordering),

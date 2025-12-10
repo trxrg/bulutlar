@@ -8,6 +8,8 @@ import { normalizeText, htmlToText, escapeRegExp } from '../../../../utils/textU
 import { articleApi } from '../../../../backend-adapter/BackendAdapter';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ArticleInfo from '../../ArticleInfo';
 
 const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
@@ -123,6 +125,16 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
         }
     }, [article.id, article.isStarred, fetchArticleById]);
 
+    const toggleRead = useCallback(async (e) => {
+        e.stopPropagation();
+        try {
+            await articleApi.setIsRead(article.id, !article.isRead);
+            await fetchArticleById(article.id);
+        } catch (error) {
+            console.error('Error updating read status:', error);
+        }
+    }, [article.id, article.isRead, fetchArticleById]);
+
     // Memoize highlighted content for performance
     const highlightedContent = useMemo(() => {
         if (!keywords) {
@@ -179,12 +191,21 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
             <div className='flex flex-1 flex-col overflow-hidden px-10 py-6 text-xl' onClick={(e) => handleClick(e, article.id)} style={{ color: 'var(--text-primary)' }}>
                 <div className='flex justify-between'>
                     <h2 className="text-2xl font-bold break-words" style={{ color: 'var(--text-primary)' }}>{keywords ? parse(highlightedTitle) : article.title}</h2>
-                    <div onClick={toggleStar} className='cursor-default'>
-                        {article.isStarred ? (
-                            <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="hover:scale-125" />
-                        ) : (
-                            <StarBorderIcon style={{ fontSize: '2rem', color: '#B0B0B0' }} className="hover:scale-125" />
-                        )}
+                    <div className='flex gap-2 flex-shrink-0'>
+                        <div onClick={toggleStar} className='cursor-pointer' title={t('starred')}>
+                            {article.isStarred ? (
+                                <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="hover:scale-125" />
+                            ) : (
+                                <StarBorderIcon style={{ fontSize: '2rem', color: '#B0B0B0' }} className="hover:scale-125" />
+                            )}
+                        </div>
+                        <div onClick={toggleRead} className='cursor-pointer' title={article.isRead ? t('mark as unread') : t('mark as read')}>
+                            {article.isRead ? (
+                                <CheckCircleIcon style={{ fontSize: '2rem', color: '#4CAF50' }} className="hover:scale-125" />
+                            ) : (
+                                <CheckCircleOutlineIcon style={{ fontSize: '2rem', color: '#B0B0B0' }} className="hover:scale-125" />
+                            )}
+                        </div>
                     </div>
                 </div>
                 <ArticleInfo article={article} isEditable={false} showReadTime={true} />

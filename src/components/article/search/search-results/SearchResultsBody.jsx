@@ -112,6 +112,13 @@ const SearchResultsBody = React.memo(() => {
         if (filtering.filterStarred)
             localFilteredArticles = localFilteredArticles.filter(art => art.isStarred);
 
+        // Filter by read status based on checkboxes (both unchecked = no filter)
+        if (filtering.filterShowRead && !filtering.filterShowUnread)
+            localFilteredArticles = localFilteredArticles.filter(art => art.isRead);
+        else if (!filtering.filterShowRead && filtering.filterShowUnread)
+            localFilteredArticles = localFilteredArticles.filter(art => !art.isRead);
+        // Both checked or both unchecked = show all (no filter)
+
         if (filtering.ownerNames && filtering.ownerNames.length)
             localFilteredArticles = localFilteredArticles.filter(art => art.ownerId && filtering.ownerNames.includes(getOwnerById(art.ownerId).name));
 

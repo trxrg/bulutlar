@@ -26,7 +26,7 @@ const ContextMenu = ({ isOpen, onClose, position, children }) => {
     return (
         <>
             {isOpen &&
-                <div className="absolute shadow-md p-1 rounded-md"
+                <div className="fixed shadow-md p-1 rounded-md"
                     style={{ 
                         top: `${position.top}px`, 
                         left: `${position.left}px`, 
@@ -34,7 +34,6 @@ const ContextMenu = ({ isOpen, onClose, position, children }) => {
                         backgroundColor: 'var(--bg-secondary)',
                         border: '5px solid var(--border-secondary)'
                     }}
-                    // style={{ top: 0, left: 0 }}
                     ref={contextMenuRef}>
                     {children}
                 </div>

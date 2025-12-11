@@ -124,131 +124,130 @@ const ReadBody = () => {
     fetchArticleById(article.id);
   };
 
-  // Fullscreen mode - render only ReadContent with a hover header
-  if (fullScreen) {
-    return (
-      <div 
-        className='fixed inset-0 z-50 overflow-auto'
-        style={{ backgroundColor: 'var(--bg-primary)' }}
-        onMouseMove={handleMouseMove}
-      >
-        {/* Hover Header */}
-        <div 
-          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${
-            headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'
-          }`}
-          style={{ 
-            backgroundColor: 'var(--bg-secondary)',
-            boxShadow: '0 4px 6px -1px var(--shadow)',
-          }}
-          onMouseEnter={() => setHeaderVisible(true)}
-          onMouseLeave={(e) => {
-            // Only hide if mouse is moving down (away from header)
-            if (e.clientY > 60) {
-              setHeaderVisible(false);
-            }
-          }}
-        >
-          <div className='flex items-center justify-between px-4 py-3'>
-            {/* Left - Article info */}
-            <div className='flex items-center gap-4'>
-              <div onClick={handleStarClick} className='flex items-center cursor-pointer'>
-                {article.isStarred ? (
-                  <StarIcon style={{ fontSize: '1.5rem', color: '#FFD700' }} className="hover:scale-125" />
-                ) : (
-                  <StarBorderIcon style={{ fontSize: '1.5rem', color: '#B0B0B0' }} className="hover:scale-125" />
-                )}
-              </div>
-              <div className='flex flex-col'>
-                <h2 
-                  className='text-lg font-semibold'
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {article.title}
-                </h2>
-                <div 
-                  className='flex gap-3 text-sm'
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  {!article.isDateUncertain && (
-                    <span>{new Date(article.date).toLocaleDateString('tr')}</span>
-                  )}
-                  {getOwnerName() && <span>• {getOwnerName()}</span>}
-                  {getCategoryName() && <span>• {getCategoryName()}</span>}
-                </div>
-              </div>
-            </div>
-            
-            {/* Right - Exit button */}
-            <button
-              onClick={() => toggleFullScreen(false)}
-              className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors hover:bg-opacity-80'
-              style={{ 
-                backgroundColor: 'var(--bg-primary)',
-                color: 'var(--text-primary)',
-                border: '1px solid var(--border-secondary)'
-              }}
-              title={t('exit full screen') + ' (ESC)'}
-            >
-              <ArrowsPointingInIcon className="w-5 h-5" />
-              <span className='text-sm'>{t('exit full screen')}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Main content */}
-        <div ref={fullscreenScrollRef} className='h-full overflow-auto pt-4 px-4'>
-          <ReadContent />
-        </div>
-
-        {/* Floating exit button at bottom right (always visible) */}
-        <button
-          onClick={() => toggleFullScreen(false)}
-          className='fixed bottom-6 right-6 p-3 rounded-full shadow-lg transition-all hover:scale-110'
-          style={{ 
-            backgroundColor: 'var(--bg-secondary)',
-            color: 'var(--text-primary)',
-            boxShadow: '0 4px 15px var(--shadow)'
-          }}
-          title={t('exit full screen') + ' (ESC)'}
-        >
-          <ArrowsPointingInIcon className="w-6 h-6" />
-        </button>
-      </div>
-    );
-  }
-
-  // Normal mode
+  // Main layout - ALWAYS render the same structure, use CSS to transform for fullscreen
+  // This ensures ReadContent is never unmounted when toggling fullscreen
   return (
     <div className='h-full relative'>
-      <SplitPane
-        split="vertical"
-        minSize={containerWidth * 0.6}
-        maxSize={containerWidth * 0.8}
-        size={rightPanelCollapsed ? '100%' : containerWidth * 0.8}
-        resizerStyle={rightPanelCollapsed ? { display: 'none' } : { background: 'var(--border-primary)', cursor: 'col-resize', width: '4px' }}
-      >
+      {/* Fullscreen overlay elements - only shown when fullscreen */}
+      {fullScreen && (
+        <>
+          {/* Hover Header */}
+          <div 
+            className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ease-in-out ${
+              headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'
+            }`}
+            style={{ 
+              backgroundColor: 'var(--bg-secondary)',
+              boxShadow: '0 4px 6px -1px var(--shadow)',
+            }}
+            onMouseEnter={() => setHeaderVisible(true)}
+            onMouseLeave={(e) => {
+              if (e.clientY > 60) {
+                setHeaderVisible(false);
+              }
+            }}
+          >
+            <div className='flex items-center justify-between px-4 py-3'>
+              <div className='flex items-center gap-4'>
+                <div onClick={handleStarClick} className='flex items-center cursor-pointer'>
+                  {article.isStarred ? (
+                    <StarIcon style={{ fontSize: '1.5rem', color: '#FFD700' }} className="hover:scale-125" />
+                  ) : (
+                    <StarBorderIcon style={{ fontSize: '1.5rem', color: '#B0B0B0' }} className="hover:scale-125" />
+                  )}
+                </div>
+                <div className='flex flex-col'>
+                  <h2 className='text-lg font-semibold' style={{ color: 'var(--text-primary)' }}>
+                    {article.title}
+                  </h2>
+                  <div className='flex gap-3 text-sm' style={{ color: 'var(--text-secondary)' }}>
+                    {!article.isDateUncertain && (
+                      <span>{new Date(article.date).toLocaleDateString('tr')}</span>
+                    )}
+                    {getOwnerName() && <span>• {getOwnerName()}</span>}
+                    {getCategoryName() && <span>• {getCategoryName()}</span>}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => toggleFullScreen(false)}
+                className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors hover:bg-opacity-80'
+                style={{ 
+                  backgroundColor: 'var(--bg-primary)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-secondary)'
+                }}
+                title={t('exit full screen') + ' (ESC)'}
+              >
+                <ArrowsPointingInIcon className="w-5 h-5" />
+                <span className='text-sm'>{t('exit full screen')}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Floating exit button */}
+          <button
+            onClick={() => toggleFullScreen(false)}
+            className='fixed bottom-6 right-6 z-[60] p-3 rounded-full shadow-lg transition-all hover:scale-110'
+            style={{ 
+              backgroundColor: 'var(--bg-secondary)',
+              color: 'var(--text-primary)',
+              boxShadow: '0 4px 15px var(--shadow)'
+            }}
+            title={t('exit full screen') + ' (ESC)'}
+          >
+            <ArrowsPointingInIcon className="w-6 h-6" />
+          </button>
+        </>
+      )}
+      
+      {/* Normal layout structure - always rendered to preserve ReadContent state */}
+      <div className='h-full'>
         <SplitPane
           split="vertical"
-          minSize={containerWidth * 0.1}
-          maxSize={containerWidth * 0.3}
-          size={leftPanelCollapsed ? '0%' : containerWidth * 0.2}
-          resizerStyle={leftPanelCollapsed ? { display: 'none' } : { background: 'var(--border-primary)', cursor: 'col-resize', width: '4px' }}
+          minSize={containerWidth * 0.6}
+          maxSize={containerWidth * 0.8}
+          size={rightPanelCollapsed ? '100%' : containerWidth * 0.8}
+          resizerStyle={rightPanelCollapsed || fullScreen ? { display: 'none' } : { background: 'var(--border-primary)', cursor: 'col-resize', width: '4px' }}
         >
-          <div className={`h-full transition-transform duration-300 ${leftPanelCollapsed ? 'transform -translate-x-full w-0 opacity-0' : 'w-full'}`}>
-            <ReadLeftPanel />
-          </div>
-          <div className='h-full'>
-            <BodyWithFixedHeader scrollRef={normalScrollRef}>
-              <ReadControls />
-              <ReadContent />
-            </BodyWithFixedHeader>
+          <SplitPane
+            split="vertical"
+            minSize={containerWidth * 0.1}
+            maxSize={containerWidth * 0.3}
+            size={leftPanelCollapsed ? '0%' : containerWidth * 0.2}
+            resizerStyle={leftPanelCollapsed || fullScreen ? { display: 'none' } : { background: 'var(--border-primary)', cursor: 'col-resize', width: '4px' }}
+          >
+            {/* Left panel - hidden visually in fullscreen but still rendered */}
+            <div className={`h-full transition-transform duration-300 ${leftPanelCollapsed || fullScreen ? 'transform -translate-x-full w-0 opacity-0' : 'w-full'}`}>
+              <ReadLeftPanel />
+            </div>
+            <div className='h-full'>
+              <BodyWithFixedHeader scrollRef={normalScrollRef}>
+                {/* ReadControls - hidden in fullscreen */}
+                <div className={fullScreen ? 'hidden' : ''}>
+                  <ReadControls />
+                </div>
+                {/* ReadContent wrapper - uses fixed positioning when fullscreen to overlay everything */}
+                <div 
+                  ref={fullscreenScrollRef}
+                  className={fullScreen 
+                    ? 'fixed inset-0 z-50 h-full overflow-auto pt-4 px-4' 
+                    : ''
+                  }
+                  style={fullScreen ? { backgroundColor: 'var(--bg-primary)' } : undefined}
+                  onMouseMove={fullScreen ? handleMouseMove : undefined}
+                >
+                  <ReadContent />
+                </div>
+              </BodyWithFixedHeader>
+            </div>
+          </SplitPane>
+          {/* Right panel - hidden visually in fullscreen but still rendered */}
+          <div className={`h-full transition-transform duration-300 ${rightPanelCollapsed || fullScreen ? 'transform translate-x-full w-0 opacity-0' : 'w-full'}`}>
+            <ReadRightPanel />
           </div>
         </SplitPane>
-        <div className={`h-full transition-transform duration-300 ${rightPanelCollapsed ? 'transform translate-x-full w-0 opacity-0' : 'w-full'}`}>
-          <ReadRightPanel />
-        </div>
-      </SplitPane>      
+      </div>
     </div>
   );
 };

@@ -157,7 +157,8 @@ const TabsScreen = () => {
   const { 
     activeTabId, setActiveTabId, closeTab, closeAllTabs, closeOtherTabs, closeTabsToRight,
     reorderTabs, tabs, translate: t, setActiveScreen, isMac,
-    saveConfirmModal, handleSaveAndClose, handleDiscardAndClose, handleCancelClose
+    saveConfirmModal, handleSaveAndClose, handleDiscardAndClose, handleCancelClose,
+    fullScreen
   } = useContext(AppContext);
   const { allArticles, fetchAllData } = useContext(DBContext);
   
@@ -361,8 +362,8 @@ const TabsScreen = () => {
         `}
       </style>
       <div className="h-full w-full flex flex-col" style={{ backgroundColor: 'var(--bg-primary)' }}>
-        {/* Top-aligned tabs */}
-        <div className='flex flex-shrink-0 justify-between' style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+        {/* Top-aligned tabs - hidden in fullscreen mode */}
+        <div className={`flex flex-shrink-0 justify-between ${fullScreen ? 'hidden' : ''}`} style={{ backgroundColor: 'var(--bg-tertiary)' }}>
           <div 
             ref={tabContainerRef}
             className="flex flex-1 overflow-x-auto overflow-y-hidden relative tab-container"

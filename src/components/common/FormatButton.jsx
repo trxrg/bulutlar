@@ -1,6 +1,10 @@
+import { useContext } from 'react';
 import Tooltip from '@mui/material/Tooltip';
+import { AppContext } from '../../store/app-context';
 
 const FormatButton = ({ onClick, onMouseDown, wfixed = true, title='', children, ...props }) => {
+    const { fullScreen } = useContext(AppContext);
+    
     const button = (
         <div {...props}>
             <button
@@ -15,6 +19,14 @@ const FormatButton = ({ onClick, onMouseDown, wfixed = true, title='', children,
 
     // If no title provided, return button without tooltip
     if (!title) {
+        return button;
+    }
+
+    // Skip Tooltip when in fullscreen mode to avoid MUI warnings.
+    // When parent components (like ReadControls or tabs bar) are hidden with display:none
+    // in fullscreen, MUI Tooltip's anchorEl becomes invalid and logs warnings:
+    // "The anchor element should be part of the document layout"
+    if (fullScreen) {
         return button;
     }
 

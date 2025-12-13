@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 const ContextMenu = ({ isOpen, onClose, position, children }) => {
 
@@ -23,22 +24,21 @@ const ContextMenu = ({ isOpen, onClose, position, children }) => {
     }, [isOpen]);
 
 
-    return (
-        <>
-            {isOpen &&
-                <div className="fixed shadow-md p-1 rounded-md"
-                    style={{ 
-                        top: `${position.top}px`, 
-                        left: `${position.left}px`, 
-                        zIndex: 1000,
-                        backgroundColor: 'var(--bg-secondary)',
-                        border: '5px solid var(--border-secondary)'
-                    }}
-                    ref={contextMenuRef}>
-                    {children}
-                </div>
-            }
-        </>
+    if (!isOpen) return null;
+
+    return createPortal(
+        <div className="fixed shadow-md p-1 rounded-md"
+            style={{ 
+                top: `${position.top}px`, 
+                left: `${position.left}px`, 
+                zIndex: 9999,
+                backgroundColor: 'var(--bg-secondary)',
+                border: '5px solid var(--border-secondary)'
+            }}
+            ref={contextMenuRef}>
+            {children}
+        </div>,
+        document.body
     );
 };
 

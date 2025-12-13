@@ -44,11 +44,12 @@ const DateSectionHeader = React.memo(({ month, year, isSticky = false, centerPos
                 style={{ backgroundColor: 'var(--border-secondary)' }}
             />
             <span 
-                className="text-sm font-medium px-3 py-1 rounded-full"
+                className="font-medium px-4 py-2 rounded-full"
                 style={{
                     backgroundColor: 'var(--bg-secondary)',
                     color: 'var(--text-secondary)',
-                    border: '1px solid var(--border-secondary)'
+                    border: '1px solid var(--border-secondary)',
+                    fontSize: '0.9rem'
                 }}
             >
                 {monthName} {year}

@@ -24,6 +24,10 @@ export default function AppContextProvider({ children }) {
         autosaveEnabled: false,
         autosaveInterval: 30 // seconds
     });
+    const [ttsSettings, setTtsSettings] = usePersistentState('ttsSettings', {
+        language: 'app',
+        voiceURI: 'auto'
+    });
     const [dataIsCleaned, setDataIsCleaned] = useState(false);
     const [isReadyToShow, setIsReadyToShow] = useState(false);
     const [loadingStartTime] = useState(Date.now());
@@ -55,7 +59,7 @@ export default function AppContextProvider({ children }) {
                 const timer = setTimeout(() => {
                     setIsReadyToShow(true);
                 }, remainingTime);
-                
+
                 return () => clearTimeout(timer);
             }
         }
@@ -70,18 +74,18 @@ export default function AppContextProvider({ children }) {
                 if (video) {
                     // Disable loop to prevent restart glitch
                     video.loop = false;
-                    
+
                     // Create smooth audio fade out
                     const fadeOutDuration = 2000; // 2 second fade out
                     const fadeOutSteps = 40;
                     const stepDuration = fadeOutDuration / fadeOutSteps;
                     let currentStep = 0;
-                    
+
                     const fadeOutInterval = setInterval(() => {
                         currentStep++;
                         const volume = Math.max(0, 1 - (currentStep / fadeOutSteps));
                         video.volume = volume;
-                        
+
                         if (currentStep >= fadeOutSteps) {
                             clearInterval(fadeOutInterval);
                             video.pause();
@@ -90,15 +94,15 @@ export default function AppContextProvider({ children }) {
                         }
                     }, stepDuration);
                 }
-                
+
                 // Apply transition first
                 initialLoader.style.transition = 'opacity 1s ease-out';
-                
+
                 // Small delay to ensure transition is applied
                 setTimeout(() => {
                     initialLoader.style.opacity = '0';
                 }, 10);
-                
+
                 // Remove completely after fade completes
                 setTimeout(() => {
                     initialLoader.style.display = 'none';
@@ -114,15 +118,15 @@ export default function AppContextProvider({ children }) {
 
     const cleanTabs = () => {
         // Filter out invalid tabs but preserve the order
-        const validTabs = tabs.filter(tab => 
+        const validTabs = tabs.filter(tab =>
             tab.id === 'search' || allArticles.some(article => article.id === tab.id)
         );
-        
+
         // Ensure search tab exists, but don't force it to be first
         if (!validTabs.some(tab => tab.id === 'search')) {
             validTabs.unshift({ id: 'search', title: 'Search' });
         }
-        
+
         setTabs(validTabs);
         if (!validTabs.map(tab => tab.id).includes(activeTabId))
             setActiveTabId('search');
@@ -196,7 +200,7 @@ export default function AppContextProvider({ children }) {
             setSaveConfirmModal({ isOpen: true, tabId });
             return;
         }
-        
+
         closeTabDirectly(tabId);
     };
 
@@ -204,11 +208,11 @@ export default function AppContextProvider({ children }) {
     const handleSaveAndClose = async () => {
         const tabId = saveConfirmModal.tabId;
         const tabInfo = editableTabsRef.current[tabId];
-        
+
         if (tabInfo && tabInfo.saveCallback) {
             await tabInfo.saveCallback();
         }
-        
+
         unregisterEditableTab(tabId);
         setSaveConfirmModal({ isOpen: false, tabId: null });
         closeTabDirectly(tabId);
@@ -337,7 +341,7 @@ export default function AppContextProvider({ children }) {
     const closeTabsToRight = (tabId) => {
         const tabIndex = tabs.findIndex(tab => tab.id === tabId);
         if (tabIndex === -1) return;
-        
+
         // Keep tabs up to and including the specified tab, but also keep search if it's to the right
         const newTabs = tabs.filter((tab, index) => {
             if (tab.id === 'search') return true;
@@ -376,6 +380,8 @@ export default function AppContextProvider({ children }) {
         translate: t,
         editorSettings,
         setEditorSettings,
+        ttsSettings,
+        setTtsSettings,
         isMac,
         // Editable tab confirmation
         registerEditableTab,

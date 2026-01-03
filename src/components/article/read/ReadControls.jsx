@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, SpeakerWaveIcon, FilmIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon, DocumentArrowDownIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, SpeakerWaveIcon, FilmIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon, DocumentArrowDownIcon, ArrowPathIcon, PlayIcon, PauseIcon, StopIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
@@ -15,12 +15,14 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
 import ArticlePreferencesModal from '../modals/ArticlePreferencesModal.jsx';
 import ExportModal from '../modals/ExportModal.jsx';
 import toastr from 'toastr';
+import useTTS from '../../../hooks/useTTS';
+import { htmlToText } from '../../../utils/textUtils';
 
 const ReadControls = () => {
 
     const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef } = useContext(ReadContext);
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings, activeTabId } = useContext(AppContext);
-    
+
     // Wrapper to capture scroll before toggling fullscreen
     const toggleFullScreen = (newFullScreen) => {
         beforeFullScreenToggleRef.current?.();
@@ -34,8 +36,10 @@ const ReadControls = () => {
     const [searchBarOpen, setSearchBarOpen] = useState(false);
     const [localSearchTerm, setLocalSearchTerm] = useState('');
     const [shouldScrollToFirst, setShouldScrollToFirst] = useState(false);
-    
+
     const searchInputRef = useRef(null);
+
+    const { speak, pause, resume, cancel, speaking, paused, supported } = useTTS();
 
     // Effect to scroll to first highlight when highlights become available
     useEffect(() => {
@@ -104,13 +108,13 @@ const ReadControls = () => {
             // Ctrl+F or Cmd+F to open search - only if this tab is active
             if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'F') && activeTabId === article.id) {
                 e.preventDefault();
-                
+
                 // Get selected text if any
                 const selection = window.getSelection();
-                const selectedText = selection && !selection.isCollapsed 
-                    ? selection.toString().trim() 
+                const selectedText = selection && !selection.isCollapsed
+                    ? selection.toString().trim()
                     : '';
-                
+
                 // If there's selected text, use it as the search term and trigger search
                 if (selectedText) {
                     setLocalSearchTerm(selectedText);
@@ -123,11 +127,11 @@ const ReadControls = () => {
                         setShouldScrollToFirst(true);
                     }, 50);
                 }
-                
+
                 if (!searchBarOpen) {
                     setSearchBarOpen(true);
                 }
-                
+
                 // Focus the search input and select all text
                 setTimeout(() => {
                     if (searchInputRef.current) {
@@ -136,7 +140,7 @@ const ReadControls = () => {
                     }
                 }, 50); // Increased timeout to ensure rendering is complete
             }
-            
+
             // Escape to close search
             if (e.key === 'Escape' && searchBarOpen) {
                 handleCloseSearchBar();
@@ -152,7 +156,7 @@ const ReadControls = () => {
     const handleSearchInputChange = (e) => {
         const newValue = e.target.value;
         setLocalSearchTerm(newValue);
-        
+
         // Clear the search term to remove highlights when user starts typing
         // Only if the new value is different from the current search term
         if (newValue !== searchTerm && searchTerm !== '') {
@@ -201,10 +205,10 @@ const ReadControls = () => {
     }
 
     return (
-        <div 
+        <div
             className='flex flex-col gap-2 shadow-lg p-2 items-center'
-            style={{ 
-                backgroundColor: fullScreen ? 'var(--bg-primary)' : 'var(--bg-secondary)', 
+            style={{
+                backgroundColor: fullScreen ? 'var(--bg-primary)' : 'var(--bg-secondary)',
                 boxShadow: '0 10px 15px -3px var(--shadow), 0 4px 6px -2px var(--shadow)',
                 position: 'relative',
                 zIndex: 10
@@ -232,6 +236,34 @@ const ReadControls = () => {
                         title={t('preferences')}>
                         <EllipsisHorizontalIcon className="w-5 h-5" />
                     </FormatButton>
+                    {supported && (
+                        <>
+                            {!speaking && !paused && (
+                                <FormatButton onClick={() => {
+                                    const text = htmlToText(article.text);
+                                    speak(text);
+                                }} title={t('listen')}>
+                                    <PlayIcon className="w-5 h-5" />
+                                </FormatButton>
+                            )}
+                            {(speaking || paused) && (
+                                <>
+                                    {paused ? (
+                                        <FormatButton onClick={resume} title={t('resume')}>
+                                            <PlayIcon className="w-5 h-5" />
+                                        </FormatButton>
+                                    ) : (
+                                        <FormatButton onClick={pause} title={t('pause')}>
+                                            <PauseIcon className="w-5 h-5" />
+                                        </FormatButton>
+                                    )}
+                                    <FormatButton onClick={cancel} title={t('stop')}>
+                                        <StopIcon className="w-5 h-5" />
+                                    </FormatButton>
+                                </>
+                            )}
+                        </>
+                    )}
                     {searchBarOpen && (
                         <>
                             <input
@@ -261,7 +293,7 @@ const ReadControls = () => {
                                 <FormatButton onClick={handlePreviousHighlight} title={t('previous match')}>
                                     <ChevronUpIcon className="w-5 h-5" />
                                 </FormatButton>
-                                <span 
+                                <span
                                     className="text-sm px-2 py-1"
                                     style={{ color: 'var(--text-primary)' }}
                                 >
@@ -272,7 +304,7 @@ const ReadControls = () => {
                                 </FormatButton>
                             </>
                         ) : searchTerm && (
-                            <span 
+                            <span
                                 className="flex text-sm px-2 py-1 items-center"
                                 style={{ color: 'var(--text-secondary)' }}
                             >
@@ -294,7 +326,7 @@ const ReadControls = () => {
                         :
                         (fullScreen &&
                             <div className='flex items-center h-full'>
-                                <h2 
+                                <h2
                                     className='text-xl whitespace-normal break-words mx-10'
                                     style={{ color: 'var(--text-secondary)' }}
                                 >
@@ -330,7 +362,7 @@ const ReadControls = () => {
                         onClick={() => setExportModalOpen(true)}
                         title={t('export article')}>
                         <DocumentArrowDownIcon className="w-5 h-5" />
-                    </FormatButton>                    
+                    </FormatButton>
                     {!leftPanelCollapsed || !rightPanelCollapsed ?
                         <FormatButton onClick={() => {
                             setLeftPanelCollapsed(true);
@@ -371,10 +403,10 @@ const ReadControls = () => {
                     <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
                     <div className='flex gap-1 items-center'>
                         {editorSettings?.autosaveEnabled && (
-                            <div 
+                            <div
                                 className='flex items-center gap-1 px-2 py-1 rounded text-sm'
-                                style={{ 
-                                    backgroundColor: 'var(--bg-primary)', 
+                                style={{
+                                    backgroundColor: 'var(--bg-primary)',
                                     color: 'var(--text-secondary)',
                                     border: '1px solid var(--border-secondary)'
                                 }}

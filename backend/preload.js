@@ -151,4 +151,24 @@ contextBridge.exposeInMainWorld('api', {
     fetchTweet: (tweetUrl) => ipcRenderer.invoke('url/fetchTweet', tweetUrl),
     validateUrl: (url) => ipcRenderer.invoke('url/validateUrl', url),
   },
+  updater: {
+    checkForUpdates: () => ipcRenderer.invoke('updater/checkForUpdates'),
+    downloadUpdate: () => ipcRenderer.invoke('updater/downloadUpdate'),
+    installUpdate: () => ipcRenderer.invoke('updater/installUpdate'),
+    getVersion: () => ipcRenderer.invoke('updater/getVersion'),
+    onChecking: (callback) => ipcRenderer.on('updater-checking', callback),
+    onAvailable: (callback) => ipcRenderer.on('updater-available', (event, info) => callback(info)),
+    onNotAvailable: (callback) => ipcRenderer.on('updater-not-available', (event, info) => callback(info)),
+    onProgress: (callback) => ipcRenderer.on('updater-progress', (event, progress) => callback(progress)),
+    onDownloaded: (callback) => ipcRenderer.on('updater-downloaded', (event, info) => callback(info)),
+    onError: (callback) => ipcRenderer.on('updater-error', (event, error) => callback(error)),
+    removeAllListeners: () => {
+      ipcRenderer.removeAllListeners('updater-checking');
+      ipcRenderer.removeAllListeners('updater-available');
+      ipcRenderer.removeAllListeners('updater-not-available');
+      ipcRenderer.removeAllListeners('updater-progress');
+      ipcRenderer.removeAllListeners('updater-downloaded');
+      ipcRenderer.removeAllListeners('updater-error');
+    }
+  },
 })

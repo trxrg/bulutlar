@@ -1,6 +1,6 @@
 {
   "name": "bulutlar",
-  "version": "1.4.27",
+  "version": "1.4.29",
   "description": "",
   "main": "public/electron.js",
   "homepage": "./",
@@ -30,7 +30,9 @@
     "package-mac-builder-arm64": "npm run build-react && electron-builder --mac --arm64",
     "package-mac-builder-x64": "npm run build-react && electron-builder --mac --x64",
     "dist": "npm run build-react && electron-builder",
-    "postinstall2": "node postInstall.js"
+    "postinstall2": "node postInstall.js",
+    "publish-mac-universal": "npm run build-react && dotenv -- electron-builder --mac --universal --publish always",
+    "publish-win": "npm run build-react && electron-builder --win --publish always"
   },
   "eslintConfig": {
     "extends": [
@@ -56,6 +58,8 @@
     "@electron/packager": "^18.3.6",
     "concurrently": "^8.2.2",
     "depcheck": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "dotenv-cli": "^11.0.0",
     "electron": "^38.1.2",
     "electron-builder": "^26.0.12",
     "electron-packager": "^17.1.2"
@@ -78,6 +82,7 @@
     "electron-is-dev": "^3.0.1",
     "electron-log": "^5.2.4",
     "electron-store": "^10.0.1",
+    "electron-updater": "^6.7.3",
     "fs-extra": "^11.2.0",
     "hijri-date": "^0.2.2",
     "html-react-parser": "^5.0.11",
@@ -113,6 +118,11 @@
   },
   "build": {
     "appId": "com.example.bulutlar",
+    "publish": {
+      "provider": "github",
+      "owner": "trxrg",
+      "repo": "bulutlar"
+    },
     "asar": true,
     "asarUnpack": [
       "**/node_modules/sqlite3/**/*",

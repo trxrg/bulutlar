@@ -393,5 +393,20 @@
     "loose": "Loose",
     "very loose": "Very Loose",
     "export all": "Export All",
-    "export selected": "Export Selected"
+    "export selected": "Export Selected",
+
+    "updates": "Updates",
+    "current version": "Current Version",
+    "check for updates": "Check for Updates",
+    "checking for updates": "Checking for updates",
+    "new version available": "New version available",
+    "download update": "Download Update",
+    "downloading update": "Downloading update",
+    "update downloaded": "Update downloaded and ready to install",
+    "restart and install": "Restart & Install",
+    "app is up to date": "App is up to date",
+    "error checking for updates": "Error checking for updates",
+    "error downloading update": "Error downloading update",
+    "update check disabled in dev mode": "Update check is disabled in development mode",
+    "try again": "Try Again"
   }

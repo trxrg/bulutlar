@@ -419,5 +419,20 @@
     "export all": "Tümünü Dışa Aktar",
     "export selected": "Seçerek Dışa Aktar",
     "Add New Category": "Yeni Kategori Ekle",
-    "Add New Owner": "Yeni Kişi Ekle"
+    "Add New Owner": "Yeni Kişi Ekle",
+
+    "updates": "Güncellemeler",
+    "current version": "Mevcut Sürüm",
+    "check for updates": "Güncellemeleri Kontrol Et",
+    "checking for updates": "Güncellemeler kontrol ediliyor",
+    "new version available": "Yeni sürüm mevcut",
+    "download update": "Güncellemeyi İndir",
+    "downloading update": "Güncelleme indiriliyor",
+    "update downloaded": "Güncelleme indirildi ve yüklemeye hazır",
+    "restart and install": "Yeniden Başlat ve Yükle",
+    "app is up to date": "Uygulama güncel",
+    "error checking for updates": "Güncellemeler kontrol edilirken hata oluştu",
+    "error downloading update": "Güncelleme indirilirken hata oluştu",
+    "update check disabled in dev mode": "Geliştirme modunda güncelleme kontrolü devre dışı",
+    "try again": "Tekrar Dene"
   }

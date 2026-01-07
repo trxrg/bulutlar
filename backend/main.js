@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { app, BrowserWindow, protocol, session } from 'electron';
+import { app, BrowserWindow, protocol, session, ipcMain } from 'electron';
 import { readFile } from 'fs/promises';
 import fs from 'fs';
 import isDev from 'electron-is-dev';
@@ -10,8 +10,19 @@ import { initConfig } from './config.js';
 import lookupService from './service/LookupService.js';
 import './scripts/docReader.js';
 import './scripts/jsonReader.js';
+import pkg from 'electron-updater';
+const { autoUpdater } = pkg;
+import log from 'electron-log';
 
 import { fileURLToPath } from 'url';
+
+// Configure auto-updater logging
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+autoUpdater.autoDownload = false;
+
+// ⚠️ INSECURE - Disable signature verification (remove when you have code signing)
+autoUpdater.forceDevUpdateConfig = true;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -456,6 +467,95 @@ app.on('window-all-closed', () => {
   }
 })
 
+// ==================== AUTO-UPDATER ====================
+
+// IPC handler to check for updates
+ipcMain.handle('updater/checkForUpdates', async () => {
+  if (isDev) {
+    log.info('Skipping update check in development mode');
+    return { updateAvailable: false, isDev: true };
+  }
+  
+  try {
+    log.info('Checking for updates...');
+    const result = await autoUpdater.checkForUpdates();
+    return {
+      updateAvailable: result?.updateInfo?.version !== app.getVersion(),
+      currentVersion: app.getVersion(),
+      newVersion: result?.updateInfo?.version,
+      releaseNotes: result?.updateInfo?.releaseNotes
+    };
+  } catch (error) {
+    log.error('Error checking for updates:', error);
+    throw error;
+  }
+});
+
+// IPC handler to download update
+ipcMain.handle('updater/downloadUpdate', async () => {
+  try {
+    log.info('Downloading update...');
+    await autoUpdater.downloadUpdate();
+    return { success: true };
+  } catch (error) {
+    log.error('Error downloading update:', error);
+    throw error;
+  }
+});
+
+// IPC handler to install update (quit and install)
+ipcMain.handle('updater/installUpdate', () => {
+  log.info('Installing update and restarting...');
+  autoUpdater.quitAndInstall();
+});
+
+// IPC handler to get current app version
+ipcMain.handle('updater/getVersion', () => {
+  return app.getVersion();
+});
+
+// Auto-updater events - forward to renderer
+autoUpdater.on('checking-for-update', () => {
+  log.info('Checking for update...');
+  if (mainWindow) {
+    mainWindow.webContents.send('updater-checking');
+  }
+});
+
+autoUpdater.on('update-available', (info) => {
+  log.info('Update available:', info.version);
+  if (mainWindow) {
+    mainWindow.webContents.send('updater-available', info);
+  }
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  log.info('Update not available');
+  if (mainWindow) {
+    mainWindow.webContents.send('updater-not-available', info);
+  }
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  log.info(`Download progress: ${progressObj.percent}%`);
+  if (mainWindow) {
+    mainWindow.webContents.send('updater-progress', progressObj);
+  }
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  log.info('Update downloaded:', info.version);
+  if (mainWindow) {
+    mainWindow.webContents.send('updater-downloaded', info);
+  }
+});
+
+autoUpdater.on('error', (error) => {
+  log.error('Auto-updater error:', error);
+  if (mainWindow) {
+    mainWindow.webContents.send('updater-error', error.message);
+  }
+});
 
 export {
   mainWindow,

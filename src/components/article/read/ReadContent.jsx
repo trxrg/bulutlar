@@ -21,7 +21,10 @@ const ReadContent = () => {
     
     const { article, readContentRef, fontSize, editable, syncArticleFromBE, 
         isAddLinkModalOpen, setAddLinkModalOpen, contextMenuIsOpen,
-         contextMenuPosition, setContextMenuIsOpen } = useContext(ReadContext);
+        contextMenuPosition, setContextMenuIsOpen,
+        showExplanationEditor, setShowExplanationEditor,
+        showCommentEditor, setShowCommentEditor,
+        hasExplanationContent, hasCommentContent, isHtmlStringEmpty } = useContext(ReadContext);
 
     const { translate: t, closeTab, editorSettings } = useContext(AppContext);
     const { fetchAllData } = useContext(DBContext);
@@ -168,13 +171,31 @@ const ReadContent = () => {
         setAddLinkModalOpen(false);
     }
 
-    const isHtmlStringEmpty = (htmlString) => {
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlString;
+    // Handle blur for explanation editor - hide if empty
+    const handleExplanationBlur = () => {
+        // Use setTimeout to allow the content to be checked after any final changes
+        setTimeout(() => {
+            if (explanationEditorRef.current) {
+                const content = explanationEditorRef.current.getContent();
+                if (isHtmlStringEmpty(content?.html)) {
+                    setShowExplanationEditor(false);
+                }
+            }
+        }, 100);
+    };
 
-        // Check if the text content is empty
-        return !tempDiv.textContent.trim();
-    }
+    // Handle blur for comment editor - hide if empty
+    const handleCommentBlur = () => {
+        // Use setTimeout to allow the content to be checked after any final changes
+        setTimeout(() => {
+            if (commentEditorRef.current) {
+                const content = commentEditorRef.current.getContent();
+                if (isHtmlStringEmpty(content?.html)) {
+                    setShowCommentEditor(false);
+                }
+            }
+        }, 100);
+    };
 
     // Check if any editor has errors after component mounts
     useEffect(() => {
@@ -220,13 +241,21 @@ const ReadContent = () => {
                 className={`read-content-container w-full ${fontSize} ${lineHeight} pb-5 px-2`}
                 style={{ fontFamily: fontFamily }}
             >
-                {(!isHtmlStringEmpty(article.explanation) || editable) && <div onClick={() => setActiveEditorRef(explanationEditorRef)} className='border-b border-gray-700 p-4'>
-                    <RichEditor prompt={t('explanation prompt')} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef} editorId="explanation"></RichEditor>
-                </div>}
+                {/* Explanation Editor - show if has content OR if manually shown while editable */}
+                {(hasExplanationContent || (editable && showExplanationEditor)) && (
+                    <div 
+                        onClick={() => setActiveEditorRef(explanationEditorRef)} 
+                        className='border-b border-gray-700 p-4'
+                        onBlur={!hasExplanationContent ? handleExplanationBlur : undefined}
+                    >
+                        <RichEditor prompt={t('explanation prompt')} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef} editorId="explanation"></RichEditor>
+                    </div>
+                )}
                 <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
                     <RichEditor prompt={t('maintext prompt')} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef} editorId="mainText"></RichEditor>
                 </div>
-                {((article.comments[0] && !isHtmlStringEmpty(article.comments[0].text)) || editable) &&
+                {/* Comment Editor - show if has content OR if manually shown while editable */}
+                {(hasCommentContent || (editable && showCommentEditor)) && (
                     <div className="mt-8">
                         <div>
                             <h3 onClick={() => setActiveEditorRef()} className={"text-center font-semibold my-4 pt-2 border-t border-gray-500 " + fontSize}>{t('comment')}</h3>
@@ -234,13 +263,15 @@ const ReadContent = () => {
                         <div 
                             onClick={() => setActiveEditorRef(commentEditorRef)} 
                             className="px-2 rounded-md"
+                            onBlur={!hasCommentContent ? handleCommentBlur : undefined}
                             style={{                                 
                                 border: '4px solid rgba(128, 128, 128, 0.5)'
                             }}
                         >
                             <RichEditor prompt={t('comment prompt')} htmlContent={article.comments[0]?.text} rawContent={article.comments[0]?.textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef} editorId="comment"></RichEditor>
                         </div>
-                    </div>}
+                    </div>
+                )}
             </div>
             <PickAndViewArticleModal 
                 isOpen={isAddLinkModalOpen} 

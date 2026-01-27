@@ -26,7 +26,21 @@ export default function ReadContextProvider({ children, article }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentHighlightIndex, setCurrentHighlightIndex] = useState(-1);
     const [allHighlightRefs, setAllHighlightRefs] = useState([]); // Combined refs from all editors
+    const [showExplanationEditor, setShowExplanationEditor] = useState(false);
+    const [showCommentEditor, setShowCommentEditor] = useState(false);
     const articleId = article.id;
+
+    // Helper to check if HTML string is empty
+    const isHtmlStringEmpty = (htmlString) => {
+        if (!htmlString) return true;
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlString;
+        return !tempDiv.textContent.trim();
+    };
+
+    // Check if explanation/comment have content
+    const hasExplanationContent = !isHtmlStringEmpty(article.explanation);
+    const hasCommentContent = article.comments?.[0] && !isHtmlStringEmpty(article.comments[0].text);
 
     const readContentRef = useRef();
     // Ref to store callback for capturing scroll before fullscreen toggle
@@ -129,6 +143,14 @@ export default function ReadContextProvider({ children, article }) {
             setAllHighlightRefs([]);
         }
     }, [searchTerm]);
+
+    // Reset editor visibility when editable mode is turned off or article changes
+    useEffect(() => {
+        if (!editable) {
+            setShowExplanationEditor(false);
+            setShowCommentEditor(false);
+        }
+    }, [editable, article.id]);
 
     // Register/unregister editable state with AppContext for close confirmation
     useEffect(() => {
@@ -277,7 +299,14 @@ export default function ReadContextProvider({ children, article }) {
         scrollToPreviousHighlight,
         scrollToHighlight,
         getHighlightInfo,
-        beforeFullScreenToggleRef
+        beforeFullScreenToggleRef,
+        showExplanationEditor,
+        setShowExplanationEditor,
+        showCommentEditor,
+        setShowCommentEditor,
+        hasExplanationContent,
+        hasCommentContent,
+        isHtmlStringEmpty
     };
 
     return <ReadContext.Provider value={ctxValue}>

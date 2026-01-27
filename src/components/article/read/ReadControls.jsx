@@ -18,7 +18,7 @@ import toastr from 'toastr';
 
 const ReadControls = () => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef, showExplanationEditor, setShowExplanationEditor, showCommentEditor, setShowCommentEditor, hasExplanationContent, hasCommentContent } = useContext(ReadContext);
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings, activeTabId } = useContext(AppContext);
     
     // Wrapper to capture scroll before toggling fullscreen
@@ -369,6 +369,35 @@ const ReadControls = () => {
             {editable &&
                 <div className='flex gap-1 justify-between w-full'>
                     <ActionButton onClick={() => setDeleteConfirmModalOpen(true)} color='red'>{t('delete article')}</ActionButton>
+                    {/* Add Explanation / Add Comment buttons in the middle */}
+                    <div className='flex gap-2 items-center'>
+                        {!hasExplanationContent && !showExplanationEditor && (
+                            <button 
+                                onClick={() => setShowExplanationEditor(true)}
+                                className='text-sm px-3 py-1.5 rounded transition-colors hover:opacity-80'
+                                style={{
+                                    backgroundColor: 'var(--bg-tertiary)',
+                                    color: 'var(--text-secondary)',
+                                    border: '1px dashed var(--border-secondary)'
+                                }}
+                            >
+                                + {t('add explanation')}
+                            </button>
+                        )}
+                        {!hasCommentContent && !showCommentEditor && (
+                            <button 
+                                onClick={() => setShowCommentEditor(true)}
+                                className='text-sm px-3 py-1.5 rounded transition-colors hover:opacity-80'
+                                style={{
+                                    backgroundColor: 'var(--bg-tertiary)',
+                                    color: 'var(--text-secondary)',
+                                    border: '1px dashed var(--border-secondary)'
+                                }}
+                            >
+                                + {t('add comment')}
+                            </button>
+                        )}
+                    </div>
                     <div className='flex gap-1 items-center'>
                         {editorSettings?.autosaveEnabled && (
                             <div 

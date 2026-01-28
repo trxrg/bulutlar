@@ -4,6 +4,7 @@ import TagFiltering from './TagFiltering.jsx';
 import CategoryFiltering from './CategoryFiltering.jsx';
 import GroupFiltering from './GroupFiltering.jsx';
 import KeywordFiltering from './KeywordFiltering.jsx';
+import SemanticSearchFiltering from './SemanticSearchFiltering.jsx';
 import { AppContext } from '../../../../store/app-context.jsx';
 import { SearchContext } from '../../../../store/search-context.jsx';
 import Date1Filtering from './Date1Filtering.jsx';
@@ -116,6 +117,9 @@ const SearchFilterings = () => {
                         </label>
                     </div>
                     <SavedFiltersAccordion />
+                    <FilterAccordion title={t('ai.semanticSearch')} isFilterActive={false} clearFilter={() => {}}>
+                        <SemanticSearchFiltering />
+                    </FilterAccordion>
                     <FilterAccordion title={t('keyword')} isFilterActive={keywords && keywords.length > 0} clearFilter={() => setKeywords([])}>
                         <KeywordFiltering />
                     </FilterAccordion>

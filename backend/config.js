@@ -26,6 +26,10 @@ const development = {
     audiosFolderPath: path.resolve(__dirname, "../data/active/audios"),
     videosFolderPath: path.resolve(__dirname, "../data/active/videos"),
     publicFolderPath: path.resolve(__dirname, "../public"),
+    // AI-related paths
+    vectorsDbPath: path.resolve(__dirname, "../data/active/vectors.db"),
+    modelsPath: path.resolve(__dirname, "../data/models"),
+    embeddingCachePath: path.resolve(__dirname, "../data/cache/embeddings"),
 };
 
 const production = {
@@ -38,6 +42,10 @@ const production = {
     audiosFolderPath: path.join(userDataPath, "/data/active/audios"),
     videosFolderPath: path.join(userDataPath, "/data/active/videos"),
     publicFolderPath: path.resolve(__dirname, '../public'),
+    // AI-related paths
+    vectorsDbPath: path.join(userDataPath, "/data/active/vectors.db"),
+    modelsPath: path.join(userDataPath, "/data/models"),
+    embeddingCachePath: path.join(userDataPath, "/data/cache/embeddings"),
 };
 
 const changeDbBackupFolderPath = (newPath) => {

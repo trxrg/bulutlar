@@ -171,4 +171,52 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.removeAllListeners('updater-error');
     }
   },
+  ai: {
+    // Model management
+    model: {
+      getAvailableModels: () => ipcRenderer.invoke('ai/model/getAvailableModels'),
+      getDownloadedModels: () => ipcRenderer.invoke('ai/model/getDownloadedModels'),
+      downloadModel: (modelId) => ipcRenderer.invoke('ai/model/downloadModel', modelId),
+      cancelDownload: (modelId) => ipcRenderer.invoke('ai/model/cancelDownload', modelId),
+      deleteModel: (modelId) => ipcRenderer.invoke('ai/model/deleteModel', modelId),
+      loadModel: (modelId) => ipcRenderer.invoke('ai/model/loadModel', modelId),
+      unloadModel: () => ipcRenderer.invoke('ai/model/unloadModel'),
+      getLoadedModel: () => ipcRenderer.invoke('ai/model/getLoadedModel'),
+      getStatus: () => ipcRenderer.invoke('ai/model/getStatus'),
+      generateResponse: (prompt, systemPrompt) => ipcRenderer.invoke('ai/model/generateResponse', prompt, systemPrompt),
+      // Download progress events
+      onDownloadProgress: (callback) => ipcRenderer.on('ai-download-progress', (event, data) => callback(data)),
+      onDownloadComplete: (callback) => ipcRenderer.on('ai-download-complete', (event, data) => callback(data)),
+      onDownloadError: (callback) => ipcRenderer.on('ai-download-error', (event, data) => callback(data)),
+      removeDownloadListeners: () => {
+        ipcRenderer.removeAllListeners('ai-download-progress');
+        ipcRenderer.removeAllListeners('ai-download-complete');
+        ipcRenderer.removeAllListeners('ai-download-error');
+      }
+    },
+    // Vector/embedding operations
+    vector: {
+      getStatus: () => ipcRenderer.invoke('ai/vector/getStatus'),
+      indexArticle: (articleId) => ipcRenderer.invoke('ai/vector/indexArticle', articleId),
+      removeArticle: (articleId) => ipcRenderer.invoke('ai/vector/removeArticle', articleId),
+      rebuildIndex: () => ipcRenderer.invoke('ai/vector/rebuildIndex'),
+      search: (query, limit) => ipcRenderer.invoke('ai/vector/search', query, limit),
+      getIndexedCount: () => ipcRenderer.invoke('ai/vector/getIndexedCount'),
+      // Embedding model management
+      getAvailableEmbeddingModels: () => ipcRenderer.invoke('ai/vector/getAvailableEmbeddingModels'),
+      getSelectedEmbeddingModel: () => ipcRenderer.invoke('ai/vector/getSelectedEmbeddingModel'),
+      setEmbeddingModel: (modelId) => ipcRenderer.invoke('ai/vector/setEmbeddingModel', modelId),
+      clearAndRebuildIndex: () => ipcRenderer.invoke('ai/vector/clearAndRebuildIndex')
+    },
+    // Semantic search
+    search: {
+      semantic: (query, options) => ipcRenderer.invoke('ai/search/semantic', query, options),
+      getStatus: () => ipcRenderer.invoke('ai/search/getSearchStatus')
+    },
+    // RAG (Question Answering)
+    rag: {
+      askQuestion: (question, options) => ipcRenderer.invoke('ai/rag/askQuestion', question, options),
+      getStatus: () => ipcRenderer.invoke('ai/rag/getStatus')
+    }
+  },
 })

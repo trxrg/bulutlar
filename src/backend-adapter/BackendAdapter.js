@@ -148,3 +148,49 @@ export const urlApi = {
     fetchTweet: async (tweetUrl) => window.api.url.fetchTweet(tweetUrl),
     validateUrl: async (url) => window.api.url.validateUrl(url),
 };
+
+// AI API - Model Management
+export const aiModelApi = {
+    getAvailableModels: async () => window.api.ai.model.getAvailableModels(),
+    getDownloadedModels: async () => window.api.ai.model.getDownloadedModels(),
+    downloadModel: async (modelId) => window.api.ai.model.downloadModel(modelId),
+    cancelDownload: async (modelId) => window.api.ai.model.cancelDownload(modelId),
+    deleteModel: async (modelId) => window.api.ai.model.deleteModel(modelId),
+    loadModel: async (modelId) => window.api.ai.model.loadModel(modelId),
+    unloadModel: async () => window.api.ai.model.unloadModel(),
+    getLoadedModel: async () => window.api.ai.model.getLoadedModel(),
+    getStatus: async () => window.api.ai.model.getStatus(),
+    generateResponse: async (prompt, systemPrompt) => window.api.ai.model.generateResponse(prompt, systemPrompt),
+    // Event listeners for download progress
+    onDownloadProgress: (callback) => window.api.ai.model.onDownloadProgress(callback),
+    onDownloadComplete: (callback) => window.api.ai.model.onDownloadComplete(callback),
+    onDownloadError: (callback) => window.api.ai.model.onDownloadError(callback),
+    removeDownloadListeners: () => window.api.ai.model.removeDownloadListeners(),
+};
+
+// AI API - Vector/Embedding Operations
+export const aiVectorApi = {
+    getStatus: async () => window.api.ai.vector.getStatus(),
+    indexArticle: async (articleId) => window.api.ai.vector.indexArticle(articleId),
+    removeArticle: async (articleId) => window.api.ai.vector.removeArticle(articleId),
+    rebuildIndex: async () => window.api.ai.vector.rebuildIndex(),
+    search: async (query, limit) => window.api.ai.vector.search(query, limit),
+    getIndexedCount: async () => window.api.ai.vector.getIndexedCount(),
+    // Embedding model management
+    getAvailableEmbeddingModels: async () => window.api.ai.vector.getAvailableEmbeddingModels(),
+    getSelectedEmbeddingModel: async () => window.api.ai.vector.getSelectedEmbeddingModel(),
+    setEmbeddingModel: async (modelId) => window.api.ai.vector.setEmbeddingModel(modelId),
+    clearAndRebuildIndex: async () => window.api.ai.vector.clearAndRebuildIndex(),
+};
+
+// AI API - Semantic Search
+export const aiSearchApi = {
+    semantic: async (query, options) => window.api.ai.search.semantic(query, options),
+    getStatus: async () => window.api.ai.search.getStatus(),
+};
+
+// AI API - RAG (Question Answering)
+export const aiRagApi = {
+    askQuestion: async (question, options) => window.api.ai.rag.askQuestion(question, options),
+    getStatus: async () => window.api.ai.rag.getStatus(),
+};

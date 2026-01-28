@@ -22,6 +22,13 @@ function initServices() {
         for (const service of services)
             service.initService();
     });
+    
+    // Initialize AI services separately (they have their own initialization)
+    import('./ai/index.js').then(({ initAIServices }) => {
+        initAIServices();
+    }).catch(err => {
+        console.error('Failed to initialize AI services:', err);
+    });
 }
 
 export { initServices }

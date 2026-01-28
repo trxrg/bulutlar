@@ -126,6 +126,9 @@ async function createArticle(article) { // Now transactional
         // Calculate and store read time for the new article
         await calculateAndUpdateReadTime(entity.dataValues.id);
         
+        // Auto-index the article for semantic search (fire and forget)
+        scheduleAutoIndex(entity.dataValues.id);
+        
         return await getArticleById(entity.dataValues.id);
     } catch (e) {
         await transaction.rollback();
@@ -191,6 +194,9 @@ async function deleteArticleById(id) {
         // });
 
         await article.destroy();
+        
+        // Remove from semantic search index (fire and forget)
+        scheduleAutoRemoveFromIndex(id);
     } catch (error) {
         console.error('Error deleting article:', error);
         throw error;
@@ -209,6 +215,9 @@ async function updateArticleMainText(id, newMainText) {
 
         // Calculate and update read time after content change
         await calculateAndUpdateReadTime(id);
+        
+        // Re-index the article for semantic search (fire and forget)
+        scheduleAutoIndex(id);
 
     } catch (error) {
         console.error('Error in updateArticleMainText', error);
@@ -1140,6 +1149,40 @@ async function resolveArticleEntities(article, options = {}) {
         category: resolvedEntities.category || null,
         owner: resolvedEntities.owner || null
     };
+}
+
+// Auto-indexing helpers for semantic search
+// These run in the background to avoid blocking the main operations
+
+/**
+ * Schedule auto-indexing of an article (fire and forget)
+ */
+function scheduleAutoIndex(articleId) {
+    // Use setImmediate to avoid blocking the current operation
+    setImmediate(async () => {
+        try {
+            const VectorService = (await import('./ai/VectorService.js')).default;
+            await VectorService.indexArticle(articleId);
+        } catch (error) {
+            // Silently log errors - indexing is optional
+            console.warn(`Auto-index failed for article ${articleId}:`, error.message);
+        }
+    });
+}
+
+/**
+ * Schedule removal of article from index (fire and forget)
+ */
+function scheduleAutoRemoveFromIndex(articleId) {
+    setImmediate(async () => {
+        try {
+            const VectorService = (await import('./ai/VectorService.js')).default;
+            await VectorService.removeArticleFromIndex(articleId);
+        } catch (error) {
+            // Silently log errors - removal is optional
+            console.warn(`Auto-remove from index failed for article ${articleId}:`, error.message);
+        }
+    });
 }
 
 const ArticleService = {

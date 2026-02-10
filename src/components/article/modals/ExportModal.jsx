@@ -5,7 +5,7 @@ import LoadingToastr from '../../common/LoadingToastr.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import Checkbox from '@mui/material/Checkbox';
 import toastr from 'toastr';
-import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
+import { articleApi, dbApi } from '../../../backend-adapter/BackendAdapter.js';
 
 const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArticle = false }) => {
     const { translate: t } = useContext(AppContext);
@@ -157,8 +157,35 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         }
     };
 
+    const handleDbExport = async () => {
+        try {
+            const ids = isMultiArticle ? articleIds : [article.id];
+            if (!ids || ids.length === 0) {
+                toastr.warning(t('no articles selected for export'));
+                onRequestClose();
+                return;
+            }
+
+            setIsExporting(true);
+            onRequestClose();
+
+            const result = await dbApi.handleShareArticles(ids, exportOptions);
+
+            if (result) {
+                toastr.success(t('articles shared to') + ' ' + result);
+            }
+        } catch (error) {
+            console.error('DB export error:', error);
+            toastr.error(t('export failed'));
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     const handleExport = async () => {
-        if (isMultiArticle) {
+        if (exportOptions.format === 'db') {
+            await handleDbExport();
+        } else if (isMultiArticle) {
             await handleMultiArticleExport();
         } else {
             await handleSingleArticleExport();
@@ -353,6 +380,16 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                                         onChange={() => handleFormatChange('docx')}
                                     />
                                     <span style={{ color: 'var(--text-primary)' }}>Word (.docx)</span>
+                                </label>
+                                <label className='flex items-center gap-2 cursor-pointer'>
+                                    <input
+                                        type="radio"
+                                        name="format"
+                                        value="db"
+                                        checked={exportOptions.format === 'db'}
+                                        onChange={() => handleFormatChange('db')}
+                                    />
+                                    <span style={{ color: 'var(--text-primary)' }}>{t('database (share)')}</span>
                                 </label>
                             </div>
                         </div>

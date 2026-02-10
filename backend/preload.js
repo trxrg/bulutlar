@@ -120,6 +120,8 @@ contextBridge.exposeInMainWorld('api', {
     handleExport: () => ipcRenderer.invoke('DB/handleExport'),
     handleAdvancedExport: (options) => ipcRenderer.invoke('DB/handleAdvancedExport', options),
     handleImport: () => ipcRenderer.invoke('DB/handleImport'),
+    handleMergeImport: () => ipcRenderer.invoke('DB/handleMergeImport'),
+    handleShareArticles: (articleIds, options) => ipcRenderer.invoke('DB/handleShareArticles', articleIds, options),
     handleBackup: () => ipcRenderer.invoke('DB/handleBackup'),
     changeBackupDir: () => ipcRenderer.invoke('DB/changeBackupDir'),
     getBackupDir: () => ipcRenderer.invoke('DB/getBackupDir'),

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useContext, useEffect } from "react";
-import { articleApi, commentApi } from '../../../backend-adapter/BackendAdapter.js';
+import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
 import { DBContext } from "../../../store/db-context.jsx";
@@ -52,7 +52,7 @@ const ReadContent = () => {
     }
 
     const updateComment = async (html, json) => {
-        await commentApi.updateText(article.comments[0].id, { html, json });
+        await articleApi.updateComment(article.id, { html, json });
         await syncArticleFromBE();
     }
 

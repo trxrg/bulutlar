@@ -112,6 +112,21 @@ const DatabaseSettings = () => {
         }
     };
 
+    const handleMergeImportDb = async () => {
+        console.log('Merge importing database...');
+        try {
+            const result = await dbApi.handleMergeImport();
+            if (result) {
+                console.log('Database merge imported successfully from ', result);
+                toastr.success(t('db merge imported from') + ' ' + result);
+                await fetchAllData();
+            }
+        } catch (err) {
+            console.error('Error merge importing database', err);
+            toastr.error(t('db merge import error'));
+        }
+    };
+
     const handleAdvancedExport = async (options) => {
         console.log('Advanced exporting database with options:', options);
         try {
@@ -140,7 +155,10 @@ const DatabaseSettings = () => {
                         {t('export selected')}
                     </Button>
                     <Button startIcon={<FileDownloadIcon />} {...primaryButtonProps} onClick={handleImportDb}>
-                        {t('import')}
+                        {t('import (replace)')}
+                    </Button>
+                    <Button startIcon={<FileDownloadIcon />} {...primaryButtonProps} onClick={handleMergeImportDb}>
+                        {t('import (merge)')}
                     </Button>
                 </div>
                 <div className='h-fit flex flex-row'>

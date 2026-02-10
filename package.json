@@ -1,6 +1,6 @@
 {
   "name": "bulutlar",
-  "version": "1.4.30",
+  "version": "1.4.31",
   "description": "",
   "main": "public/electron.js",
   "homepage": "./",
@@ -32,7 +32,7 @@
     "dist": "npm run build-react && electron-builder",
     "postinstall2": "node postInstall.js",
     "publish-mac-universal": "npm run build-react && dotenv -- electron-builder --mac --universal --publish always",
-    "publish-win": "npm run build-react && electron-builder --win --publish always"
+    "publish-win": "npm run build-react && dotenv -- electron-builder --win --publish always"
   },
   "eslintConfig": {
     "extends": [

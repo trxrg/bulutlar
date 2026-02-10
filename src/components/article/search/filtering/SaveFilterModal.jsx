@@ -60,7 +60,7 @@ const SaveFilterModal = ({ isOpen, onRequestClose, onConfirm }) => {
             </div>
             <div className='flex justify-end gap-2 mt-4'>
                 <ActionButton onClick={onRequestClose} color='red'>{t('cancel')}</ActionButton>
-                <ActionButton onClick={handleConfirm} color='blue'>{t('save')}</ActionButton>
+                <ActionButton onClick={handleConfirm}>{t('save')}</ActionButton>
             </div>
         </GeneralModal>
     );

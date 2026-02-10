@@ -95,13 +95,13 @@ const AnnotationModal = ({ isOpen, onRequestClose, annotationId, articleId }) =>
                         </div>
                         <div className='flex justify-end gap-2 mt-4'>
                             <ActionButton color={'red'} onClick={handleDelete}>{t('delete')}</ActionButton>
-                            <ActionButton color={'blue'} onClick={handleUpdate}>{t('update')}</ActionButton>
+                            <ActionButton onClick={handleUpdate}>{t('update')}</ActionButton>
                         </div>
                     </div>
                     :
                     <div className='flex justify-end gap-2 mt-4'>
                         <ActionButton color={'red'} onClick={onRequestClose}>{t('cancel')}</ActionButton>
-                        <ActionButton color={'blue'} onClick={handleAdd}>{t('add')}</ActionButton>
+                        <ActionButton onClick={handleAdd}>{t('add')}</ActionButton>
                     </div>
                 }
             </div>

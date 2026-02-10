@@ -22,7 +22,7 @@ const SaveConfirmModal = ({ isOpen, onClose, onSave, onDiscard }) => {
                 <div className='flex justify-end gap-2 mt-4'>
                     <ActionButton onClick={onClose} color='gray'>{t('cancel')}</ActionButton>
                     <ActionButton onClick={onDiscard} color='red'>{t('dontSave')}</ActionButton>
-                    <ActionButton onClick={onSave} color='blue'>{t('save')}</ActionButton>
+                    <ActionButton onClick={onSave}>{t('save')}</ActionButton>
                 </div>
             </div>
         </Modal>

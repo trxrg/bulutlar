@@ -241,7 +241,7 @@ const Video = (props) => {
                     <ActionButton onClick={handlePlay} color="green">
                         {t('play')}
                     </ActionButton>
-                    <ActionButton onClick={handlePause} color="blue">
+                    <ActionButton onClick={handlePause}>
                         {t('pause')}
                     </ActionButton>
                     <ActionButton onClick={handleDownload} color="purple">

@@ -44,7 +44,7 @@ const ImageUpload = ({ images, setImages}) => {
 
     return (
         <div className='mb-4'>
-            <ActionButton color={'blue'} onClick={handleButtonClick}>Add Image</ActionButton>
+            <ActionButton onClick={handleButtonClick}>Add Image</ActionButton>
             <ImageInput onSelectImages={handleSelectImages} ref={imageInputRef}></ImageInput>
             <div className="grid grid-cols-3 gap-4">
                 {imageDatas.map((imageData) => (

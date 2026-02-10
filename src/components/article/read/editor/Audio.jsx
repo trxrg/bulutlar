@@ -219,7 +219,7 @@ const Audio = (props) => {
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                 <div className='flex flex-col gap-2'>
                     <ActionButton onClick={handlePlay} color='green'>{t('play')}</ActionButton>
-                    <ActionButton onClick={handlePause} color='blue'>{t('pause')}</ActionButton>
+                    <ActionButton onClick={handlePause}>{t('pause')}</ActionButton>
                     <ActionButton onClick={handleDownload} color='purple'>{t('download')}</ActionButton>
                     {editable && (
                         <ActionButton onClick={() => setDeleteConfirmModalIsOpen(true)} color='red'>{t('deleteAudio')}</ActionButton>

@@ -92,12 +92,12 @@ const SearchResultsHeader = () => {
             {areArticlesSelectable &&
                 <div className='flex flex-wrap gap-1 justify-between'>
                     <div className='flex gap-1'>
-                        <ActionButton onClick={() => selectAllOrNone(true)} color='blue'>{t('selectAll')}</ActionButton>
-                        <ActionButton onClick={() => selectAllOrNone(false)} color='blue'>{t('selectNone')}</ActionButton>
+                        <ActionButton onClick={() => selectAllOrNone(true)}>{t('selectAll')}</ActionButton>
+                        <ActionButton onClick={() => selectAllOrNone(false)}>{t('selectNone')}</ActionButton>
                     </div>
                     <div className='flex gap-1'>
-                        <ActionButton onClick={handleAddToGroupClick} color='blue'>{t('add selected articles to group')}</ActionButton>
-                        <ActionButton onClick={handleExportSelectedClick} color='blue'>{t('export selected articles')}</ActionButton>
+                        <ActionButton onClick={handleAddToGroupClick}>{t('add selected articles to group')}</ActionButton>
+                        <ActionButton onClick={handleExportSelectedClick}>{t('export selected articles')}</ActionButton>
                     </div>
                 </div>
             }

@@ -23,7 +23,7 @@ const ArticleList = ({ onArticleChange, excludedArticleIds, onViewClicked, clear
                         <span>{(props.data.ownerName ? props.data.ownerName + ' | ' : '') + props.data.title + ' | ' + props.data.dateStr}</span>
                     </div>
                     {/* <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                        <ActionButton color='blue' onClick={handleViewClicked}>{t('view')}</ActionButton>
+                        <ActionButton onClick={handleViewClicked}>{t('view')}</ActionButton>
                     </div> */}
                 </div>
             </components.Option>

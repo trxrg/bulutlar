@@ -3,27 +3,22 @@ const ActionButton = ({ onClick, color='', size='', title='', children }) => {
 
     if (color === 'green') {
         colorStyle = {
-            backgroundColor: '#059669',
+            backgroundColor: 'var(--border-primary)',
             color: '#f9fafb',
-            fontWeight: 'bold'
+            fontWeight: '600'
         };
     } else if (color === 'red') {
         colorStyle = {
-            backgroundColor: '#B53A16',
-            color: '#f9fafb',
-            fontWeight: 'bold'
-        };
-    } else if (color === 'blue') {
-        colorStyle = {
-            backgroundColor: 'var(--border-primary)',
-            color: '#f9fafb',
-            fontWeight: 'bold'
+            backgroundColor: '#b91c1c',
+            color: '#fef2f2',
+            fontWeight: '600'
         };
     } else {
+        // default: theme green (same as border-primary)
         colorStyle = {
             backgroundColor: 'var(--border-primary)',
             color: '#f9fafb',
-            fontWeight: 'bold'
+            fontWeight: '600'
         };
     }
 

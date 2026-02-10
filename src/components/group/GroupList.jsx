@@ -119,7 +119,7 @@ const GroupList = ({ onGroupChange }) => {
                     placeholder={t('select group')}
                     noOptionsMessage={() => t('no such group')}
                 />
-                <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
+                <ActionButton onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>
             <GeneralModal title={t('add new group')} isOpen={isModalOpen} onRequestClose={()=>setIsModalOpen(false)}>
                 <AddGroup onClose={handleGroupAdded} />

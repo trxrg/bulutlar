@@ -65,7 +65,7 @@ const TagList2 = ({ showInput = true }) => {
                         color: 'var(--text-primary)'
                     }}
                 />
-                <ActionButton onClick={() => handleAddTag(inputValue)} color='blue'>{t('add')}</ActionButton>
+                <ActionButton onClick={() => handleAddTag(inputValue)}>{t('add')}</ActionButton>
             </div>}
             {inputValue.length > 0 &&
                 <div>

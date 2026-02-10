@@ -22,7 +22,7 @@ const ConfirmModal = ({ message, isOpen, onClose, onConfirm }) => {
                 <div className="text-lg">{message}</div>
                 <div className='flex justify-end gap-2 mt-4'>
                     <ActionButton onClick={onClose} color='red'>{t('cancel')}</ActionButton>
-                    <ActionButton onClick={onConfirm} color='blue'>{t('yes')}</ActionButton>
+                    <ActionButton onClick={onConfirm}>{t('yes')}</ActionButton>
                 </div>
             </div>
         </Modal>

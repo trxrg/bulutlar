@@ -401,7 +401,6 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                     <ActionButton onClick={onRequestClose} color='red'>{t('cancel')}</ActionButton>
                     <ActionButton 
                     onClick={handleExport} 
-                    color='blue' 
                     disabled={isExporting}
                 >
                     {isExporting ? t('exporting') + '...' : t('export')}

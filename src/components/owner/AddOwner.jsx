@@ -59,7 +59,7 @@ const AddOwner = ({ onClose }) => {
                         color: 'var(--text-primary)'
                     }}
                 />
-                <ActionButton color='blue' onClick={handleAddOwner}>{t('add')}</ActionButton>
+                <ActionButton onClick={handleAddOwner}>{t('add')}</ActionButton>
             </div>
         </div>
     );

@@ -419,8 +419,7 @@ const ReadControls = () => {
                             {t('cancel')}
                         </ActionButton>
                         <ActionButton
-                            onClick={() => { saveContent(); setEditable(false); }}
-                            color={'blue'}>
+                            onClick={() => { saveContent(); setEditable(false); }}>
                             {t('save')}
                         </ActionButton>
                     </div>

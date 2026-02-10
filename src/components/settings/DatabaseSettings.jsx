@@ -7,12 +7,14 @@ import { DBContext } from '../../store/db-context';
 import { dbApi } from '../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
 import AdvancedExportDialog from './AdvancedExportDialog';
+import ConfirmModal from '../common/ConfirmModal';
 
 const DatabaseSettings = () => {
     const { translate: t, resetTabs } = useContext(AppContext);
     const { fetchAllData } = useContext(DBContext);
     const [backupDir, setBackupDir] = useState('');
     const [showAdvancedExport, setShowAdvancedExport] = useState(false);
+    const [showImportReplaceConfirm, setShowImportReplaceConfirm] = useState(false);
 
     // Button styling
     const primaryButtonProps = {
@@ -148,17 +150,19 @@ const DatabaseSettings = () => {
                     <Button startIcon={<FileUploadIcon />} {...secondaryButtonProps} onClick={handleBackupDb}>
                         {t('backup')}
                     </Button>
-                    <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={handleExportDb}>
-                        {t('export all')}
-                    </Button>
                     <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={() => setShowAdvancedExport(true)}>
-                        {t('export selected')}
-                    </Button>
-                    <Button startIcon={<FileDownloadIcon />} {...primaryButtonProps} onClick={handleImportDb}>
-                        {t('import (replace)')}
+                        {t('export')}
                     </Button>
                     <Button startIcon={<FileDownloadIcon />} {...primaryButtonProps} onClick={handleMergeImportDb}>
                         {t('import (merge)')}
+                    </Button>
+                    <Button
+                        startIcon={<FileDownloadIcon />}
+                        {...primaryButtonProps}
+                        sx={{ backgroundColor: 'red' }}
+                        onClick={() => setShowImportReplaceConfirm(true)}
+                    >
+                        {t('import (replace)')}
                     </Button>
                 </div>
                 <div className='h-fit flex flex-row'>
@@ -175,6 +179,16 @@ const DatabaseSettings = () => {
                 isOpen={showAdvancedExport}
                 onClose={() => setShowAdvancedExport(false)}
                 onExport={handleAdvancedExport}
+            />
+
+            <ConfirmModal
+                message={t('db import replace warning')}
+                isOpen={showImportReplaceConfirm}
+                onClose={() => setShowImportReplaceConfirm(false)}
+                onConfirm={() => {
+                    setShowImportReplaceConfirm(false);
+                    handleImportDb();
+                }}
             />
         </>
     );

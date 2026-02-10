@@ -69,7 +69,7 @@ const AdvancedExportDialog = ({ isOpen, onClose, onExport }) => {
                         {t('categories')}
                     </h3>
                     <div className="flex gap-2 mb-3">
-                        <ActionButton onClick={handleSelectAllCategories} color="blue" size="small">
+                        <ActionButton onClick={handleSelectAllCategories} size="small">
                             {t('select all')}
                         </ActionButton>
                         <ActionButton onClick={handleDeselectAllCategories} color="gray" size="small">

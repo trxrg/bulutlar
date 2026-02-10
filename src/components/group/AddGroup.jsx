@@ -67,7 +67,7 @@ const AddGroup = ({ onClose }) => {
                         color: 'var(--text-primary)'
                     }}
                 />
-                <ActionButton color='blue' onClick={handleAddGroup}>{t('add')}</ActionButton>
+                <ActionButton onClick={handleAddGroup}>{t('add')}</ActionButton>
             </div>
         </div>
     );

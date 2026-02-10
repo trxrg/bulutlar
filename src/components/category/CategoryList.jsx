@@ -121,7 +121,7 @@ const CategoryList = ({ initialValue, onCategoryChange }) => {
                     placeholder={t('select category')}
                     noOptionsMessage={() => t('no such category')}
                 />
-                <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
+                <ActionButton onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>
             <GeneralModal title={t('Add New Category')} isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)}>
                 <AddCategory onClose={handleCategoryAdded}></AddCategory>

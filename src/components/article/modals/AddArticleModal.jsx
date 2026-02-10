@@ -235,7 +235,7 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
                 {/* Buttons at bottom */}
                 <div className='flex justify-end gap-2 mt-4 flex-shrink-0'>
                     <ActionButton color={'red'} onClick={onRequestClose}>{t('cancel')}</ActionButton>
-                    <ActionButton color={'blue'} onClick={handleSubmit} disabled={isFetching}>{t('add')}</ActionButton>
+                    <ActionButton onClick={handleSubmit} disabled={isFetching}>{t('add')}</ActionButton>
                 </div>
             </div>
         </GeneralModal>

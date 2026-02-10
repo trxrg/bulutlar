@@ -146,7 +146,7 @@ const PickAndViewArticleModal = ({ isOpen, onRequestClose, articleId, onAdd, tit
                     {/* Left side - Open in new tab button */}
                     <div>
                         {selectedArticle && (
-                            <ActionButton color={'blue'} onClick={handleViewInNewTab}>{t('open in new tab')}</ActionButton>
+                            <ActionButton onClick={handleViewInNewTab}>{t('open in new tab')}</ActionButton>
                         )}
                     </div>
                     
@@ -156,7 +156,7 @@ const PickAndViewArticleModal = ({ isOpen, onRequestClose, articleId, onAdd, tit
                             <ActionButton color={'red'} onClick={onRequestClose}>{t('cancel')}</ActionButton>
                         )}
                         {onAdd && showSelect && (
-                            <ActionButton color={'blue'} onClick={handleAdd}>{t('add')}</ActionButton>
+                            <ActionButton onClick={handleAdd}>{t('add')}</ActionButton>
                         )}
                     </div>
                 </div>

@@ -119,7 +119,7 @@ const OwnerList = ({ initialValue, onOwnerChange }) => {
                     placeholder={t('select owner')}
                     noOptionsMessage={() => t('no such owner')}
                 />
-                <ActionButton color="blue" onClick={handleNewClicked}>{t('new')}</ActionButton>
+                <ActionButton onClick={handleNewClicked}>{t('new')}</ActionButton>
             </div>
             <GeneralModal title={t('Add New Owner')} isOpen={isModalOpen} onRequestClose={()=>setIsModalOpen(false)}>
                 <AddOwner onClose={handleOwnerAdded}></AddOwner>

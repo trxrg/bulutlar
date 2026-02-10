@@ -77,7 +77,7 @@ const AddCategory = ({ onClose }) => {
                     value={color}
                     onChange={e => setColor(e.target.value)}
                     className="mt-1 border-0 p-0 cursor-pointer" />
-                <ActionButton color='blue' onClick={handleAddCategory}>{t('add')}</ActionButton>
+                <ActionButton onClick={handleAddCategory}>{t('add')}</ActionButton>
             </div>
         </div>
     );

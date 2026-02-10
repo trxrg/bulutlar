@@ -53,7 +53,7 @@ const ArticlePreferencesModal = ({ isOpen, onRequestClose, onConfirm }) => {
             </div>
             <div className='flex justify-end gap-2 mt-4'>
                 <ActionButton onClick={onRequestClose} color='red'>{t('cancel')}</ActionButton>
-                <ActionButton onClick={() => onConfirm({ isDateUncertain, ordering, selectedOwnerName })} color='blue'>{t('save')}</ActionButton>
+                <ActionButton onClick={() => onConfirm({ isDateUncertain, ordering, selectedOwnerName })}>{t('save')}</ActionButton>
             </div>
         </GeneralModal>
     );

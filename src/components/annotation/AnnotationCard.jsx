@@ -123,7 +123,7 @@ const AnnotationCard = ({ annotation, articleId, onUpdate, onDelete, onCancel, i
                             <ActionButton color="red" onClick={handleCancel}>
                                 {t('cancel')}
                             </ActionButton>
-                            <ActionButton color="blue" onClick={handleSave}>
+                            <ActionButton onClick={handleSave}>
                                 {isAdding ? t('add') : t('update')}
                             </ActionButton>
                         </div>

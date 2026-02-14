@@ -10,6 +10,90 @@ import { SearchContext } from '../../../../store/search-context.jsx';
 import { normalizeText, htmlToText } from '../../../../utils/textUtils.js';
 import toastr from 'toastr';
 
+// --- Pure helper functions (defined outside the component to avoid re-creation) ---
+
+/** Parse a date boundary object into a form with presence flags */
+const parseDateBoundary = (dateObj) => {
+    if (!dateObj) return null;
+    const yearPresent = dateObj.year !== '';
+    const monthPresent = dateObj.month !== '';
+    const dayPresent = dateObj.day !== '';
+    if (!yearPresent && !monthPresent && !dayPresent) return null;
+    return { ...dateObj, yearPresent, monthPresent, dayPresent };
+};
+
+/** Check if an article's date passes a start-date filter */
+const passesStartDate = (art, field, info) => {
+    if (!info) return true;
+    if (art.isDateUncertain) return false;
+    const { yearPresent, monthPresent, dayPresent } = info;
+
+    if (yearPresent && monthPresent) {
+        const startDateObj = new Date(Date.UTC(
+            info.year || 0, (info.month || 1) - 1, info.day || 1, 0, 0, 0, 0
+        ));
+        return new Date(art[field]) >= startDateObj;
+    }
+
+    if ((yearPresent || monthPresent || dayPresent) && !(monthPresent && dayPresent)) {
+        const articleDate = new Date(art[field]);
+        let result = true;
+        if (yearPresent) result = result && articleDate.getFullYear() >= info.year;
+        if (monthPresent) result = result && (articleDate.getMonth() + 1) >= info.month;
+        if (dayPresent) result = result && articleDate.getDate() >= info.day;
+        return result;
+    }
+
+    if (monthPresent && dayPresent) {
+        const articleDate = new Date(art[field]);
+        const articleMonth = articleDate.getMonth() + 1;
+        const articleDay = articleDate.getDate();
+        return articleMonth == info.month ? articleDay >= info.day : articleMonth >= info.month;
+    }
+
+    return true;
+};
+
+/** Check if an article's date passes an end-date filter */
+const passesEndDate = (art, field, info) => {
+    if (!info) return true;
+    if (art.isDateUncertain) return false;
+    const { yearPresent, monthPresent, dayPresent } = info;
+
+    if (yearPresent && monthPresent) {
+        const endDateObj = new Date(Date.UTC(
+            info.year || 9999, (info.month || 12) - 1, info.day || 31, 23, 59, 59, 999
+        ));
+        return new Date(art[field]) <= endDateObj;
+    }
+
+    if ((yearPresent || monthPresent || dayPresent) && !(monthPresent && dayPresent)) {
+        const articleDate = new Date(art[field]);
+        let result = true;
+        if (yearPresent) result = result && articleDate.getFullYear() <= info.year;
+        if (monthPresent) result = result && (articleDate.getMonth() + 1) <= info.month;
+        if (dayPresent) result = result && articleDate.getDate() <= info.day;
+        return result;
+    }
+
+    if (monthPresent && dayPresent) {
+        const articleDate = new Date(art[field]);
+        const articleMonth = articleDate.getMonth() + 1;
+        const articleDay = articleDate.getDate();
+        return articleMonth == info.month ? articleDay <= info.day : articleMonth <= info.month;
+    }
+
+    return true;
+};
+
+/** Get month/year from a date string */
+const getMonthYear = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return null;
+    return { month: date.getMonth(), year: date.getFullYear() };
+};
+
 const SearchResultsBody = React.memo(() => {
     const { handleAddTab, translate: t } = useContext(AppContext);
     const { allArticles, getOwnerById, getTagById, getCategoryById, getGroupById, articleOrder } = useContext(DBContext);
@@ -18,36 +102,161 @@ const SearchResultsBody = React.memo(() => {
         searchInMainText, searchInComments } = useContext(SearchContext);
 
     const [showScrollTop, setShowScrollTop] = useState(false);
-    const [currentDateSection, setCurrentDateSection] = useState(null);
-    const [showStickyDate, setShowStickyDate] = useState(false);
-    const [stickyDateCenter, setStickyDateCenter] = useState(null);
     const containerRef = useRef(null);
 
-    useEffect(() => {
-        setFilteredArticles([...allArticles]);
-    }, [allArticles]);
+    // --- Optimized single-pass filtering with useCallback and proper dependencies ---
+    const applyFiltering = useCallback((articles, filtering) => {
+        try {
+            // Pre-compute Sets for O(1) lookups instead of Array.includes O(n)
+            const ownerNameSet = filtering.ownerNames?.length ? new Set(filtering.ownerNames) : null;
+            const tagNameSet = filtering.tagNames?.length ? new Set(filtering.tagNames) : null;
+            const groupNameSet = filtering.groupNames?.length ? new Set(filtering.groupNames) : null;
+            const categoryNameSet = filtering.categoryNames?.length ? new Set(filtering.categoryNames) : null;
+            const number1Set = filtering.numbers1?.length ? new Set(filtering.numbers1) : null;
+            const number2Set = filtering.numbers2?.length ? new Set(filtering.numbers2) : null;
 
+            // Pre-normalize keywords once (instead of per-article-per-keyword)
+            const normalizedKeywords = filtering.keywords?.length
+                ? filtering.keywords.map(k => normalizeText(k))
+                : null;
+            const normalizedQuickSearch = filtering.quickSearchTerm?.trim()
+                ? normalizeText(filtering.quickSearchTerm.trim())
+                : null;
+
+            // Pre-compute date boundary info once
+            const startDateInfo = parseDateBoundary(filtering.startDate);
+            const endDateInfo = parseDateBoundary(filtering.endDate);
+            const startDate2Info = parseDateBoundary(filtering.startDate2);
+            const endDate2Info = parseDateBoundary(filtering.endDate2);
+
+            const needsTextNormalization = normalizedKeywords || normalizedQuickSearch;
+
+            // Single-pass filter: all conditions combined into one predicate
+            const result = articles.filter(art => {
+                // Starred
+                if (filtering.filterStarred && !art.isStarred) return false;
+
+                // Read/unread
+                if (filtering.filterShowRead && !filtering.filterShowUnread && !art.isRead) return false;
+                if (!filtering.filterShowRead && filtering.filterShowUnread && art.isRead) return false;
+
+                // Owner (Set lookup instead of Array.includes)
+                if (ownerNameSet) {
+                    if (!art.ownerId) return false;
+                    const owner = getOwnerById(art.ownerId);
+                    if (!owner || !ownerNameSet.has(owner.name)) return false;
+                }
+
+                // Tags (Set lookup with .some(); no intermediate .map().includes())
+                if (tagNameSet) {
+                    if (!art.tags.some(artTag => {
+                        const tag = getTagById(artTag.id);
+                        return tag && tagNameSet.has(tag.name);
+                    })) return false;
+                }
+
+                // Groups
+                if (groupNameSet) {
+                    if (!art.groups.some(artGroup => {
+                        const group = getGroupById(artGroup.id);
+                        return group && groupNameSet.has(group.name);
+                    })) return false;
+                }
+
+                // Category
+                if (categoryNameSet) {
+                    if (!art.categoryId) return false;
+                    const category = getCategoryById(art.categoryId);
+                    if (!category || !categoryNameSet.has(category.name)) return false;
+                }
+
+                // Date filters
+                if (startDateInfo || endDateInfo) {
+                    if (!passesStartDate(art, 'date', startDateInfo)) return false;
+                    if (!passesEndDate(art, 'date', endDateInfo)) return false;
+                }
+                if (startDate2Info || endDate2Info) {
+                    if (!passesStartDate(art, 'date2', startDate2Info)) return false;
+                    if (!passesEndDate(art, 'date2', endDate2Info)) return false;
+                }
+
+                // Number filters
+                if (number1Set && (art.isDateUncertain || !number1Set.has(String(art.number)))) return false;
+                if (number2Set && (art.isDateUncertain || !number2Set.has(String(art.number2)))) return false;
+
+                // Text search: normalize each article's text fields ONCE,
+                // shared by both keyword and quickSearch filters
+                if (needsTextNormalization) {
+                    const normalizedTitle = normalizeText(htmlToText(art.title));
+                    const normalizedMainText = normalizeText(htmlToText(art.text));
+                    const normalizedExplanation = normalizeText(htmlToText(art.explanation));
+                    const normalizedComment = art.comments[0]
+                        ? normalizeText(htmlToText(art.comments[0].text)) : '';
+
+                    // Keyword filter (respects searchIn* flags)
+                    if (normalizedKeywords) {
+                        const hasMatch = normalizedKeywords.some(nk =>
+                            (searchInTitle && normalizedTitle.includes(nk)) ||
+                            (searchInMainText && normalizedMainText.includes(nk)) ||
+                            (searchInExplanation && normalizedExplanation.includes(nk)) ||
+                            (searchInComments && normalizedComment.includes(nk))
+                        );
+                        if (!hasMatch) return false;
+                    }
+
+                    // Quick search (all text fields + entity names, with short-circuit evaluation)
+                    if (normalizedQuickSearch) {
+                        const textMatch =
+                            normalizedTitle.includes(normalizedQuickSearch) ||
+                            normalizedMainText.includes(normalizedQuickSearch) ||
+                            normalizedExplanation.includes(normalizedQuickSearch) ||
+                            normalizedComment.includes(normalizedQuickSearch);
+
+                        if (!textMatch) {
+                            const tagMatch = art.tags?.some(tag => {
+                                const tagEntity = getTagById(tag.id);
+                                return tagEntity && normalizeText(tagEntity.name).includes(normalizedQuickSearch);
+                            });
+
+                            if (!tagMatch) {
+                                const categoryEntity = art.categoryId && getCategoryById(art.categoryId);
+                                const categoryMatch = categoryEntity && normalizeText(categoryEntity.name).includes(normalizedQuickSearch);
+
+                                if (!categoryMatch) {
+                                    const ownerEntity = art.ownerId && getOwnerById(art.ownerId);
+                                    const ownerMatch = ownerEntity && normalizeText(ownerEntity.name).includes(normalizedQuickSearch);
+
+                                    if (!ownerMatch) {
+                                        const groupMatch = art.groups?.some(group => {
+                                            const groupEntity = getGroupById(group.id);
+                                            return groupEntity && normalizeText(groupEntity.name).includes(normalizedQuickSearch);
+                                        });
+                                        if (!groupMatch) return false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            });
+
+            setFilteredArticles(result);
+        } catch (error) {
+            console.error('Error in applyFiltering', error);
+            toastr.error('Error in applyFiltering');
+        }
+    }, [getOwnerById, getTagById, getCategoryById, getGroupById,
+        searchInTitle, searchInExplanation, searchInMainText, searchInComments,
+        setFilteredArticles]);
+
+    // Single effect to apply filtering (removed the redundant useEffect that just copied allArticles)
     useEffect(() => {
         applyFiltering(allArticles, filtering);
-    }, [allArticles, filtering]);
+    }, [allArticles, filtering, applyFiltering]);
 
-    // Helper function to get month/year from article date
-    const getMonthYear = useCallback((dateString) => {
-        if (!dateString) return null;
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return null;
-        return { month: date.getMonth(), year: date.getFullYear() };
-    }, []);
-
-    // Reset sticky date state when sorting method changes
-    useEffect(() => {
-        if (articleOrder?.field !== 'date') {
-            setShowStickyDate(false);
-            setCurrentDateSection(null);
-        }
-    }, [articleOrder]);
-
-    // Handle scroll event to show/hide scroll-to-top button and update sticky date
+    // Throttled scroll handler for scroll-to-top button visibility
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
@@ -55,273 +264,58 @@ const SearchResultsBody = React.memo(() => {
         const scrollableParent = container.parentElement;
         if (!scrollableParent) return;
 
-        const handleScroll = (e) => {
-            const scrollTop = e.target.scrollTop;
-            setShowScrollTop(scrollTop > 200);
-
-            // Only show sticky date when sorting by date and scrolled down
-            if (articleOrder?.field !== 'date') {
-                setShowStickyDate(false);
-                return;
-            }
-
-            // Find which date section is currently in view
-            const sections = container.querySelectorAll('[data-date-section]');
-            let currentSection = null;
-
-            sections.forEach(section => {
-                const rect = section.getBoundingClientRect();
-                const containerRect = scrollableParent.getBoundingClientRect();
-                
-                // Check if section is at or above the top of the visible area
-                if (rect.top <= containerRect.top + 100) {
-                    currentSection = section.getAttribute('data-date-section');
-                }
+        let rafId = null;
+        const handleScroll = () => {
+            if (rafId) return; // throttle: skip if a frame is already pending
+            rafId = requestAnimationFrame(() => {
+                const scrollTop = scrollableParent.scrollTop;
+                setShowScrollTop(scrollTop > 200);
+                rafId = null;
             });
-
-            if (currentSection && scrollTop > 100) {
-                const [year, month] = currentSection.split('-').map(Number);
-                setCurrentDateSection({ month, year });
-                setShowStickyDate(true);
-                
-                // Calculate center position of the container for the sticky header
-                const containerRect = scrollableParent.getBoundingClientRect();
-                setStickyDateCenter(containerRect.left + containerRect.width / 2);
-            } else {
-                setShowStickyDate(false);
-            }
         };
 
-        scrollableParent.addEventListener('scroll', handleScroll);
-        return () => scrollableParent.removeEventListener('scroll', handleScroll);
-    }, [articleOrder]);
+        scrollableParent.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+            scrollableParent.removeEventListener('scroll', handleScroll);
+            if (rafId) cancelAnimationFrame(rafId);
+        };
+    }, []);
 
-    const scrollToTop = () => {
+    const scrollToTop = useCallback(() => {
         const container = containerRef.current;
         if (!container) return;
-
         const scrollableParent = container.parentElement;
         if (scrollableParent) {
             scrollableParent.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    };
+    }, []);
 
-    const applyFiltering = (allArticles, filtering) => {
-        let localFilteredArticles = allArticles;
+    // Keywords for highlighting, shared across all ArticleShort instances
+    const allKeywords = useMemo(() => {
+        const kws = [];
+        if (filtering.keywords?.length) kws.push(...filtering.keywords);
+        if (filtering.quickSearchTerm?.trim()) kws.push(filtering.quickSearchTerm.trim());
+        return kws.length > 0 ? kws : null;
+    }, [filtering.keywords, filtering.quickSearchTerm]);
 
-        if (filtering.filterStarred)
-            localFilteredArticles = localFilteredArticles.filter(art => art.isStarred);
-
-        // Filter by read status based on checkboxes (both unchecked = no filter)
-        if (filtering.filterShowRead && !filtering.filterShowUnread)
-            localFilteredArticles = localFilteredArticles.filter(art => art.isRead);
-        else if (!filtering.filterShowRead && filtering.filterShowUnread)
-            localFilteredArticles = localFilteredArticles.filter(art => !art.isRead);
-        // Both checked or both unchecked = show all (no filter)
-
-        if (filtering.ownerNames && filtering.ownerNames.length)
-            localFilteredArticles = localFilteredArticles.filter(art => art.ownerId && filtering.ownerNames.includes(getOwnerById(art.ownerId).name));
-
-        if (filtering.tagNames && filtering.tagNames.length)
-            localFilteredArticles = localFilteredArticles.filter(art => filtering.tagNames.some(filterTagName => art.tags.map(artTag => getTagById(artTag.id).name).includes(filterTagName)));
-
-        if (filtering.groupNames && filtering.groupNames.length)
-            localFilteredArticles = localFilteredArticles.filter(art => filtering.groupNames.some(filterGroupName => art.groups.map(artGroup => getGroupById(artGroup.id).name).includes(filterGroupName)));
-
-        if (filtering.categoryNames && filtering.categoryNames.length)
-            localFilteredArticles = localFilteredArticles.filter(art => art.categoryId && filtering.categoryNames.includes(getCategoryById(art.categoryId).name));
-
-        if (filtering.startDate || filtering.endDate)
-            localFilteredArticles = applyDateFiltering(localFilteredArticles, 'date', filtering.startDate, filtering.endDate);
-
-        if (filtering.startDate2 || filtering.endDate2)
-            localFilteredArticles = applyDateFiltering(localFilteredArticles, 'date2', filtering.startDate2, filtering.endDate2);
-
-        if (filtering.numbers1 && filtering.numbers1.length)
-            localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && filtering.numbers1.includes(String(art.number)));
-
-        if (filtering.numbers2 && filtering.numbers2.length)
-            localFilteredArticles = localFilteredArticles.filter(art => !art.isDateUncertain && filtering.numbers2.includes(String(art.number2)));
-
-        if (filtering.keywords && filtering.keywords.length) {
-            localFilteredArticles = localFilteredArticles.filter(art => filtering.keywords.some(keyword => {
-                const normalizedKeyword = normalizeText(keyword);
-                return (searchInTitle && normalizeText(htmlToText(art.title)).includes(normalizedKeyword)) ||
-                    (searchInMainText && normalizeText(htmlToText(art.text)).includes(normalizedKeyword)) ||
-                    (searchInExplanation && normalizeText(htmlToText(art.explanation)).includes(normalizedKeyword)) ||
-                    (searchInComments && (art.comments[0] && normalizeText(htmlToText(art.comments[0].text)).includes(normalizedKeyword)));
-            }));
-        }
-
-        if (filtering.quickSearchTerm && filtering.quickSearchTerm.trim()) {
-            const normalizedQuickSearch = normalizeText(filtering.quickSearchTerm.trim());
-            localFilteredArticles = localFilteredArticles.filter(art => {
-                // Search in text content (existing functionality)
-                const textMatch = (normalizeText(htmlToText(art.title)).includes(normalizedQuickSearch)) ||
-                    (normalizeText(htmlToText(art.text)).includes(normalizedQuickSearch)) ||
-                    (normalizeText(htmlToText(art.explanation)).includes(normalizedQuickSearch)) ||
-                    ((art.comments[0] && normalizeText(htmlToText(art.comments[0].text)).includes(normalizedQuickSearch)));
-
-                // Search in tags
-                const tagMatch = art.tags && art.tags.some(tag => {
-                    const tagEntity = getTagById(tag.id);
-                    return tagEntity && normalizeText(tagEntity.name).includes(normalizedQuickSearch);
-                });
-
-                // Search in category
-                const categoryMatch = art.categoryId && (() => {
-                    const categoryEntity = getCategoryById(art.categoryId);
-                    return categoryEntity && normalizeText(categoryEntity.name).includes(normalizedQuickSearch);
-                })();
-
-                // Search in owner
-                const ownerMatch = art.ownerId && (() => {
-                    const ownerEntity = getOwnerById(art.ownerId);
-                    return ownerEntity && normalizeText(ownerEntity.name).includes(normalizedQuickSearch);
-                })();
-
-                // Add groupMatch for searching within group name
-                const groupMatch = art.groups && art.groups.some(group => {
-                    const groupEntity = getGroupById(group.id);
-                    return groupEntity && normalizeText(groupEntity.name).includes(normalizedQuickSearch);
-                });
-
-                return textMatch || tagMatch || categoryMatch || ownerMatch || groupMatch;
-            });
-        }
-
-        setFilteredArticles(localFilteredArticles);
-    };
-
-    const applyDateFiltering = (filteredArticles, field, startDate, endDate) => {
-        let localFilteredArticles = filteredArticles;
-
-        try {
-            if (startDate) {
-                const yearPresent = startDate.year !== '';
-                const monthPresent = startDate.month !== '';
-                const dayPresent = startDate.day !== '';
-                // date comparison
-                if (yearPresent && monthPresent) {
-                    const startDateObj = new Date(Date.UTC(
-                        startDate.year || 0, (startDate.month || 1) - 1, startDate.day || 1, 0, 0, 0, 0
-                    ));
-                    localFilteredArticles = localFilteredArticles.filter(art => {
-                        const articleDate = new Date(art[field]);
-                        return !art.isDateUncertain && articleDate >= startDateObj;
-                    });
-                    // compare field by field
-                } else if ((yearPresent || monthPresent || dayPresent) && !(monthPresent && dayPresent)) {
-                    localFilteredArticles = localFilteredArticles.filter(art => {
-                        if (art.isDateUncertain) return false;
-                        const articleDate = new Date(art[field]);
-                        let result = true;
-                        if (yearPresent)
-                            result &&= articleDate.getFullYear() >= startDate.year;
-                        if (monthPresent)
-                            result &&= articleDate.getMonth() + 1 >= startDate.month;
-                        if (dayPresent)
-                            result &&= articleDate.getDate() >= startDate.day;
-                        return result;
-                    });
-                    // a specific solution for the case of only month and day present
-                } else if (monthPresent && dayPresent) {
-                    localFilteredArticles = localFilteredArticles.filter(art => {
-                        if (art.isDateUncertain) return false;
-                        const articleDate = new Date(art[field]);
-                        const articleMonth = articleDate.getMonth() + 1;
-                        const articleDay = articleDate.getDate();
-
-                        if (articleMonth == startDate.month) {
-                            return articleDay >= startDate.day;
-                        } else {
-                            return articleMonth >= startDate.month;
-                        }
-                    });
-                }
-            }
-
-            if (endDate) {
-                const yearPresent = endDate.year !== '';
-                const monthPresent = endDate.month !== '';
-                const dayPresent = endDate.day !== '';
-                // date comparison
-                if (yearPresent && monthPresent) {
-                    const endDateObj = new Date(Date.UTC(
-                        endDate.year || 9999, (endDate.month || 12) - 1, endDate.day || 31, 23, 59, 59, 999
-                    ));
-                    localFilteredArticles = localFilteredArticles.filter(art => {
-                        const articleDate = new Date(art[field]);
-                        return !art.isDateUncertain && articleDate <= endDateObj;
-                    });
-                    // compare field by field
-                } else if ((yearPresent || monthPresent || dayPresent) && !(monthPresent && dayPresent)) {
-                    localFilteredArticles = localFilteredArticles.filter(art => {
-                        if (art.isDateUncertain) return false;
-                        const articleDate = new Date(art[field]);
-                        let result = true;
-                        if (yearPresent)
-                            result &&= articleDate.getFullYear() <= endDate.year;
-                        if (monthPresent)
-                            result &&= articleDate.getMonth() + 1 <= endDate.month;
-                        if (dayPresent)
-                            result &&= articleDate.getDate() <= endDate.day;
-                        return result;
-                    });
-                    // a specific solution for the case of only month and day present
-                } else if (monthPresent && dayPresent) {
-                    localFilteredArticles = localFilteredArticles.filter(art => {
-                        if (art.isDateUncertain) return false;
-
-                        const articleDate = new Date(art[field]);
-                        const articleMonth = articleDate.getMonth() + 1;
-                        const articleDay = articleDate.getDate();
-
-                        if (articleMonth == endDate.month) {
-                            return articleDay <= endDate.day;
-                        } else {
-                            return articleMonth <= endDate.month;
-                        }
-                    });
-                }
-            }
-
-            return localFilteredArticles;
-        } catch (error) {
-            console.error('Error in applyDateFiltering', error);
-            toastr.error('Error in applyDateFiltering');
-            return filteredArticles;
-        }
-    }
-
-    // Memoize the article list rendering for better performance
+    // Memoize the article list rendering
     const articlesList = useMemo(() => {
-        // Combine keywords and quick search term for highlighting
-        let allKeywords = [];
-        if (filtering.keywords && filtering.keywords.length) {
-            allKeywords = [...filtering.keywords];
-        }
-        if (filtering.quickSearchTerm && filtering.quickSearchTerm.trim()) {
-            allKeywords.push(filtering.quickSearchTerm.trim());
-        }
-
         // If sorting by date, group articles by month/year
         if (articleOrder?.field === 'date') {
             const result = [];
             let lastMonthYear = null;
             let sectionIndex = 0;
 
-            filteredArticles.forEach((art, index) => {
+            filteredArticles.forEach((art) => {
                 const monthYear = getMonthYear(art.date);
-                
-                // Add date section header when month/year changes
+
                 if (monthYear) {
                     const currentKey = `${monthYear.year}-${monthYear.month}`;
                     if (lastMonthYear !== currentKey) {
                         result.push(
-                            <DateSectionHeader 
-                                key={`section-${sectionIndex}-${currentKey}`} 
-                                month={monthYear.month} 
+                            <DateSectionHeader
+                                key={`section-${sectionIndex}-${currentKey}`}
+                                month={monthYear.month}
                                 year={monthYear.year}
                             />
                         );
@@ -335,8 +329,7 @@ const SearchResultsBody = React.memo(() => {
                         handleClick={handleAddTab}
                         key={art.id}
                         article={art}
-                        keywords={allKeywords.length > 0 ? allKeywords : null}
-                        dangerouslySetInnerHTML={{ __html: art.title }}
+                        keywords={allKeywords}
                     />
                 );
             });
@@ -350,11 +343,10 @@ const SearchResultsBody = React.memo(() => {
                 handleClick={handleAddTab}
                 key={art.id}
                 article={art}
-                keywords={allKeywords.length > 0 ? allKeywords : null}
-                dangerouslySetInnerHTML={{ __html: art.title }}
+                keywords={allKeywords}
             />
         ));
-    }, [filteredArticles, handleAddTab, filtering.keywords, filtering.quickSearchTerm, articleOrder, getMonthYear]);
+    }, [filteredArticles, handleAddTab, allKeywords, articleOrder]);
 
     return (
         <>
@@ -364,16 +356,6 @@ const SearchResultsBody = React.memo(() => {
                 </div> :
                 <div ref={containerRef} className='flex flex-col gap-5 p-5 relative'>
                     {articlesList}
-
-                    {/* Sticky date header - shows current month/year while scrolling */}
-                    {showStickyDate && currentDateSection && (
-                        <DateSectionHeader 
-                            month={currentDateSection.month} 
-                            year={currentDateSection.year}
-                            isSticky={true}
-                            centerPosition={stickyDateCenter}
-                        />
-                    )}
 
                     {/* Scroll to top button */}
                     <Tooltip title={t('Scroll to top') || 'Scroll to top'} arrow placement="left">

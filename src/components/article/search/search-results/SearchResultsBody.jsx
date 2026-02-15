@@ -102,6 +102,9 @@ const SearchResultsBody = React.memo(() => {
         searchInMainText, searchInComments } = useContext(SearchContext);
 
     const [showScrollTop, setShowScrollTop] = useState(false);
+    const [currentDateSection, setCurrentDateSection] = useState(null);
+    const [showStickyDate, setShowStickyDate] = useState(false);
+    const [stickyDateCenter, setStickyDateCenter] = useState(null);
     const containerRef = useRef(null);
 
     // --- Optimized single-pass filtering with useCallback and proper dependencies ---
@@ -256,7 +259,15 @@ const SearchResultsBody = React.memo(() => {
         applyFiltering(allArticles, filtering);
     }, [allArticles, filtering, applyFiltering]);
 
-    // Throttled scroll handler for scroll-to-top button visibility
+    // Reset sticky date state when sorting method changes
+    useEffect(() => {
+        if (articleOrder?.field !== 'date') {
+            setShowStickyDate(false);
+            setCurrentDateSection(null);
+        }
+    }, [articleOrder?.field]);
+
+    // Throttled scroll handler: scroll-to-top button visibility + sticky date section
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
@@ -270,6 +281,31 @@ const SearchResultsBody = React.memo(() => {
             rafId = requestAnimationFrame(() => {
                 const scrollTop = scrollableParent.scrollTop;
                 setShowScrollTop(scrollTop > 200);
+
+                // Sticky date: which date section is at/above the top of the visible area
+                if (articleOrder?.field === 'date') {
+                    const sections = container.querySelectorAll('[data-date-section]');
+                    let currentSection = null;
+                    sections.forEach((section) => {
+                        const rect = section.getBoundingClientRect();
+                        const containerRect = scrollableParent.getBoundingClientRect();
+                        if (rect.top <= containerRect.top + 100) {
+                            currentSection = section.getAttribute('data-date-section');
+                        }
+                    });
+                    if (currentSection && scrollTop > 100) {
+                        const [year, month] = currentSection.split('-').map(Number);
+                        setCurrentDateSection({ month, year });
+                        setShowStickyDate(true);
+                        const containerRect = scrollableParent.getBoundingClientRect();
+                        setStickyDateCenter(containerRect.left + containerRect.width / 2);
+                    } else {
+                        setShowStickyDate(false);
+                    }
+                } else {
+                    setShowStickyDate(false);
+                }
+
                 rafId = null;
             });
         };
@@ -279,7 +315,7 @@ const SearchResultsBody = React.memo(() => {
             scrollableParent.removeEventListener('scroll', handleScroll);
             if (rafId) cancelAnimationFrame(rafId);
         };
-    }, []);
+    }, [articleOrder?.field]);
 
     const scrollToTop = useCallback(() => {
         const container = containerRef.current;
@@ -356,6 +392,16 @@ const SearchResultsBody = React.memo(() => {
                 </div> :
                 <div ref={containerRef} className='flex flex-col gap-5 p-5 relative'>
                     {articlesList}
+
+                    {/* Sticky date header - shows current month/year while scrolling */}
+                    {showStickyDate && currentDateSection && (
+                        <DateSectionHeader
+                            month={currentDateSection.month}
+                            year={currentDateSection.year}
+                            isSticky={true}
+                            centerPosition={stickyDateCenter}
+                        />
+                    )}
 
                     {/* Scroll to top button */}
                     <Tooltip title={t('Scroll to top') || 'Scroll to top'} arrow placement="left">

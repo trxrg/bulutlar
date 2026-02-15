@@ -4,7 +4,7 @@ import React, { useContext, useState, useEffect, useMemo, useCallback } from 're
 import { DBContext } from '../../../../store/db-context';
 import { AppContext } from '../../../../store/app-context';
 import { SearchContext } from '../../../../store/search-context';
-import { normalizeText, htmlToText, escapeRegExp } from '../../../../utils/textUtils.js';
+import { normalizeText, normalizeTextWithMapping, normalizedRangeToOriginal, htmlToText, escapeRegExp } from '../../../../utils/textUtils.js';
 import { articleApi } from '../../../../backend-adapter/BackendAdapter';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
@@ -33,7 +33,7 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
     const highlightKeywords = useCallback((text, keywords) => {
         if (!text || text.length === 0)
             return '';
-        const normalizedText = normalizeText(text);
+        const { normalized: normalizedText, normalizedToOriginalStart } = normalizeTextWithMapping(text);
         let highlightedText = text;
         const matches = [];
 
@@ -50,22 +50,23 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
         // Sort matches by start position
         matches.sort((a, b) => a.start - b.start);
 
-        // Highlight the original text based on matches
+        // Highlight the original text: convert normalized match ranges to original indices
         let offset = 0;
         matches.forEach(({ start, end }) => {
-            const originalStart = start + offset;
-            const originalEnd = end + offset;
-            highlightedText = highlightedText.slice(0, originalStart) + '<mark>' + highlightedText.slice(originalStart, originalEnd) + '</mark>' + highlightedText.slice(originalEnd);
+            const [originalStart, originalEnd] = normalizedRangeToOriginal(normalizedToOriginalStart, start, end, text.length);
+            const startWithOffset = originalStart + offset;
+            const endWithOffset = originalEnd + offset;
+            highlightedText = highlightedText.slice(0, startWithOffset) + '<mark>' + highlightedText.slice(startWithOffset, endWithOffset) + '</mark>' + highlightedText.slice(endWithOffset);
             offset += '<mark>'.length + '</mark>'.length;
         });
 
         return highlightedText;
-    }, [normalizeText, escapeRegExp]);
+    }, [normalizeText, normalizeTextWithMapping, normalizedRangeToOriginal, escapeRegExp]);
 
     const getToBeHighlightedParts = useCallback((text, keywords, contextLength = 50) => {
         const normalizedKeywords = keywords.map(keyword => normalizeText(keyword));
         const escapedKeywords = normalizedKeywords.map(keyword => escapeRegExp(keyword));
-        const normalizedText = normalizeText(text);
+        const { normalized: normalizedText, normalizedToOriginalStart } = normalizeTextWithMapping(text);
         const regex = new RegExp(`(${escapedKeywords.join('|')})`, 'gi');
         const matches = [];
         let match;
@@ -76,11 +77,9 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
         }
 
         const highlightedParts = [];
-        let lastIndex = 0;
 
         matches.forEach(({ start, end }) => {
-            const originalStart = start;
-            const originalEnd = end;
+            const [originalStart, originalEnd] = normalizedRangeToOriginal(normalizedToOriginalStart, start, end, text.length);
 
             // Extract context before the match
             let contextBefore = text.slice(Math.max(0, originalStart - contextLength), originalStart);
@@ -103,11 +102,9 @@ const ArticleShort = React.memo(({ article, keywords, handleClick }) => {
             }
 
             highlightedParts.push(`${contextBefore}${text.slice(originalStart, originalEnd)}${contextAfter}`);
-            lastIndex = originalEnd;
-
         });
         return highlightedParts;
-    }, [normalizeText, escapeRegExp]);
+    }, [normalizeText, normalizeTextWithMapping, normalizedRangeToOriginal, escapeRegExp]);
 
     const handleCheckboxChange = useCallback((e) => {
         const checked = e.target.checked;

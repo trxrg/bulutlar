@@ -10,7 +10,7 @@ import { imageApi, audioApi, videoApi, articleApi } from '../../../../backend-ad
 import { ReadContext } from '../../../../store/read-context';
 import { AppContext } from '../../../../store/app-context';
 import { DBContext } from '../../../../store/db-context';
-import { normalizeText, escapeRegExp } from '../../../../utils/textUtils.js';
+import { normalizeText, normalizeTextWithMapping, normalizedRangeToOriginal, escapeRegExp } from '../../../../utils/textUtils.js';
 import Link from './Link';
 import Quote from './Quote';
 import Image from './Image';
@@ -130,9 +130,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
             strategy: (contentBlock, callback, contentState) => {
                 if (searchTerm) {
                     const normalizedSearchTerm = normalizeText(searchTerm);
-                    const escapedSearchTerm = escapeRegExp(normalizedSearchTerm);
-                    const regex = new RegExp(escapedSearchTerm, 'gi');
-                    findWithRegex(regex, contentBlock, callback);
+                    findWithRegex(contentBlock, normalizedSearchTerm, callback);
                 }
             },
             component: Highlight
@@ -173,12 +171,14 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
         handleContentChange(stateToHTML(newEditorState.getCurrentContent()), convertToRaw(newEditorState.getCurrentContent()));
     };
 
-    function findWithRegex(regex, contentBlock, callback) {
-        const text = normalizeText(contentBlock.getText());
-        let matchArr, start;
-        while ((matchArr = regex.exec(text)) !== null) {
-            start = matchArr.index;
-            callback(start, start + matchArr[0].length);
+    function findWithRegex(contentBlock, normalizedSearchTerm, callback) {
+        const text = contentBlock.getText();
+        const { normalized, normalizedToOriginalStart } = normalizeTextWithMapping(text);
+        const regex = new RegExp(escapeRegExp(normalizedSearchTerm), 'gi');
+        let match;
+        while ((match = regex.exec(normalized)) !== null) {
+            const [originalStart, originalEnd] = normalizedRangeToOriginal(normalizedToOriginalStart, match.index, regex.lastIndex, text.length);
+            callback(originalStart, originalEnd);
         }
     }
 

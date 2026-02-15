@@ -21,8 +21,8 @@ const ConfirmModal = ({ message, isOpen, onClose, onConfirm }) => {
             <div className="relative rounded-lg shadow-lg bg-white p-4 whitespace-pre-line">
                 <div className="text-lg">{message}</div>
                 <div className='flex justify-end gap-2 mt-4'>
-                    <ActionButton onClick={onClose} color='red'>{t('cancel')}</ActionButton>
-                    <ActionButton onClick={onConfirm}>{t('yes')}</ActionButton>
+                    <ActionButton onClick={onConfirm} color='red'>{t('yes')}</ActionButton>
+                    <ActionButton onClick={onClose} >{t('cancel')}</ActionButton>
                 </div>
             </div>
         </Modal>

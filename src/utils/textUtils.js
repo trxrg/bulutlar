@@ -40,9 +40,12 @@ export const normalizeText = (text) => {
         'ś': 's', 'š': 's', 'Ś': 'S', 'Š': 'S',
         'ý': 'y', 'ÿ': 'y', 'ŷ': 'y', 'Ý': 'Y', 'Ÿ': 'Y', 'Ŷ': 'Y',
         'ź': 'z', 'ż': 'z', 'ž': 'z', 'Ź': 'Z', 'Ż': 'Z', 'Ž': 'Z',
-        'æ': 'ae', 'Æ': 'AE', 'œ': 'oe', 'Œ': 'OE', 'ß': 'ss'
+        'æ': 'ae', 'Æ': 'AE', 'œ': 'oe', 'Œ': 'OE', 'ß': 'ss',
+        // apostrophe (remove so "don't" matches "dont")
+        "'": '', '\u2019': '',  // ASCII apostrophe, Unicode right single quote
+        "-": ''                 // hyphen
     };
-    const result = text.split('').map(char => turkishMap[char] || char).join('').toLowerCase();
+    const result = text.split('').map(char => turkishMap[char] ?? char).join('').toLowerCase();
     return result;
 };
 

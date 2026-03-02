@@ -1,0 +1,49 @@
+(function() {
+    var scripts = document.querySelectorAll('script, style, nav, header, footer, aside, .advertisement, .ads, .sidebar');
+    scripts.forEach(function(el) { el.remove(); });
+    var mainContent = '';
+    var title = document.title || '';
+    var description = '';
+    var metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) description = metaDesc.getAttribute('content') || '';
+    var authorMeta = document.querySelector('meta[name="author"]') || document.querySelector('[rel="author"]') || document.querySelector('.author') || document.querySelector('[class*="author"]');
+    var author = authorMeta ? (authorMeta.textContent || authorMeta.getAttribute('content') || '') : '';
+    var dateMeta = document.querySelector('meta[property="article:published_time"]') || document.querySelector('meta[name="date"]') || document.querySelector('time[datetime]') || document.querySelector('.date') || document.querySelector('[class*="date"]');
+    var publishedDate = dateMeta ? (dateMeta.getAttribute('content') || dateMeta.getAttribute('datetime') || dateMeta.textContent || '') : '';
+    var contentSelectors = ['article', '.article-content', '#renderBody', '.post-content', '.entry-content', '.content', '.main-content', '[role="main"]', 'main', '.post', '.article-body', '.story-body', '.article-text', '.post-body', '.entry-body', '.article-main', '.content-main', '.story-content', '.article-wrapper', '.post-wrapper', '.entry-wrapper'];
+    var mainElement = null;
+    for (var i = 0; i < contentSelectors.length; i++) {
+        mainElement = document.querySelector(contentSelectors[i]);
+        if (mainElement) break;
+    }
+    if (!mainElement) {
+        var allDivs = document.querySelectorAll('div');
+        var largestDiv = null;
+        var maxTextLength = 0;
+        for (var d = 0; d < allDivs.length; d++) {
+            var textLength = (allDivs[d].innerText || allDivs[d].textContent || '').length;
+            if (textLength > maxTextLength && textLength > 100) {
+                maxTextLength = textLength;
+                largestDiv = allDivs[d];
+            }
+        }
+        mainElement = largestDiv || document.body;
+    }
+    if (mainElement) {
+        var h1InContent = mainElement.querySelector('h1');
+        if (h1InContent && h1InContent.textContent && h1InContent.textContent.trim()) title = h1InContent.textContent.trim();
+        var htmlContent = mainElement.innerHTML || '';
+        htmlContent = htmlContent
+            .replace(/<(?!\/?(?:strong|b|p|br|h[1-6])\b)[^>]*>/gi, '')
+            .replace(/<\/?(?:b)\b[^>]*>/gi, '<strong>')
+            .replace(/<strong[^>]*>/gi, '<strong>')
+            .replace(/<\/strong[^>]*>/gi, '</strong>')
+            .replace(/<p[^>]*>/gi, '<p>')
+            .replace(/<\/p[^>]*>/gi, '</p>')
+            .replace(/<br[^>]*>/gi, '<br>')
+            .replace(/<(h[1-6])[^>]*>/gi, '<$1>')
+            .replace(/<\/(h[1-6])[^>]*>/gi, '</$1>');
+        mainContent = htmlContent.replace(/\s+/g, ' ').replace(/\n\s*\n/g, '\n').trim();
+    }
+    return { title: title.trim(), content: mainContent, description: description.trim(), author: author.trim(), publishedDate: publishedDate.trim(), url: window.location.href };
+})();

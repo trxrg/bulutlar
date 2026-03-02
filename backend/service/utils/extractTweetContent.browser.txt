@@ -1,0 +1,63 @@
+(function() {
+    function calculateSimilarity(str1, str2) {
+        if (!str1 || !str2) return 0;
+        var words1 = str1.toLowerCase().split(/\s+/).filter(function(w) { return w.length > 2; });
+        var words2 = str2.toLowerCase().split(/\s+/).filter(function(w) { return w.length > 2; });
+        if (words1.length === 0 || words2.length === 0) return 0;
+        var commonWords = words1.filter(function(word) { return words2.indexOf(word) !== -1; });
+        return commonWords.length / Math.max(words1.length, words2.length);
+    }
+    var tweetText = '', author = '', username = '', timestamp = '', likes = '', retweets = '', replies = '';
+    var quotedTweet = null;
+    var tweetTextSelectors = ['[data-testid="tweetText"]', '.tweet-text', '[role="article"] [lang]', '.css-901oao', '[data-testid="tweet"] [lang]'];
+    for (var i = 0; i < tweetTextSelectors.length; i++) {
+        var el = document.querySelector(tweetTextSelectors[i]);
+        if (el) { tweetText = el.textContent || el.innerText || ''; break; }
+    }
+    var authorSelectors = ['[data-testid="User-Name"] a', '.css-901oao.css-16my406.r-poiln3.r-bcqeeo.r-qvutc0', '[role="link"] span'];
+    for (var j = 0; j < authorSelectors.length; j++) {
+        var ael = document.querySelector(authorSelectors[j]);
+        if (ael) { author = ael.textContent || ael.innerText || ''; break; }
+    }
+    var usernameSelectors = ['[data-testid="User-Name"] a[href^="/"]', '.css-901oao.css-16my406.r-poiln3.r-bcqeeo.r-qvutc0[href^="/"]'];
+    for (var k = 0; k < usernameSelectors.length; k++) {
+        var uel = document.querySelector(usernameSelectors[k]);
+        if (uel) { username = (uel.textContent || uel.innerText || '').trim(); break; }
+    }
+    var timeSelectors = ['time', '[data-testid="Time"]', 'a[href*="/status/"] time'];
+    for (var t = 0; t < timeSelectors.length; t++) {
+        var tel = document.querySelector(timeSelectors[t]);
+        if (tel) { timestamp = tel.getAttribute('datetime') || tel.textContent || ''; break; }
+    }
+    var metricsSelectors = ['[data-testid="reply"]', '[data-testid="retweet"]', '[data-testid="like"]'];
+    metricsSelectors.forEach(function(sel, idx) {
+        var mel = document.querySelector(sel);
+        if (mel) {
+            var text = mel.textContent || mel.innerText || '';
+            if (idx === 0) replies = text; else if (idx === 1) retweets = text; else if (idx === 2) likes = text;
+        }
+    });
+    var mainTweet = document.querySelector('[data-testid="tweet"]');
+    var mainTweetTextEl = mainTweet ? mainTweet.querySelector('[data-testid="tweetText"]') : null;
+    var mainTweetText = mainTweetTextEl ? (mainTweetTextEl.textContent || '').trim() : '';
+    var allTweets = document.querySelectorAll('[data-testid="tweet"]');
+    if (allTweets.length > 1) {
+        var secondTweet = allTweets[1];
+        var secondTweetTextEl = secondTweet.querySelector('[data-testid="tweetText"]');
+        var secondTweetText = secondTweetTextEl ? (secondTweetTextEl.textContent || '').trim() : '';
+        var secondAuthorEl = secondTweet.querySelector('[data-testid="User-Name"] a');
+        var secondAuthor = secondAuthorEl ? (secondAuthorEl.textContent || '').trim() : '';
+        var secondUsernameEl = secondTweet.querySelector('[data-testid="User-Name"] a[href^="/"]');
+        var secondUsername = secondUsernameEl ? (secondUsernameEl.textContent || '').trim().replace('@', '') : '';
+        var secondTimeEl = secondTweet.querySelector('time');
+        var secondTimestamp = secondTimeEl ? (secondTimeEl.getAttribute('datetime') || secondTimeEl.textContent || '') : '';
+        if (secondTweetText && secondTweetText.length > 10 && secondTweetText !== mainTweetText) {
+            var isSubset = mainTweetText.indexOf(secondTweetText) !== -1 || secondTweetText.indexOf(mainTweetText) !== -1;
+            var sim = calculateSimilarity(secondTweetText, mainTweetText);
+            if (!isSubset && sim < 0.7) {
+                quotedTweet = { text: secondTweetText, author: secondAuthor, username: secondUsername, timestamp: secondTimestamp };
+            }
+        }
+    }
+    return { tweetText: tweetText.trim(), author: author.trim(), username: username.trim(), timestamp: timestamp.trim(), likes: likes.trim(), retweets: retweets.trim(), replies: replies.trim(), quotedTweet: quotedTweet, url: window.location.href };
+})();

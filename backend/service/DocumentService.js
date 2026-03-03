@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from '../config.js';
 import articleService from './ArticleService.js';
-import { getEntityResolutionOptions } from './utils/documentHelpers.js';
+import { getEntityResolutionOptions, normalizeFilename } from './utils/documentHelpers.js';
 import { generatePDF, generateMergedPDF } from './utils/pdfGeneration.js';
 import { generateHTMLToPDF, generateMergedHTMLToPDF } from './utils/htmlToPdfGeneration.js';
 import { generateWordDocument, generateMergedWordDocument } from './utils/wordGeneration.js';
@@ -34,8 +34,8 @@ async function exportArticle(exportData) {
 
         // Show save dialog
         const result = await dialog.showSaveDialog({
-            title: translations?.['exportArticle'] || 'Export Article',
-            defaultPath: `${article.title || 'article'}.${options.format}`,
+            title: translations?.['exportArticle'] || 'Export Article',            
+            defaultPath: `${normalizeFilename(article.title, 'article')}.${options.format}`,
             filters: [
                 options.format === 'pdf' 
                     ? { name: 'PDF Files', extensions: ['pdf'] }
@@ -105,7 +105,7 @@ async function exportMultipleArticles(exportData) {
         // Show save dialog
         const result = await dialog.showSaveDialog({
             title: translations?.saveMergedArticles || 'Save Merged Articles',
-            defaultPath: `${documentTitle || 'Merged Articles'}.${options.format}`,
+            defaultPath: `${normalizeFilename(documentTitle, 'Merged Articles')}.${options.format}`,
             filters: [
                 options.format === 'pdf' 
                     ? { name: 'PDF Files', extensions: ['pdf'] }

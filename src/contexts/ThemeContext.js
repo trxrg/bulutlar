@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useMemo } from 'react';
+import { usePersistentState } from '../hooks/usePersistentState.js';
 
 const ThemeContext = createContext();
 
@@ -11,26 +12,18 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = usePersistentState('theme', 'light');
 
   useEffect(() => {
-    // Load saved theme from localStorage
-    const savedTheme = localStorage.getItem('bulutlar-theme') || 'light';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  }, []);
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('bulutlar-theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-  }, [theme]);
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  }, []);
 
   const setSpecificTheme = useCallback((themeName) => {
     setTheme(themeName);
-    localStorage.setItem('bulutlar-theme', themeName);
-    document.documentElement.setAttribute('data-theme', themeName);
   }, []);
 
   const value = useMemo(() => ({

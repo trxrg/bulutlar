@@ -1,3 +1,21 @@
+/**
+ * Normalizes a string to be safe as a filename on both Windows and macOS.
+ * Replaces or removes invalid characters: \\ / : * ? " < > |
+ * Trims leading/trailing spaces and dots. Returns fallback if result is empty.
+ * @param {string} name - Raw name (e.g. article title or document title)
+ * @param {string} fallback - Value to return if name is empty after normalization
+ * @returns {string} Safe filename (no extension)
+ */
+export function normalizeFilename(name, fallback = 'document') {
+    if (name == null || typeof name !== 'string') return fallback;
+    // Windows: \ / : * ? " < > |  ;  macOS: / : (and NUL)
+    const invalid = /[\\/:*?"<>|\x00-\x1f]+/g;
+    let normalized = name.trim().replace(invalid, ' ').replace(/\s+/g, ' ').trim();
+    // Remove leading/trailing dots and spaces (e.g. ". " or " .")
+    normalized = normalized.replace(/^[\s.]*|[\s.]*$/g, '');
+    return normalized.length ? normalized : fallback;
+}
+
 // Helper function to ensure proper UTF-8 encoding
 export const ensureUTF8 = (text) => {
     if (!text) return '';

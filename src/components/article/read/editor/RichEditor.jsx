@@ -519,7 +519,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
     };
 
     const getContent = () => {
-        const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTMLAndDecorator(htmlContent, decorator);
+        const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTMLAndDecorator(htmlContent, decorator).editorState;
         // const currentImageIds = getImages(editorState).map(image => image.id);
         // const originalImageIds = getImages(originalEditorState).map(image => image.id);
 
@@ -547,7 +547,7 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
     }
 
     const resetContent = () => {
-        const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTMLAndDecorator(htmlContent, decorator);
+        const originalEditorState = rawContent ? EditorState.createWithContent(convertFromRaw(rawContent), decorator) : createEditorStateFromHTMLAndDecorator(htmlContent, decorator).editorState;
         // const currentImageIds = getImages(editorState).map(image => image.id);
         // const originalImageIds = getImages(originalEditorState).map(image => image.id);
 

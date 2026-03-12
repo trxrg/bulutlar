@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import SplitPane from 'react-split-pane';
+import { Group, Panel, Separator } from 'react-resizable-panels';
 import ReadLeftPanel from './ReadLeftPanel';
 import { ReadContext } from '../../../store/read-context';
 import { AppContext } from '../../../store/app-context';
@@ -13,21 +13,38 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import { DBContext } from '../../../store/db-context';
 
+const resizerStyle = { width: '4px', background: 'var(--border-primary)', cursor: 'col-resize', outline: 'none' };
+// Applied to Panel's inner content div (height + overflow make h-full chain work inside)
+const panelContentStyle = { height: '100%', overflow: 'hidden' };
+
 const ReadBody = () => {
 
   const { leftPanelCollapsed, rightPanelCollapsed, article, getOwnerName, getCategoryName, beforeFullScreenToggleRef } = useContext(ReadContext);
   const { fullScreen, setFullScreen, translate: t } = useContext(AppContext);
   const { fetchArticleById } = useContext(DBContext);
 
-  const [containerWidth, setContainerWidth] = useState(window.innerWidth);
   const [headerVisible, setHeaderVisible] = useState(false);
-  
+
+  const leftPanelRef = useRef(null);
+  const rightPanelRef = useRef(null);
+
   // Refs for scroll containers
   const fullscreenScrollRef = useRef(null);
   const normalScrollRef = useRef(null);
-  
+
   // Store scroll position info when switching modes
   const scrollPositionRef = useRef({ scrollRatio: 0 });
+
+  // Drive panel collapse/expand imperatively from context state
+  useEffect(() => {
+    if (leftPanelCollapsed) leftPanelRef.current?.collapse();
+    else leftPanelRef.current?.expand();
+  }, [leftPanelCollapsed]);
+
+  useEffect(() => {
+    if (rightPanelCollapsed) rightPanelRef.current?.collapse();
+    else rightPanelRef.current?.expand();
+  }, [rightPanelCollapsed]);
 
   // Function to capture scroll position (simple ratio-based)
   const captureScrollPosition = () => {
@@ -55,17 +72,6 @@ const ReadBody = () => {
     setFullScreen(newFullScreen);
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      setContainerWidth(window.innerWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   // ESC key to exit fullscreen
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -75,26 +81,22 @@ const ReadBody = () => {
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [fullScreen]);
 
   // Restore scroll position after fullscreen change
   useEffect(() => {
     const container = fullScreen ? fullscreenScrollRef.current : normalScrollRef.current;
     const { scrollRatio } = scrollPositionRef.current;
-    
+
     if (!container || scrollRatio === 0) return;
 
-    // Restore scroll position using ratio
     const restoreScroll = () => {
       const { scrollHeight, clientHeight } = container;
       const maxScroll = scrollHeight - clientHeight;
       container.scrollTop = scrollRatio * maxScroll;
     };
 
-    // Initial restore
     restoreScroll();
 
     // Keep adjusting as images load (content size changes)
@@ -110,10 +112,8 @@ const ReadBody = () => {
     };
   }, [fullScreen]);
 
-  // Handle mouse move for hover header
   const handleMouseMove = (e) => {
     if (fullScreen) {
-      // Show header when mouse is in the top 60px
       setHeaderVisible(e.clientY < 60);
     }
   };
@@ -124,27 +124,23 @@ const ReadBody = () => {
     fetchArticleById(article.id);
   };
 
-  // Main layout - ALWAYS render the same structure, use CSS to transform for fullscreen
-  // This ensures ReadContent is never unmounted when toggling fullscreen
   return (
     <div className='h-full relative'>
       {/* Fullscreen overlay elements - only shown when fullscreen */}
       {fullScreen && (
         <>
           {/* Hover Header */}
-          <div 
+          <div
             className={`fixed top-0 left-0 right-0 z-[60] transition-all duration-300 ease-in-out ${
               headerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'
             }`}
-            style={{ 
+            style={{
               backgroundColor: 'var(--bg-secondary)',
               boxShadow: '0 4px 6px -1px var(--shadow)',
             }}
             onMouseEnter={() => setHeaderVisible(true)}
             onMouseLeave={(e) => {
-              if (e.clientY > 60) {
-                setHeaderVisible(false);
-              }
+              if (e.clientY > 60) setHeaderVisible(false);
             }}
           >
             <div className='flex items-center justify-between px-4 py-3'>
@@ -172,7 +168,7 @@ const ReadBody = () => {
               <button
                 onClick={() => toggleFullScreen(false)}
                 className='flex items-center gap-2 px-3 py-2 rounded-lg transition-colors hover:bg-opacity-80'
-                style={{ 
+                style={{
                   backgroundColor: 'var(--bg-primary)',
                   color: 'var(--text-primary)',
                   border: '1px solid var(--border-secondary)'
@@ -189,7 +185,7 @@ const ReadBody = () => {
           <button
             onClick={() => toggleFullScreen(false)}
             className='fixed bottom-6 right-6 z-[60] p-3 rounded-full shadow-lg transition-all hover:scale-110'
-            style={{ 
+            style={{
               backgroundColor: 'var(--bg-secondary)',
               color: 'var(--text-primary)',
               boxShadow: '0 4px 15px var(--shadow)'
@@ -200,38 +196,26 @@ const ReadBody = () => {
           </button>
         </>
       )}
-      
-      {/* Normal layout structure - always rendered to preserve ReadContent state */}
+
       <div className='h-full'>
-        <SplitPane
-          split="vertical"
-          minSize={containerWidth * 0.6}
-          maxSize={containerWidth * 0.8}
-          size={rightPanelCollapsed ? '100%' : containerWidth * 0.8}
-          resizerStyle={rightPanelCollapsed || fullScreen ? { display: 'none' } : { background: 'var(--border-primary)', cursor: 'col-resize', width: '4px' }}
-        >
-          <SplitPane
-            split="vertical"
-            minSize={containerWidth * 0.1}
-            maxSize={containerWidth * 0.3}
-            size={leftPanelCollapsed ? '0%' : containerWidth * 0.2}
-            resizerStyle={leftPanelCollapsed || fullScreen ? { display: 'none' } : { background: 'var(--border-primary)', cursor: 'col-resize', width: '4px' }}
-          >
-            {/* Left panel - hidden visually in fullscreen but still rendered */}
-            <div className={`h-full transition-transform duration-300 ${leftPanelCollapsed || fullScreen ? 'transform -translate-x-full w-0 opacity-0' : 'w-full'}`}>
-              <ReadLeftPanel />
-            </div>
-            <div className='h-full'>
-              <BodyWithFixedHeader scrollRef={normalScrollRef}>
-                {/* ReadControls - hidden in fullscreen */}
+        <Group className='h-full'>
+
+          <Panel panelRef={leftPanelRef} defaultSize="20" minSize="15" maxSize="30" collapsible style={panelContentStyle}>
+            <ReadLeftPanel />
+          </Panel>
+
+          <Separator style={leftPanelCollapsed || fullScreen ? { display: 'none' } : resizerStyle} />
+
+          <Panel defaultSize="60" minSize="40" style={panelContentStyle}>
+            <BodyWithFixedHeader scrollRef={normalScrollRef}>
                 <div className={fullScreen ? 'hidden' : ''}>
                   <ReadControls />
                 </div>
-                {/* ReadContent wrapper - uses fixed positioning when fullscreen to overlay everything */}
-                <div 
+                {/* Uses fixed positioning in fullscreen to overlay everything */}
+                <div
                   ref={fullscreenScrollRef}
-                  className={fullScreen 
-                    ? 'fixed inset-0 z-50 h-full overflow-auto pt-4 px-4' 
+                  className={fullScreen
+                    ? 'fixed inset-0 z-50 h-full overflow-auto pt-4 px-4'
                     : ''
                   }
                   style={fullScreen ? { backgroundColor: 'var(--bg-primary)' } : undefined}
@@ -240,13 +224,15 @@ const ReadBody = () => {
                   <ReadContent />
                 </div>
               </BodyWithFixedHeader>
-            </div>
-          </SplitPane>
-          {/* Right panel - hidden visually in fullscreen but still rendered */}
-          <div className={`h-full transition-transform duration-300 ${rightPanelCollapsed || fullScreen ? 'transform translate-x-full w-0 opacity-0' : 'w-full'}`}>
+          </Panel>
+
+          <Separator style={rightPanelCollapsed || fullScreen ? { display: 'none' } : resizerStyle} />
+
+          <Panel panelRef={rightPanelRef} defaultSize="20" minSize="15" maxSize="30" collapsible style={panelContentStyle}>
             <ReadRightPanel />
-          </div>
-        </SplitPane>
+          </Panel>
+
+        </Group>
       </div>
     </div>
   );

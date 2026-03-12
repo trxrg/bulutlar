@@ -9,7 +9,7 @@ const ReadScreen = () => {
       <div className="flex-shrink-0">
         <ReadHeader />
       </div>
-      <div className="flex-1">
+      <div className="flex-1 overflow-hidden">
         <ReadBody />
       </div>
     </div>

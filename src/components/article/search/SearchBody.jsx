@@ -1,39 +1,38 @@
-import React, { useState, useEffect, useContext } from 'react';
-import SplitPane from 'react-split-pane';
+import React, { useEffect, useContext, useRef } from 'react';
+import { Group, Panel, Separator } from 'react-resizable-panels';
 
 import SearchResults from './search-results/SearchResults.jsx';
 import SearchFilterings from './filtering/SearchFilterings.jsx';
 import { SearchContext } from '../../../store/search-context.jsx';
 
+const resizerStyle = { width: '4px', background: 'var(--border-primary)', cursor: 'col-resize', outline: 'none' };
+const panelContentStyle = { height: '100%', overflow: 'hidden' };
+
 const SearchBody = () => {
 
-    const [containerWidth, setContainerWidth] = useState(window.innerWidth);
     const { sidePanelCollapsed } = useContext(SearchContext);
+    const sidePanelRef = useRef(null);
 
     useEffect(() => {
-        const handleResize = () => {
-            setContainerWidth(window.innerWidth);
-        };
-
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
+        if (sidePanelCollapsed) sidePanelRef.current?.collapse();
+        else sidePanelRef.current?.expand();
+    }, [sidePanelCollapsed]);
 
     return (
-        <div className='h-full relative'>
-            <SplitPane
-                split="vertical"
-                minSize={containerWidth * 0.2}
-                maxSize={containerWidth * 0.6}
-                size={sidePanelCollapsed ? '0%' : containerWidth * 0.3}
-                paneStyle={{ overflow: 'auto' }}
-                resizerStyle={sidePanelCollapsed ? { display: 'none' } : { background: 'var(--border-primary)', cursor: 'col-resize', width: '4px' }}
-            >
-                <SearchFilterings></SearchFilterings>
-                <SearchResults></SearchResults>
-            </SplitPane>
+        <div className='h-full'>
+            <Group className='h-full'>
+
+                <Panel panelRef={sidePanelRef} defaultSize="30" minSize="20" maxSize="60" collapsible style={panelContentStyle}>
+                    <SearchFilterings />
+                </Panel>
+
+                <Separator style={sidePanelCollapsed ? { display: 'none' } : resizerStyle} />
+
+                <Panel defaultSize="70" minSize="40" style={panelContentStyle}>
+                    <SearchResults />
+                </Panel>
+
+            </Group>
         </div>
     );
 };

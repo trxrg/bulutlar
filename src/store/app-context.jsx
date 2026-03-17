@@ -24,6 +24,8 @@ export default function AppContextProvider({ children }) {
         autosaveEnabled: false,
         autosaveInterval: 30 // seconds
     });
+    const [autoHideControls, setAutoHideControls] = usePersistentState('autoHideControls', false);
+    const [wordsPerMinute, setWordsPerMinute] = usePersistentState('wordsPerMinute', 100);
     const [dataIsCleaned, setDataIsCleaned] = useState(false);
     const [isReadyToShow, setIsReadyToShow] = useState(false);
     const [loadingStartTime] = useState(Date.now());
@@ -383,7 +385,11 @@ export default function AppContextProvider({ children }) {
         saveConfirmModal,
         handleSaveAndClose,
         handleDiscardAndClose,
-        handleCancelClose
+        handleCancelClose,
+        autoHideControls,
+        setAutoHideControls,
+        wordsPerMinute,
+        setWordsPerMinute
     };
 
     return (

@@ -35,6 +35,7 @@ export const articleApi = {
     setOrdering:       async (id, ordering)         => window.api.article.setOrdering(id, ordering),
     updateRelatedArticleOrdering: async (articleId, relatedArticleId, ordering) => window.api.article.updateRelatedArticleOrdering(articleId, relatedArticleId, ordering),
     updateRelatedArticleOrderings: async (articleId, orderings) => window.api.article.updateRelatedArticleOrderings(articleId, orderings),
+    recalculateAllReadTimes: async () => window.api.article.recalculateAllReadTimes(),
 };
 
 export const ownerApi = {

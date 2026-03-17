@@ -11,6 +11,8 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
 import ArticlePreferencesModal from '../modals/ArticlePreferencesModal.jsx';
 import ExportModal from '../modals/ExportModal.jsx';
@@ -19,7 +21,7 @@ import toastr from 'toastr';
 const ReadControls = () => {
 
     const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef, showExplanationEditor, setShowExplanationEditor, showCommentEditor, setShowCommentEditor, hasExplanationContent, hasCommentContent } = useContext(ReadContext);
-    const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings, activeTabId } = useContext(AppContext);
+    const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings, activeTabId, autoHideControls, setAutoHideControls } = useContext(AppContext);
     
     // Wrapper to capture scroll before toggling fullscreen
     const toggleFullScreen = (newFullScreen) => {
@@ -324,6 +326,16 @@ const ReadControls = () => {
                             onClick={() => setEditable(true)}
                             title={t('edit article')}>
                             <PencilIcon className="w-5 h-5" />
+                        </FormatButton>
+                    }
+                    {!editable &&
+                        <FormatButton
+                            onClick={() => setAutoHideControls(!autoHideControls)}
+                            title={autoHideControls ? t('show controls') : t('auto-hide controls')}>
+                            {autoHideControls
+                                ? <PushPinOutlinedIcon style={{ fontSize: '1.25rem' }} />
+                                : <PushPinIcon style={{ fontSize: '1.25rem' }} />
+                            }
                         </FormatButton>
                     }
                     <FormatButton

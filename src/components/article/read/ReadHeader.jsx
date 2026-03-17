@@ -11,7 +11,7 @@ import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import ArticleInfo from '../ArticleInfo.jsx';
 
 const ReadHeader = () => {
-  const { article, syncArticleFromBE, getOwnerName, getCategoryName } = useContext(ReadContext);
+  const { article, syncArticleFromBE, getOwnerName, getCategoryName, headerCompact } = useContext(ReadContext);
   const { fullScreen, translate: t } = useContext(AppContext);
   const { fetchArticleById } = useContext(DBContext);
 
@@ -35,22 +35,34 @@ const ReadHeader = () => {
 
   return (
     <div 
-      className={fullScreen ? 'hidden' : 'pt-2 pb-1 flex justify-between border-b-4'}
+      className={fullScreen ? 'hidden' : 'flex justify-between border-b-4 transition-all duration-300 ease-in-out'}
       style={{
         backgroundColor: 'var(--bg-primary)',
-        borderColor: 'var(--border-primary)'
+        borderColor: 'var(--border-primary)',
+        padding: headerCompact ? '2px 0' : '8px 0 4px 0',
       }}
     >
-      <div className='px-4'>
+      <div className='px-4 overflow-hidden'>
         <RichInput 
           initialText={article.title} 
           handleSave={(newName) => handleChangeTitle(newName)} 
-          className="text-2xl font-semibold mb-1"
+          className={`font-semibold transition-all duration-300 ${headerCompact ? 'text-lg mb-0' : 'text-2xl mb-1'}`}
           style={{ color: 'var(--text-primary)' }}
         ></RichInput>
-        <ArticleInfo article={article}></ArticleInfo>
+        <div
+          className="transition-all duration-300 ease-in-out"
+          style={{
+            display: 'grid',
+            gridTemplateRows: headerCompact ? '0fr' : '1fr',
+            opacity: headerCompact ? 0 : 1,
+          }}
+        >
+          <div style={{ overflow: 'hidden', minHeight: 0 }}>
+            <ArticleInfo article={article}></ArticleInfo>
+          </div>
+        </div>
       </div>
-      <div className='flex items-center gap-3 pr-6'>
+      <div className={`flex items-center gap-3 pr-6 transition-all duration-300 ${headerCompact ? 'scale-90' : ''}`}>
         <div onClick={handleStarClick} className='cursor-pointer' title={t('starred')}>
           {article.isStarred ? (
             <StarIcon style={{ fontSize: '2rem', color: '#FFD700' }} className="hover:scale-125" />

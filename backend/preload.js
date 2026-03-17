@@ -44,6 +44,7 @@ contextBridge.exposeInMainWorld('api', {
     setOrdering:     (id, ordering)         => ipcRenderer.invoke('article/setOrdering', id, ordering),
     updateRelatedArticleOrdering: (articleId, relatedArticleId, ordering) => ipcRenderer.invoke('article/updateRelatedArticleOrdering', articleId, relatedArticleId, ordering),
     updateRelatedArticleOrderings: (articleId, orderings) => ipcRenderer.invoke('article/updateRelatedArticleOrderings', articleId, orderings),
+    recalculateAllReadTimes: () => ipcRenderer.invoke('article/recalculateAllReadTimes'),
   },
   owner: {
     create:      (owner)        => ipcRenderer.invoke('owner/create', owner),

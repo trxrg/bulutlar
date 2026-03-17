@@ -22,6 +22,7 @@ function setState(key, value) {
 }
 
 function getState(key) {
+    if (!store) return undefined;
     return store.get(key);
 }
 
@@ -39,6 +40,7 @@ function deleteManyStates(keys) {
 
 const storeService = {
     initService,
+    getState: (key) => getState(key),
 };
 
 export default storeService;

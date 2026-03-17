@@ -17,10 +17,10 @@ const resizerStyle = { width: '4px', background: 'var(--border-primary)', cursor
 // Applied to Panel's inner content div (height + overflow make h-full chain work inside)
 const panelContentStyle = { height: '100%', overflow: 'hidden' };
 
-const ReadBody = () => {
+const ReadBody = ({ controlsTrigger, showControls, hideControls }) => {
 
-  const { leftPanelCollapsed, rightPanelCollapsed, article, getOwnerName, getCategoryName, beforeFullScreenToggleRef } = useContext(ReadContext);
-  const { fullScreen, setFullScreen, translate: t } = useContext(AppContext);
+  const { leftPanelCollapsed, rightPanelCollapsed, article, getOwnerName, getCategoryName, beforeFullScreenToggleRef, editable, setHeaderCompact } = useContext(ReadContext);
+  const { fullScreen, setFullScreen, translate: t, autoHideControls } = useContext(AppContext);
   const { fetchArticleById } = useContext(DBContext);
 
   const [headerVisible, setHeaderVisible] = useState(false);
@@ -35,15 +35,42 @@ const ReadBody = () => {
   // Store scroll position info when switching modes
   const scrollPositionRef = useRef({ scrollRatio: 0 });
 
+  // Track scroll direction to compact/expand header
+  const lastScrollTopRef = useRef(0);
+  useEffect(() => {
+    const container = normalScrollRef.current;
+    if (!container) return;
+
+    const SCROLL_THRESHOLD = 30;
+
+    const handleScroll = () => {
+      const scrollTop = container.scrollTop;
+      const delta = scrollTop - lastScrollTopRef.current;
+
+      if (delta > SCROLL_THRESHOLD) {
+        setHeaderCompact(true);
+        lastScrollTopRef.current = scrollTop;
+      } else if (delta < -SCROLL_THRESHOLD || scrollTop < SCROLL_THRESHOLD) {
+        setHeaderCompact(false);
+        lastScrollTopRef.current = scrollTop;
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [setHeaderCompact]);
+
   // Drive panel collapse/expand imperatively from context state
   useEffect(() => {
     if (leftPanelCollapsed) leftPanelRef.current?.collapse();
     else leftPanelRef.current?.expand();
+    hideControls();
   }, [leftPanelCollapsed]);
 
   useEffect(() => {
     if (rightPanelCollapsed) rightPanelRef.current?.collapse();
     else rightPanelRef.current?.expand();
+    hideControls();
   }, [rightPanelCollapsed]);
 
   // Function to capture scroll position (simple ratio-based)
@@ -208,8 +235,24 @@ const ReadBody = () => {
 
           <Panel defaultSize="60" minSize="40" style={panelContentStyle}>
             <BodyWithFixedHeader scrollRef={normalScrollRef}>
+                {/* Auto-hide overlay relies on BodyWithFixedHeader's header slot having "relative z-10" */}
                 <div className={fullScreen ? 'hidden' : ''}>
-                  <ReadControls />
+                  {autoHideControls && !editable ? (
+                    <div
+                      className={`absolute left-0 right-0 z-20 transition-all duration-300 ease-in-out ${
+                        controlsTrigger
+                          ? 'opacity-100 translate-y-0'
+                          : 'opacity-0 -translate-y-full pointer-events-none'
+                      }`}
+                      style={{ boxShadow: controlsTrigger ? '0 10px 25px -5px var(--shadow)' : 'none' }}
+                      onMouseEnter={showControls}
+                      onMouseLeave={hideControls}
+                    >
+                      <ReadControls />
+                    </div>
+                  ) : (
+                    <ReadControls />
+                  )}
                 </div>
                 {/* Uses fixed positioning in fullscreen to overlay everything */}
                 <div

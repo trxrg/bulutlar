@@ -28,6 +28,7 @@ export default function ReadContextProvider({ children, article }) {
     const [allHighlightRefs, setAllHighlightRefs] = useState([]); // Combined refs from all editors
     const [showExplanationEditor, setShowExplanationEditor] = useState(false);
     const [showCommentEditor, setShowCommentEditor] = useState(false);
+    const [headerCompact, setHeaderCompact] = useState(false);
     const articleId = article.id;
 
     // Helper to check if HTML string is empty
@@ -306,7 +307,9 @@ export default function ReadContextProvider({ children, article }) {
         setShowCommentEditor,
         hasExplanationContent,
         hasCommentContent,
-        isHtmlStringEmpty
+        isHtmlStringEmpty,
+        headerCompact,
+        setHeaderCompact
     };
 
     return <ReadContext.Provider value={ctxValue}>

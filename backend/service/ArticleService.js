@@ -14,6 +14,7 @@ import videoService from './VideoService.js';
 import annotationService from './AnnotationService.js';
 import groupService from './GroupService.js';
 import { config } from '../config.js';
+import storeService from './StoreService.js';
 import { fileURLToPath } from 'url';
 
 // Get __dirname equivalent for ES modules
@@ -53,8 +54,9 @@ function initService() {
     ipcMain.handle('article/setIsDateUncertain', async (event, id, isDateUncertain) => await setIsDateUncertain(id, isDateUncertain));    
     ipcMain.handle('article/setOrdering', async (event, id, ordering) => await setOrdering(id, ordering));
     ipcMain.handle('article/updateRelatedArticleOrdering', async (event, articleId, relatedArticleId, ordering) => await updateRelatedArticleOrdering(articleId, relatedArticleId, ordering));
-    ipcMain.handle('article/updateRelatedArticleOrderings', async (event, articleId, orderings) => await updateRelatedArticleOrderings(articleId, orderings));    
-    
+    ipcMain.handle('article/updateRelatedArticleOrderings', async (event, articleId, orderings) => await updateRelatedArticleOrderings(articleId, orderings));
+    ipcMain.handle('article/recalculateAllReadTimes', async () => await recalculateAllReadTimes());
+
     // Initialize folder paths
     imagesFolderPath = config.imagesFolderPath;
     
@@ -845,8 +847,9 @@ async function calculateAndUpdateReadTime(articleId) {
             return;
         }
 
-        // Average reading speed for comprehension of substantive content
-        const wordsPerMinute = 150;
+        const DEFAULT_WORDS_PER_MINUTE = 100;
+        const storedWpm = storeService.getState('wordsPerMinute');
+        const wordsPerMinute = (storedWpm && Number.isFinite(storedWpm) && storedWpm > 0) ? storedWpm : DEFAULT_WORDS_PER_MINUTE;
         
         // Combine all text content from the article
         let totalText = '';
@@ -889,6 +892,16 @@ async function calculateAndUpdateReadTime(articleId) {
         console.error('Error calculating read time for article', articleId, error);
         return 1; // Return default if calculation fails
     }
+}
+
+async function recalculateAllReadTimes() {
+    const articles = await sequelize.models.article.findAll({ attributes: ['id'] });
+    console.log(`Recalculating read times for ${articles.length} articles...`);
+    for (const article of articles) {
+        await calculateAndUpdateReadTime(article.id);
+    }
+    console.log('Read time recalculation complete.');
+    return articles.length;
 }
 
 // Function to ensure read time is calculated for an article

@@ -123,7 +123,7 @@ const SortableTab = ({ tab, isActive, onTabClick, onCloseTab, onContextMenu, get
     <div
       ref={setNodeRef}
       data-tab-id={tab.id}
-      className="group min-w-60 py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent tab-item focus:outline-none relative text-left"
+      className="group min-w-60 py-2 px-2 inline-flex items-center cursor-pointer border-b-4 border-transparent tab-item focus:outline-none relative text-left text-sm"
       style={{
         backgroundColor: isActive ? 'var(--bg-primary)' : 'var(--bg-secondary)',
         color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',

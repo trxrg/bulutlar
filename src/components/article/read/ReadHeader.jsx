@@ -42,12 +42,12 @@ const ReadHeader = () => {
         padding: headerCompact ? '2px 0' : '8px 0 4px 0',
       }}
     >
-      <div className='px-4 overflow-hidden'>
+      <div className={`px-4 overflow-hidden flex-1 transition-all duration-300 ${headerCompact ? 'text-center' : ''}`}>
         <RichInput 
           initialText={article.title} 
           handleSave={(newName) => handleChangeTitle(newName)} 
           className={`font-semibold transition-all duration-300 ${headerCompact ? 'text-lg mb-0' : 'text-2xl mb-1'}`}
-          style={{ color: 'var(--text-primary)' }}
+          style={{ color: 'var(--text-primary)', opacity: headerCompact ? 0.3 : 1, transition: 'opacity 0.3s ease-in-out' }}
         ></RichInput>
         <div
           className="transition-all duration-300 ease-in-out"

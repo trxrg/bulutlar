@@ -7,7 +7,7 @@ import { ReadContext } from '../../../store/read-context.jsx';
 
 const ReadScreen = () => {
   const { autoHideControls } = useContext(AppContext);
-  const { editable } = useContext(ReadContext);
+  const { editable, setHeaderCompact } = useContext(ReadContext);
 
   const [controlsTrigger, setControlsTrigger] = useState(false);
   const triggerTimeoutRef = useRef(null);
@@ -29,7 +29,8 @@ const ReadScreen = () => {
     if (!isAutoHiding) return;
     clearTimeout(triggerTimeoutRef.current);
     setControlsTrigger(true);
-  }, [isAutoHiding]);
+    setHeaderCompact(false);
+  }, [isAutoHiding, setHeaderCompact]);
 
   const hideControls = useCallback(() => {
     if (!isAutoHiding) return;

@@ -11,6 +11,7 @@ const ReadScreen = () => {
 
   const [controlsTrigger, setControlsTrigger] = useState(false);
   const triggerTimeoutRef = useRef(null);
+  const controlsPinnedRef = useRef(false);
 
   const isAutoHiding = autoHideControls && !editable;
 
@@ -19,7 +20,7 @@ const ReadScreen = () => {
   }, []);
 
   useEffect(() => {
-    if (isAutoHiding) {
+    if (isAutoHiding && !controlsPinnedRef.current) {
       setControlsTrigger(false);
     }
   }, [isAutoHiding]);
@@ -32,7 +33,9 @@ const ReadScreen = () => {
 
   const hideControls = useCallback(() => {
     if (!isAutoHiding) return;
+    if (controlsPinnedRef.current) return;
     triggerTimeoutRef.current = setTimeout(() => {
+      if (controlsPinnedRef.current) return;
       setControlsTrigger(false);
     }, 300);
   }, [isAutoHiding]);
@@ -51,6 +54,7 @@ const ReadScreen = () => {
           controlsTrigger={controlsTrigger}
           showControls={showControls}
           hideControls={hideControls}
+          controlsPinnedRef={controlsPinnedRef}
         />
       </div>
     </div>

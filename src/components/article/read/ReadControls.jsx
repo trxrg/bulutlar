@@ -18,7 +18,7 @@ import ArticlePreferencesModal from '../modals/ArticlePreferencesModal.jsx';
 import ExportModal from '../modals/ExportModal.jsx';
 import toastr from 'toastr';
 
-const ReadControls = () => {
+const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
 
     const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef, showExplanationEditor, setShowExplanationEditor, showCommentEditor, setShowCommentEditor, hasExplanationContent, hasCommentContent } = useContext(ReadContext);
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings, activeTabId, autoHideControls, setAutoHideControls } = useContext(AppContext);
@@ -38,6 +38,20 @@ const ReadControls = () => {
     const [shouldScrollToFirst, setShouldScrollToFirst] = useState(false);
     
     const searchInputRef = useRef(null);
+
+    useEffect(() => {
+        if (controlsPinnedRef) {
+            controlsPinnedRef.current = searchBarOpen;
+            if (searchBarOpen) {
+                showControls?.();
+            } else {
+                hideControls?.();
+            }
+        }
+        return () => {
+            if (controlsPinnedRef) controlsPinnedRef.current = false;
+        };
+    }, [searchBarOpen, controlsPinnedRef, showControls, hideControls]);
 
     // Effect to scroll to first highlight when highlights become available
     useEffect(() => {

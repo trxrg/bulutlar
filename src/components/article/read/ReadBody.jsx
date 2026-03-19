@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useContext, useRef } from 'react';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import ReadLeftPanel from './ReadLeftPanel';
 import { ReadContext } from '../../../store/read-context';
@@ -17,9 +17,9 @@ const resizerStyle = { width: '4px', background: 'var(--border-primary)', cursor
 // Applied to Panel's inner content div (height + overflow make h-full chain work inside)
 const panelContentStyle = { height: '100%', overflow: 'hidden' };
 
-const ReadBody = ({ controlsTrigger, showControls, hideControls }) => {
+const ReadBody = ({ controlsTrigger, showControls, hideControls, controlsPinnedRef }) => {
 
-  const { leftPanelCollapsed, rightPanelCollapsed, article, getOwnerName, getCategoryName, beforeFullScreenToggleRef, editable, setHeaderCompact } = useContext(ReadContext);
+  const { leftPanelCollapsed, rightPanelCollapsed, article, getOwnerName, getCategoryName, beforeFullScreenToggleRef, editable, headerCompact, setHeaderCompact } = useContext(ReadContext);
   const { fullScreen, setFullScreen, translate: t, autoHideControls } = useContext(AppContext);
   const { fetchArticleById } = useContext(DBContext);
 
@@ -37,6 +37,23 @@ const ReadBody = ({ controlsTrigger, showControls, hideControls }) => {
 
   // Track scroll direction to compact/expand header
   const lastScrollTopRef = useRef(0);
+  const suppressScrollRef = useRef(false);
+  const suppressTimeoutRef = useRef(null);
+
+  const suppressScrollHandling = (duration = 400) => {
+    suppressScrollRef.current = true;
+    clearTimeout(suppressTimeoutRef.current);
+    suppressTimeoutRef.current = setTimeout(() => {
+      suppressScrollRef.current = false;
+      const container = normalScrollRef.current;
+      if (container) lastScrollTopRef.current = container.scrollTop;
+    }, duration);
+  };
+
+  useEffect(() => {
+    return () => clearTimeout(suppressTimeoutRef.current);
+  }, []);
+
   useEffect(() => {
     const container = normalScrollRef.current;
     if (!container) return;
@@ -44,6 +61,8 @@ const ReadBody = ({ controlsTrigger, showControls, hideControls }) => {
     const SCROLL_THRESHOLD = 30;
 
     const handleScroll = () => {
+      if (suppressScrollRef.current) return;
+
       const scrollTop = container.scrollTop;
       const delta = scrollTop - lastScrollTopRef.current;
 
@@ -60,14 +79,23 @@ const ReadBody = ({ controlsTrigger, showControls, hideControls }) => {
     return () => container.removeEventListener('scroll', handleScroll);
   }, [setHeaderCompact]);
 
+  // Sync scroll baseline after headerCompact changes to prevent feedback loops.
+  // useLayoutEffect runs before the browser fires scroll events from the layout shift.
+  useLayoutEffect(() => {
+    const container = normalScrollRef.current;
+    if (container) lastScrollTopRef.current = container.scrollTop;
+  }, [headerCompact]);
+
   // Drive panel collapse/expand imperatively from context state
   useEffect(() => {
+    suppressScrollHandling();
     if (leftPanelCollapsed) leftPanelRef.current?.collapse();
     else leftPanelRef.current?.expand();
     hideControls();
   }, [leftPanelCollapsed]);
 
   useEffect(() => {
+    suppressScrollHandling();
     if (rightPanelCollapsed) rightPanelRef.current?.collapse();
     else rightPanelRef.current?.expand();
     hideControls();
@@ -248,7 +276,7 @@ const ReadBody = ({ controlsTrigger, showControls, hideControls }) => {
                       onMouseEnter={showControls}
                       onMouseLeave={hideControls}
                     >
-                      <ReadControls />
+                      <ReadControls controlsPinnedRef={controlsPinnedRef} showControls={showControls} hideControls={hideControls} />
                     </div>
                   ) : (
                     <ReadControls />

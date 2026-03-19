@@ -79,11 +79,12 @@ const ReadBody = ({ controlsTrigger, showControls, hideControls, controlsPinnedR
     return () => container.removeEventListener('scroll', handleScroll);
   }, [setHeaderCompact]);
 
-  // Sync scroll baseline after headerCompact changes to prevent feedback loops.
-  // useLayoutEffect runs before the browser fires scroll events from the layout shift.
+  // Suppress scroll handling during the headerCompact CSS transition (300ms)
+  // to prevent layout-induced scroll events from toggling it back.
   useLayoutEffect(() => {
     const container = normalScrollRef.current;
     if (container) lastScrollTopRef.current = container.scrollTop;
+    suppressScrollHandling(350);
   }, [headerCompact]);
 
   // Drive panel collapse/expand imperatively from context state

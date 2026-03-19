@@ -47,7 +47,7 @@ const ReadHeader = () => {
           initialText={article.title} 
           handleSave={(newName) => handleChangeTitle(newName)} 
           className={`font-semibold transition-all duration-300 ${headerCompact ? 'text-2xl mb-0' : 'text-2xl mb-1'}`}
-          style={{ color: 'var(--text-primary)', opacity: headerCompact ? 0.3 : 1, transition: 'opacity 0.3s ease-in-out' }}
+          style={{ color: 'var(--text-primary)', opacity: headerCompact ? 0.8 : 1, transition: 'opacity 0.3s ease-in-out' }}
         ></RichInput>
         <div
           className="transition-all duration-300 ease-in-out"

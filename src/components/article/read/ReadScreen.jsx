@@ -29,8 +29,7 @@ const ReadScreen = () => {
     if (!isAutoHiding) return;
     clearTimeout(triggerTimeoutRef.current);
     setControlsTrigger(true);
-    setHeaderCompact(false);
-  }, [isAutoHiding, setHeaderCompact]);
+  }, [isAutoHiding]);
 
   const hideControls = useCallback(() => {
     if (!isAutoHiding) return;
@@ -45,7 +44,7 @@ const ReadScreen = () => {
     <div className="flex flex-col h-full">
       <div
         className="flex-shrink-0"
-        onMouseEnter={showControls}
+        onMouseEnter={() => { showControls(); setHeaderCompact(false); }}
         onMouseLeave={hideControls}
       >
         <ReadHeader />

@@ -21,6 +21,7 @@ async function withBrowserWindow(url, options = {}) {
             sandbox: true,
             contextIsolation: true,
             nodeIntegration: false,
+            partition: 'url-fetch',
         },
     });
     try {
@@ -33,7 +34,10 @@ async function withBrowserWindow(url, options = {}) {
         const result = await win.webContents.executeJavaScript(script);
         return result;
     } finally {
+        const ses = win.webContents.session;
         win.destroy();
+        await ses.clearStorageData();
+        await ses.clearCache();
     }
 }
 

@@ -6,7 +6,7 @@ import Highlight from '@tiptap/extension-highlight';
 import Superscript from '@tiptap/extension-superscript';
 import Subscript from '@tiptap/extension-subscript';
 import Placeholder from '@tiptap/extension-placeholder';
-import { imageApi, audioApi, videoApi, articleApi } from '../../../../backend-adapter/BackendAdapter';
+import { imageApi, audioApi, videoApi, articleApi, annotationApi } from '../../../../backend-adapter/BackendAdapter';
 import { ReadContext } from '../../../../store/read-context';
 import { AppContext } from '../../../../store/app-context';
 import { DBContext } from '../../../../store/db-context';
@@ -41,6 +41,17 @@ function findLinkMarkAtEvent(view, event) {
     return { url: linkMark.attrs.url, pos: pos.pos };
 }
 
+function findQuoteMarkAtEvent(view, event) {
+    const coords = { left: event.clientX, top: event.clientY };
+    const pos = view.posAtCoords(coords);
+    if (!pos) return null;
+    const $pos = view.state.doc.resolve(pos.pos);
+    const marks = $pos.marks();
+    const quoteMark = marks.find(m => m.type.name === 'articleQuote');
+    if (!quoteMark || !quoteMark.attrs.annotationId) return null;
+    return { annotationId: quoteMark.attrs.annotationId, pos: pos.pos };
+}
+
 const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleContentChange, editable, editorId = 'default' }, ref) => {
 
     const { setContextMenuIsOpen, setContextMenuPosition, searchTerm, articleId, updateAllHighlightRefs } = useContext(ReadContext);
@@ -56,6 +67,7 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
 
     const [linkHover, setLinkHover] = useState(null);
     const [linkContextMenu, setLinkContextMenu] = useState(null);
+    const [quoteContextMenu, setQuoteContextMenu] = useState(null);
 
     const initErrorRef = useRef(null);
     const originalContentRef = useRef(null);
@@ -199,6 +211,16 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
                         });
                         return true;
                     }
+                    const quoteInfo = findQuoteMarkAtEvent(view, event);
+                    if (quoteInfo) {
+                        event.preventDefault();
+                        setQuoteContextMenu({
+                            annotationId: quoteInfo.annotationId,
+                            pos: quoteInfo.pos,
+                            position: { top: event.clientY, left: event.clientX },
+                        });
+                        return true;
+                    }
                     return false;
                 },
             },
@@ -290,6 +312,34 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
         setLinkContextMenu(null);
         persist();
     }, [editor, linkContextMenu, persist]);
+
+    const handleRemoveQuote = useCallback(async () => {
+        if (!editor || !quoteContextMenu) return;
+        const { annotationId } = quoteContextMenu;
+        const markType = editor.schema.marks.articleQuote;
+
+        const tr = editor.state.tr;
+        editor.state.doc.descendants((node, pos) => {
+            if (!node.isText) return;
+            const mark = node.marks.find(
+                m => m.type === markType && m.attrs.annotationId === annotationId
+            );
+            if (mark) {
+                tr.removeMark(pos, pos + node.nodeSize, mark);
+            }
+        });
+        editor.view.dispatch(tr);
+
+        setQuoteContextMenu(null);
+        persist();
+
+        try {
+            await annotationApi.deleteById(annotationId);
+            await fetchAllAnnotations();
+        } catch (error) {
+            console.error('Error deleting annotation from db:', error);
+        }
+    }, [editor, quoteContextMenu, persist, fetchAllAnnotations]);
 
     // ================================ QUOTES ================================
     const addQuote = useCallback(async () => {
@@ -495,6 +545,18 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
                 <div className='flex flex-col'>
                     <ActionButton color='red' onClick={handleRemoveLink}>
                         {t('remove link')}
+                    </ActionButton>
+                </div>
+            </ContextMenu>
+            {/* Quote right-click context menu */}
+            <ContextMenu
+                isOpen={!!quoteContextMenu}
+                onClose={() => setQuoteContextMenu(null)}
+                position={quoteContextMenu?.position || { top: 0, left: 0 }}
+            >
+                <div className='flex flex-col'>
+                    <ActionButton color='red' onClick={handleRemoveQuote}>
+                        {t('remove quote')}
                     </ActionButton>
                 </div>
             </ContextMenu>

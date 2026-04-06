@@ -275,6 +275,14 @@ const SearchResultsBody = React.memo(() => {
         const scrollableParent = container.parentElement;
         if (!scrollableParent) return;
 
+        const updateCenter = () => {
+            const containerRect = scrollableParent.getBoundingClientRect();
+            setStickyDateCenter(containerRect.left + containerRect.width / 2);
+        };
+
+        const resizeObserver = new ResizeObserver(updateCenter);
+        resizeObserver.observe(scrollableParent);
+
         let rafId = null;
         const handleScroll = () => {
             if (rafId) return; // throttle: skip if a frame is already pending
@@ -297,8 +305,7 @@ const SearchResultsBody = React.memo(() => {
                         const [year, month] = currentSection.split('-').map(Number);
                         setCurrentDateSection({ month, year });
                         setShowStickyDate(true);
-                        const containerRect = scrollableParent.getBoundingClientRect();
-                        setStickyDateCenter(containerRect.left + containerRect.width / 2);
+                        updateCenter();
                     } else {
                         setShowStickyDate(false);
                     }
@@ -314,6 +321,7 @@ const SearchResultsBody = React.memo(() => {
         return () => {
             scrollableParent.removeEventListener('scroll', handleScroll);
             if (rafId) cancelAnimationFrame(rafId);
+            resizeObserver.disconnect();
         };
     }, [articleOrder?.field]);
 

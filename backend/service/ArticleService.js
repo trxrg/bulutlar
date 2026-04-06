@@ -201,15 +201,12 @@ async function deleteArticleById(id) {
 
 async function updateArticleMainText(id, newMainText) {
     try {
-        await sequelize.models.article.update(
-            {
-                text: newMainText.html,
-                textJson: newMainText.json
-            },
-            { where: { id: id } }
-        );
+        const updateFields = { text: newMainText.html };
+        if (newMainText.json !== undefined) updateFields.textJson = newMainText.json;
+        if (newMainText.tiptapJson !== undefined) updateFields.textTiptapJson = newMainText.tiptapJson;
 
-        // Calculate and update read time after content change
+        await sequelize.models.article.update(updateFields, { where: { id: id } });
+
         await calculateAndUpdateReadTime(id);
 
     } catch (error) {
@@ -220,19 +217,14 @@ async function updateArticleMainText(id, newMainText) {
 
 async function updateArticleExplanation(id, newExplanation) {
     try {
-        await sequelize.models.article.update(
-            {
-                explanation: newExplanation.html,
-                explanationJson: newExplanation.json
-            },
-            { where: { id: id } }
-        );
+        const updateFields = { explanation: newExplanation.html };
+        if (newExplanation.json !== undefined) updateFields.explanationJson = newExplanation.json;
+        if (newExplanation.tiptapJson !== undefined) updateFields.explanationTiptapJson = newExplanation.tiptapJson;
 
-        // Calculate and update read time after content change
-        // await calculateAndUpdateReadTime(id);
+        await sequelize.models.article.update(updateFields, { where: { id: id } });
 
     } catch (error) {
-        console.error('Error in updateArticleMainText', error);
+        console.error('Error in updateArticleExplanation', error);
         throw error;
     }
 }
@@ -249,7 +241,10 @@ async function updateFirstCommentText(id, newComment) {
             comment = await commentService.createComment(newComment);
             await article.addComment(comment);
         } else {
-            await comment.update({ text: newComment.html, textJson: newComment.json });
+            const updateFields = { text: newComment.html };
+            if (newComment.json !== undefined) updateFields.textJson = newComment.json;
+            if (newComment.tiptapJson !== undefined) updateFields.tiptapTextJson = newComment.tiptapJson;
+            await comment.update(updateFields);
         }
 
         // Calculate and update read time after content change
@@ -826,7 +821,8 @@ function commentEntity2Json(entity) {
     return {
         id: entity.dataValues.id,
         text: entity.dataValues.text,
-        textJson: entity.dataValues.textJson
+        textJson: entity.dataValues.textJson,
+        tiptapTextJson: entity.dataValues.tiptapTextJson
     };
 }
 

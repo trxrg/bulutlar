@@ -34,21 +34,18 @@
   }
 
 
-  .link {
-    color: #978800; /* Dark gray text color */
-    text-decoration: none; /* Remove underline */
-    font-weight: 500; /* Medium font weight */
-    position: relative; /*Positioning for pseudo-elements*/
-    /* display: inline-block; Make links inline-block for padding */
-    padding-bottom: 1px; /* Add a bottom padding for a subtle underline effect */
-    transition: color 0.3s ease; /* Smooth color transition */
-    cursor: pointer
-    /*overflow: hidden; /* Hide overflow from pseudo-element */
+  .link, .ProseMirror .link {
+    color: #978800;
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    padding-bottom: 1px;
+    transition: color 0.3s ease;
+    cursor: pointer;
   }
 
-  /* Hover effect */
-  .link:hover {
-    color: #a89704; /* Darker gray on hover */
+  .link:hover, .ProseMirror .link:hover {
+    color: #a89704;
   }
   
   /* Underline pseudo-element */

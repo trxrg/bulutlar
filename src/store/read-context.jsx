@@ -1,4 +1,4 @@
-import { createContext, useRef, useState, useContext, useEffect } from 'react';
+import { createContext, useRef, useState, useContext, useEffect, useCallback } from 'react';
 import { DBContext } from './db-context';
 import { AppContext } from './app-context';
 import toastr from 'toastr';
@@ -242,13 +242,10 @@ export default function ReadContextProvider({ children, article }) {
         };
     };
 
-    const updateAllHighlightRefs = (editorId, refs) => {
+    const updateAllHighlightRefs = useCallback((editorId, refs) => {
         setAllHighlightRefs(prev => {
-            // Remove existing refs from this editor
             const filtered = prev.filter(item => item.editorId !== editorId);
-            // Add new refs with editor identifier
             const newRefs = refs.map(ref => ({ ...ref, editorId }));
-            // Sort by DOM order (top to bottom)
             const combined = [...filtered, ...newRefs].sort((a, b) => {
                 if (!a.ref || !b.ref) return 0;
                 const aRect = a.ref.getBoundingClientRect();
@@ -257,7 +254,7 @@ export default function ReadContextProvider({ children, article }) {
             });
             return combined;
         });
-    };
+    }, []);
 
     const ctxValue = {
         article,

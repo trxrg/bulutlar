@@ -22,7 +22,8 @@ export default function AppContextProvider({ children }) {
         fontSize: 'text-3xl',
         lineHeight: 'loose',
         autosaveEnabled: false,
-        autosaveInterval: 30 // seconds
+        autosaveInterval: 30, // seconds
+        editorType: 'draftjs', // 'draftjs' | 'tiptap'
     });
     const [autoHideControls, setAutoHideControls] = usePersistentState('autoHideControls', false);
     const [wordsPerMinute, setWordsPerMinute] = usePersistentState('wordsPerMinute', 100);

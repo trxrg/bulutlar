@@ -5,8 +5,90 @@ import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
 import { mainWindow } from '../main.js';
-import { initDB, stopSequelize, startSequelize } from '../sequelize/index.js';
+import { initDB, stopSequelize, startSequelize, sequelize } from '../sequelize/index.js';
 import { config, changeDbBackupFolderPath } from '../config.js';
+import { convertDraftToTiptap, isDraftJson, isTiptapJson } from '../utils/draftToTiptap.js';
+
+function stripRichFormattingKeepMediaTiptap(jsonInput) {
+    try {
+        const content = typeof jsonInput === 'string' ? JSON.parse(jsonInput) : jsonInput;
+        if (!content || content.type !== 'doc') return null;
+
+        const processNode = (node) => {
+            if (!node) return node;
+
+            // Keep media nodes as-is
+            if (['imageNode', 'audioNode', 'videoNode'].includes(node.type)) {
+                return node;
+            }
+
+            // Strip marks from text nodes (highlights, links, quotes)
+            if (node.type === 'text') {
+                const result = { ...node };
+                delete result.marks;
+                return result;
+            }
+
+            // Recursively process children
+            if (node.content) {
+                return {
+                    ...node,
+                    content: node.content.map(processNode),
+                };
+            }
+
+            return node;
+        };
+
+        return processNode(content);
+    } catch (error) {
+        console.error('Error stripping rich formatting (Tiptap):', error);
+        return null;
+    }
+}
+
+function remapMediaIdsInTiptapJson(jsonInput, mediaIdMaps, mediaPathMaps) {
+    try {
+        const content = typeof jsonInput === 'string' ? JSON.parse(jsonInput) : jsonInput;
+        if (!content || content.type !== 'doc') return null;
+
+        const typeToMediaType = { imageNode: 'IMAGE', audioNode: 'AUDIO', videoNode: 'VIDEO' };
+        const typeToPathMapKey = { imageNode: 'images', audioNode: 'audios', videoNode: 'videos' };
+        let changed = false;
+
+        const processNode = (node) => {
+            if (!node) return node;
+
+            const mediaType = typeToMediaType[node.type];
+            if (mediaType && node.attrs && node.attrs.id !== undefined) {
+                const idMap = mediaIdMaps[mediaType];
+                if (idMap && idMap[node.attrs.id] !== undefined) {
+                    const newAttrs = { ...node.attrs, id: idMap[node.attrs.id] };
+                    if (mediaPathMaps && node.attrs.path) {
+                        const pathMapKey = typeToPathMapKey[node.type];
+                        if (pathMapKey && mediaPathMaps[pathMapKey] && mediaPathMaps[pathMapKey][node.attrs.path]) {
+                            newAttrs.path = mediaPathMaps[pathMapKey][node.attrs.path];
+                        }
+                    }
+                    changed = true;
+                    return { ...node, attrs: newAttrs };
+                }
+            }
+
+            if (node.content) {
+                return { ...node, content: node.content.map(processNode) };
+            }
+
+            return node;
+        };
+
+        const result = processNode(content);
+        return changed ? JSON.stringify(result) : null;
+    } catch (error) {
+        console.error('Error remapping media IDs in Tiptap JSON:', error);
+        return null;
+    }
+}
 
 function stripRichFormattingKeepMedia(jsonString) {
     try {
@@ -111,6 +193,52 @@ function initService() {
     ipcMain.handle('DB/handleBackup', () => handleBackup());
     ipcMain.handle('DB/changeBackupDir', () => handleChangeBackupDir());
     ipcMain.handle('DB/getBackupDir', () => getBackupDir());
+    ipcMain.handle('DB/migrateDraftToTiptap', () => migrateDraftToTiptap());
+}
+
+async function migrateDraftToTiptap() {
+    const Article = sequelize.models.article;
+    const Comment = sequelize.models.comment;
+
+    let convertedArticles = 0;
+    let convertedComments = 0;
+    let errors = [];
+
+    const articles = await Article.findAll();
+    for (const article of articles) {
+        try {
+            const updates = {};
+            if (article.textJson && isDraftJson(article.textJson) && !article.textTiptapJson) {
+                updates.textTiptapJson = convertDraftToTiptap(article.textJson);
+            }
+            if (article.explanationJson && isDraftJson(article.explanationJson) && !article.explanationTiptapJson) {
+                updates.explanationTiptapJson = convertDraftToTiptap(article.explanationJson);
+            }
+            if (Object.keys(updates).length > 0) {
+                await article.update(updates);
+                convertedArticles++;
+            }
+        } catch (e) {
+            errors.push(`Article ${article.id}: ${e.message}`);
+        }
+    }
+
+    const comments = await Comment.findAll();
+    for (const comment of comments) {
+        try {
+            if (comment.textJson && isDraftJson(comment.textJson) && !comment.tiptapTextJson) {
+                await comment.update({
+                    tiptapTextJson: convertDraftToTiptap(comment.textJson),
+                });
+                convertedComments++;
+            }
+        } catch (e) {
+            errors.push(`Comment ${comment.id}: ${e.message}`);
+        }
+    }
+
+    console.info(`Tiptap migration: ${convertedArticles} articles, ${convertedComments} comments converted. ${errors.length} errors.`);
+    return { convertedArticles, convertedComments, errors };
 }
 
 async function handleExport() {

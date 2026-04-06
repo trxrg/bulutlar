@@ -66,12 +66,26 @@ const modelDefiners = [
     lookupModel,
 ];
 
+const addColumnIfMissing = async (qi, table, column, type) => {
+    const cols = await qi.describeTable(table);
+    if (!cols[column]) {
+        await qi.addColumn(table, column, { type });
+        console.info(`Added column ${column} to ${table}`);
+    }
+};
+
 const initDB = async () => {
     for (const modelDefiner of modelDefiners) {
         modelDefiner(sequelize, DataTypes);
     }
     setRelations(sequelize);
     await sequelize.sync();
+
+    // these column additions can be removed after a few releases
+    const qi = sequelize.getQueryInterface();
+    await addColumnIfMissing(qi, 'articles', 'textTiptapJson', DataTypes.JSON);
+    await addColumnIfMissing(qi, 'articles', 'explanationTiptapJson', DataTypes.JSON);
+    await addColumnIfMissing(qi, 'comments', 'tiptapTextJson', DataTypes.JSON);
 };
 
 export { startSequelize, stopSequelize, initDB, sequelize };

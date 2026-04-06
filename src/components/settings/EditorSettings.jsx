@@ -1,10 +1,13 @@
-import React, { useContext } from 'react';
-import { Typography } from '@mui/material';
+import React, { useContext, useState } from 'react';
+import { Typography, Button, CircularProgress } from '@mui/material';
 import { FormControl, InputLabel, Select, MenuItem, Switch, FormControlLabel } from '@mui/material';
 import { AppContext } from '../../store/app-context';
+import { dbApi } from '../../backend-adapter/BackendAdapter';
+import toastr from 'toastr';
 
 const EditorSettings = () => {
     const { translate: t, editorSettings, setEditorSettings } = useContext(AppContext);
+    const [isMigrating, setIsMigrating] = useState(false);
 
     // Font options - clean, modern, and readable fonts
     const fontOptions = [
@@ -300,6 +303,105 @@ const EditorSettings = () => {
                     ))}
                 </Select>
             </FormControl>
+
+            {/* Editor Type Toggle */}
+            <div
+                className='p-4 rounded-lg border'
+                style={{
+                    backgroundColor: 'var(--bg-primary)',
+                    borderColor: 'var(--border-secondary)',
+                }}
+            >
+                <Typography
+                    variant='subtitle1'
+                    sx={{
+                        color: 'var(--text-primary)',
+                        marginBottom: 2,
+                        fontWeight: 600
+                    }}
+                >
+                    {t('editor type')}
+                </Typography>
+
+                <FormControl variant="outlined" fullWidth>
+                    <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('editor type')}</InputLabel>
+                    <Select
+                        value={editorSettings?.editorType || 'draftjs'}
+                        onChange={(e) => handleEditorSettingChange('editorType', e.target.value)}
+                        label={t('editor type')}
+                        MenuProps={{
+                            PaperProps: {
+                                sx: {
+                                    backgroundColor: 'var(--bg-primary)',
+                                    color: 'var(--text-primary)',
+                                }
+                            }
+                        }}
+                        sx={{
+                            color: 'var(--text-primary)',
+                            '.MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'var(--border-secondary)',
+                            },
+                            '.MuiSvgIcon-root': {
+                                color: 'var(--text-primary)',
+                            },
+                            backgroundColor: 'var(--bg-primary)',
+                        }}
+                    >
+                        <MenuItem
+                            value="draftjs"
+                            sx={{
+                                color: 'var(--text-primary)',
+                                backgroundColor: 'var(--bg-primary)',
+                                '&:hover': { backgroundColor: 'var(--bg-secondary)' }
+                            }}
+                        >
+                            Draft.js
+                        </MenuItem>
+                        <MenuItem
+                            value="tiptap"
+                            sx={{
+                                color: 'var(--text-primary)',
+                                backgroundColor: 'var(--bg-primary)',
+                                '&:hover': { backgroundColor: 'var(--bg-secondary)' }
+                            }}
+                        >
+                            Tiptap
+                        </MenuItem>
+                    </Select>
+                </FormControl>
+
+                <Button
+                    variant="outlined"
+                    disabled={isMigrating}
+                    onClick={async () => {
+                        setIsMigrating(true);
+                        try {
+                            const result = await dbApi.migrateDraftToTiptap();
+                            const msg = `${result.convertedArticles} articles, ${result.convertedComments} comments converted.`;
+                            if (result.errors.length > 0) {
+                                toastr.warning(`${msg} ${result.errors.length} errors.`, t('migration completed with errors'));
+                                console.warn('Migration errors:', result.errors);
+                            } else {
+                                toastr.success(msg, t('migration completed'));
+                            }
+                        } catch (e) {
+                            toastr.error(e.message, t('migration failed'));
+                        } finally {
+                            setIsMigrating(false);
+                        }
+                    }}
+                    sx={{
+                        marginTop: 2,
+                        color: 'var(--text-primary)',
+                        borderColor: 'var(--border-secondary)',
+                        '&:hover': { borderColor: 'var(--text-primary)' },
+                    }}
+                >
+                    {isMigrating ? <CircularProgress size={20} sx={{ marginRight: 1 }} /> : null}
+                    {isMigrating ? t('migrating...') : t('migrate existing data to tiptap')}
+                </Button>
+            </div>
 
             {/* Sample Text Preview */}
             <div

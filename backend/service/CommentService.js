@@ -15,13 +15,11 @@ function initService() {
 
 async function updateText(commentId, newText) {
     try {
-        await sequelize.models.comment.update(
-            {
-                text: newText.html,
-                textJson: newText.json
-            },
-            { where: { id: commentId } }
-        );
+        const updateFields = { text: newText.html };
+        if (newText.json !== undefined) updateFields.textJson = newText.json;
+        if (newText.tiptapJson !== undefined) updateFields.tiptapTextJson = newText.tiptapJson;
+
+        await sequelize.models.comment.update(updateFields, { where: { id: commentId } });
 
     } catch (error) {
         console.error('Error in commentService updateText()', error);
@@ -29,7 +27,9 @@ async function updateText(commentId, newText) {
 }
 
 async function createComment(newComment) {
-    const result = await sequelize.models.comment.create({ text: newComment.html, textJson: newComment.json });
+    const fields = { text: newComment.html, textJson: newComment.json };
+    if (newComment.tiptapJson !== undefined) fields.tiptapTextJson = newComment.tiptapJson;
+    const result = await sequelize.models.comment.create(fields);
     return result;   
 }
 

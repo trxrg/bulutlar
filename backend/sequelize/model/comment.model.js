@@ -4,6 +4,7 @@ export default (sequelize, DataTypes) => {
         date: { type: DataTypes.DATE },
         text: { type: DataTypes.STRING },
         textJson: { type: DataTypes.JSON },
+        tiptapTextJson: { type: DataTypes.JSON },
         ordering: { type: DataTypes.INTEGER },
         field1: { type: DataTypes.STRING },
         field2: { type: DataTypes.STRING }

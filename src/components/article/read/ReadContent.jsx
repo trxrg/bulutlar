@@ -5,6 +5,7 @@ import { AppContext } from "../../../store/app-context.jsx";
 import { DBContext } from "../../../store/db-context.jsx";
 import PickAndViewArticleModal from "../modals/PickAndViewArticleModal.jsx";
 import RichEditor from "./editor/RichEditor.jsx";
+import TiptapEditor from "./editor/TiptapEditor.jsx";
 import ContextMenu from "../../common/ContextMenu.jsx";
 import InlineToolbar from "./editor/InlineToolbar.jsx";
 import ArticleErrorFallback from "./ArticleErrorFallback.jsx";
@@ -29,6 +30,9 @@ const ReadContent = () => {
     const { translate: t, closeTab, editorSettings } = useContext(AppContext);
     const { fetchAllData } = useContext(DBContext);
 
+    const useTiptap = editorSettings?.editorType === 'tiptap';
+    const EditorComponent = useTiptap ? TiptapEditor : RichEditor;
+
     // Map editor settings to Tailwind classes
     const lineHeightMap = {
         'tight': 'leading-tight',
@@ -41,18 +45,18 @@ const ReadContent = () => {
     const lineHeight = lineHeightMap[editorSettings?.lineHeight] || 'leading-loose';
     const fontFamily = editorSettings?.fontFamily || 'system-ui';
 
-    const updateMainText = async (html, json) => {
-        await articleApi.updateMainText(article.id, { html, json });
+    const updateMainText = async (html, json, tiptapJson) => {
+        await articleApi.updateMainText(article.id, { html, json, tiptapJson });
         await syncArticleFromBE();
     }
 
-    const updateExplanation = async (html, json) => {
-        await articleApi.updateExplanation(article.id, { html, json });
+    const updateExplanation = async (html, json, tiptapJson) => {
+        await articleApi.updateExplanation(article.id, { html, json, tiptapJson });
         await syncArticleFromBE();
     }
 
-    const updateComment = async (html, json) => {
-        await articleApi.updateComment(article.id, { html, json });
+    const updateComment = async (html, json, tiptapJson) => {
+        await articleApi.updateComment(article.id, { html, json, tiptapJson });
         await syncArticleFromBE();
     }
 
@@ -248,11 +252,11 @@ const ReadContent = () => {
                         className='border-b border-gray-700 p-4'
                         onBlur={!hasExplanationContent ? handleExplanationBlur : undefined}
                     >
-                        <RichEditor prompt={t('explanation prompt')} htmlContent={article.explanation} rawContent={article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef} editorId="explanation"></RichEditor>
+                        <EditorComponent prompt={t('explanation prompt')} htmlContent={article.explanation} rawContent={useTiptap ? article.explanationTiptapJson : article.explanationJson} handleContentChange={updateExplanation} editable={editable} ref={explanationEditorRef} editorId="explanation"></EditorComponent>
                     </div>
                 )}
                 <div onClick={() => setActiveEditorRef(mainTextEditorRef)} className='my-6'>
-                    <RichEditor prompt={t('maintext prompt')} htmlContent={article.text} rawContent={article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef} editorId="mainText"></RichEditor>
+                    <EditorComponent prompt={t('maintext prompt')} htmlContent={article.text} rawContent={useTiptap ? article.textTiptapJson : article.textJson} handleContentChange={updateMainText} editable={editable} ref={mainTextEditorRef} editorId="mainText"></EditorComponent>
                 </div>
                 {/* Comment Editor - show if has content OR if manually shown while editable */}
                 {(hasCommentContent || (editable && showCommentEditor)) && (
@@ -268,7 +272,7 @@ const ReadContent = () => {
                                 border: '4px solid rgba(128, 128, 128, 0.5)'
                             }}
                         >
-                            <RichEditor prompt={t('comment prompt')} htmlContent={article.comments[0]?.text} rawContent={article.comments[0]?.textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef} editorId="comment"></RichEditor>
+                            <EditorComponent prompt={t('comment prompt')} htmlContent={article.comments[0]?.text} rawContent={useTiptap ? article.comments[0]?.tiptapTextJson : article.comments[0]?.textJson} handleContentChange={updateComment} editable={editable} ref={commentEditorRef} editorId="comment"></EditorComponent>
                         </div>
                     </div>
                 )}

@@ -409,6 +409,59 @@ button svg {
   transition: none;
 }
 
+/* Tiptap / ProseMirror theming */
+.ProseMirror {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-editor) !important;
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--text-tertiary);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror p,
+.ProseMirror li {
+  color: var(--text-editor) !important;
+}
+
+.ProseMirror ol,
+.ProseMirror ul {
+  padding-left: 1.5em;
+  color: var(--text-editor) !important;
+}
+
+.ProseMirror mark {
+  border-radius: 3px;
+}
+
+.search-highlight {
+  background-color: var(--search-highlight-bg);
+  color: var(--text-editor);
+}
+
+.ProseMirror .link {
+  color: var(--link-color, #3b82f6);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.ProseMirror .quote {
+  background-color: var(--quote-bg, rgba(59, 130, 246, 0.15));
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* ProseMirror word breaking */
+.ProseMirror {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
 /* Toastr theme customization */
 .toast-bottom-left {
   background-color: var(--toast-bg) !important;

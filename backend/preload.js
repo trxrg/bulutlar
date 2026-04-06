@@ -126,6 +126,7 @@ contextBridge.exposeInMainWorld('api', {
     handleBackup: () => ipcRenderer.invoke('DB/handleBackup'),
     changeBackupDir: () => ipcRenderer.invoke('DB/changeBackupDir'),
     getBackupDir: () => ipcRenderer.invoke('DB/getBackupDir'),
+    migrateDraftToTiptap: () => ipcRenderer.invoke('DB/migrateDraftToTiptap'),
   },
   lookup: {
     create: (lookup) => ipcRenderer.invoke('lookup/create', lookup),

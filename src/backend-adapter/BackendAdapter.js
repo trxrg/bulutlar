@@ -120,6 +120,7 @@ export const dbApi = {
     handleBackup: async () => window.api.db.handleBackup(),
     changeBackupDir: async () => window.api.db.changeBackupDir(),
     getBackupDir: () => window.api.db.getBackupDir(),
+    migrateDraftToTiptap: async () => window.api.db.migrateDraftToTiptap(),
 };
 
 export const lookupApi = {

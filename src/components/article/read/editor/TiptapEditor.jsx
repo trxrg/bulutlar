@@ -71,6 +71,7 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
 
     const initErrorRef = useRef(null);
     const originalContentRef = useRef(null);
+    const lastDispatchedActiveIndexRef = useRef(-1);
 
     const handleDeleteMedia = useCallback((mediaId, mediaType) => {
         if (mediaType === 'IMAGE') {
@@ -263,21 +264,21 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
     // Tell the ProseMirror plugin which decoration is the active highlight
     useEffect(() => {
         if (!editor) return;
-        if (currentHighlightIndex < 0 || allHighlightRefs.length === 0) {
-            editor.commands.setActiveHighlightIndex(-1);
-            return;
-        }
-        const activeRef = allHighlightRefs[currentHighlightIndex];
-        if (activeRef && activeRef.editorId === editorId) {
-            let localIndex = 0;
-            for (let i = 0; i < currentHighlightIndex; i++) {
-                if (allHighlightRefs[i].editorId === editorId) {
-                    localIndex++;
+        let newLocalIndex = -1;
+        if (currentHighlightIndex >= 0 && allHighlightRefs.length > 0) {
+            const activeRef = allHighlightRefs[currentHighlightIndex];
+            if (activeRef && activeRef.editorId === editorId) {
+                newLocalIndex = 0;
+                for (let i = 0; i < currentHighlightIndex; i++) {
+                    if (allHighlightRefs[i].editorId === editorId) {
+                        newLocalIndex++;
+                    }
                 }
             }
-            editor.commands.setActiveHighlightIndex(localIndex);
-        } else {
-            editor.commands.setActiveHighlightIndex(-1);
+        }
+        if (newLocalIndex !== lastDispatchedActiveIndexRef.current) {
+            lastDispatchedActiveIndexRef.current = newLocalIndex;
+            editor.commands.setActiveHighlightIndex(newLocalIndex);
         }
     }, [currentHighlightIndex, allHighlightRefs, editor, editorId]);
 

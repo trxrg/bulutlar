@@ -445,7 +445,7 @@ button svg {
 }
 
 .search-highlight-active {
-  background-color: var(--search-highlight-active-bg) !important;
+  background-color: var(--search-highlight-active-bg);
   outline: 2px solid var(--search-highlight-active-outline);
   border-radius: 2px;
 }

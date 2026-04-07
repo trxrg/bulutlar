@@ -207,7 +207,6 @@ export default function ReadContextProvider({ children, article }) {
     const scrollToHighlight = (index) => {
         if (index < 0 || index >= allHighlightRefs.length) return;
         
-        // Always query fresh DOM elements – cached refs from ProseMirror decorations can go stale
         const freshSpans = document.querySelectorAll('.search-highlight');
         const target = freshSpans[index];
         if (!target) return;
@@ -243,16 +242,13 @@ export default function ReadContextProvider({ children, article }) {
         };
     };
 
+    const editorOrder = { explanation: 0, mainText: 1, comment: 2 };
     const updateAllHighlightRefs = useCallback((editorId, refs) => {
         setAllHighlightRefs(prev => {
             const filtered = prev.filter(item => item.editorId !== editorId);
             const newRefs = refs.map(ref => ({ ...ref, editorId }));
-            const combined = [...filtered, ...newRefs].sort((a, b) => {
-                if (!a.ref || !b.ref) return 0;
-                const aRect = a.ref.getBoundingClientRect();
-                const bRect = b.ref.getBoundingClientRect();
-                return aRect.top - bRect.top;
-            });
+            const combined = [...filtered, ...newRefs];
+            combined.sort((a, b) => (editorOrder[a.editorId] ?? 99) - (editorOrder[b.editorId] ?? 99));
             return combined;
         });
     }, []);

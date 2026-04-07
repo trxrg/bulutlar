@@ -5,6 +5,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Highlight from '@tiptap/extension-highlight';
 import Superscript from '@tiptap/extension-superscript';
 import Subscript from '@tiptap/extension-subscript';
+import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import { imageApi, audioApi, videoApi, articleApi, annotationApi } from '../../../../backend-adapter/BackendAdapter';
 import { ReadContext } from '../../../../store/read-context';
@@ -108,6 +109,7 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
             Highlight.configure({ multicolor: true }),
             Superscript,
             Subscript,
+            Underline,
             Placeholder.configure({ placeholder: prompt || '' }),
             ArticleLink,
             ArticleQuote,

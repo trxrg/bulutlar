@@ -20,29 +20,20 @@ function convertDraftToTiptap(draftJson) {
                 const tiptapType = typeMap[entity.type];
                 if (tiptapType) {
                     tiptapDoc.content.push({ type: tiptapType, attrs: entity.data || {} });
+                } else {
+                    console.warn(`[draftToTiptap] Unknown atomic entity type "${entity.type}" — block skipped`);
                 }
             }
             i++;
             continue;
         }
 
-        if (block.type === 'ordered-list-item') {
-            const listItems = [];
-            while (i < draft.blocks.length && draft.blocks[i].type === 'ordered-list-item') {
-                listItems.push(convertListItem(draft.blocks[i], draft.entityMap));
+        if (block.type === 'ordered-list-item' || block.type === 'unordered-list-item') {
+            tiptapDoc.content.push(convertListGroup(draft.blocks, i, draft.entityMap));
+            while (i < draft.blocks.length &&
+                (draft.blocks[i].type === 'ordered-list-item' || draft.blocks[i].type === 'unordered-list-item')) {
                 i++;
             }
-            tiptapDoc.content.push({ type: 'orderedList', content: listItems });
-            continue;
-        }
-
-        if (block.type === 'unordered-list-item') {
-            const listItems = [];
-            while (i < draft.blocks.length && draft.blocks[i].type === 'unordered-list-item') {
-                listItems.push(convertListItem(draft.blocks[i], draft.entityMap));
-                i++;
-            }
-            tiptapDoc.content.push({ type: 'bulletList', content: listItems });
             continue;
         }
 
@@ -57,10 +48,49 @@ function convertDraftToTiptap(draftJson) {
     return tiptapDoc;
 }
 
-function convertListItem(block, entityMap) {
-    const paragraph = convertTextBlock(block, entityMap);
-    paragraph.type = 'paragraph';
-    return { type: 'listItem', content: [paragraph] };
+/**
+ * Converts a contiguous run of list-item blocks (possibly with mixed types and
+ * depths) into a properly nested Tiptap list structure.
+ */
+function convertListGroup(blocks, startIndex, entityMap) {
+    const listType = blocks[startIndex].type === 'ordered-list-item' ? 'orderedList' : 'bulletList';
+    const items = [];
+    let i = startIndex;
+
+    while (i < blocks.length &&
+        (blocks[i].type === 'ordered-list-item' || blocks[i].type === 'unordered-list-item')) {
+        const block = blocks[i];
+        const depth = block.depth || 0;
+
+        if (depth === (blocks[startIndex].depth || 0)) {
+            const paragraph = convertTextBlock(block, entityMap);
+            paragraph.type = 'paragraph';
+            const listItem = { type: 'listItem', content: [paragraph] };
+
+            const nextIndex = i + 1;
+            if (nextIndex < blocks.length &&
+                (blocks[nextIndex].type === 'ordered-list-item' || blocks[nextIndex].type === 'unordered-list-item') &&
+                (blocks[nextIndex].depth || 0) > depth) {
+                const childList = convertListGroup(blocks, nextIndex, entityMap);
+                listItem.content.push(childList);
+                let j = nextIndex;
+                while (j < blocks.length &&
+                    (blocks[j].type === 'ordered-list-item' || blocks[j].type === 'unordered-list-item') &&
+                    (blocks[j].depth || 0) > depth) {
+                    j++;
+                }
+                i = j;
+            } else {
+                i++;
+            }
+
+            items.push(listItem);
+        } else {
+            break;
+        }
+    }
+
+    return { type: listType, content: items };
 }
 
 function convertTextBlock(block, entityMap) {
@@ -98,7 +128,11 @@ function convertTextBlock(block, entityMap) {
     }
 
     if (block.text) {
-        node.content = buildTextNodes(block.text, block.inlineStyleRanges || [], block.entityRanges || [], entityMap);
+        if (tiptapType === 'codeBlock') {
+            node.content = [{ type: 'text', text: block.text }];
+        } else {
+            node.content = buildTextNodes(block.text, block.inlineStyleRanges || [], block.entityRanges || [], entityMap);
+        }
     }
 
     return node;

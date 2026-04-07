@@ -45,7 +45,24 @@ function convertDraftToTiptap(draftJson) {
         tiptapDoc.content.push({ type: 'paragraph' });
     }
 
+    tiptapDoc.content = collapseConsecutiveEmptyParagraphs(tiptapDoc.content);
+
     return tiptapDoc;
+}
+
+function isEmptyParagraph(node) {
+    return node.type === 'paragraph' && (!node.content || node.content.length === 0);
+}
+
+function collapseConsecutiveEmptyParagraphs(content) {
+    const result = [];
+    for (const node of content) {
+        if (isEmptyParagraph(node) && result.length > 0 && isEmptyParagraph(result[result.length - 1])) {
+            continue;
+        }
+        result.push(node);
+    }
+    return result;
 }
 
 /**

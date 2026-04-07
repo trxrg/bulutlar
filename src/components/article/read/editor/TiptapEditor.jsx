@@ -54,7 +54,7 @@ function findQuoteMarkAtEvent(view, event) {
 
 const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleContentChange, editable, editorId = 'default' }, ref) => {
 
-    const { setContextMenuIsOpen, setContextMenuPosition, searchTerm, articleId, updateAllHighlightRefs } = useContext(ReadContext);
+    const { setContextMenuIsOpen, setContextMenuPosition, searchTerm, articleId, updateAllHighlightRefs, currentHighlightIndex, allHighlightRefs } = useContext(ReadContext);
     const { translate: t, handleAddTab } = useContext(AppContext);
     const { fetchAllAnnotations, fetchArticleById, getArticleById } = useContext(DBContext);
 
@@ -260,18 +260,42 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
         }
     }, [searchTerm, editor]);
 
+    // Tell the ProseMirror plugin which decoration is the active highlight
+    useEffect(() => {
+        if (!editor) return;
+        if (currentHighlightIndex < 0 || allHighlightRefs.length === 0) {
+            editor.commands.setActiveHighlightIndex(-1);
+            return;
+        }
+        const activeRef = allHighlightRefs[currentHighlightIndex];
+        if (activeRef && activeRef.editorId === editorId) {
+            let localIndex = 0;
+            for (let i = 0; i < currentHighlightIndex; i++) {
+                if (allHighlightRefs[i].editorId === editorId) {
+                    localIndex++;
+                }
+            }
+            editor.commands.setActiveHighlightIndex(localIndex);
+        } else {
+            editor.commands.setActiveHighlightIndex(-1);
+        }
+    }, [currentHighlightIndex, allHighlightRefs, editor, editorId]);
+
     // Collect search highlight DOM refs after decorations render
     useEffect(() => {
         if (!editor) return;
 
-        const updateHighlights = () => {
+        let pendingTimeout = null;
+
+        const collectHighlightRefs = () => {
+            if (pendingTimeout) clearTimeout(pendingTimeout);
+
             if (!searchTerm) {
                 updateAllHighlightRefs(editorId, []);
                 return;
             }
 
-            // Small delay to allow decorations to render to DOM
-            setTimeout(() => {
+            pendingTimeout = setTimeout(() => {
                 const editorDom = editor.view.dom;
                 const highlightSpans = editorDom.querySelectorAll('.search-highlight');
                 const refs = Array.from(highlightSpans).map((span, index) => ({
@@ -282,11 +306,18 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
             }, 50);
         };
 
-        updateHighlights();
+        collectHighlightRefs();
 
-        editor.on('update', updateHighlights);
+        const onTransaction = ({ transaction }) => {
+            if (transaction.docChanged) {
+                collectHighlightRefs();
+            }
+        };
+
+        editor.on('transaction', onTransaction);
         return () => {
-            editor.off('update', updateHighlights);
+            if (pendingTimeout) clearTimeout(pendingTimeout);
+            editor.off('transaction', onTransaction);
         };
     }, [searchTerm, editor, editorId, updateAllHighlightRefs]);
 

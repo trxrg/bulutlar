@@ -207,31 +207,32 @@ export default function ReadContextProvider({ children, article }) {
     const scrollToHighlight = (index) => {
         if (index < 0 || index >= allHighlightRefs.length) return;
         
-        const targetRef = allHighlightRefs[index]?.ref;
-        if (targetRef) {
-            // Get theme-aware colors from CSS variables
-            const rootStyles = getComputedStyle(document.documentElement);
-            const inactiveBg = rootStyles.getPropertyValue('--search-highlight-bg').trim();
-            const activeBg = rootStyles.getPropertyValue('--search-highlight-active-bg').trim();
-            const activeOutline = rootStyles.getPropertyValue('--search-highlight-active-outline').trim();
-            
-            // Remove previous highlight styling
-            allHighlightRefs.forEach((item, i) => {
-                if (item.ref) {
-                    item.ref.style.backgroundColor = i === index ? activeBg : inactiveBg;
-                    item.ref.style.outline = i === index ? `2px solid ${activeOutline}` : 'none';
+        // Always query fresh DOM elements – cached refs from ProseMirror decorations can go stale
+        const freshSpans = document.querySelectorAll('.search-highlight');
+        const target = freshSpans[index];
+        if (!target) return;
+
+        setCurrentHighlightIndex(index);
+        
+        // Find the nearest ancestor that actually has scrollable overflow
+        let scrollParent = target.parentElement;
+        while (scrollParent && scrollParent !== document.documentElement) {
+            if (scrollParent.scrollHeight > scrollParent.clientHeight) {
+                const style = getComputedStyle(scrollParent);
+                const ov = style.overflowY;
+                if (ov === 'auto' || ov === 'scroll' || ov === 'overlay') {
+                    break;
                 }
-            });
-            
-            setCurrentHighlightIndex(index);
-            
-            // Scroll to element
-            targetRef.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-                inline: 'nearest'
-            });
+            }
+            scrollParent = scrollParent.parentElement;
         }
+        if (!scrollParent) scrollParent = document.documentElement;
+
+        const targetRect = target.getBoundingClientRect();
+        const containerRect = scrollParent.getBoundingClientRect();
+        const desiredTop = targetRect.top - containerRect.top + scrollParent.scrollTop - scrollParent.clientHeight / 2 + targetRect.height / 2;
+        
+        scrollParent.scrollTo({ top: desiredTop, behavior: 'smooth' });
     };
 
     const getHighlightInfo = () => {
@@ -289,6 +290,7 @@ export default function ReadContextProvider({ children, article }) {
         setContextMenuPosition,
         searchTerm,
         setSearchTerm,
+        currentHighlightIndex,
         setCurrentHighlightIndex,
         allHighlightRefs,
         setAllHighlightRefs,

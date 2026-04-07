@@ -444,6 +444,12 @@ button svg {
   color: var(--text-editor);
 }
 
+.search-highlight-active {
+  background-color: var(--search-highlight-active-bg) !important;
+  outline: 2px solid var(--search-highlight-active-outline);
+  border-radius: 2px;
+}
+
 .ProseMirror .link {
   color: var(--link-color, #3b82f6);
   cursor: pointer;

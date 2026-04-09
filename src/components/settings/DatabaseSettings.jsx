@@ -183,9 +183,11 @@ const DatabaseSettings = () => {
                     >
                         {t('import (replace)')}
                     </Button>
-                    <Button startIcon={<DatasetIcon />} {...secondaryButtonProps} onClick={handleLoadSampleData}>
-                        {t('load sample data')}
-                    </Button>
+                    {process.env.NODE_ENV === 'development' && (
+                        <Button startIcon={<DatasetIcon />} {...secondaryButtonProps} onClick={handleLoadSampleData}>
+                            {t('load sample data')}
+                        </Button>
+                    )}
                 </div>
                 <div className='h-fit flex flex-row'>
                     <Typography variant="body1" className='p-1' sx={{ color: 'var(--text-primary)' }}>{t('backup folder')}: </Typography>

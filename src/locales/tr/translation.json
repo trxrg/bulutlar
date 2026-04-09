@@ -245,6 +245,9 @@
     "db merge import error": "Veritabanı birleştirme içe aktarılırken hata oluştu",
     "backup": "Yedekle",
     "backup folder": "Yedekleme Klasörü",
+    "load sample data": "Örnek Veri Yükle",
+    "sample data loaded": "Örnek veriler başarıyla yüklendi",
+    "sample data error": "Örnek veriler yüklenirken hata oluştu",
     "new article": "Yeni Yazı",
     "link not found": "Link bulunamadı",
 

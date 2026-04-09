@@ -240,6 +240,9 @@
     "db merge import error": "Database merge import error",
     "backup": "Backup",
     "backup folder": "Backup Folder",
+    "load sample data": "Load Sample Data",
+    "sample data loaded": "Sample data loaded successfully",
+    "sample data error": "Error loading sample data",
     "new article": "New Article",
     "link not found": "Link not found",
 

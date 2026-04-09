@@ -112,6 +112,7 @@ export const tagApi = {
 export const dbApi = {
     loadArticles: async () => window.api.db.loadArticles(),
     loadArticlesFromTxt: async () => window.api.db.loadArticlesFromTxt(),
+    loadSampleData: async () => window.api.db.loadSampleData(),
     handleExport: async () => window.api.db.handleExport(),
     handleAdvancedExport: async (options) => window.api.db.handleAdvancedExport(options),
     handleImport: async () => window.api.db.handleImport(),

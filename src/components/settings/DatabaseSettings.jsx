@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import DatasetIcon from '@mui/icons-material/Dataset';
 import { Button, Typography } from '@mui/material';
 import { AppContext } from '../../store/app-context';
 import { DBContext } from '../../store/db-context';
@@ -129,6 +130,24 @@ const DatabaseSettings = () => {
         }
     };
 
+    const handleLoadSampleData = async () => {
+        console.log('Loading sample data...');
+        try {
+            const result = await dbApi.loadSampleData();
+            if (result && !result.error) {
+                console.log('Sample data loaded successfully:', result);
+                toastr.success(t('sample data loaded') + ` (${result.count} articles)`);
+                await fetchAllData();
+            } else {
+                console.error('Error loading sample data:', result?.error);
+                toastr.error(t('sample data error'));
+            }
+        } catch (err) {
+            console.error('Error loading sample data', err);
+            toastr.error(t('sample data error'));
+        }
+    };
+
     const handleAdvancedExport = async (options) => {
         console.log('Advanced exporting database with options:', options);
         try {
@@ -163,6 +182,9 @@ const DatabaseSettings = () => {
                         onClick={() => setShowImportReplaceConfirm(true)}
                     >
                         {t('import (replace)')}
+                    </Button>
+                    <Button startIcon={<DatasetIcon />} {...secondaryButtonProps} onClick={handleLoadSampleData}>
+                        {t('load sample data')}
                     </Button>
                 </div>
                 <div className='h-fit flex flex-row'>

@@ -1,0 +1,376 @@
+{
+  "articles": [
+    {
+      "title": "The Science of Sleep",
+      "text": "<p>Sleep is one of the most fundamental biological processes, yet it remains one of the least understood. Modern neuroscience has revealed that during sleep, the brain undergoes a remarkable series of changes. The glymphatic system activates, clearing metabolic waste products that accumulate during waking hours. Memory consolidation occurs as the hippocampus replays the day's experiences, transferring them to long-term storage in the cortex.</p><p>Research has shown that adults need between seven and nine hours of sleep per night for optimal cognitive function. Chronic sleep deprivation has been linked to increased risk of cardiovascular disease, weakened immune response, and impaired decision-making. The circadian rhythm, governed by the suprachiasmatic nucleus in the hypothalamus, regulates our sleep-wake cycle in roughly 24-hour periods, responding primarily to light exposure.</p><p>Understanding sleep architecture — the progression through light sleep, deep sleep, and REM stages — has led to practical improvements in sleep hygiene. Simple interventions like maintaining consistent sleep schedules, reducing blue light exposure in the evening, and keeping bedroom temperatures cool have been shown to significantly improve sleep quality.</p>",
+      "explanation": "An overview of modern sleep science, covering brain activity during sleep, health impacts of sleep deprivation, and practical sleep hygiene tips.",
+      "owner": { "name": "Dr. Elena Torres" },
+      "category": { "name": "Science", "color": "#2563EB" },
+      "date": "2025-03-15T10:00:00Z",
+      "isStarred": true,
+      "isFeatured": true,
+      "tags": ["neuroscience", "health", "biology"],
+      "groups": ["Human Body"],
+      "comments": [
+        { "html": "The section on the glymphatic system is fascinating. I had no idea the brain has its own waste clearance mechanism." },
+        { "html": "Very practical advice on sleep hygiene. The blue light point is especially relevant in our screen-heavy lives." }
+      ],
+      "annotations": [
+        { "quote": "The glymphatic system activates, clearing metabolic waste products that accumulate during waking hours.", "note": "This was only discovered in 2012 by Maiken Nedergaard's team — relatively recent finding." }
+      ],
+      "media": {
+        "images": [
+          { "name": "sleep-brain-waves", "description": "Brain wave patterns during different sleep stages" }
+        ],
+        "audios": [
+          { "name": "sleep-white-noise", "description": "White noise sample for sleep", "duration": 3, "frequency": 200 }
+        ]
+      }
+    },
+    {
+      "title": "How Maps Changed the World",
+      "text": "<p>Cartography is far more than the technical art of drawing maps — it is a lens through which civilizations have understood their place in the world. From the earliest clay tablets of Babylon to satellite imagery, maps have shaped exploration, trade, warfare, and governance.</p><p>The Mercator projection, introduced in 1569, revolutionized navigation by allowing sailors to plot straight-line courses. However, it also introduced lasting distortions in how we perceive the relative sizes of continents — Greenland appears as large as Africa, though Africa is actually fourteen times bigger. These distortions have had subtle but real effects on geopolitical perception.</p><p>The digital revolution has democratized cartography. Tools like GIS (Geographic Information Systems) allow anyone from urban planners to epidemiologists to layer complex data onto spatial representations. Real-time mapping powers everything from ride-sharing apps to disaster response. Yet with this power comes responsibility: the choices mapmakers make about what to include, exclude, or emphasize continue to shape our understanding of the world.</p>",
+      "explanation": "A journey through the history of cartography, from ancient clay tablets to modern GIS, exploring how maps shape our worldview.",
+      "owner": { "name": "Marcus Webb" },
+      "category": { "name": "History", "color": "#92400E" },
+      "date": "2025-01-20T14:30:00Z",
+      "isStarred": false,
+      "isFeatured": true,
+      "tags": ["geography", "history", "technology"],
+      "groups": ["Inventions That Shaped Civilization"],
+      "comments": [
+        { "html": "The Mercator projection distortion is something most people never think about, but it genuinely affects how we perceive the world." }
+      ],
+      "annotations": [
+        { "quote": "Greenland appears as large as Africa, though Africa is actually fourteen times bigger.", "note": "A striking example of how representation shapes perception." }
+      ],
+      "media": {
+        "images": [
+          { "name": "mercator-projection", "description": "Mercator map projection illustration" },
+          { "name": "ancient-clay-tablet-map", "description": "Representation of Babylonian clay tablet map" }
+        ]
+      }
+    },
+    {
+      "title": "The Psychology of Decision Making",
+      "text": "<p>Every day, the average adult makes approximately 35,000 decisions, most of them unconscious. Understanding the cognitive mechanisms behind these choices has been a central pursuit of behavioral psychology and economics.</p><p>Daniel Kahneman's dual-process theory distinguishes between System 1 (fast, intuitive, automatic) and System 2 (slow, deliberate, analytical) thinking. Most of our daily decisions rely on System 1, which uses heuristics — mental shortcuts that are efficient but prone to systematic biases. Anchoring bias, confirmation bias, and the availability heuristic are among the most well-documented patterns.</p><p>Loss aversion — the tendency to prefer avoiding losses over acquiring equivalent gains — profoundly influences economic behavior. Studies show that the pain of losing is psychologically about twice as powerful as the pleasure of gaining. This insight has practical applications in everything from pricing strategies to public health campaigns. Framing a message as avoiding a loss rather than achieving a gain consistently produces stronger behavioral responses.</p><p>Choice overload, sometimes called the paradox of choice, demonstrates that having more options does not always lead to better outcomes. When faced with too many alternatives, people often experience decision fatigue, leading to either poor choices or decision avoidance altogether.</p>",
+      "explanation": "Explores key concepts in behavioral psychology including dual-process theory, cognitive biases, loss aversion, and the paradox of choice.",
+      "owner": { "name": "Dr. Elena Torres" },
+      "category": { "name": "Psychology", "color": "#7C3AED" },
+      "date": "2025-04-02T09:15:00Z",
+      "isStarred": true,
+      "isFeatured": false,
+      "tags": ["psychology", "cognitive-science", "economics"],
+      "groups": ["Mind and Behavior"],
+      "comments": [
+        { "html": "The concept of loss aversion explains so much about consumer behavior. Brilliant summary." },
+        { "html": "I would love a follow-up on how to counteract these biases in daily life." }
+      ],
+      "annotations": [
+        { "quote": "The pain of losing is psychologically about twice as powerful as the pleasure of gaining.", "note": "Kahneman and Tversky's prospect theory — foundational result in behavioral economics" },
+        { "quote": "Every day, the average adult makes approximately 35,000 decisions", "note": "Often cited statistic from research by Cornell University" }
+      ],
+      "media": {
+        "images": [
+          { "name": "dual-process-diagram", "description": "System 1 vs System 2 thinking diagram" }
+        ]
+      }
+    },
+    {
+      "title": "Urban Farming: Growing Food in Cities",
+      "text": "<p>As the global population becomes increasingly urbanized — with projections suggesting that 68% of people will live in cities by 2050 — the question of how to feed urban populations sustainably has become urgent. Urban farming offers one compelling answer.</p><p>Vertical farms use stacked growing layers in controlled indoor environments, consuming up to 95% less water than traditional agriculture and producing crops year-round regardless of weather. Companies in cities like Singapore, Tokyo, and New York have demonstrated that leafy greens, herbs, and even strawberries can be profitably grown in converted warehouses.</p><p>Community gardens serve a different but equally important role. Beyond food production, they strengthen social bonds, improve mental health, and provide green spaces in concrete-heavy neighborhoods. Research from the University of Sheffield found that allotment gardeners had significantly lower stress levels and higher reported well-being than non-gardeners.</p><p>Rooftop farming, aquaponics, and even underground growing facilities in repurposed tunnels are expanding the possibilities further. While urban farms are unlikely to replace large-scale agriculture entirely, they can meaningfully supplement urban food systems, reduce transportation emissions, and reconnect city dwellers with the origins of their food.</p>",
+      "explanation": "An exploration of urban farming methods — vertical farms, community gardens, rooftop agriculture — and their role in sustainable city living.",
+      "owner": { "name": "Amara Osei" },
+      "category": { "name": "Environment", "color": "#059669" },
+      "date": "2024-11-08T16:00:00Z",
+      "isStarred": false,
+      "tags": ["sustainability", "agriculture", "urban-planning"],
+      "groups": ["Sustainability"],
+      "comments": [
+        { "html": "The water savings from vertical farming are astounding. 95% reduction is hard to believe but well documented." },
+        { "html": "Community gardens are underrated. The social benefits alone justify the investment." }
+      ],
+      "annotations": [],
+      "media": {
+        "images": [
+          { "name": "vertical-farm-layers", "description": "Vertical farm with stacked growing layers" },
+          { "name": "rooftop-garden", "description": "Rooftop garden in an urban setting" }
+        ],
+        "videos": [
+          { "name": "urban-farm-timelapse", "description": "Timelapse of plants growing in a vertical farm" }
+        ]
+      }
+    },
+    {
+      "title": "A Brief History of Timekeeping",
+      "text": "<p>The measurement of time is one of humanity's oldest and most consequential inventions. Sundials, dating back to at least 1500 BCE in Egypt, were among the first devices to divide the day into measurable units. Water clocks, hourglasses, and candle clocks followed, each offering greater portability or precision.</p><p>The mechanical clock, emerging in European monasteries around the 13th century, transformed daily life by standardizing the workday and enabling coordination across distances. The pendulum clock, perfected by Christiaan Huygens in 1656, brought accuracy to within seconds per day — a dramatic improvement.</p><p>The quest for precise timekeeping was driven in part by navigation. John Harrison's marine chronometer, developed over decades in the 18th century, finally solved the longitude problem, enabling sailors to determine their east-west position at sea. This single invention made global maritime trade reliable.</p><p>Today, atomic clocks measure time with an accuracy of one second in 300 million years. GPS satellites carry atomic clocks whose signals, combined with the speed of light, allow your phone to determine its position to within a few meters. Time, once measured by shadows on stone, now underpins the infrastructure of modern civilization.</p>",
+      "explanation": "Traces the evolution of timekeeping from sundials to atomic clocks, highlighting how precision in time measurement drove navigation and modern technology.",
+      "owner": { "name": "Marcus Webb" },
+      "category": { "name": "History", "color": "#92400E" },
+      "date": "2025-02-10T11:45:00Z",
+      "isStarred": true,
+      "isFeatured": true,
+      "tags": ["history", "technology", "physics"],
+      "groups": ["Inventions That Shaped Civilization"],
+      "comments": [
+        { "html": "Harrison's story is incredible — a self-taught clockmaker solving the greatest scientific problem of his era." },
+        { "html": "The connection between timekeeping and GPS is something most people take for granted." }
+      ],
+      "annotations": [
+        { "quote": "Atomic clocks measure time with an accuracy of one second in 300 million years.", "note": "NIST-F2 cesium fountain clock achieves this level of precision." }
+      ],
+      "media": {
+        "images": [
+          { "name": "sundial-ancient", "description": "Ancient Egyptian sundial" }
+        ],
+        "audios": [
+          { "name": "pendulum-clock-tick", "description": "Sound of a pendulum clock ticking", "duration": 4, "frequency": 800 }
+        ]
+      }
+    },
+    {
+      "title": "The Hidden Language of Trees",
+      "text": "<p>Forests are not simply collections of individual trees competing for light and nutrients. Research over the past three decades has revealed that trees communicate and cooperate through an underground network of mycorrhizal fungi, sometimes called the Wood Wide Web.</p><p>These fungal networks connect the root systems of different trees, enabling the transfer of carbon, water, and nutrients between individuals. Mother trees — the largest and oldest in a forest — serve as hubs in this network, supporting younger trees by sharing resources. When a mother tree is dying, it has been observed to dump its carbon into the network, effectively bequeathing its resources to its neighbors.</p><p>Trees also communicate through the air. When attacked by insects, many species release volatile organic compounds that signal neighboring trees to preemptively produce defensive chemicals. Willows, poplars, and sugar maples have all been documented engaging in this form of chemical signaling.</p><p>This understanding is reshaping forestry practices. Clear-cutting disrupts the fungal network and removes the hub trees that sustain forest health. Selective harvesting that preserves mother trees and network integrity leads to faster regeneration and more resilient forests.</p>",
+      "explanation": "How trees communicate and share resources through underground fungal networks and airborne chemical signals, and what this means for forestry.",
+      "owner": { "name": "Lina Bergström" },
+      "category": { "name": "Nature", "color": "#15803D" },
+      "date": "2025-05-22T08:30:00Z",
+      "isStarred": true,
+      "isFeatured": false,
+      "tags": ["biology", "ecology", "nature"],
+      "groups": ["Natural World"],
+      "comments": [
+        { "html": "Suzanne Simard's research on this topic is groundbreaking. Her TED talk is a great introduction." },
+        { "html": "The idea of mother trees bequeathing resources is both beautiful and scientifically rigorous." }
+      ],
+      "annotations": [
+        { "quote": "When a mother tree is dying, it has been observed to dump its carbon into the network, effectively bequeathing its resources to its neighbors.", "note": "Documented by Suzanne Simard at UBC. Published in Nature." }
+      ],
+      "media": {
+        "images": [
+          { "name": "mycorrhizal-network", "description": "Underground fungal network connecting tree roots" },
+          { "name": "forest-canopy", "description": "Sunlight filtering through a dense forest canopy" }
+        ],
+        "audios": [
+          { "name": "forest-ambience", "description": "Ambient sounds of a forest", "duration": 5, "frequency": 440 }
+        ]
+      }
+    },
+    {
+      "title": "The Mathematics of Music",
+      "text": "<p>The relationship between mathematics and music stretches back to antiquity. Pythagoras discovered that harmonious musical intervals correspond to simple ratios of string lengths: an octave is 2:1, a fifth is 3:2, a fourth is 4:3. This insight — that beauty has a mathematical structure — profoundly influenced Western philosophy.</p><p>Modern music theory is deeply mathematical. The twelve-tone equal temperament system divides the octave into twelve equal semitones, each separated by a frequency ratio of the twelfth root of two. This compromise allows instruments to play in any key, though it means that no interval except the octave is perfectly in tune.</p><p>Rhythm, too, has mathematical underpinnings. Time signatures, polyrhythms, and syncopation all involve the interplay of numerical patterns. West African drumming traditions, for instance, layer rhythmic cycles of different lengths — 3 against 4, or 5 against 7 — creating complex textures that mathematicians recognize as polymetric structures.</p><p>Fourier analysis, a branch of mathematics that decomposes complex signals into simple sine waves, is the foundation of digital audio. Every sound you stream, every voice call you make, relies on the mathematical decomposition and reconstruction of waveforms.</p>",
+      "explanation": "Explores the deep connections between mathematics and music, from Pythagorean ratios to Fourier analysis in digital audio.",
+      "owner": { "name": "Dr. Elena Torres" },
+      "category": { "name": "Science", "color": "#2563EB" },
+      "date": "2024-12-05T13:20:00Z",
+      "isStarred": false,
+      "isFeatured": false,
+      "tags": ["mathematics", "music", "physics"],
+      "groups": ["Art and Science"],
+      "comments": [
+        { "html": "The connection between Fourier analysis and streaming music is something I never considered before." }
+      ],
+      "annotations": [
+        { "quote": "Each separated by a frequency ratio of the twelfth root of two.", "note": "Approximately 1.05946 — the mathematical foundation of modern Western tuning." }
+      ],
+      "media": {
+        "audios": [
+          { "name": "octave-interval", "description": "Sound of a perfect octave interval (A4 to A5)", "duration": 2, "frequency": 440 },
+          { "name": "perfect-fifth", "description": "Sound of a perfect fifth interval", "duration": 2, "frequency": 660 },
+          { "name": "perfect-fourth", "description": "Sound of a perfect fourth interval", "duration": 2, "frequency": 587 }
+        ]
+      }
+    },
+    {
+      "title": "How Bridges Are Engineered",
+      "text": "<p>Bridges are among the most visible feats of engineering, and each type represents a different solution to the fundamental problem of spanning a gap while bearing loads. The four primary bridge types — beam, arch, suspension, and cable-stayed — each exploit different physical principles.</p><p>Beam bridges are the simplest: a horizontal structure supported at both ends. They work well for short spans but become impractical for distances beyond about 80 meters without intermediate supports. Arch bridges transfer loads along a curved path into abutments at each end, converting vertical force into horizontal thrust. The Romans perfected this design two millennia ago, and many of their bridges still stand.</p><p>Suspension bridges, like the Golden Gate, hang the roadway from cables supported by towers. The main cables follow a parabolic curve and transfer enormous loads into the anchorages at each end. The Akashi Kaikyo Bridge in Japan has the longest central span at 1,991 meters.</p><p>Modern engineering increasingly relies on computational modeling. Finite element analysis allows engineers to simulate how every component of a bridge will respond to wind, traffic, earthquakes, and temperature changes before a single beam is placed. This has made bridges safer, lighter, and more efficient than at any point in history.</p>",
+      "explanation": "An introduction to the four main types of bridges, the physics behind each, and how computational modeling has transformed bridge engineering.",
+      "owner": { "name": "James Nakamura" },
+      "category": { "name": "Engineering", "color": "#DC2626" },
+      "date": "2025-06-18T15:00:00Z",
+      "isStarred": false,
+      "tags": ["engineering", "physics", "architecture"],
+      "groups": ["Inventions That Shaped Civilization"],
+      "comments": [
+        { "html": "Roman arch bridges lasting 2000+ years really puts modern infrastructure lifespans in perspective." },
+        { "html": "Finite element analysis is used in so many fields now — aerospace, medicine, civil engineering." }
+      ],
+      "annotations": [],
+      "media": {
+        "images": [
+          { "name": "suspension-bridge", "description": "Suspension bridge with parabolic cables" },
+          { "name": "roman-arch-bridge", "description": "Roman stone arch bridge" },
+          { "name": "cable-stayed-bridge", "description": "Modern cable-stayed bridge at night" }
+        ],
+        "videos": [
+          { "name": "bridge-stress-test", "description": "Finite element stress analysis visualization" }
+        ]
+      }
+    },
+    {
+      "title": "The Ocean's Twilight Zone",
+      "text": "<p>Between 200 and 1,000 meters below the ocean surface lies the mesopelagic zone, commonly known as the twilight zone. Too deep for sunlight to support photosynthesis, yet not so deep as to be in total darkness, this region is one of the least explored habitats on Earth — and one of the most important.</p><p>The twilight zone contains an estimated 10 billion tonnes of fish biomass, more than ten times the annual global fish catch. Many of these species undertake the largest migration on Earth every day: rising to surface waters at night to feed on plankton, then descending to the safety of darkness at dawn. This daily vertical migration moves vast amounts of carbon from the surface to the deep ocean.</p><p>This biological carbon pump plays a critical role in regulating atmospheric CO2. The organisms of the twilight zone consume carbon-rich food near the surface and release it at depth through respiration, fecal pellets, and death. Without this process, atmospheric CO2 levels would be significantly higher.</p><p>Despite its importance, the twilight zone remains poorly mapped and understood. New technologies — autonomous underwater vehicles, acoustic sensors, and eDNA sampling — are beginning to reveal its secrets, but much work remains.</p>",
+      "explanation": "Explores the mesopelagic zone of the ocean — its enormous biomass, the daily vertical migration, and its role in Earth's carbon cycle.",
+      "owner": { "name": "Lina Bergström" },
+      "category": { "name": "Nature", "color": "#15803D" },
+      "date": "2025-07-03T07:45:00Z",
+      "isStarred": false,
+      "isFeatured": true,
+      "tags": ["ecology", "ocean", "climate"],
+      "groups": ["Natural World"],
+      "comments": [
+        { "html": "10 billion tonnes of fish biomass that we barely know about — the ocean is full of surprises." }
+      ],
+      "annotations": [
+        { "quote": "This daily vertical migration moves vast amounts of carbon from the surface to the deep ocean.", "note": "Estimated to sequester 2-6 billion tonnes of carbon per year." }
+      ],
+      "media": {
+        "images": [
+          { "name": "ocean-depth-gradient", "description": "Ocean depth zones from surface to twilight zone" }
+        ],
+        "audios": [
+          { "name": "deep-ocean-ambience", "description": "Hydrophone recording from the deep ocean", "duration": 5, "frequency": 120 }
+        ]
+      }
+    },
+    {
+      "title": "Why We Tell Stories",
+      "text": "<p>Storytelling is a human universal. Every culture ever studied — from hunter-gatherer societies to modern civilizations — has a tradition of narrative. This universality suggests that storytelling is not merely entertainment but serves deep evolutionary and social functions.</p><p>From an evolutionary perspective, stories may function as low-cost simulations. By mentally inhabiting a character's experience, we can learn about dangers, social dynamics, and moral dilemmas without facing real-world consequences. Studies using brain imaging show that when we listen to a compelling story, our neural activity mirrors that of the storyteller — a phenomenon called neural coupling.</p><p>Stories are also powerful tools for social cohesion. Anthropological research among the Agta people of the Philippines found that skilled storytellers were more valued as social partners and that groups with more storytellers showed higher levels of cooperation. Narratives encode cultural values, transmit knowledge across generations, and create shared identity.</p><p>In the modern world, the power of narrative shapes everything from journalism to marketing to political communication. Understanding why stories move us — the tension of conflict, the satisfaction of resolution, the empathy generated by character — is essential for anyone who communicates ideas.</p>",
+      "explanation": "Examines why storytelling is universal across cultures, its evolutionary purpose, its role in social cohesion, and its power in modern communication.",
+      "owner": { "name": "Amara Osei" },
+      "category": { "name": "Psychology", "color": "#7C3AED" },
+      "date": "2024-09-14T12:00:00Z",
+      "isStarred": true,
+      "tags": ["psychology", "culture", "communication"],
+      "groups": ["Mind and Behavior"],
+      "comments": [
+        { "html": "Neural coupling during storytelling is a remarkable finding. It literally synchronizes brains." },
+        { "html": "The Agta study is a great example of how storytelling has tangible survival value." }
+      ],
+      "annotations": [
+        { "quote": "Groups with more storytellers showed higher levels of cooperation.", "note": "Smith et al., 2017 — published in Nature Communications" }
+      ]
+    },
+    {
+      "title": "The Art of Fermentation",
+      "text": "<p>Fermentation is one of the oldest biotechnologies, predating recorded history. The process — in which microorganisms like bacteria and yeast convert sugars into acids, gases, or alcohol — has given humanity bread, cheese, wine, beer, yogurt, soy sauce, kimchi, and countless other foods.</p><p>At its core, fermentation is controlled decomposition. Lactic acid fermentation, used in making yogurt and sauerkraut, involves bacteria converting lactose or other sugars into lactic acid, which preserves the food and creates its characteristic tang. Alcoholic fermentation, driven by yeast, converts sugars into ethanol and carbon dioxide — the basis of breadmaking and brewing.</p><p>Beyond preservation, fermentation enhances nutrition. The fermentation of soybeans into tempeh or miso increases the bioavailability of proteins and creates beneficial compounds. Fermented foods are rich in probiotics — live microorganisms that support gut health. The growing field of microbiome research is revealing just how important these microbial communities are for digestion, immunity, and even mental health.</p><p>Today, fermentation is experiencing a renaissance. Artisanal fermenters are reviving traditional techniques, while biotechnology companies use industrial fermentation to produce everything from insulin to sustainable proteins.</p>",
+      "explanation": "An introduction to fermentation — its ancient origins, the science behind it, its nutritional benefits, and the modern fermentation renaissance.",
+      "owner": { "name": "James Nakamura" },
+      "category": { "name": "Food", "color": "#EA580C" },
+      "date": "2025-08-01T10:30:00Z",
+      "isStarred": false,
+      "tags": ["food-science", "biology", "health"],
+      "groups": ["Everyday Science"],
+      "comments": [
+        { "html": "The connection between fermented foods and gut microbiome health is one of the most exciting areas of nutrition research." }
+      ],
+      "annotations": [],
+      "media": {
+        "images": [
+          { "name": "fermentation-jars", "description": "Glass jars of fermenting vegetables" }
+        ]
+      }
+    },
+    {
+      "title": "Volcanoes: Earth's Pressure Valves",
+      "text": "<p>Volcanoes are the most dramatic expression of Earth's internal heat. Beneath the thin crust we live on, the mantle slowly convects, driven by heat from radioactive decay and the planet's primordial formation. Where tectonic plates diverge, converge, or pass over mantle plumes, magma finds pathways to the surface.</p><p>The Ring of Fire — a horseshoe-shaped zone around the Pacific Ocean — contains about 75% of the world's active volcanoes. Here, oceanic plates subduct beneath continental plates, and the descending crust melts, generating magma that rises to form volcanic arcs. Mount Fuji, Mount St. Helens, and the Andes volcanoes all owe their existence to this process.</p><p>Volcanic eruptions have shaped human history. The eruption of Tambora in 1815 ejected so much sulfur dioxide into the stratosphere that it caused the Year Without a Summer in 1816 — crop failures across Europe and North America, famine, and social upheaval. The much larger Toba eruption, roughly 74,000 years ago, may have reduced the human population to just a few thousand individuals.</p><p>Despite their destructive potential, volcanoes are also creative forces. They build new land, enrich soils with minerals, and drive hydrothermal systems that support unique ecosystems. Geothermal energy — tapping volcanic heat for electricity — is a growing renewable energy source in Iceland, New Zealand, and Kenya.</p>",
+      "explanation": "How volcanoes work, their role in plate tectonics, historical eruptions that changed civilization, and their constructive geological role.",
+      "owner": { "name": "Lina Bergström" },
+      "category": { "name": "Science", "color": "#2563EB" },
+      "date": "2025-02-28T09:00:00Z",
+      "isStarred": false,
+      "isFeatured": false,
+      "tags": ["geology", "nature", "climate"],
+      "groups": ["Natural World"],
+      "comments": [
+        { "html": "The Toba catastrophe theory is controversial but fascinating. A genetic bottleneck that severe would explain low human genetic diversity." },
+        { "html": "Iceland generates nearly 30% of its electricity from geothermal sources — an inspiring model." }
+      ],
+      "annotations": [
+        { "quote": "The eruption of Tambora in 1815 ejected so much sulfur dioxide into the stratosphere that it caused the Year Without a Summer in 1816.", "note": "This event also indirectly led to Mary Shelley writing Frankenstein during the gloomy summer of 1816." }
+      ],
+      "media": {
+        "images": [
+          { "name": "volcano-cross-section", "description": "Cross-section diagram of a stratovolcano" },
+          { "name": "ring-of-fire-map", "description": "Map of the Pacific Ring of Fire" }
+        ]
+      }
+    },
+    {
+      "title": "How Languages Evolve",
+      "text": "<p>Languages are living systems that change continuously. Over centuries, sounds shift, grammar simplifies or restructures, and words are borrowed, invented, or abandoned. Historical linguistics traces these changes and reconstructs the family trees of languages.</p><p>The Great Vowel Shift, which occurred in English between roughly 1400 and 1700, dramatically changed the pronunciation of long vowels. The word 'bite' was once pronounced like modern 'beet', and 'house' sounded like 'hoos'. This shift is a major reason why English spelling seems so irregular — the spellings were fixed before the pronunciation finished changing.</p><p>Language contact is a powerful driver of change. When speakers of different languages interact through trade, conquest, or migration, they borrow vocabulary, and sometimes grammar, from each other. English, for example, absorbed thousands of French and Latin words after the Norman Conquest of 1066, creating the rich vocabulary we know today — where we have both 'begin' (Germanic) and 'commence' (French) meaning the same thing.</p><p>Creole languages represent the most dramatic form of language contact. When speakers of mutually unintelligible languages must communicate — often in plantation or trading contexts — they develop pidgins, simplified contact languages. When children grow up speaking a pidgin as their first language, they naturally expand its grammar and vocabulary, creating a full creole language in a single generation.</p>",
+      "explanation": "Explores how languages change over time through sound shifts, borrowing, and contact, with examples from English, creoles, and historical linguistics.",
+      "owner": { "name": "Amara Osei" },
+      "category": { "name": "Language", "color": "#0891B2" },
+      "date": "2024-10-30T14:15:00Z",
+      "isStarred": false,
+      "tags": ["linguistics", "history", "culture"],
+      "groups": ["Mind and Behavior"],
+      "comments": [
+        { "html": "The Great Vowel Shift explains so much about English spelling irregularities. Should be taught in schools." },
+        { "html": "Creole genesis in a single generation is one of the most fascinating things in linguistics." }
+      ],
+      "annotations": [
+        { "quote": "When children grow up speaking a pidgin as their first language, they naturally expand its grammar and vocabulary, creating a full creole language in a single generation.", "note": "Derek Bickerton's Language Bioprogram Hypothesis — controversial but influential." }
+      ],
+      "media": {
+        "audios": [
+          { "name": "great-vowel-shift-before", "description": "Pronunciation of 'bite' before the Great Vowel Shift", "duration": 2, "frequency": 350 },
+          { "name": "great-vowel-shift-after", "description": "Pronunciation of 'bite' after the Great Vowel Shift", "duration": 2, "frequency": 500 }
+        ]
+      }
+    },
+    {
+      "title": "The Unexpected Complexity of Soil",
+      "text": "<p>A single teaspoon of healthy soil contains more microorganisms than there are people on Earth — roughly 10 billion bacteria, along with fungi, protozoa, nematodes, and countless other organisms. This invisible ecosystem is the foundation of terrestrial life.</p><p>Soil is not simply dirt. It is a complex matrix of mineral particles, organic matter, water, air, and living organisms that has taken thousands of years to form. Topsoil accumulates at a rate of roughly one inch per 500 years, yet modern agricultural practices can erode it far faster. The UN estimates that one-third of the world's soils are already degraded.</p><p>The fungi in soil are particularly remarkable. Mycorrhizal fungi form symbiotic relationships with over 90% of plant species, extending their root systems and dramatically increasing their access to water and phosphorus. In return, the plants provide the fungi with carbon compounds from photosynthesis. This mutualism is hundreds of millions of years old and was likely essential for plants' initial colonization of land.</p><p>Regenerative agriculture — practices like cover cropping, minimal tillage, and composting — aims to rebuild soil health. Healthy soils sequester significant amounts of carbon, making soil restoration not just an agricultural imperative but a climate strategy.</p>",
+      "explanation": "Reveals the astonishing biological complexity of soil, its slow formation, the critical role of mycorrhizal fungi, and why soil health matters for climate.",
+      "owner": { "name": "Lina Bergström" },
+      "category": { "name": "Environment", "color": "#059669" },
+      "date": "2025-04-10T11:00:00Z",
+      "isStarred": true,
+      "isFeatured": false,
+      "tags": ["ecology", "agriculture", "biology", "climate"],
+      "groups": ["Natural World", "Sustainability"],
+      "comments": [
+        { "html": "The fact that topsoil takes 500 years to form one inch really puts soil erosion in perspective." },
+        { "html": "Regenerative agriculture is gaining traction. This article explains the science behind why it works." }
+      ],
+      "annotations": [
+        { "quote": "A single teaspoon of healthy soil contains more microorganisms than there are people on Earth.", "note": "Widely cited figure from USDA Natural Resources Conservation Service." }
+      ],
+      "media": {
+        "images": [
+          { "name": "soil-layers-cross-section", "description": "Cross-section showing topsoil, subsoil, and bedrock layers" }
+        ]
+      }
+    },
+    {
+      "title": "The Invention of Writing",
+      "text": "<p>Writing is arguably the most transformative technology in human history. Before writing, all knowledge existed only in living memory — vulnerable to forgetting, distortion, and death. Writing made it possible to store information outside the human brain, enabling accumulation of knowledge across generations.</p><p>The earliest known writing system, Sumerian cuneiform, emerged around 3400 BCE in Mesopotamia. It began not as literature but as accounting — clay tokens and tablets tracking grain, livestock, and trade. The transition from pictographic symbols to abstract signs capable of representing sounds was a crucial leap that took centuries.</p><p>Writing was independently invented at least three times in human history: in Mesopotamia, in China (around 1200 BCE), and in Mesoamerica (around 900 BCE). Each system evolved differently, but all followed a similar trajectory from pictographic to more abstract representation.</p><p>The consequences of writing were profound. It enabled law codes (like Hammurabi's), long-distance administration of empires, religious scripture, scientific treatises, and literature. It also created new social divisions: literacy became a source of power, and scribal classes occupied privileged positions in early civilizations. The democratization of literacy — still ongoing — remains one of humanity's great unfinished projects.</p>",
+      "explanation": "Traces the independent invention of writing in multiple civilizations, its origins in accounting, and its transformative impact on human civilization.",
+      "owner": { "name": "Marcus Webb" },
+      "category": { "name": "History", "color": "#92400E" },
+      "date": "2024-08-19T16:30:00Z",
+      "isStarred": true,
+      "isFeatured": true,
+      "tags": ["history", "culture", "communication"],
+      "groups": ["Inventions That Shaped Civilization"],
+      "comments": [
+        { "html": "Writing started as accounting — not poetry. That always surprises people." },
+        { "html": "The independent invention in three separate civilizations suggests writing fulfills a deep organizational need." }
+      ],
+      "annotations": [
+        { "quote": "Writing made it possible to store information outside the human brain, enabling accumulation of knowledge across generations.", "note": "This is what the anthropologist Merlin Donald calls 'external symbolic storage' — the foundation of cumulative culture." }
+      ],
+      "media": {
+        "images": [
+          { "name": "cuneiform-tablet", "description": "Sumerian cuneiform clay tablet" },
+          { "name": "chinese-oracle-bone", "description": "Shang dynasty oracle bone with early Chinese writing" }
+        ],
+        "videos": [
+          { "name": "cuneiform-writing-demo", "description": "Demonstration of writing cuneiform on a clay tablet" }
+        ]
+      }
+    }
+  ]
+}

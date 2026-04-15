@@ -17,6 +17,14 @@ import { config } from '../config.js';
 import storeService from './StoreService.js';
 import { fileURLToPath } from 'url';
 
+let _htmlConverters = null;
+async function getHtmlConverters() {
+    if (!_htmlConverters) {
+        _htmlConverters = await import('../scripts/htmlToEditorJson.js');
+    }
+    return _htmlConverters;
+}
+
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -140,26 +148,129 @@ async function createArticleProgrammatically(article) {
     console.log('adding article with title: ' + article.title);
 
     try {
+        const { htmlToTiptapJson, htmlToDraftRaw } = await getHtmlConverters();
 
-        article.date = new Date();
-        article.number = calculateNumber(article.date);
-        article.code = Math.random().toString(36).substring(2);
-        // article.category = {name: 'Art'};
-        // article.comments = [{text: '<p><br></p>'}];
+        const wrapHtml = (s) => s && !s.trim().startsWith('<') ? `<p>${s}</p>` : s;
+        const textHtml = wrapHtml(article.text);
+        const explanationHtml = wrapHtml(article.explanation);
 
-        const entity = await sequelize.models.article.create(article);
+        const articleFields = {
+            title: article.title,
+            date: article.date ? new Date(article.date) : new Date(),
+            code: article.code || Math.random().toString(36).substring(2),
+            text: textHtml,
+            textJson: article.textJson || htmlToDraftRaw(textHtml),
+            textTiptapJson: article.textTiptapJson || htmlToTiptapJson(textHtml),
+            explanation: explanationHtml,
+            explanationJson: article.explanationJson || htmlToDraftRaw(explanationHtml),
+            explanationTiptapJson: article.explanationTiptapJson || htmlToTiptapJson(explanationHtml),
+            isStarred: article.isStarred,
+            isFeatured: article.isFeatured,
+            isPublished: article.isPublished,
+            isEditable: article.isEditable,
+            isDateUncertain: article.isDateUncertain,
+            isDeleted: article.isDeleted,
+            isArchived: article.isArchived,
+            isDraft: article.isDraft,
+            isHidden: article.isHidden,
+            isProtected: article.isProtected,
+            isPinned: article.isPinned,
+            isPrivate: article.isPrivate,
+            isRead: article.isRead,
+            ordering: article.ordering,
+            field1: article.field1,
+            field2: article.field2,
+            field3: article.field3,
+        };
+        articleFields.number = calculateNumber(articleFields.date);
+
+        const entity = await sequelize.models.article.create(articleFields);
 
         console.log('article added, id: ' + entity.id);
 
         if (article.owner)
             await entity.setOwner(await ownerService.getOwnerWithNameAddIfNotPresent(article.owner.name));
 
-        if (article.category)
-            await entity.setCategory(await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name));
+        if (article.category) {
+            const cat = await categoryService.getCategoryWithNameAddIfNotPresent(article.category.name);
+            if (article.category.color && !cat.color)
+                await cat.update({ color: article.category.color });
+            await entity.setCategory(cat);
+        }
 
         if (article.comments)
-            for (const comment of article.comments)
-                await entity.addComment(await commentService.createComment(comment));
+            for (const c of article.comments) {
+                const rawHtml = c.html || c.text || '';
+                const html = rawHtml.trim().startsWith('<') ? rawHtml : `<p>${rawHtml}</p>`;
+                const commentData = {
+                    html,
+                    json: c.json || htmlToDraftRaw(html),
+                    tiptapJson: c.tiptapJson || htmlToTiptapJson(html),
+                };
+                await entity.addComment(await commentService.createComment(commentData));
+            }
+
+        if (article.tags)
+            for (const tagName of article.tags) {
+                const tag = await tagService.getTagWithNameAddIfNotPresent(tagName);
+                await entity.addTag(tag);
+            }
+
+        if (article.groups)
+            for (const groupName of article.groups) {
+                const group = await groupService.getGroupWithNameAddIfNotPresent(groupName);
+                await entity.addGroup(group);
+            }
+
+        if (article.annotations)
+            for (const ann of article.annotations)
+                await entity.addAnnotation(await annotationService.createAnnotation(ann));
+
+        const mediaNodes = [];
+
+        if (article.images)
+            for (const image of article.images) {
+                const imageEntity = await imageService.createImage(image);
+                await entity.addImage(imageEntity);
+                const dv = imageEntity.dataValues || imageEntity;
+                mediaNodes.push({
+                    type: 'imageNode',
+                    attrs: { id: dv.id, name: dv.name, type: dv.type, path: dv.path, size: dv.size, description: dv.description }
+                });
+            }
+
+        if (article.audios)
+            for (const audio of article.audios) {
+                const audioEntity = await audioService.createAudio(audio);
+                await entity.addAudio(audioEntity);
+                const dv = audioEntity.dataValues || audioEntity;
+                mediaNodes.push({
+                    type: 'audioNode',
+                    attrs: { id: dv.id, name: dv.name, type: dv.type, path: dv.path, size: dv.size, description: dv.description }
+                });
+            }
+
+        if (article.videos)
+            for (const video of article.videos) {
+                const videoEntity = await videoService.createVideo(video);
+                await entity.addVideo(videoEntity);
+                const dv = videoEntity.dataValues || videoEntity;
+                mediaNodes.push({
+                    type: 'videoNode',
+                    attrs: { id: dv.id, name: dv.name, type: dv.type, path: dv.path, size: dv.size, description: dv.description }
+                });
+            }
+
+        if (mediaNodes.length > 0) {
+            const tiptapJson = JSON.parse(JSON.stringify(
+                articleFields.textTiptapJson || { type: 'doc', content: [] }
+            ));
+            tiptapJson.content.push(...mediaNodes);
+            await sequelize.models.article.update(
+                { textTiptapJson: tiptapJson },
+                { where: { id: entity.id } }
+            );
+        }
 
         // Calculate and store read time for the new article
         await calculateAndUpdateReadTime(entity.id);

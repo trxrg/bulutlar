@@ -140,3 +140,6 @@ dist
 .pnp.*
 
 .DS_Store
+
+# Sample media files (downloaded, not committed)
+backend/scripts/sample-media/

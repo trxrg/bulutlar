@@ -91,14 +91,12 @@ const ReadContent = () => {
         try {
             const imageEntities = await articleApi.openDialogToAddImages(article.id);
 
-            if (!imageEntities)
+            if (!imageEntities || imageEntities.length === 0)
                 return;
 
-            for (const imageEntity of imageEntities) {
-                if (activeEditorRef) {
-                    console.info('Inserting image to article:', imageEntity);
-                    activeEditorRef.current.addImage(imageEntity);
-                }
+            if (activeEditorRef) {
+                console.info('Inserting images to article:', imageEntities);
+                activeEditorRef.current.addImage(imageEntities);
             }
         } catch (error) {
             console.error('Error inserting image:', error);
@@ -111,14 +109,12 @@ const ReadContent = () => {
         try {
             const audioEntities = await articleApi.openDialogToAddAudios(article.id);
 
-            if (!audioEntities)
+            if (!audioEntities || audioEntities.length === 0)
                 return;
 
-            for (const audioEntity of audioEntities) {
-                if (activeEditorRef) {
-                    console.info('Inserting audio to article:', audioEntity);
-                    activeEditorRef.current.addAudio(audioEntity);
-                }
+            if (activeEditorRef) {
+                console.info('Inserting audios to article:', audioEntities);
+                activeEditorRef.current.addAudio(audioEntities);
             }
         } catch (error) {
             console.error('Error inserting audio:', error);
@@ -131,14 +127,12 @@ const ReadContent = () => {
         try {
             const videoEntities = await articleApi.openDialogToAddVideos(article.id);
 
-            if (!videoEntities)
+            if (!videoEntities || videoEntities.length === 0)
                 return;
 
-            for (const videoEntity of videoEntities) {
-                if (activeEditorRef) {
-                    console.info('Inserting video to article:', videoEntity);
-                    activeEditorRef.current.addVideo(videoEntity);
-                }
+            if (activeEditorRef) {
+                console.info('Inserting videos to article:', videoEntities);
+                activeEditorRef.current.addVideo(videoEntities);
             }
         } catch (error) {
             console.error('Error inserting video:', error);

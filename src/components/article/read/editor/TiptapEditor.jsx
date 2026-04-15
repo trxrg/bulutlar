@@ -406,22 +406,28 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
     }, [editor, articleId, fetchAllAnnotations, fetchArticleById, t, persist]);
 
     // ================================ MEDIA ================================
-    const addImage = useCallback((image) => {
+    const addImage = useCallback((imageOrImages) => {
         if (!editor) return;
-        editor.chain().focus().insertContent({ type: 'imageNode', attrs: image }).run();
-        setAddedImageIdsWhileEditing(prev => [...prev, image.id]);
+        const images = Array.isArray(imageOrImages) ? imageOrImages : [imageOrImages];
+        const content = images.map(image => ({ type: 'imageNode', attrs: image }));
+        editor.chain().focus().insertContent(content).run();
+        setAddedImageIdsWhileEditing(prev => [...prev, ...images.map(i => i.id)]);
     }, [editor]);
 
-    const addAudio = useCallback((audio) => {
+    const addAudio = useCallback((audioOrAudios) => {
         if (!editor) return;
-        editor.chain().focus().insertContent({ type: 'audioNode', attrs: audio }).run();
-        setAddedAudioIdsWhileEditing(prev => [...prev, audio.id]);
+        const audios = Array.isArray(audioOrAudios) ? audioOrAudios : [audioOrAudios];
+        const content = audios.map(audio => ({ type: 'audioNode', attrs: audio }));
+        editor.chain().focus().insertContent(content).run();
+        setAddedAudioIdsWhileEditing(prev => [...prev, ...audios.map(a => a.id)]);
     }, [editor]);
 
-    const addVideo = useCallback((video) => {
+    const addVideo = useCallback((videoOrVideos) => {
         if (!editor) return;
-        editor.chain().focus().insertContent({ type: 'videoNode', attrs: video }).run();
-        setAddedVideoIdsWhileEditing(prev => [...prev, video.id]);
+        const videos = Array.isArray(videoOrVideos) ? videoOrVideos : [videoOrVideos];
+        const content = videos.map(video => ({ type: 'videoNode', attrs: video }));
+        editor.chain().focus().insertContent(content).run();
+        setAddedVideoIdsWhileEditing(prev => [...prev, ...videos.map(v => v.id)]);
     }, [editor]);
 
     // ================================ STYLE TOGGLES ================================

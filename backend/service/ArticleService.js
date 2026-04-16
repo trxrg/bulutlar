@@ -313,7 +313,9 @@ async function deleteArticleById(id) {
 async function updateArticleMainText(id, newMainText) {
     try {
         const updateFields = { text: newMainText.html };
-        if (newMainText.json !== undefined) updateFields.textJson = newMainText.json;
+        // Only overwrite the legacy Draft.js column when a non-null value is supplied,
+        // so Tiptap saves (which pass json: null) don't erase existing Draft JSON.
+        if (newMainText.json != null) updateFields.textJson = newMainText.json;
         if (newMainText.tiptapJson !== undefined) updateFields.textTiptapJson = newMainText.tiptapJson;
 
         await sequelize.models.article.update(updateFields, { where: { id: id } });
@@ -329,7 +331,9 @@ async function updateArticleMainText(id, newMainText) {
 async function updateArticleExplanation(id, newExplanation) {
     try {
         const updateFields = { explanation: newExplanation.html };
-        if (newExplanation.json !== undefined) updateFields.explanationJson = newExplanation.json;
+        // Only overwrite the legacy Draft.js column when a non-null value is supplied,
+        // so Tiptap saves (which pass json: null) don't erase existing Draft JSON.
+        if (newExplanation.json != null) updateFields.explanationJson = newExplanation.json;
         if (newExplanation.tiptapJson !== undefined) updateFields.explanationTiptapJson = newExplanation.tiptapJson;
 
         await sequelize.models.article.update(updateFields, { where: { id: id } });
@@ -353,7 +357,9 @@ async function updateFirstCommentText(id, newComment) {
             await article.addComment(comment);
         } else {
             const updateFields = { text: newComment.html };
-            if (newComment.json !== undefined) updateFields.textJson = newComment.json;
+            // Only overwrite the legacy Draft.js column when a non-null value is supplied,
+            // so Tiptap saves (which pass json: null) don't erase existing Draft JSON.
+            if (newComment.json != null) updateFields.textJson = newComment.json;
             if (newComment.tiptapJson !== undefined) updateFields.tiptapTextJson = newComment.tiptapJson;
             await comment.update(updateFields);
         }

@@ -16,7 +16,9 @@ function initService() {
 async function updateText(commentId, newText) {
     try {
         const updateFields = { text: newText.html };
-        if (newText.json !== undefined) updateFields.textJson = newText.json;
+        // Only overwrite the legacy Draft.js column when a non-null value is supplied,
+        // so Tiptap saves (which pass json: null) don't erase existing Draft JSON.
+        if (newText.json != null) updateFields.textJson = newText.json;
         if (newText.tiptapJson !== undefined) updateFields.tiptapTextJson = newText.tiptapJson;
 
         await sequelize.models.comment.update(updateFields, { where: { id: commentId } });
@@ -27,7 +29,8 @@ async function updateText(commentId, newText) {
 }
 
 async function createComment(newComment) {
-    const fields = { text: newComment.html, textJson: newComment.json };
+    const fields = { text: newComment.html };
+    if (newComment.json != null) fields.textJson = newComment.json;
     if (newComment.tiptapJson !== undefined) fields.tiptapTextJson = newComment.tiptapJson;
     const result = await sequelize.models.comment.create(fields);
     return result;   

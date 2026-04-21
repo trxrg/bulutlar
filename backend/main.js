@@ -46,7 +46,6 @@ const createWindow = () => {
     // frame: false, // Hide the default title bar
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      enableRemoteModule: true, // Enable remote module
       contextIsolation: true,
       sandbox: true, // Re-enable sandbox for security
       webSecurity: true, // Keep web security disabled

@@ -222,6 +222,11 @@
     "deleteVideo": "Delete Video",
     "sureDeletingVideo": "Are you sure you want to delete this video?",
 
+    "enableEditModeToAddMedia": "Enable edit mode to add media",
+    "unsupportedFileType": "Unsupported file type",
+    "unsupportedSource": "Unsupported source",
+    "errorUploadingFile": "Error uploading file",
+
     "settings": "Settings",
     "database": "Database",
     "database (share)": "Database (share)",

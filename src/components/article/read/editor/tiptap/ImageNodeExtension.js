@@ -6,7 +6,7 @@ const ImageNode = Node.create({
     name: 'imageNode',
     group: 'block',
     atom: true,
-    draggable: false,
+    draggable: true,
 
     addAttributes() {
         return {

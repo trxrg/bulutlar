@@ -6,7 +6,7 @@ const AudioNode = Node.create({
     name: 'audioNode',
     group: 'block',
     atom: true,
-    draggable: false,
+    draggable: true,
 
     addAttributes() {
         return {

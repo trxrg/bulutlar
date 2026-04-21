@@ -12,6 +12,7 @@ export const articleApi = {
     updateDate:         async (id, newDate)         => window.api.article.updateDate(id, newDate),
     updateDate2:        async (id, newDate)         => window.api.article.updateDate2(id, newDate),
     addImage:           async (id, image)           => window.api.article.addImage(id, image),
+    addImageFromBuffer: async (id, image)           => window.api.article.addImageFromBuffer(id, image),
     openDialogToAddImages: async (id)               => window.api.article.openDialogToAddImages(id),
     addAudio:           async (id, audio)           => window.api.article.addAudio(id, audio),
     openDialogToAddAudios: async (id)               => window.api.article.openDialogToAddAudios(id),

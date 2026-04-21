@@ -73,6 +73,11 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
     const initErrorRef = useRef(null);
     const originalContentRef = useRef(null);
     const lastDispatchedActiveIndexRef = useRef(-1);
+    const editableRef = useRef(editable);
+    const uploadHandlerRef = useRef(null);
+    const internalDragRef = useRef(false);
+
+    editableRef.current = editable;
 
     const handleDeleteMedia = useCallback((mediaId, mediaType) => {
         if (mediaType === 'IMAGE') {
@@ -226,6 +231,14 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
                     }
                     return false;
                 },
+                dragstart: () => {
+                    internalDragRef.current = true;
+                    return false;
+                },
+                dragend: () => {
+                    internalDragRef.current = false;
+                    return false;
+                },
             },
             handleKeyDown: (view, event) => {
                 if (!editable) {
@@ -240,13 +253,77 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
                 }
                 return false;
             },
-            handlePaste: () => {
-                if (!editable) return true;
-                return false;
+            handlePaste: (view, event) => {
+                if (!editableRef.current) {
+                    const dt = event.clipboardData;
+                    const hasFiles = dt && ((dt.files && dt.files.length > 0) ||
+                        (dt.items && Array.from(dt.items).some(it => it.kind === 'file')));
+                    if (hasFiles) {
+                        toastr.info(t('enableEditModeToAddMedia'));
+                    }
+                    return true;
+                }
+                const dataTransfer = event.clipboardData;
+                if (!dataTransfer) return false;
+
+                const files = [];
+                if (dataTransfer.files && dataTransfer.files.length > 0) {
+                    for (let i = 0; i < dataTransfer.files.length; i++) {
+                        files.push(dataTransfer.files[i]);
+                    }
+                } else if (dataTransfer.items && dataTransfer.items.length > 0) {
+                    for (let i = 0; i < dataTransfer.items.length; i++) {
+                        const item = dataTransfer.items[i];
+                        if (item.kind === 'file' && item.type && item.type.startsWith('image/')) {
+                            const f = item.getAsFile();
+                            if (f) files.push(f);
+                        }
+                    }
+                }
+
+                if (files.length === 0) return false;
+
+                event.preventDefault();
+                const pos = view.state.selection.$to.pos;
+                if (uploadHandlerRef.current) {
+                    uploadHandlerRef.current(files, pos);
+                }
+                return true;
             },
-            handleDrop: () => {
-                if (!editable) return true;
-                return false;
+            handleDrop: (view, event, _slice, moved) => {
+                const wasInternal = internalDragRef.current;
+                internalDragRef.current = false;
+                if (moved) return false; // PM handles internal node/text moves
+                const dt = event.dataTransfer;
+                const hasFiles = dt && dt.files && dt.files.length > 0;
+                // Internal drag that also produced file data = the browser's native
+                // file-drag from an inner media element leaked. Block it so we don't
+                // re-upload the media that is already in the document.
+                if (wasInternal && hasFiles) {
+                    event.preventDefault();
+                    return true;
+                }
+                if (!editableRef.current) {
+                    if (hasFiles) {
+                        toastr.info(t('enableEditModeToAddMedia'));
+                    }
+                    return true;
+                }
+                if (!hasFiles) return false;
+
+                const files = [];
+                for (let i = 0; i < dt.files.length; i++) {
+                    files.push(dt.files[i]);
+                }
+                if (files.length === 0) return false;
+
+                event.preventDefault();
+                const coords = view.posAtCoords({ left: event.clientX, top: event.clientY });
+                const pos = coords ? coords.pos : view.state.selection.$to.pos;
+                if (uploadHandlerRef.current) {
+                    uploadHandlerRef.current(files, pos);
+                }
+                return true;
             },
         },
     });
@@ -328,6 +405,130 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
         if (!editor) return;
         handleContentChange(editor.getHTML(), null, editor.getJSON());
     }, [editor, handleContentChange]);
+
+    // ================================ DND / PASTE UPLOAD ================================
+    const classifyFile = (file) => {
+        const mime = (file.type || '').toLowerCase();
+        const name = file.name || '';
+        const dotIdx = name.lastIndexOf('.');
+        const ext = dotIdx >= 0 ? name.substring(dotIdx + 1).toLowerCase() : '';
+
+        const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+        const audioExts = ['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac'];
+        const videoExts = ['mp4', 'webm', 'avi', 'mov', 'wmv', 'flv', 'mkv'];
+
+        if (mime.startsWith('image/')) return { kind: 'image', ext, mime };
+        if (mime.startsWith('audio/')) return { kind: 'audio', ext, mime };
+        if (mime.startsWith('video/')) return { kind: 'video', ext, mime };
+        if (imageExts.includes(ext)) return { kind: 'image', ext, mime };
+        if (audioExts.includes(ext)) return { kind: 'audio', ext, mime };
+        if (videoExts.includes(ext)) return { kind: 'video', ext, mime };
+        return { kind: null, ext, mime };
+    };
+
+    const uploadAndInsertFiles = useCallback(async (files, pos) => {
+        if (!editor || editor.isDestroyed) return;
+        if (!files || files.length === 0) return;
+        if (articleId == null) {
+            console.warn('No articleId in context; ignoring dropped/pasted files');
+            return;
+        }
+
+        const classified = [];
+        for (const file of files) {
+            const info = classifyFile(file);
+            if (!info.kind) {
+                toastr.warning(t('unsupportedFileType') + ': ' + (file.name || info.mime || 'unknown'));
+                continue;
+            }
+            classified.push({ file, ...info });
+        }
+
+        if (classified.length === 0) return;
+
+        const uploads = classified.map(async ({ file, kind, mime, ext }) => {
+            const typeStr = mime && mime.includes('/') ? mime.split('/')[1] : (ext || '');
+            try {
+                const fsPath = (typeof window !== 'undefined'
+                    && window.electronApi
+                    && typeof window.electronApi.getPathForFile === 'function')
+                    ? window.electronApi.getPathForFile(file)
+                    : '';
+                if (fsPath) {
+                    const payload = {
+                        name: file.name,
+                        type: typeStr,
+                        path: fsPath,
+                        size: file.size,
+                    };
+                    if (kind === 'image') return { kind, entity: await articleApi.addImage(articleId, payload) };
+                    if (kind === 'audio') return { kind, entity: await articleApi.addAudio(articleId, payload) };
+                    if (kind === 'video') return { kind, entity: await articleApi.addVideo(articleId, payload) };
+                    return null;
+                }
+                if (kind === 'image') {
+                    const arrBuf = await file.arrayBuffer();
+                    const fallbackExt = ext || (mime && mime.includes('/') ? mime.split('/')[1] : 'png');
+                    const name = file.name && file.name.trim()
+                        ? file.name
+                        : ('pasted-image-' + Date.now() + '.' + fallbackExt);
+                    const payload = {
+                        name,
+                        type: typeStr || fallbackExt || 'png',
+                        buffer: new Uint8Array(arrBuf),
+                        size: file.size || arrBuf.byteLength,
+                    };
+                    return { kind, entity: await articleApi.addImageFromBuffer(articleId, payload) };
+                }
+                toastr.warning(t('unsupportedSource') + ': ' + (file.name || mime || 'clipboard'));
+                return null;
+            } catch (err) {
+                console.error('Error uploading dropped/pasted file:', file.name, err);
+                toastr.error(t('errorUploadingFile') + ': ' + (file.name || ''));
+                return null;
+            }
+        });
+
+        const results = await Promise.allSettled(uploads);
+        if (!editor || editor.isDestroyed) return;
+
+        const content = [];
+        const newImageIds = [];
+        const newAudioIds = [];
+        const newVideoIds = [];
+        for (const r of results) {
+            if (r.status !== 'fulfilled' || !r.value || !r.value.entity) continue;
+            const { kind, entity } = r.value;
+            if (kind === 'image') {
+                content.push({ type: 'imageNode', attrs: entity });
+                newImageIds.push(entity.id);
+            } else if (kind === 'audio') {
+                content.push({ type: 'audioNode', attrs: entity });
+                newAudioIds.push(entity.id);
+            } else if (kind === 'video') {
+                content.push({ type: 'videoNode', attrs: entity });
+                newVideoIds.push(entity.id);
+            }
+        }
+
+        if (content.length === 0) return;
+
+        let insertPos = pos;
+        if (insertPos == null) insertPos = editor.state.selection.$to.pos;
+        const docSize = editor.state.doc.content.size;
+        if (insertPos < 0) insertPos = 0;
+        if (insertPos > docSize) insertPos = docSize;
+
+        editor.chain().focus().insertContentAt(insertPos, content).run();
+
+        if (newImageIds.length) setAddedImageIdsWhileEditing(prev => [...prev, ...newImageIds]);
+        if (newAudioIds.length) setAddedAudioIdsWhileEditing(prev => [...prev, ...newAudioIds]);
+        if (newVideoIds.length) setAddedVideoIdsWhileEditing(prev => [...prev, ...newVideoIds]);
+    }, [editor, articleId, t]);
+
+    useEffect(() => {
+        uploadHandlerRef.current = uploadAndInsertFiles;
+    }, [uploadAndInsertFiles]);
 
     // ================================ LINKS ================================
     const addLink = useCallback((url) => {

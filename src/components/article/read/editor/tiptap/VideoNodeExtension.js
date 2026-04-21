@@ -6,7 +6,7 @@ const VideoNode = Node.create({
     name: 'videoNode',
     group: 'block',
     atom: true,
-    draggable: false,
+    draggable: true,
 
     addAttributes() {
         return {

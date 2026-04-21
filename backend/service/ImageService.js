@@ -48,6 +48,34 @@ async function createImage(image, transaction = null) {
     }
 }
 
+async function createImageFromBuffer(image, transaction = null) {
+    try {
+        const relPath = path.join(image.name + '_' + Date.now());
+        const absPath = path.join(imagesFolderPath, relPath);
+
+        const buffer = Buffer.isBuffer(image.buffer)
+            ? image.buffer
+            : Buffer.from(image.buffer);
+
+        console.info('Writing buffer to:', absPath, 'size:', buffer.length);
+        await fs.writeFile(absPath, buffer);
+
+        const result = await sequelize.models.image.create({
+            name: image.name,
+            type: image.type,
+            path: relPath,
+            size: image.size != null ? image.size : buffer.length,
+            description: image.name
+        }, { transaction });
+
+        return result;
+
+    } catch (err) {
+        console.error('Error in createImageFromBuffer ', err);
+        throw err;
+    }
+}
+
 async function getImageDataById(imageId) {
     try {
         const image = await sequelize.models.image.findByPk(imageId);
@@ -152,6 +180,7 @@ function getImageAbsPath(imagePath) {
 const ImageService = {
     initService,
     createImage,
+    createImageFromBuffer,
     deleteImagesByArticleId,
 };
 

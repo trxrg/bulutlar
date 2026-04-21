@@ -42,6 +42,7 @@ function initService() {
     ipcMain.handle('article/updateDate', async (event, id, newDate) => await updateArticleDate(id, newDate));
     ipcMain.handle('article/updateDate2', async (event, id, newDate) => await updateArticleDate2(id, newDate));
     ipcMain.handle('article/addImage', async (event, id, image) => await addImageToArticle(id, image));
+    ipcMain.handle('article/addImageFromBuffer', async (event, id, image) => await addImageFromBufferToArticle(id, image));
     ipcMain.handle('article/openDialogToAddImages', async (event, id) => await openDialogToAddImages(id));
     ipcMain.handle('article/addAudio', async (event, id, audio) => await addAudioToArticle(id, audio));
     ipcMain.handle('article/openDialogToAddAudios', async (event, id) => await openDialogToAddAudios(id));
@@ -472,6 +473,25 @@ async function addImageToArticle(id, image) {
 
     } catch (error) {
         console.error('Error in addImage', error);
+        throw error;
+    }
+}
+
+async function addImageFromBufferToArticle(id, image) {
+    try {
+        const article = await sequelize.models.article.findByPk(id);
+
+        if (!article)
+            throw ('no article found with id: ' + id);
+
+        const imageEntity = await imageService.createImageFromBuffer(image);
+
+        await article.addImage(imageEntity);
+
+        return imageEntity.dataValues;
+
+    } catch (error) {
+        console.error('Error in addImageFromBuffer', error);
         throw error;
     }
 }

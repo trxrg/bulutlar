@@ -227,6 +227,11 @@
     "deleteVideo": "Videoyu Sil",
     "sureDeletingVideo": "Bu videoyu silmek istediğinizden emin misiniz?",
 
+    "enableEditModeToAddMedia": "Medya eklemek için düzenleme modunu açın",
+    "unsupportedFileType": "Desteklenmeyen dosya türü",
+    "unsupportedSource": "Desteklenmeyen kaynak",
+    "errorUploadingFile": "Dosya yüklenirken hata oluştu",
+
     "settings": "Ayarlar",
     "database": "Veritabanı",
     "database (share)": "Veritabanı (paylaş)",

@@ -68,7 +68,7 @@ const TiptapImage = ({ node, deleteNode, extension }) => {
     return (
         <NodeViewWrapper className='relative' data-type="imageNode">
             <div className='select-none cursor-pointer inline-block w-full' onClick={() => setImageModalIsOpen(true)} onContextMenu={handleRightClick}>
-                {imageData ? <img src={imageData} alt="image" className='rounded w-full' /> : t('loading') + '...'}
+                {imageData ? <img src={imageData} alt="image" className='rounded w-full' draggable={false} /> : t('loading') + '...'}
             </div>
             <ImageModal
                 isOpen={imageModalIsOpen}

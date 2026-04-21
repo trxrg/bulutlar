@@ -1,5 +1,5 @@
 // converting preload to es module breaks the app
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 contextBridge.exposeInMainWorld('versions', {
   node: () => process.versions.node,
@@ -7,6 +7,17 @@ contextBridge.exposeInMainWorld('versions', {
   electron: () => process.versions.electron,
   platform: () => process.platform
   // we can also expose variables, not just functions
+})
+
+// Electron 32+ removed File.path; use webUtils.getPathForFile to resolve a File's filesystem path.
+contextBridge.exposeInMainWorld('electronApi', {
+  getPathForFile: (file) => {
+    try {
+      return webUtils.getPathForFile(file) || '';
+    } catch (e) {
+      return '';
+    }
+  },
 })
 
 contextBridge.exposeInMainWorld('api', {
@@ -21,6 +32,7 @@ contextBridge.exposeInMainWorld('api', {
     updateDate:        (id, newDate)        => ipcRenderer.invoke('article/updateDate', id, newDate),
     updateDate2:       (id, newDate)        => ipcRenderer.invoke('article/updateDate2', id, newDate),
     addImage:          (id, image)          => ipcRenderer.invoke('article/addImage', id, image),
+    addImageFromBuffer: (id, image)          => ipcRenderer.invoke('article/addImageFromBuffer', id, image),
     openDialogToAddImages: (id)              => ipcRenderer.invoke('article/openDialogToAddImages', id),
     addAudio:          (id, audio)          => ipcRenderer.invoke('article/addAudio', id, audio),
     openDialogToAddAudios: (id)              => ipcRenderer.invoke('article/openDialogToAddAudios', id),

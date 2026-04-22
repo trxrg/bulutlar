@@ -5,6 +5,44 @@
  */
 import { JSDOM } from 'jsdom';
 
+const TIPTAP_MEDIA_TAG_TO_TYPE = {
+    videoNode: 'videoNode',
+    imageNode: 'imageNode',
+    audioNode: 'audioNode',
+};
+
+const DRAFT_MEDIA_TAG_TO_TYPE = {
+    videoNode: 'VIDEO',
+    imageNode: 'IMAGE',
+    audioNode: 'AUDIO',
+};
+
+// Attribute names that our media node extensions persist onto HTML elements.
+const MEDIA_HTML_ATTRS = ['id', 'name', 'type', 'path', 'size', 'description'];
+
+function parseMediaAttrs(element) {
+    const attrs = {};
+    for (const name of MEDIA_HTML_ATTRS) {
+        if (element.hasAttribute(name)) {
+            const raw = element.getAttribute(name);
+            if (name === 'id' || name === 'size') {
+                const n = Number(raw);
+                attrs[name] = Number.isFinite(n) ? n : raw;
+            } else {
+                attrs[name] = raw;
+            }
+        }
+    }
+    return attrs;
+}
+
+function isMediaElement(node) {
+    if (!node || node.nodeType !== 1) return null;
+    if (node.tagName.toLowerCase() !== 'div') return null;
+    const dataType = node.getAttribute('data-type');
+    return dataType && TIPTAP_MEDIA_TAG_TO_TYPE[dataType] ? dataType : null;
+}
+
 function htmlToTiptapJson(html) {
     if (!html) return null;
     const dom = new JSDOM(html);
@@ -31,6 +69,11 @@ function convertNodeToTiptap(node) {
     }
 
     if (node.nodeType !== 1) return null;
+
+    const mediaDataType = isMediaElement(node);
+    if (mediaDataType) {
+        return { type: TIPTAP_MEDIA_TAG_TO_TYPE[mediaDataType], attrs: parseMediaAttrs(node) };
+    }
 
     const tag = node.tagName.toLowerCase();
 
@@ -122,9 +165,11 @@ function htmlToDraftRaw(html) {
     const dom = new JSDOM(html);
     const body = dom.window.document.body;
     const blocks = [];
+    const entityMap = {};
+    const ctx = { nextEntityKey: 0, entityMap };
 
     for (const node of body.childNodes) {
-        const block = convertNodeToDraft(node);
+        const block = convertNodeToDraft(node, ctx);
         if (block) blocks.push(...(Array.isArray(block) ? block : [block]));
     }
 
@@ -132,21 +177,38 @@ function htmlToDraftRaw(html) {
         blocks.push(makeDraftBlock('', 'unstyled'));
     }
 
-    return { blocks, entityMap: {} };
+    return { blocks, entityMap };
 }
 
-function makeDraftBlock(text, type, inlineStyleRanges = []) {
+function makeDraftBlock(text, type, inlineStyleRanges = [], entityRanges = []) {
     const key = Math.random().toString(36).substring(2, 7);
-    return { key, text, type, depth: 0, inlineStyleRanges, entityRanges: [], data: {} };
+    return { key, text, type, depth: 0, inlineStyleRanges, entityRanges, data: {} };
 }
 
-function convertNodeToDraft(node) {
+function makeDraftMediaBlock(entityType, attrs, ctx) {
+    const entityKey = String(ctx.nextEntityKey++);
+    ctx.entityMap[entityKey] = {
+        type: entityType,
+        mutability: 'IMMUTABLE',
+        data: { ...attrs },
+    };
+    // Draft.js atomic blocks conventionally contain a single placeholder
+    // character whose entity range covers the full block.
+    return makeDraftBlock(' ', 'atomic', [], [{ key: Number(entityKey), length: 1, offset: 0 }]);
+}
+
+function convertNodeToDraft(node, ctx) {
     if (node.nodeType === 3) {
         const text = node.textContent;
         if (!text.trim()) return null;
         return makeDraftBlock(text, 'unstyled');
     }
     if (node.nodeType !== 1) return null;
+
+    const mediaDataType = isMediaElement(node);
+    if (mediaDataType) {
+        return makeDraftMediaBlock(DRAFT_MEDIA_TAG_TO_TYPE[mediaDataType], parseMediaAttrs(node), ctx);
+    }
 
     const tag = node.tagName.toLowerCase();
 

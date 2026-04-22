@@ -28,12 +28,12 @@ async function updateText(commentId, newText) {
     }
 }
 
-async function createComment(newComment) {
+async function createComment(newComment, options = {}) {
     const fields = { text: newComment.html };
     if (newComment.json != null) fields.textJson = newComment.json;
     if (newComment.tiptapJson !== undefined) fields.tiptapTextJson = newComment.tiptapJson;
-    const result = await sequelize.models.comment.create(fields);
-    return result;   
+    const result = await sequelize.models.comment.create(fields, options);
+    return result;
 }
 
 async function getById(commentId) {

@@ -9,6 +9,12 @@ import { initDB, stopSequelize, startSequelize, sequelize } from '../sequelize/i
 import { config, changeDbBackupFolderPath } from '../config.js';
 import { convertDraftToTiptap, isDraftJson, isTiptapJson } from '../utils/draftToTiptap.js';
 
+// Mark types considered "personal" that should be removed on export (highlights,
+// links that may reference local articles, quotes tied to local annotations).
+// Structural formatting marks (bold, italic, underline, strike, code, super/sub)
+// are intentionally preserved so exports don't lose basic text formatting.
+const PERSONAL_TIPTAP_MARKS = new Set(['highlight', 'link', 'articleLink', 'articleQuote']);
+
 function stripRichFormattingKeepMediaTiptap(jsonInput) {
     try {
         const content = typeof jsonInput === 'string' ? JSON.parse(jsonInput) : jsonInput;
@@ -22,10 +28,17 @@ function stripRichFormattingKeepMediaTiptap(jsonInput) {
                 return node;
             }
 
-            // Strip marks from text nodes (highlights, links, quotes)
+            // For text nodes, filter out only the "personal" marks, keep structural ones
             if (node.type === 'text') {
                 const result = { ...node };
-                delete result.marks;
+                if (Array.isArray(result.marks)) {
+                    const filtered = result.marks.filter(m => m && !PERSONAL_TIPTAP_MARKS.has(m.type));
+                    if (filtered.length > 0) {
+                        result.marks = filtered;
+                    } else {
+                        delete result.marks;
+                    }
+                }
                 return result;
             }
 
@@ -45,6 +58,88 @@ function stripRichFormattingKeepMediaTiptap(jsonInput) {
         console.error('Error stripping rich formatting (Tiptap):', error);
         return null;
     }
+}
+
+// Lazily-loaded JSDOM (expensive to import). Wrapped in a module-level promise
+// so the first caller incurs the load cost and subsequent callers reuse it.
+let jsdomPromise = null;
+function getJSDOM() {
+    if (!jsdomPromise) {
+        jsdomPromise = import('jsdom').then(mod => mod.JSDOM);
+    }
+    return jsdomPromise;
+}
+
+const HTML_MEDIA_TAG_TO_TYPES = {
+    videoNode: { idMapKey: 'VIDEO', pathMapKey: 'videos' },
+    imageNode: { idMapKey: 'IMAGE', pathMapKey: 'images' },
+    audioNode: { idMapKey: 'AUDIO', pathMapKey: 'audios' },
+};
+
+// Removes "personal" inline decorations from an HTML string — highlights
+// (`<mark>`), article links (`span.link`), article quotes (`span.quote`), and
+// generic anchors (`<a>`) — while preserving the inner text and surrounding
+// structure. Returns null when nothing needed to change.
+async function stripPersonalEditsFromHtml(html) {
+    if (!html || typeof html !== 'string') return null;
+    const hasMark = /<mark\b/i.test(html);
+    const hasSpan = /<span\b/i.test(html);
+    const hasAnchor = /<a\b/i.test(html);
+    if (!hasMark && !hasSpan && !hasAnchor) return null;
+
+    const JSDOM = await getJSDOM();
+    const dom = new JSDOM(`<!DOCTYPE html><body>${html}</body>`);
+    const doc = dom.window.document;
+    let changed = false;
+
+    const unwrap = (el) => {
+        const parent = el.parentNode;
+        if (!parent) return;
+        while (el.firstChild) parent.insertBefore(el.firstChild, el);
+        parent.removeChild(el);
+        changed = true;
+    };
+
+    for (const el of [...doc.querySelectorAll('mark')]) unwrap(el);
+    for (const el of [...doc.querySelectorAll('span.link, span.quote, span[data-url], span[data-annotation-id]')]) unwrap(el);
+    for (const el of [...doc.querySelectorAll('a')]) unwrap(el);
+
+    return changed ? doc.body.innerHTML : null;
+}
+
+async function remapMediaRefsInHtml(html, mediaIdMaps, mediaPathMaps) {
+    if (!html || typeof html !== 'string') return null;
+    // Fast path — nothing to rewrite
+    if (!html.includes('data-type=')) return null;
+
+    const JSDOM = await getJSDOM();
+    const dom = new JSDOM(`<!DOCTYPE html><body>${html}</body>`);
+    const doc = dom.window.document;
+    let changed = false;
+
+    for (const [tag, { idMapKey, pathMapKey }] of Object.entries(HTML_MEDIA_TAG_TO_TYPES)) {
+        const elements = doc.querySelectorAll(`[data-type="${tag}"]`);
+        for (const el of elements) {
+            const oldId = el.getAttribute('id');
+            if (oldId !== null && oldId !== '') {
+                const idMap = mediaIdMaps && mediaIdMaps[idMapKey];
+                if (idMap && idMap[oldId] !== undefined) {
+                    el.setAttribute('id', String(idMap[oldId]));
+                    changed = true;
+                }
+            }
+            const oldPath = el.getAttribute('path');
+            if (oldPath) {
+                const pathMap = mediaPathMaps && mediaPathMaps[pathMapKey];
+                if (pathMap && pathMap[oldPath] !== undefined) {
+                    el.setAttribute('path', pathMap[oldPath]);
+                    changed = true;
+                }
+            }
+        }
+    }
+
+    return changed ? doc.body.innerHTML : null;
 }
 
 function remapMediaIdsInTiptapJson(jsonInput, mediaIdMaps, mediaPathMaps) {
@@ -196,6 +291,28 @@ function initService() {
     ipcMain.handle('DB/migrateDraftToTiptap', () => migrateDraftToTiptap());
 }
 
+function isEmptyTiptapDoc(json) {
+    if (!json) return true;
+    let doc;
+    try {
+        doc = typeof json === 'string' ? JSON.parse(json) : json;
+    } catch {
+        return true;
+    }
+    if (!doc || doc.type !== 'doc' || !Array.isArray(doc.content) || doc.content.length === 0) {
+        return true;
+    }
+    // A doc that only contains a single empty paragraph counts as empty for
+    // migration purposes — the Draft JSON may have richer content worth carrying over.
+    if (doc.content.length === 1) {
+        const only = doc.content[0];
+        if (only && only.type === 'paragraph' && (!only.content || only.content.length === 0)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 async function migrateDraftToTiptap() {
     const Article = sequelize.models.article;
     const Comment = sequelize.models.comment;
@@ -208,11 +325,13 @@ async function migrateDraftToTiptap() {
     for (const article of articles) {
         try {
             const updates = {};
-            if (article.textJson && isDraftJson(article.textJson) && !article.textTiptapJson) {
-                updates.textTiptapJson = convertDraftToTiptap(article.textJson);
+            if (article.textJson && isDraftJson(article.textJson) && isEmptyTiptapDoc(article.textTiptapJson)) {
+                const converted = convertDraftToTiptap(article.textJson);
+                if (converted) updates.textTiptapJson = converted;
             }
-            if (article.explanationJson && isDraftJson(article.explanationJson) && !article.explanationTiptapJson) {
-                updates.explanationTiptapJson = convertDraftToTiptap(article.explanationJson);
+            if (article.explanationJson && isDraftJson(article.explanationJson) && isEmptyTiptapDoc(article.explanationTiptapJson)) {
+                const converted = convertDraftToTiptap(article.explanationJson);
+                if (converted) updates.explanationTiptapJson = converted;
             }
             if (Object.keys(updates).length > 0) {
                 await article.update(updates);
@@ -226,11 +345,12 @@ async function migrateDraftToTiptap() {
     const comments = await Comment.findAll();
     for (const comment of comments) {
         try {
-            if (comment.textJson && isDraftJson(comment.textJson) && !comment.tiptapTextJson) {
-                await comment.update({
-                    tiptapTextJson: convertDraftToTiptap(comment.textJson),
-                });
-                convertedComments++;
+            if (comment.textJson && isDraftJson(comment.textJson) && isEmptyTiptapDoc(comment.tiptapTextJson)) {
+                const converted = convertDraftToTiptap(comment.textJson);
+                if (converted) {
+                    await comment.update({ tiptapTextJson: converted });
+                    convertedComments++;
+                }
             }
         } catch (e) {
             errors.push(`Comment ${comment.id}: ${e.message}`);
@@ -658,6 +778,32 @@ async function trimDatabaseToArticles(dbPath, articleIds, options = {}) {
                 if (stripped) {
                     await db.run('UPDATE comments SET tiptapTextJson = ? WHERE id = ?', [JSON.stringify(stripped), comment.id]);
                 }
+            }
+        }
+
+        // Also strip personal edits (highlights, article links/quotes, anchors)
+        // from the raw HTML columns so they don't leak if consumers fall back to
+        // rendering the HTML instead of the JSON.
+        const articlesForHtmlStripping = await db.all('SELECT id, explanation, text FROM articles WHERE explanation IS NOT NULL OR text IS NOT NULL');
+        for (const article of articlesForHtmlStripping) {
+            if (article.explanation) {
+                const cleaned = await stripPersonalEditsFromHtml(article.explanation);
+                if (cleaned !== null) {
+                    await db.run('UPDATE articles SET explanation = ? WHERE id = ?', [cleaned, article.id]);
+                }
+            }
+            if (article.text) {
+                const cleaned = await stripPersonalEditsFromHtml(article.text);
+                if (cleaned !== null) {
+                    await db.run('UPDATE articles SET text = ? WHERE id = ?', [cleaned, article.id]);
+                }
+            }
+        }
+        const commentsForHtmlStripping = await db.all('SELECT id, text FROM comments WHERE text IS NOT NULL');
+        for (const comment of commentsForHtmlStripping) {
+            const cleaned = await stripPersonalEditsFromHtml(comment.text);
+            if (cleaned !== null) {
+                await db.run('UPDATE comments SET text = ? WHERE id = ?', [cleaned, comment.id]);
             }
         }
 
@@ -1161,9 +1307,31 @@ async function handleMergeImport() {
                         );
                     }
                 }
+
+                // Update explanation HTML — rewrite embedded media <div data-type=...> refs
+                if (sourceArticle.explanation) {
+                    const updatedHtml = await remapMediaRefsInHtml(sourceArticle.explanation, mediaIdMaps, mediaFileCopyMap);
+                    if (updatedHtml !== null) {
+                        await activeDb.run(
+                            'UPDATE articles SET explanation = ? WHERE id = ?',
+                            [updatedHtml, newArticleId]
+                        );
+                    }
+                }
+
+                // Update text HTML — rewrite embedded media <div data-type=...> refs
+                if (sourceArticle.text) {
+                    const updatedHtml = await remapMediaRefsInHtml(sourceArticle.text, mediaIdMaps, mediaFileCopyMap);
+                    if (updatedHtml !== null) {
+                        await activeDb.run(
+                            'UPDATE articles SET text = ? WHERE id = ?',
+                            [updatedHtml, newArticleId]
+                        );
+                    }
+                }
             }
 
-            // Also update comment textJson / tiptapTextJson fields
+            // Also update comment textJson / tiptapTextJson / text HTML fields
             for (const sourceComment of sourceComments) {
                 const newCommentId = commentIdMap[sourceComment.id];
                 if (!newCommentId) continue;
@@ -1184,6 +1352,16 @@ async function handleMergeImport() {
                         await activeDb.run(
                             'UPDATE comments SET tiptapTextJson = ? WHERE id = ?',
                             [updatedJson, newCommentId]
+                        );
+                    }
+                }
+
+                if (sourceComment.text) {
+                    const updatedHtml = await remapMediaRefsInHtml(sourceComment.text, mediaIdMaps, mediaFileCopyMap);
+                    if (updatedHtml !== null) {
+                        await activeDb.run(
+                            'UPDATE comments SET text = ? WHERE id = ?',
+                            [updatedHtml, newCommentId]
                         );
                     }
                 }

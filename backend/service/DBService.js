@@ -618,7 +618,7 @@ async function trimDatabaseToArticles(dbPath, articleIds, options = {}) {
         // Apply export options to remaining articles
 
         // Always strip rich text formatting (highlights, links, etc.) as they are personal edits
-        const articlesForStripping = await db.all('SELECT id, explanationJson, textJson FROM articles');
+        const articlesForStripping = await db.all('SELECT id, explanationJson, textJson, explanationTiptapJson, textTiptapJson FROM articles');
         for (const article of articlesForStripping) {
             if (article.explanationJson) {
                 const stripped = stripRichFormattingKeepMedia(article.explanationJson);
@@ -632,8 +632,20 @@ async function trimDatabaseToArticles(dbPath, articleIds, options = {}) {
                     await db.run('UPDATE articles SET textJson = ? WHERE id = ?', [JSON.stringify(stripped), article.id]);
                 }
             }
+            if (article.explanationTiptapJson) {
+                const stripped = stripRichFormattingKeepMediaTiptap(article.explanationTiptapJson);
+                if (stripped) {
+                    await db.run('UPDATE articles SET explanationTiptapJson = ? WHERE id = ?', [JSON.stringify(stripped), article.id]);
+                }
+            }
+            if (article.textTiptapJson) {
+                const stripped = stripRichFormattingKeepMediaTiptap(article.textTiptapJson);
+                if (stripped) {
+                    await db.run('UPDATE articles SET textTiptapJson = ? WHERE id = ?', [JSON.stringify(stripped), article.id]);
+                }
+            }
         }
-        const commentsForStripping = await db.all('SELECT id, textJson FROM comments WHERE textJson IS NOT NULL');
+        const commentsForStripping = await db.all('SELECT id, textJson, tiptapTextJson FROM comments WHERE textJson IS NOT NULL OR tiptapTextJson IS NOT NULL');
         for (const comment of commentsForStripping) {
             if (comment.textJson) {
                 const stripped = stripRichFormattingKeepMedia(comment.textJson);
@@ -641,16 +653,22 @@ async function trimDatabaseToArticles(dbPath, articleIds, options = {}) {
                     await db.run('UPDATE comments SET textJson = ? WHERE id = ?', [JSON.stringify(stripped), comment.id]);
                 }
             }
+            if (comment.tiptapTextJson) {
+                const stripped = stripRichFormattingKeepMediaTiptap(comment.tiptapTextJson);
+                if (stripped) {
+                    await db.run('UPDATE comments SET tiptapTextJson = ? WHERE id = ?', [JSON.stringify(stripped), comment.id]);
+                }
+            }
         }
 
         // Handle explanation option
         if (options.explanation === false) {
-            await db.run('UPDATE articles SET explanation = NULL, explanationJson = NULL');
+            await db.run('UPDATE articles SET explanation = NULL, explanationJson = NULL, explanationTiptapJson = NULL');
         }
 
         // Handle mainText option
         if (options.mainText === false) {
-            await db.run('UPDATE articles SET text = NULL, textJson = NULL');
+            await db.run('UPDATE articles SET text = NULL, textJson = NULL, textTiptapJson = NULL');
         }
 
         // Handle comment option
@@ -663,8 +681,16 @@ async function trimDatabaseToArticles(dbPath, articleIds, options = {}) {
             await db.run('DELETE FROM images');
             await db.run('DELETE FROM audios');
             await db.run('DELETE FROM videos');
-            // Strip media entities from remaining JSON fields
-            const articles = await db.all('SELECT id, explanationJson, textJson FROM articles');
+            // Strip media entities from remaining JSON fields (both Draft and Tiptap)
+            const articles = await db.all('SELECT id, explanationJson, textJson, explanationTiptapJson, textTiptapJson FROM articles');
+            const stripTiptapMedia = (doc) => {
+                if (!doc || doc.type !== 'doc' || !Array.isArray(doc.content)) return doc;
+                const mediaTypes = new Set(['imageNode', 'audioNode', 'videoNode']);
+                const filterNodes = (nodes) => nodes
+                    .filter(n => !mediaTypes.has(n?.type))
+                    .map(n => (n && Array.isArray(n.content)) ? { ...n, content: filterNodes(n.content) } : n);
+                return { ...doc, content: filterNodes(doc.content) };
+            };
             for (const article of articles) {
                 if (article.explanationJson) {
                     const stripped = stripRichFormattingKeepMedia(article.explanationJson);
@@ -681,6 +707,20 @@ async function trimDatabaseToArticles(dbPath, articleIds, options = {}) {
                         stripped.entityMap = {};
                         stripped.blocks = stripped.blocks.filter(b => b.type !== 'atomic');
                         await db.run('UPDATE articles SET textJson = ? WHERE id = ?', [JSON.stringify(stripped), article.id]);
+                    }
+                }
+                if (article.explanationTiptapJson) {
+                    const stripped = stripRichFormattingKeepMediaTiptap(article.explanationTiptapJson);
+                    if (stripped) {
+                        const cleared = stripTiptapMedia(stripped);
+                        await db.run('UPDATE articles SET explanationTiptapJson = ? WHERE id = ?', [JSON.stringify(cleared), article.id]);
+                    }
+                }
+                if (article.textTiptapJson) {
+                    const stripped = stripRichFormattingKeepMediaTiptap(article.textTiptapJson);
+                    if (stripped) {
+                        const cleared = stripTiptapMedia(stripped);
+                        await db.run('UPDATE articles SET textTiptapJson = ? WHERE id = ?', [JSON.stringify(cleared), article.id]);
                     }
                 }
             }
@@ -918,14 +958,14 @@ async function handleMergeImport() {
                 const newOwnerId = article.ownerId ? ownerIdMap[article.ownerId] || null : null;
                 const newCategoryId = article.categoryId ? categoryIdMap[article.categoryId] || null : null;
                 const result = await activeDb.run(
-                    `INSERT INTO articles (title, date, number, date2, number2, ordering, explanation, explanationJson,
-                        text, textJson, code, isEditable, isDateUncertain, isStarred, isPublished, isDeleted, isArchived,
+                    `INSERT INTO articles (title, date, number, date2, number2, ordering, explanation, explanationJson, explanationTiptapJson,
+                        text, textJson, textTiptapJson, code, isEditable, isDateUncertain, isStarred, isPublished, isDeleted, isArchived,
                         isDraft, isHidden, isProtected, isFeatured, isPinned, isPrivate, isRead,
                         field1, field2, field3, ownerId, categoryId, createdAt, updatedAt)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [article.title, article.date, article.number, article.date2, article.number2,
-                        article.ordering, article.explanation, article.explanationJson,
-                        article.text, article.textJson, article.code,
+                        article.ordering, article.explanation, article.explanationJson, article.explanationTiptapJson,
+                        article.text, article.textJson, article.textTiptapJson, article.code,
                         article.isEditable, article.isDateUncertain, article.isStarred, article.isPublished,
                         article.isDeleted, article.isArchived, article.isDraft, article.isHidden,
                         article.isProtected, article.isFeatured, article.isPinned, article.isPrivate, article.isRead,
@@ -941,9 +981,9 @@ async function handleMergeImport() {
                 const newArticleId = comment.articleId ? articleIdMap[comment.articleId] || null : null;
                 const newOwnerId = comment.ownerId ? ownerIdMap[comment.ownerId] || null : null;
                 const cmtResult = await activeDb.run(
-                    `INSERT INTO comments (date, text, textJson, ordering, field1, field2, articleId, ownerId, createdAt, updatedAt)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [comment.date, comment.text, comment.textJson, comment.ordering,
+                    `INSERT INTO comments (date, text, textJson, tiptapTextJson, ordering, field1, field2, articleId, ownerId, createdAt, updatedAt)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [comment.date, comment.text, comment.textJson, comment.tiptapTextJson, comment.ordering,
                         comment.field1, comment.field2, newArticleId, newOwnerId,
                         comment.createdAt, comment.updatedAt]
                 );
@@ -1069,16 +1109,16 @@ async function handleMergeImport() {
                 }
             }
 
-            // --- 14. Update media IDs and paths in Draft.js JSON content ---
-            // The explanationJson and textJson fields contain Draft.js entityMap entries
-            // with IMAGE/AUDIO/VIDEO entities that reference media records by their `id` and `path` fields.
-            // Since media records got new IDs and paths, we need to update those references.
+            // --- 14. Update media IDs and paths in rich-text JSON content ---
+            // Both Draft.js (entityMap) and Tiptap (videoNode/imageNode/audioNode attrs) reference
+            // media records by their `id` and `path` fields. Since media records got new IDs and
+            // paths in the destination DB, we need to rewrite those references in both formats.
             const mediaIdMaps = { IMAGE: imageIdMap, AUDIO: audioIdMap, VIDEO: videoIdMap };
 
             for (const sourceArticle of sourceArticles) {
                 const newArticleId = articleIdMap[sourceArticle.id];
 
-                // Update explanationJson
+                // Update explanationJson (Draft)
                 if (sourceArticle.explanationJson) {
                     const updatedJson = remapMediaIdsInDraftJson(sourceArticle.explanationJson, mediaIdMaps, mediaFileCopyMap);
                     if (updatedJson) {
@@ -1089,7 +1129,7 @@ async function handleMergeImport() {
                     }
                 }
 
-                // Update textJson
+                // Update textJson (Draft)
                 if (sourceArticle.textJson) {
                     const updatedJson = remapMediaIdsInDraftJson(sourceArticle.textJson, mediaIdMaps, mediaFileCopyMap);
                     if (updatedJson) {
@@ -1099,20 +1139,52 @@ async function handleMergeImport() {
                         );
                     }
                 }
+
+                // Update explanationTiptapJson (Tiptap)
+                if (sourceArticle.explanationTiptapJson) {
+                    const updatedJson = remapMediaIdsInTiptapJson(sourceArticle.explanationTiptapJson, mediaIdMaps, mediaFileCopyMap);
+                    if (updatedJson) {
+                        await activeDb.run(
+                            'UPDATE articles SET explanationTiptapJson = ? WHERE id = ?',
+                            [updatedJson, newArticleId]
+                        );
+                    }
+                }
+
+                // Update textTiptapJson (Tiptap)
+                if (sourceArticle.textTiptapJson) {
+                    const updatedJson = remapMediaIdsInTiptapJson(sourceArticle.textTiptapJson, mediaIdMaps, mediaFileCopyMap);
+                    if (updatedJson) {
+                        await activeDb.run(
+                            'UPDATE articles SET textTiptapJson = ? WHERE id = ?',
+                            [updatedJson, newArticleId]
+                        );
+                    }
+                }
             }
 
-            // Also update comment textJson fields
+            // Also update comment textJson / tiptapTextJson fields
             for (const sourceComment of sourceComments) {
+                const newCommentId = commentIdMap[sourceComment.id];
+                if (!newCommentId) continue;
+
                 if (sourceComment.textJson) {
-                    const newCommentId = commentIdMap[sourceComment.id];
-                    if (newCommentId) {
-                        const updatedJson = remapMediaIdsInDraftJson(sourceComment.textJson, mediaIdMaps, mediaFileCopyMap);
-                        if (updatedJson) {
-                            await activeDb.run(
-                                'UPDATE comments SET textJson = ? WHERE id = ?',
-                                [updatedJson, newCommentId]
-                            );
-                        }
+                    const updatedJson = remapMediaIdsInDraftJson(sourceComment.textJson, mediaIdMaps, mediaFileCopyMap);
+                    if (updatedJson) {
+                        await activeDb.run(
+                            'UPDATE comments SET textJson = ? WHERE id = ?',
+                            [updatedJson, newCommentId]
+                        );
+                    }
+                }
+
+                if (sourceComment.tiptapTextJson) {
+                    const updatedJson = remapMediaIdsInTiptapJson(sourceComment.tiptapTextJson, mediaIdMaps, mediaFileCopyMap);
+                    if (updatedJson) {
+                        await activeDb.run(
+                            'UPDATE comments SET tiptapTextJson = ? WHERE id = ?',
+                            [updatedJson, newCommentId]
+                        );
                     }
                 }
             }

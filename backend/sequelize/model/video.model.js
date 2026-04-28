@@ -10,7 +10,9 @@ export default (sequelize, DataTypes) => {
         height: { type: DataTypes.INTEGER },
         ordering: { type: DataTypes.INTEGER },
         field1: { type: DataTypes.STRING },
-        field2: { type: DataTypes.STRING }
+        field2: { type: DataTypes.STRING },
+        uuid: { type: DataTypes.STRING, allowNull: true, unique: true },
+        revision: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 }
     });
 
     return Video;

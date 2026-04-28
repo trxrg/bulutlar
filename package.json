@@ -1,6 +1,6 @@
 {
   "name": "bulutlar",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "",
   "main": "public/electron.js",
   "homepage": "./",
@@ -114,7 +114,8 @@
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "toastr": "^2.1.4",
-    "umzug": "^3.8.2"
+    "umzug": "^3.8.2",
+    "uuid": "^14.0.0"
   },
   "optionalDependencies": {
     "create-dmg": "^7.0.0"

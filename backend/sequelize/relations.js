@@ -39,6 +39,8 @@ function setRelations(sequelize) {
 			defaultValue: null,
 			unique: false,			
         },
+        uuid: { type: DataTypes.STRING, allowNull: true, unique: true },
+        revision: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
     });
 
     tag.belongsToMany(article, { through: ArticleTagRel });
@@ -51,6 +53,8 @@ function setRelations(sequelize) {
 			defaultValue: null,
 			unique: false,			
         },
+        uuid: { type: DataTypes.STRING, allowNull: true, unique: true },
+        revision: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
     });
 
     group.belongsToMany(article, { through: ArticleGroupRel });
@@ -63,6 +67,8 @@ function setRelations(sequelize) {
 			defaultValue: null,
 			unique: false,			
         },
+        uuid: { type: DataTypes.STRING, allowNull: true, unique: true },
+        revision: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
     });
 
     article.belongsToMany(article, { through: ArticleArticleRel, as: 'relatedArticles', foreignKey: 'articleId', otherKey: 'relatedArticleId' });

@@ -1,7 +1,7 @@
 # Bulutlar Desktop → Mobile Sync — Plan & Review
 
-Status: **Phase 0a + 0c complete (uuid + revision on all 13 syncable tables, including junctions). Phase 0b (soft delete) is next.**
-Last updated: 2026-04-28
+Status: **Phase 0a complete (uuid + revision on all 13 syncable tables, including junctions). Phase 0b first attempted as privacy-preserving soft-delete and rolled back; replaced by a transactional-outbox plan (next — see §10).**
+Last updated: 2026-04-29
 
 ---
 
@@ -84,12 +84,101 @@ exercised every write path on both fresh and pre-populated DBs:
 The smoke-test file was deleted after passing; recreate from the same
 patterns if regression-testing is needed later.
 
-### Next step — Phase 0b (soft delete)
+### 2026-04-29 — Phase 0b (soft delete) attempted, rolled back
 
-See §8 checklist below. Open question 3 ("soft-delete scope") needs to
-resolve before coding. Phase 0c is no longer a separate ship — its schema
-work was rolled into 0a; any remaining 0c bookkeeping is covered by the
-hooks.
+Implemented privacy-preserving soft delete (`deletedAt` + `paranoid: true`,
+content-column wipe on tombstone, FK-preserving cascade, junction
+restore-or-create dance). Smoke-tested 162/162 in-memory. Real-DB boot
+then surfaced two SQLite-level traps the in-memory smoke had no way to
+reproduce:
+
+1. Sequelize 6's SQLite `changeColumn` (used to relax `NOT NULL` on
+   content columns so a tombstone could hold NULL) is implemented as a
+   recreate-table dance through a `<table>_backup` staging table. The
+   backup-table CREATE uses `IF NOT EXISTS`, so a stale staging table
+   from a partial run is silently reused → the next INSERT trips a PK
+   conflict, surfaced as a cryptic `Validation error` (Sequelize wraps
+   SQLite's `UniqueConstraintError` with that message).
+2. The same dance does `DROP TABLE owners; ...` while other tables
+   still hold FKs into it; SQLite refuses with `FOREIGN KEY constraint
+   failed`. The dance preserves FK target values bit-perfect, so the
+   right fix is `PRAGMA foreign_keys = OFF` for the migration scope —
+   but the dance does not handle that for you.
+
+Both traps were fixed (defensive backup-drop + FK pragma toggle), but
+the root-cause review pointed to a more fundamental concern: the
+strategy itself was paying recurring complexity for a one-way
+desktop-authoritative app that does not need server-side history.
+
+Specifically, the soft-delete strategy required:
+
+- `paranoid: true` on every entity + junction model (10 + 3 files).
+- Working around two Sequelize 6 paranoid traps in the wipe helper:
+  `instance.update({ deletedAt })` silently strips `deletedAt` from the
+  SET clause (it's read-only on paranoid models); `instance.restore()`
+  calls `save({hooks:false})` so `revision` does NOT bump on restore.
+  Both routed through `Model.update(..., { paranoid: false })` instead.
+- Relaxing `NOT NULL` on 11 content columns across 7 tables so a
+  tombstone could hold NULL — the `relaxAllowNullIfNeeded` migration
+  with the SQLite recreate-table footguns above.
+- Junction re-add dance: with `paranoid: true` on junction tables, a
+  re-added association would PK-conflict against the tombstoned
+  junction row, requiring `findOne({paranoid:false}) → restoreTombstone()
+  else create()` in every `addAssociation` site.
+- An explicit `CONTENT_COLUMNS` map per model to drive the wipe.
+- Tombstones living forever in tables, requiring `paranoid: true`
+  filtering on every read path.
+
+**Decision:** roll back and replace with a **transactional outbox**
+(see §10). Hard-delete the row, record the operation in a separate
+`sync_outbox` table within the same transaction. This makes the
+existing 0a hooks the natural emission point for the Phase-3 wire
+format, removes every paranoid-mode footgun, keeps live tables clean,
+and makes the privacy story stronger (the row is genuinely gone, not
+nulled out).
+
+**Working-tree state:** all 0b changes reverted in git
+(`backend/sequelize/index.js` + 10 model files + `relations.js` + 10
+service files + `syncableModels.js` modifications + `wipe.js` removed).
+
+**Customer-DB residue (intentionally left in place):** any DB that
+booted on the 0b code retains:
+
+- `deletedAt DATETIME` columns on every syncable table.
+- Relaxed `NOT NULL` on these content columns: `articles.title`,
+  `owners.name`, `categories.name`, `tags.name`, `groups.name`,
+  `images.{name,type,path}`, `audios.{name,type,path}`,
+  `videos.{name,type,path}`.
+
+These are harmless — the new code will not write to `deletedAt`, and
+`NOT NULL` validation now lives at the model level so the relaxed
+DB-level constraint is just slack we do not use. Dropping them would
+require another `changeColumn` dance with the same FK / `_backup`
+traps. Defer to a later optional cleanup migration if a tidy schema
+becomes worth the cost.
+
+**Documented for future reference (do not relearn):**
+
+- Sequelize-SQLite uses a single connection
+  (`sqlite/connection-manager.js`), so `PRAGMA foreign_keys = OFF/ON`
+  set on the `sequelize` instance applies to every sub-query.
+- Sequelize 6 paranoid mode adds `deletedAt` to
+  `Model._readOnlyAttributes`; `instance.update({deletedAt})` silently
+  strips it. Use `Model.update(payload, { where, paranoid: false })`.
+- Sequelize 6 `instance.restore()` calls `save({hooks: false})` so
+  model hooks do NOT fire on restore.
+- SQLite has no in-place DDL for `NOT NULL` / `UNIQUE` / type / default
+  changes; Sequelize's `changeColumn` implements the SQLite-recommended
+  "12-step" recreate-table dance.
+- Sequelize's recreate dance leaks intermediate `<table>_backup` tables
+  on partial failure; defensively `DROP TABLE IF EXISTS` before retry.
+
+### Next step — Phase 0b v2 (transactional outbox)
+
+See §10 for the design sketch and §8 for the checklist. New open
+questions Q7–Q9 in §9 must resolve before coding. Phase 0c is no
+longer a separate ship — its schema work was rolled into 0a; any
+remaining 0c bookkeeping is covered by the hooks.
 
 ---
 
@@ -371,6 +460,12 @@ Pick before shipping the schema migration; you don't want to add `isDeleted`
 in a second wave because mobile receivers will need to know which version of
 the schema they got.
 
+**Update (2026-04-29):** the soft-delete strategy was attempted in §0's
+2026-04-29 entry and rolled back in favor of a **transactional outbox**.
+Hard deletes stay; delete operations are communicated through the
+`sync_outbox` table written inside the same transaction as the entity
+destroy. See §10 for the new design.
+
 ### 3g. `applied_bundles` vs the desktop's "exported bundles" log
 
 These are different semantics. Use **two** tables, not one:
@@ -431,15 +526,19 @@ Desktop-side "Phase 0" was originally planned as three sub-phases. As of
 once the hook infrastructure existed):
 
 1. **0a. Add `uuid` + `revision` columns + backfill.** ✅ **Done.** See §0.
-2. **0b. Soft-delete migration** (separate because it touches every
-   service). Set `isDeleted`, keep cascading from articles. **Next up.**
+2. **0b. Op-emission machinery.** Originally planned as a soft-delete
+   migration (`isDeleted` + cascading tombstones). Attempted on
+   2026-04-28 and rolled back on 2026-04-29 (see §0); replaced by a
+   **transactional outbox** that records every create / update / delete
+   as a row in `sync_outbox`, written inside the same transaction as
+   the entity write. See §10 for design. **Next up.**
 3. **0c. Junction rows get `uuid`+`revision`** (`article_tag_rel`,
    `article_group_rel`, `article_article_rel`). ✅ **Done as part of 0a.**
 
 Only after 0a–0c are in everyone's hands should bundle emission start;
 otherwise old desktops will produce bundles missing junction uuids and the
 mobile applier will struggle. With 0a+0c shipped, that gate is half-open;
-0b unblocks delete propagation.
+0b unblocks op emission (creates, updates, and deletes alike).
 
 ---
 
@@ -541,20 +640,46 @@ Deferred to Phase 1 (typing & constants):
 - [ ] Create `backend/sync/syncConstants.js` with `.blz`,
       `application/vnd.bulutlar.sync+zip`, `com.bulutlar.sync`
 
-### Phase 0b — soft delete (next)
+### Phase 0b — transactional outbox (next)
 
-- [ ] Decide soft-delete scope (which tables get `isDeleted`) — open
-      question §9.3
-- [ ] Add `isDeleted BOOLEAN DEFAULT 0` to chosen tables (use the same
-      `addColumnIfMissing` loop pattern as 0a)
-- [ ] Update every `destroy()` call in services to soft-delete + bump
-      `revision` (NOTE: setting `isDeleted = 1` via Sequelize update will
-      automatically bump `revision` thanks to the 0a hooks — no manual
-      bump needed, just don't set revision in the update)
-- [ ] Filter `isDeleted = 1` in all read paths
-- [ ] Cascade: `deleteArticleById` should soft-delete the article AND its
-      child comments / annotations / images / audios / videos / junction
-      rows (mirrors current hard-delete cascade in `ArticleService.js`)
+Replaces the soft-delete approach attempted on 2026-04-28 and rolled
+back on 2026-04-29 (see §0 log). Design lives in §10.
+
+Resolve before coding (open questions §9):
+
+- [ ] Q7 — outbox payload shape (full snapshot vs pointer vs hybrid)
+- [ ] Q8 — pruning policy / multi-peer ack tracking
+- [ ] Q9 — coalescing multiple updates between exports
+
+Then implement:
+
+- [ ] Add `sync_outbox` Sequelize model (`backend/sequelize/model/syncOutbox.model.js`)
+      and let `sequelize.sync()` create the table on existing installs (it's
+      a fresh table; no `addColumnIfMissing` dance needed)
+- [ ] Add `sync_outbox` to `SYNCABLE_MODELS`? No — it's the engine, not
+      a synced entity. Keep separate.
+- [ ] New `backend/sync/outbox.js` exporting `appendOutbox({uuid,
+      entityType, op, revision, payload}, {transaction})` and
+      `safeUnlink(absPath)` (re-introduced from the rolled-back
+      `wipe.js` — ENOENT-tolerant; rethrows other errors)
+- [ ] Extend `backend/sync/hooks.js` with `afterCreate` /
+      `afterBulkCreate` / `afterUpdate` / `afterBulkUpdate` /
+      `afterDestroy` / `afterBulkDestroy` hooks that append outbox rows.
+      Each hook MUST accept the caller's `options.transaction` so the
+      outbox write is atomic with the entity write
+- [ ] Wrap `ArticleService.deleteArticleById` cascade in a single
+      `sequelize.transaction()` (carried over from the 0b attempt — was
+      a real win even outside the soft-delete strategy)
+- [ ] `ImageService` / `AudioService` / `VideoService` deleters:
+      `safeUnlink` the file BEFORE any DB mutation; surface unlink
+      errors to the renderer (no silent top-level `try/catch`); accept
+      and thread `options.transaction` so they enlist in the article
+      cascade transaction (also carried over)
+- [ ] Service-side: leave `.destroy()` and `removeAssociation` calls
+      as-is (no wipe replacement). The outbox row is emitted by the
+      hook layer, not by service code
+- [ ] Optional `pruneOutbox({beforeId})` helper for use after bundle
+      export ACK (no caller in 0b itself; lands when Phase 3 ships)
 
 ### Phase 0c — junction uuids ✅ Subsumed into 0a (2026-04-28)
 
@@ -609,17 +734,45 @@ Deferred to Phase 1 (typing & constants):
 
 Resolved during 0a:
 
-- ~~**ID scheme**: ULID vs UUIDv7~~ → **UUIDv7** via `uuid@^14`.
-- ~~**Junction op shape**~~ → **separate ops** with their own
+- ~~**Q1 — ID scheme**: ULID vs UUIDv7~~ → **UUIDv7** via `uuid@^14`.
+- ~~**Q2 — Junction op shape**~~ → **separate ops** with their own
   `uuid`+`revision` (junctions are first-class syncable rows; columns
   shipped in 0a).
 
-Still open, blocking phase 0b:
+Resolved during 0b rollback (2026-04-29):
 
-3. **Soft-delete scope**: every syncable table vs only user-deletable
-    entities (articles, comments, annotations, images, audios, videos,
-    junction rows). Tags/groups/owners/categories don't currently expose
-    a delete UI to the user; arguably they don't need `isDeleted`.
+- ~~**Q3 — Soft-delete scope**~~ → strategy switched to
+  **transactional outbox**. Hard-delete + outbox row for every write.
+  No `isDeleted` / `deletedAt` columns added on new installs (existing
+  customer DBs keep theirs as harmless residue; see §0). Reads no
+  longer need any tombstone filtering. See §10.
+
+Still open, blocking phase 0b (outbox):
+
+7. **Outbox payload shape** (Q7). Three flavors:
+   - **Pointer** (`uuid` + `op` + `revision` only): smaller, but
+     `delete` ops can't carry it (live row is gone) and a
+     `create`/`update` loses history if the row is updated again before
+     export.
+   - **Snapshot** (`payload` JSON = full row at op time): self-contained,
+     replayable, larger storage.
+   - **Hybrid**: pointer for `create`/`update` (export-time JOIN to
+     live table), snapshot for `delete`.
+
+   Recommendation: start with **snapshot for `delete`, pointer for
+   create/update**. Hybrid is the cheapest correct option; pure
+   snapshot is fine if storage isn't a concern.
+
+8. **Pruning policy / peer registry** (Q8). When can an outbox row be
+   GC'd? Single mobile peer in v1 → prune after
+   `peer.lastAckedOutboxId`. Need a tiny `sync_peers` table even with
+   one peer (`peerId`, `lastAckedOutboxId`, `lastAckedAt`). Without it,
+   `sync_outbox` grows forever.
+
+9. **Coalescing multiple updates between exports** (Q9). If a row is
+   updated 5× before sync, do we emit 5 rows (audit trail) or 1
+   (latest only)? Default: **5 rows** — simpler and gives mobile a
+   real sequence. Coalescing is an optimization for later.
 
 Still open, blocking later phases (phase 1 / phase 3):
 
@@ -631,3 +784,183 @@ Still open, blocking later phases (phase 1 / phase 3):
     let user override.
 6. **Schema-version mismatch behavior on mobile**: hard reject newer-than-
     mobile bundles, or allow with warning?
+
+---
+
+## 10. Phase 0b — Transactional outbox (current plan)
+
+Replaces the privacy-preserving soft-delete approach attempted on
+2026-04-28 and rolled back on 2026-04-29 (see §0 log). This section is
+the design surface for the next implementation chat.
+
+### 10.1 Why outbox
+
+- Live tables stay clean — no tombstone filtering on reads.
+- Hard delete = the row is genuinely gone; privacy is automatic.
+- Phase-3 wire format becomes literally
+  `SELECT * FROM sync_outbox WHERE exportedAt IS NULL ORDER BY id ASC`.
+- Removes every Sequelize-6 paranoid footgun (§0 log).
+- Removes the `_backup`-table dance entirely (no `changeColumn` needed
+  on new installs).
+- Junction re-add becomes a plain INSERT; no restore-or-create branch.
+
+The cost is one new table and a slightly fatter hook layer.
+
+### 10.2 Schema sketch
+
+```sql
+CREATE TABLE sync_outbox (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,  -- total order; mobile applies in id ASC
+  uuid         VARCHAR(255) NOT NULL,              -- entity uuid (the row's, not a separate one)
+  entityType   VARCHAR(64)  NOT NULL,              -- 'article' | 'tag' | 'article_tag_rel' | ...
+  op           VARCHAR(8)   NOT NULL,              -- 'create' | 'update' | 'delete'
+  revision     INTEGER      NOT NULL,              -- snapshot of row.revision at op time
+  payload      TEXT,                               -- JSON snapshot per Q7; nullable for pointer-mode rows
+  createdAt    DATETIME     NOT NULL,
+  exportedAt   DATETIME                            -- NULL = pending; set by export, prune key
+);
+CREATE INDEX sync_outbox_pending ON sync_outbox (exportedAt) WHERE exportedAt IS NULL;
+CREATE INDEX sync_outbox_entity  ON sync_outbox (entityType, uuid);
+```
+
+### 10.3 Hook flow
+
+The Phase 0a `registerSyncHooks` already wires `beforeCreate` /
+`beforeBulkCreate` / `beforeUpdate` / `beforeBulkUpdate` to generate
+`uuid` and bump `revision`. Phase 0b adds matching `after*` hooks
+(plus `afterDestroy` / `afterBulkDestroy`) that append outbox rows.
+Pseudocode:
+
+```js
+afterCreate(instance, options) {
+    return appendOutbox({
+        uuid:       instance.uuid,
+        entityType: model.name,
+        op:         'create',
+        revision:   instance.revision,
+        payload:    serializeForWire(instance),       // or null for pointer-mode (Q7)
+    }, { transaction: options.transaction });
+}
+
+afterDestroy(instance, options) {
+    return appendOutbox({
+        uuid:       instance.uuid,
+        entityType: model.name,
+        op:         'delete',
+        revision:   instance.revision,
+        payload:    null,                             // delete carries no body
+    }, { transaction: options.transaction });
+}
+```
+
+`options.transaction` is the caller's transaction; the outbox append
+joins it so the outbox row commits or rolls back atomically with the
+entity write. Bulk variants iterate over `instances` (or use a single
+bulk INSERT into `sync_outbox`).
+
+### 10.4 Cascade
+
+`ArticleService.deleteArticleById` becomes:
+
+```js
+const tx = await sequelize.transaction();
+try {
+    // Conservative ordering: unlink files BEFORE any DB mutation.
+    // safeUnlink swallows ENOENT, rethrows any other error → tx rolls back.
+    for (const m of mediaRows) await safeUnlink(absPath(m));
+
+    // Hard-delete cascades inside the same tx; each destroy fires its
+    // own afterDestroy hook → outbox row.
+    await commentService.deleteCommentsByArticleId(id,    { transaction: tx });
+    await imageService.deleteImagesByArticleId(id,        { transaction: tx });
+    await audioService.deleteAudiosByArticleId(id,        { transaction: tx });
+    await videoService.deleteVideosByArticleId(id,        { transaction: tx });
+    await annotationService.deleteAnnotationsByArticleId(id, { transaction: tx });
+    // junctions: plain Model.destroy({where:{articleId:id}, transaction: tx})
+    await article.destroy({ transaction: tx });
+
+    await tx.commit();
+} catch (e) {
+    await tx.rollback();
+    throw e;
+}
+```
+
+One outbox row per cascaded destroy. Mobile applies them strictly in
+`id` ASC order. The wire-format §6 still applies — junctions and
+children carry `articleUuid` and the receiver either runs the apply
+inside a deferred-FK transaction or sorts ops dependency-first.
+
+### 10.5 Privacy on hard delete
+
+Same conservative ordering as the rolled-back 0b: file unlink BEFORE
+DB transaction; non-ENOENT unlink failures abort everything. After
+commit, the row + its content + its media are all gone. The outbox
+row carries `op='delete'` + `uuid` only (no `payload`), so no content
+leakage there either.
+
+### 10.6 Pruning
+
+Out of scope for the 0b code itself (we don't even know mobile yet).
+The schema is ready: when bundle export ACKs arrive, set `exportedAt`
+on the relevant rows; later, `DELETE FROM sync_outbox WHERE exportedAt
+< :retention_cutoff`. The `sync_peers` table from Q8 lands when the
+first peer registry is needed.
+
+### 10.7 Edge cases to keep in mind
+
+- **Burst writes within one user action**. e.g. updating an article's
+  title in the editor calls `Model.update` which fires `afterUpdate`
+  once per affected row → one outbox row. Fine.
+- **Bulk operations the user triggers** (e.g. "delete all selected
+  articles") need to thread one transaction through the whole loop so
+  partial failures roll back, including their outbox rows.
+- **Hooks must not throw silently**. If `appendOutbox` fails, the
+  whole transaction must roll back; otherwise the entity write
+  succeeds but mobile never hears about it. Test this explicitly in
+  the smoke test.
+- **`uuid` must exist by the time the after-hook runs**. Phase 0a
+  before-hooks set it on instance creation, so this is already true
+  for `create`/`update`. For `destroy`, the row must already have a
+  `uuid` (true for any post-0a row; backfilled rows are also covered).
+- **Junction destroys with composite PKs**. Use the row's `uuid` as
+  the outbox identity (Phase 0a put `uuid` on every junction row);
+  the composite PK lives in `payload` if needed, or is reconstructable
+  from related entity uuids.
+- **Concurrent edits on multiple devices** (Q in §7 — out of v1 scope).
+  Last-writer-wins by `revision` still applies; the outbox is just
+  the transport.
+
+### 10.8 What gets carried over from the 0b attempt
+
+These were paid for during the rolled-back 0b attempt and are worth
+re-introducing in the 0b-v2 patch:
+
+- `safeUnlink(absPath)` helper — ENOENT-tolerant unlink, rethrows
+  other errors. Lift into `backend/sync/outbox.js` (or a small
+  `backend/sync/fsHelpers.js`).
+- Conservative file-unlink-then-DB ordering in image/audio/video
+  services.
+- Removal of silent top-level `try/catch` in those services so IPC
+  errors surface to the renderer.
+- `sequelize.transaction()` wrapping `ArticleService.deleteArticleById`.
+- `options.transaction` plumbing through media-service deleters.
+
+### 10.9 Smoke-test surface (what to exercise before declaring 0b v2 done)
+
+- Each syncable model: `create` → outbox `create` row with correct
+  `uuid` / `revision` / `payload`.
+- Each syncable model: `update` (instance + bulk) → outbox `update`
+  row(s) with bumped `revision`.
+- Each syncable model: `destroy` (instance + bulk) → outbox `delete`
+  row(s) with last-known `revision`.
+- `ArticleService.deleteArticleById` cascade: one transaction, one
+  outbox row per cascaded child + junction + parent, all visible in
+  `sync_outbox` after commit, none after rollback.
+- File unlink failure → entire cascade rolls back → no DB rows
+  destroyed and no outbox rows appended.
+- Pre-populated DB upgrade path: existing rows (with `uuid` from 0a)
+  do NOT generate retroactive outbox rows on first boot. Only writes
+  after Phase 0b v2 ships emit ops.
+- `sync_outbox` `id` is monotonically increasing across a mixed
+  workload (mobile relies on this for apply ordering).

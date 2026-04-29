@@ -283,29 +283,26 @@ async function createArticleProgrammatically(article) {
 }
 
 async function deleteArticleById(id) {
+    const article = await sequelize.models.article.findByPk(id);
+    if (!article)
+        throw new Error('no article found with id: ' + id);
+
+    // Single transaction wrapping the whole cascade. Each child deleter and
+    // the parent destroy fires its own afterDestroy hook, which appends a
+    // sync_outbox row inside this same transaction. If any step fails (e.g.
+    // a media safeUnlink rejects with a non-ENOENT error), the entire
+    // cascade rolls back — no partial deletes, no orphan outbox rows.
+    const tx = await sequelize.transaction();
     try {
-        const article = await sequelize.models.article.findByPk(id);
-
-        if (!article)
-            throw ('no article found with id: ' + id);
-
-        await commentService.deleteCommentsByArticleId(id);
-        await imageService.deleteImagesByArticleId(id);
-        await audioService.deleteAudiosByArticleId(id);
-        await videoService.deleteVideosByArticleId(id);
-        await annotationService.deleteAnnotationsByArticleId(id);
-
-        // await sequelize.models.article_article_rel.destroy({
-        //     where: {
-        //         [Op.or]: [
-        //             { articleid: id },
-        //             { relatedarticleid: id }
-        //         ]
-        //     }
-        // });
-
-        await article.destroy();
+        await commentService.deleteCommentsByArticleId(id,       { transaction: tx });
+        await imageService.deleteImagesByArticleId(id,           { transaction: tx });
+        await audioService.deleteAudiosByArticleId(id,           { transaction: tx });
+        await videoService.deleteVideosByArticleId(id,           { transaction: tx });
+        await annotationService.deleteAnnotationsByArticleId(id, { transaction: tx });
+        await article.destroy({ transaction: tx });
+        await tx.commit();
     } catch (error) {
+        await tx.rollback();
         console.error('Error deleting article:', error);
         throw error;
     }

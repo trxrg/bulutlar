@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { config } from '../config.js';
 import { mainWindow } from '../main.js';
+import { safeUnlink } from '../sync/outbox.js';
 
 let videosFolderPath;
 let publicFolderPath;
@@ -108,33 +109,33 @@ async function getVideoDataFromPublic(relPath, videoType) {
     }
 }
 
+async function deleteVideoEntity(video, { transaction } = {}) {
+    await safeUnlink(getVideoAbsPath(video.path));
+    await video.destroy({ transaction });
+}
+
 async function deleteVideoById(videoId) {
+    const video = await sequelize.models.video.findByPk(videoId);
+    if (!video)
+        throw new Error('no video found with id: ' + videoId);
 
+    const tx = await sequelize.transaction();
     try {
-        const video = await sequelize.models.video.findByPk(videoId);
-
-        if (!video)
-            throw ('no video found with id: ' + videoId);
-
-        fs.unlink(getVideoAbsPath(video.path));
-
-        await video.destroy();
-
+        await deleteVideoEntity(video, { transaction: tx });
+        await tx.commit();
     } catch (err) {
-        console.error('Error in deleteVideo', err);
+        await tx.rollback();
+        throw err;
     }
 }
 
-async function deleteVideosByArticleId(articleId) {
-    try {
-        const videos = await sequelize.models.video.findAll({ where: { articleId } });
-
-        for (const video of videos)
-            await deleteVideoById(video.id);
-
-    } catch (err) {
-        console.error('Error in deleteVideosByArticleId', err);
-    }
+async function deleteVideosByArticleId(articleId, { transaction } = {}) {
+    const videos = await sequelize.models.video.findAll({
+        where: { articleId },
+        transaction,
+    });
+    for (const video of videos)
+        await deleteVideoEntity(video, { transaction });
 }
 
 async function downloadVideoById(videoId) {

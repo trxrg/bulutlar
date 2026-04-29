@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { config } from '../config.js';
 import { mainWindow } from '../main.js';
+import { safeUnlink } from '../sync/outbox.js';
 
 let audiosFolderPath;
 let publicFolderPath;
@@ -103,33 +104,33 @@ async function getAudioDataFromPublic(relPath, audioType) {
     }
 }
 
+async function deleteAudioEntity(audio, { transaction } = {}) {
+    await safeUnlink(getAudioAbsPath(audio.path));
+    await audio.destroy({ transaction });
+}
+
 async function deleteAudioById(audioId) {
+    const audio = await sequelize.models.audio.findByPk(audioId);
+    if (!audio)
+        throw new Error('no audio found with id: ' + audioId);
 
+    const tx = await sequelize.transaction();
     try {
-        const audio = await sequelize.models.audio.findByPk(audioId);
-
-        if (!audio)
-            throw ('no audio found with id: ' + audioId);
-
-        fs.unlink(getAudioAbsPath(audio.path));
-
-        await audio.destroy();
-
+        await deleteAudioEntity(audio, { transaction: tx });
+        await tx.commit();
     } catch (err) {
-        console.error('Error in deleteAudio', err);
+        await tx.rollback();
+        throw err;
     }
 }
 
-async function deleteAudiosByArticleId(articleId) {
-    try {
-        const audios = await sequelize.models.audio.findAll({ where: { articleId } });
-
-        for (const audio of audios)
-            await deleteAudioById(audio.id);
-
-    } catch (err) {
-        console.error('Error in deleteAudiosByArticleId', err);
-    }
+async function deleteAudiosByArticleId(articleId, { transaction } = {}) {
+    const audios = await sequelize.models.audio.findAll({
+        where: { articleId },
+        transaction,
+    });
+    for (const audio of audios)
+        await deleteAudioEntity(audio, { transaction });
 }
 
 async function downloadAudioById(audioId) {

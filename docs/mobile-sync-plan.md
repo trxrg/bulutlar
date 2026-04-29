@@ -1,6 +1,6 @@
 # Bulutlar Desktop → Mobile Sync — Plan & Review
 
-Status: **Phase 0a complete (uuid + revision on all 13 syncable tables, including junctions). Phase 0b first attempted as privacy-preserving soft-delete and rolled back; replaced by a transactional-outbox plan (next — see §10).**
+Status: **Phases 0a + 0b v2 + 0c complete. uuid + revision on all 13 syncable tables (incl. junctions). `sync_outbox` populated atomically by Sequelize after-hooks; pointer-only (no payload). Article-cascade wrapped in a single transaction; media-service deleters now `safeUnlink` before DB destroy. Next: Phase 1 (types & constants) and Phase 3 (export feature).**
 Last updated: 2026-04-29
 
 ---
@@ -173,11 +173,160 @@ becomes worth the cost.
 - Sequelize's recreate dance leaks intermediate `<table>_backup` tables
   on partial failure; defensively `DROP TABLE IF EXISTS` before retry.
 
-### Next step — Phase 0b v2 (transactional outbox)
+### 2026-04-29 — Phase 0b v2 (transactional outbox) shipped
 
-See §10 for the design sketch and §8 for the checklist. Phase 0c is
-no longer a separate ship — its schema work was rolled into 0a; any
-remaining 0c bookkeeping is covered by the hooks.
+Pointer-only outbox per §10; design decisions in §9 Q7/Q9 honored
+verbatim (no `payload`, no `revision` column on `sync_outbox`;
+coalescing happens at export time). Article cascade in a single
+transaction; image/audio/video deleters `safeUnlink` before the DB
+destroy and thread `options.transaction`.
+
+**New files**
+
+- `backend/sequelize/model/syncOutbox.model.js` — defines table
+  `sync_outbox` with `(id, uuid, entityType, op, createdAt,
+  exportedAt)`, partial-eligible index `sync_outbox_pending` on
+  `exportedAt`, and `sync_outbox_entity` on `(entityType, uuid)`.
+  Registered in `modelDefiners` so `sequelize.sync()` creates it on
+  every install.
+- `backend/sync/outbox.js` — exports `appendOutbox(sequelize,
+  {uuid, entityType, op}, {transaction})` (single INSERT, throws on
+  failure so the caller's tx rolls back, skips with a warning if
+  `uuid` is null) and `safeUnlink(absPath)` (ENOENT-tolerant
+  unlink). The first arg is the sequelize instance — pulling it
+  from `backend/sequelize/index.js` would have created a circular
+  import since the outbox is wired from inside the sequelize boot.
+
+**Schema changes**
+
+- `sync_outbox` table created via `sequelize.sync()`. No
+  `addColumnIfMissing` dance — fresh table, never altered after
+  creation. No FK back to entity tables (rows of deleted entities
+  must remain referenceable; there's no live row to FK to).
+- Existing customer DBs that booted on the rolled-back 0b retain
+  their `deletedAt` columns and relaxed `NOT NULL`s on content
+  columns. Verified harmless by the boot test below: the new code
+  never writes to `deletedAt`, and `NOT NULL` validation now lives
+  at the model level so the DB-level slack is unused.
+
+**Code changes**
+
+- `backend/sync/hooks.js` extended with six new bindings per
+  syncable model (`afterCreate`, `afterBulkCreate`, `afterUpdate`,
+  `afterDestroy`, `afterBulkUpdate`, `afterBulkDestroy`).
+  Bulk-update and bulk-destroy can't see per-row instances in the
+  after hook, so the **existing** `beforeBulkUpdate` and a new
+  `beforeBulkDestroy` pre-fetch `[{uuid}]` from the affected rows
+  inside the caller's transaction and stash them on
+  `opts._outboxUuids`; the after hook iterates the stash and emits
+  one row per uuid. Service code therefore stays untouched —
+  `Model.update({where})`, `Model.destroy({where})`,
+  `article.addTag(...)`, `article.removeTag(...)` etc. all keep
+  working unchanged.
+- `backend/service/ArticleService.js#deleteArticleById` wraps the
+  cascade in a single `sequelize.transaction()` and threads
+  `{transaction: tx}` through every child-service deleter and the
+  parent destroy. If any step throws (including `safeUnlink`
+  rejecting on a non-ENOENT error), the entire cascade — entity
+  rows AND outbox rows — rolls back.
+- `backend/service/CommentService.js#deleteCommentsByArticleId` and
+  `backend/service/AnnotationService.js#deleteAnnotationsByArticleId`
+  now accept `(articleId, options = {})` and forward
+  `options.transaction` to `Model.destroy`. Silent top-level
+  `try/catch` removed from both — errors propagate to the cascade tx.
+- `backend/service/ImageService.js`, `AudioService.js`,
+  `VideoService.js` deleters refactored:
+  - New internal `delete<Type>Entity(entity, {transaction})` does
+    `await safeUnlink(absPath)` **before** `entity.destroy({transaction})`.
+  - Public `delete<Type>ById(id)` (the IPC handler) wraps the
+    internal helper in its own `sequelize.transaction()` so the
+    single-media-delete UI path is also atomic.
+  - Public `delete<Type>sByArticleId(articleId, {transaction} = {})`
+    accepts the parent tx, finds rows in that tx, and calls the
+    internal helper for each. Silent top-level `try/catch` removed.
+  - Two real bugs fixed in passing: `fs.unlink(...)` without `await`
+    (fire-and-forget) and the swallow-and-log pattern that hid IPC
+    errors from the renderer.
+
+**Open questions resolved this round**
+
+- ~~Q7 (outbox payload shape)~~ → **pointer-only**. Locked in §9.
+- ~~Q9 (coalescing)~~ → **append-only, coalesce at export**. Locked
+  in §9. Append-only chosen over UPSERT mode after weighing hook
+  complexity vs steady-state storage; ~50–80 bytes per outbox row
+  makes the duplicate-rows-between-exports cost negligible, while
+  hooks stay trivial INSERTs with no op-precedence merge logic.
+
+**Still open** (not blocking 0b)
+
+- Q8 (peer registry / pruning) — `sync_peers` table and
+  `pruneOutbox(beforeId)` helper land alongside Phase 3 when the
+  first peer ack arrives. Schema is ready (`exportedAt` column).
+
+**Verified by smoke test (8/8)**
+
+In-memory SQLite, single-file Node script wiring the same model +
+relations + hooks pipeline as `initDB` (since `backend/sequelize/`
+still can't be imported standalone — it pulls `electron` via
+`config.js`). Exercised every case in §10.10:
+
+- Each of the 10 entity models: `create` / `update` / `destroy`
+  emits exactly one outbox row each with the right
+  `(uuid, entityType, op)`.
+- `belongsToMany` add/remove on all 3 junctions emits one
+  `article_*_rel` row per association, both `'create'` and
+  `'delete'`.
+- `Model.update({where: {id: [a, b]}})` matching 2 of 3 rows emits
+  exactly 2 outbox rows; same for `Model.destroy({where})`.
+- Article cascade in one transaction: every cascaded child + junction
+  + parent emits its own `'delete'` outbox row, all visible after
+  commit.
+- Cascade rollback: throwing inside the tx leaves zero outbox rows
+  AND zero destroyed entity rows.
+- Pre-0b row inserted via raw SQL (simulating a customer DB row
+  predating 0b v2) emits no outbox row; the next Sequelize update on
+  that row emits exactly one.
+- §10.6 coalescing query with the four canonical patterns:
+  - `5x update` → `finalOp='update'`, `hadCreate=false`.
+  - `create + 3x update` → `finalOp='create'`, `hadCreate=true`.
+  - `update + delete` → `finalOp='delete'`, `hadCreate=false`.
+  - `create + delete` → `finalOp='delete'`, `hadCreate=true` (the
+    flag the export-time filter uses to drop the op entirely).
+- `appendOutbox` failure inside a transaction: dropping the
+  `sync_outbox` table mid-flight to make the next INSERT throw
+  causes the entity update to roll back too.
+
+**Verified by boot test (2/2)**
+
+Mirrors `initDB`'s pipeline against real on-disk SQLite files
+(not `:memory:`), so `sequelize.sync()`'s
+CREATE-TABLE-IF-NOT-EXISTS semantics get exercised:
+
+- Fresh DB: bootstrap creates `sync_outbox` + both indexes; first
+  write emits the expected row; second boot of the same file is
+  idempotent (no retroactive emission).
+- Customer DB with 0b residue: pre-seed the file with all the
+  `deletedAt` columns from the rolled-back 0b code, plus two
+  legacy articles with backfilled uuids. Bootstrap adds
+  `sync_outbox` cleanly; legacy articles emit zero retroactive
+  rows on boot; the next normal update emits exactly one.
+
+Both smoke and boot scripts deleted after passing; recreate from
+the same patterns if regression-testing is needed later.
+
+**Manual UI smoke (deferred to user)**
+
+Driving the actual Electron app — create an article, edit title,
+delete a comment, delete the article — is the user's
+responsibility since it requires the desktop window. The
+programmatic paths above cover everything below the IPC layer.
+
+### Next steps
+
+Phase 1 (types & constants — see §8) and Phase 3 (the export
+feature itself). The on-disk side is now fully instrumented: every
+syncable write produces an outbox row atomically with the entity
+write, and the export query in §10.6 has a concrete test target.
 
 **Design decisions locked 2026-04-29 (see §9):**
 
@@ -541,19 +690,21 @@ Desktop-side "Phase 0" was originally planned as three sub-phases. As of
 once the hook infrastructure existed):
 
 1. **0a. Add `uuid` + `revision` columns + backfill.** ✅ **Done.** See §0.
-2. **0b. Op-emission machinery.** Originally planned as a soft-delete
-   migration (`isDeleted` + cascading tombstones). Attempted on
-   2026-04-28 and rolled back on 2026-04-29 (see §0); replaced by a
-   **transactional outbox** that records every create / update / delete
-   as a row in `sync_outbox`, written inside the same transaction as
-   the entity write. See §10 for design. **Next up.**
+2. **0b. Op-emission machinery.** ✅ **Done (2026-04-29).** Originally
+   planned as a soft-delete migration (`isDeleted` + cascading
+   tombstones); attempted on 2026-04-28 and rolled back on 2026-04-29
+   (see §0). Shipped as a **transactional outbox** later that day:
+   every create / update / delete writes a row to `sync_outbox`
+   inside the same transaction as the entity write, via Sequelize
+   after-hooks (no service edits except the article-cascade
+   transaction wrapper and the media-deleter `safeUnlink` cleanup).
 3. **0c. Junction rows get `uuid`+`revision`** (`article_tag_rel`,
    `article_group_rel`, `article_article_rel`). ✅ **Done as part of 0a.**
 
-Only after 0a–0c are in everyone's hands should bundle emission start;
-otherwise old desktops will produce bundles missing junction uuids and the
-mobile applier will struggle. With 0a+0c shipped, that gate is half-open;
-0b unblocks op emission (creates, updates, and deletes alike).
+All three sub-phases are now in. The gate to start work on bundle
+emission (Phase 3) is fully open: every syncable write produces an
+`sync_outbox` row atomically with the entity write, and the §10.6
+coalescing query is the concrete export-time entry point.
 
 ---
 
@@ -655,41 +806,40 @@ Deferred to Phase 1 (typing & constants):
 - [ ] Create `backend/sync/syncConstants.js` with `.blz`,
       `application/vnd.bulutlar.sync+zip`, `com.bulutlar.sync`
 
-### Phase 0b — transactional outbox (next)
+### Phase 0b v2 — transactional outbox ✅ Done (2026-04-29)
 
 Replaces the soft-delete approach attempted on 2026-04-28 and rolled
 back on 2026-04-29 (see §0 log). Design lives in §10. Q7 and Q9
 resolved 2026-04-29 → **pointer-only outbox, coalesce at export**.
 
-Implement:
-
-- [ ] Add `sync_outbox` Sequelize model (`backend/sequelize/model/syncOutbox.model.js`)
+- [x] Add `sync_outbox` Sequelize model (`backend/sequelize/model/syncOutbox.model.js`)
       with columns `(id, uuid, entityType, op, createdAt, exportedAt)` —
-      no `payload`, no `revision` (see §10.2). Let `sequelize.sync()`
-      create the table on existing installs (it's a fresh table; no
-      `addColumnIfMissing` dance needed)
-- [ ] Add `sync_outbox` to `SYNCABLE_MODELS`? No — it's the engine, not
-      a synced entity. Keep separate.
-- [ ] New `backend/sync/outbox.js` exporting `appendOutbox({uuid,
-      entityType, op}, {transaction})` and `safeUnlink(absPath)`
-      (re-introduced from the rolled-back `wipe.js` — ENOENT-tolerant;
-      rethrows other errors)
-- [ ] Extend `backend/sync/hooks.js` with `afterCreate` /
+      no `payload`, no `revision` (see §10.2). `sequelize.sync()`
+      creates the table on existing installs.
+- [x] `sync_outbox` is NOT in `SYNCABLE_MODELS` — engine, not synced
+      entity.
+- [x] New `backend/sync/outbox.js` exporting `appendOutbox(sequelize,
+      {uuid, entityType, op}, {transaction})` and `safeUnlink(absPath)`
+      (ENOENT-tolerant; rethrows other errors). Sequelize is passed in
+      to avoid a circular import with `backend/sequelize/index.js`.
+- [x] Extended `backend/sync/hooks.js` with `afterCreate` /
       `afterBulkCreate` / `afterUpdate` / `afterBulkUpdate` /
-      `afterDestroy` / `afterBulkDestroy` hooks that append outbox rows.
-      Each hook MUST accept the caller's `options.transaction` so the
-      outbox write is atomic with the entity write
-- [ ] Wrap `ArticleService.deleteArticleById` cascade in a single
-      `sequelize.transaction()` (carried over from the 0b attempt — was
-      a real win even outside the soft-delete strategy)
-- [ ] `ImageService` / `AudioService` / `VideoService` deleters:
-      `safeUnlink` the file BEFORE any DB mutation; surface unlink
-      errors to the renderer (no silent top-level `try/catch`); accept
-      and thread `options.transaction` so they enlist in the article
-      cascade transaction (also carried over)
-- [ ] Service-side: leave `.destroy()` and `removeAssociation` calls
-      as-is (no wipe replacement). The outbox row is emitted by the
-      hook layer, not by service code
+      `afterDestroy` / `afterBulkDestroy` hooks. Bulk-update and
+      bulk-destroy use a `beforeBulk*` uuid pre-fetch to materialize
+      the affected rows for the after-hook (Sequelize bulk hooks
+      don't iterate rows). All outbox INSERTs join the caller's
+      `options.transaction`.
+- [x] Wrapped `ArticleService.deleteArticleById` cascade in a single
+      `sequelize.transaction()`; `commentService` and
+      `annotationService`'s `deleteByArticleId` variants accept and
+      forward `options.transaction`.
+- [x] `ImageService` / `AudioService` / `VideoService` deleters:
+      `safeUnlink` BEFORE `entity.destroy()`. Both single-id and
+      by-article variants thread `options.transaction`. Silent
+      top-level `try/catch` removed; `fs.unlink(...)` without `await`
+      bug fixed in passing.
+- [x] Service-side `.destroy()` and `removeAssociation` calls left
+      as-is — the outbox row is emitted by the hook layer.
 - [ ] Optional `pruneOutbox({beforeId})` helper for use after bundle
       export ACK (no caller in 0b itself; lands when Phase 3 ships)
 
@@ -798,11 +948,14 @@ Still open, blocking later phases (phase 1 / phase 3):
 
 ---
 
-## 10. Phase 0b — Transactional outbox (current plan)
+## 10. Phase 0b — Transactional outbox (design reference, shipped 2026-04-29)
 
 Replaces the privacy-preserving soft-delete approach attempted on
-2026-04-28 and rolled back on 2026-04-29 (see §0 log). This section is
-the design surface for the next implementation chat.
+2026-04-28 and rolled back on 2026-04-29 (see §0 log). This section
+was the design surface that drove the 0b v2 implementation and is
+preserved as the reference for the on-disk side; the actual
+landed-code summary is in §0's 2026-04-29 entry. Phase 3 (export)
+will use §10.6 as its starting point.
 
 ### 10.1 Why outbox
 

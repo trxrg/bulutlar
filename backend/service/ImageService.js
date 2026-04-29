@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { config } from '../config.js';
 import { mainWindow } from '../main.js';
+import { safeUnlink } from '../sync/outbox.js';
 
 let imagesFolderPath;
 let publicFolderPath;
@@ -112,33 +113,37 @@ async function getImageDataFromPublic(relPath, imageType) {
     }
 }
 
+// Internal: unlink the file BEFORE the DB destroy and thread the caller's
+// transaction so the destroy fires the afterDestroy hook (and its outbox
+// append) inside the same tx. A non-ENOENT unlink failure throws, aborting
+// the caller's transaction and leaving the row in place.
+async function deleteImageEntity(image, { transaction } = {}) {
+    await safeUnlink(getImageAbsPath(image.path));
+    await image.destroy({ transaction });
+}
+
 async function deleteImageById(imageId) {
+    const image = await sequelize.models.image.findByPk(imageId);
+    if (!image)
+        throw new Error('no image found with id: ' + imageId);
 
+    const tx = await sequelize.transaction();
     try {
-        const image = await sequelize.models.image.findByPk(imageId);
-
-        if (!image)
-            throw ('no image found with id: ' + imageId);
-
-        fs.unlink(getImageAbsPath(image.path));
-
-        await image.destroy();
-
+        await deleteImageEntity(image, { transaction: tx });
+        await tx.commit();
     } catch (err) {
-        console.error('Error in deleteImage', err);
+        await tx.rollback();
+        throw err;
     }
 }
 
-async function deleteImagesByArticleId(articleId) {
-    try {
-        const images = await sequelize.models.image.findAll({ where: { articleId } });
-
-        for (const image of images)
-            await deleteImageById(image.id);
-
-    } catch (err) {
-        console.error('Error in deleteImagesByArticleId', err);
-    }
+async function deleteImagesByArticleId(articleId, { transaction } = {}) {
+    const images = await sequelize.models.image.findAll({
+        where: { articleId },
+        transaction,
+    });
+    for (const image of images)
+        await deleteImageEntity(image, { transaction });
 }
 
 async function downloadImageById(imageId) {

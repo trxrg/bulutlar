@@ -14,6 +14,7 @@ import audioModel from './model/audio.model.js';
 import videoModel from './model/video.model.js';
 import annotationModel from './model/annotation.model.js';
 import lookupModel from './model/lookup.model.js';
+import syncOutboxModel from './model/syncOutbox.model.js';
 import { SYNCABLE_MODELS } from '../sync/syncableModels.js';
 import { backfillUuids } from '../sync/backfill.js';
 import { registerSyncHooks } from '../sync/hooks.js';
@@ -67,6 +68,7 @@ const modelDefiners = [
     videoModel,
     annotationModel,
     lookupModel,
+    syncOutboxModel,
 ];
 
 // Accepts either a raw Sequelize DataType (e.g. DataTypes.JSON) or a full

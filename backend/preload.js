@@ -154,6 +154,12 @@ contextBridge.exposeInMainWorld('api', {
     clear: () => ipcRenderer.invoke('store/clear'),
     deleteMany: (keys) => ipcRenderer.invoke('store/deleteMany', keys),
   },
+  sharing: {
+    getCandidates: ()                              => ipcRenderer.invoke('sharing/getCandidates'),
+    getLastExport: ()                              => ipcRenderer.invoke('sharing/getLastExport'),
+    exportBundle:  ({ latestState, manualDelete }) => ipcRenderer.invoke('sharing/exportBundle', { latestState, manualDelete }),
+    showInFolder:  (filePath)                      => ipcRenderer.invoke('sharing/showInFolder', filePath),
+  },
   getOwnerWithName:          (ownerName)   => ipcRenderer.invoke('getOwnerWithName', ownerName),
   getOwnerWithNameLike:      (nameLike)    => ipcRenderer.invoke('getOwnerWithNameLike', nameLike),
   ping:                      ()            => ipcRenderer.invoke('ping'),

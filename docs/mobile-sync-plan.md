@@ -1,6 +1,6 @@
 # Bulutlar Desktop → Mobile Sync — Plan & Review
 
-Status: **Phases 0a + 0b v2 + 0c + 1 complete. uuid + revision on all 13 syncable tables (incl. junctions). `sync_outbox` populated atomically by Sequelize after-hooks; pointer-only (no payload). Article-cascade wrapped in a single transaction; media-service deleters now `safeUnlink` before DB destroy. Wire-format contract locked: JSDoc typedefs + frozen constants triple in `backend/sync/`; `applied_bundles` and `exported_bundles` engine tables created. Next: Phase 3 (export feature).**
+Status: **Phases 0a + 0b v2 + 0c + 1 + 3 complete. uuid + revision on all 13 syncable tables (incl. junctions). `sync_outbox` populated atomically by Sequelize after-hooks; pointer-only (no payload). Article-cascade wrapped in a single transaction; media-service deleters now `safeUnlink` before DB destroy. Wire-format contract locked: JSDoc typedefs + frozen constants triple in `backend/sync/`. Engine tables: `applied_bundles`, `exported_bundles`, `exported_bundle_articles`. Phase 3 (export feature) shipped: `Settings → Sharing → Generate Update Bundle` UI; `SharingService.getCandidates()` classifies articles into created/updated/unchanged + auto-included deletions; `exportBundle()` emits `.blt` zip via `bundleBuilder.js` (FK→uuid, tiptap media-attr rewrite, sha256 op + media checksums) inside one transaction that also writes `exported_bundles` + `exported_bundle_articles` and stamps `sync_outbox.exportedAt`. Next: Phase 5 (history UI, multi-part splitting, schema-version-aware export) and the mobile applier (depends only on `backend/sync/types.js` + a sample `.blt`).**
 Last updated: 2026-04-29
 
 ---
@@ -410,30 +410,234 @@ Test script deleted after passing per the same hygiene used in
 0a / 0b v2; recreate from the same patterns if regression-testing
 is needed later.
 
+### 2026-04-29 — Phase 3 (export feature) shipped
+
+The desktop side of the contract is now wired end-to-end. User can
+open `Settings → Sharing → Generate Update Bundle`, pick which
+articles ship in the next bundle (with explicit `Latest State` vs
+`Sil Komutu` modes), and the resulting `.blt` lands in their
+Downloads folder ready for WhatsApp.
+
+**New files**
+
+- `backend/sync/coalesce.js` — exports `coalescePending(sequelize,
+  {entityTypes?, maxOutboxId?, transaction?})` (the §10.6 query as
+  a parameterized helper) and `snapshotOutboxMaxId(sequelize)`.
+  Op precedence at the same row: `delete > create > update`. The
+  snapshot helper gives callers an upper bound to pass to the
+  post-build stamp UPDATE so it doesn't race writes that landed
+  after the SELECT.
+- `backend/sync/tiptapRewrite.js` — `rewriteTiptap(doc, idToUuid)`.
+  Walks the tiptap tree, rewrites `imageNode` / `audioNode` /
+  `videoNode` `attrs` to the locked `TiptapMediaNodeAttrs` shape
+  (`{ uuid, name?, description? }`), drops `id` / `path` / `type` /
+  `size`. Pure; returns a fresh tree, never mutates.
+- `backend/sync/bundleBuilder.js` — `build({...})` writes a stored
+  (uncompressed) zip via `archiver`. Layout matches §6:
+  `manifest.json`, `operations.json`, `media/{images,audios,videos}/<uuid>.<ext>`.
+  Streamed sha256 over each media file → `mediaChecksums`; sha256
+  over `operations.json` bytes → `operationsChecksum`. Filename
+  format: `bulutlar-YYYY-MM-DD-<bundleIdShort>.blt` (the §4
+  `bundleId`-in-filename refinement). Exports
+  `SENTINEL_DELETE_REVISION = INT32_MAX = 2147483647` for
+  auto-included tombstones whose desktop revision is gone (see
+  Q10 below).
+- `backend/service/SharingService.js` — registers four IPC
+  handlers (`sharing/getCandidates`, `sharing/getLastExport`,
+  `sharing/exportBundle`, `sharing/showInFolder`) and orchestrates
+  the export. All Sequelize knowledge lives here; the three sync
+  modules above stay pure.
+- `backend/sequelize/model/exportedBundleArticles.model.js` — new
+  engine table `exported_bundle_articles` with composite PK
+  `(bundleId, articleUuid)` and an index on `articleUuid`. Two
+  rows per export per participating article uuid (one per
+  `latestState` AND each `manualDelete` uuid). Replaces the
+  brittle "has any outbox row with `exportedAt IS NOT NULL`"
+  proxy as the canonical "previously shared" oracle. NOT in
+  `SYNCABLE_MODELS`. Created via `sequelize.sync()` on next boot.
+- `src/components/settings/SharingSettings.jsx` — accordion
+  contents in `Settings`: button + last-export label.
+- `src/components/settings/SharingModal.jsx` — fixed-height
+  (`85vh`) two-pane modal. Left = available since last export
+  with four filter checkboxes (created / updated / deleted /
+  unchanged) + auto-included deletions read-only block. Right =
+  selected items with per-row `Latest State ↔ Sil Komutu` toggle
+  and red visual cues (border, title strikethrough, error chip,
+  red toggle fill) on `manualDelete` rows. Summary footer + 250 MB
+  soft warning constant.
+
+**Schema changes**
+
+- `exported_bundle_articles` created via `sequelize.sync()` —
+  same fresh-table pattern as the other engine tables. No
+  `addColumnIfMissing` dance.
+- Hook layer untouched; export-time stamping is plain
+  `UPDATE sync_outbox SET exportedAt WHERE id <= :maxId AND
+  exportedAt IS NULL AND uuid IN (:participatingUuids)`. The
+  `IN` clause excludes manual-delete uuids (those rows had no
+  outbox writes).
+
+**Code changes**
+
+- `backend/sequelize/index.js` — registers the new model.
+- `backend/service/index.js` — registers `SharingService`.
+- `backend/preload.js` — new `sharing` namespace exposing four
+  invokes.
+- `backend/service/SharingService.js#exportBundle` is the
+  transactional pivot: build the zip on disk first (idempotent
+  per `bundleId`; orphan files are harmless), then in one tx
+  insert `exported_bundles` + `exported_bundle_articles` rows
+  and stamp the outbox. If the tx fails, the `.blt` lingers but
+  the user can retry; the next attempt gets a fresh `bundleId`
+  and re-exports cleanly.
+- Translations: 30+ keys added to `src/locales/{en,tr}/translation.json`
+  (Title Case conventions normalized for the sharing surface).
+  Theme-aware MUI overrides in `src/styles/themes.css` scoped to
+  `.sharing-modal` so the modal renders cleanly in both light and
+  dark themes (forces FormControlLabel / ToggleButton / Chip /
+  IconButton / TextField text colors to `var(--text-primary)`,
+  red selected state for the `manualDelete` toggle).
+
+**Dependencies**
+
+- `archiver@^7` added (streaming zip writer; chosen over `yazl`
+  because it's the more idiomatic Node choice for this use case
+  and Bulutlar already pays the install cost via transitive
+  pulls). Installed with `--legacy-peer-deps` to clear the same
+  pre-existing `draft-js-export-html` peer conflict that 0a hit.
+
+**Open questions resolved this round**
+
+- ~~Q5 — bundle size cap~~ → **250 MB soft warning**, hardcoded as
+  `SIZE_WARNING_BYTES` in `SharingModal.jsx`. WhatsApp's hard cap
+  is 2 GB; 250 MB leaves headroom and matches §4 recommendation.
+  User-configurable can land in Phase 5 if needed.
+- ~~Q10 (newly raised) — "previously shared" classifier
+  fidelity~~ → **`exported_bundle_articles` mapping table**.
+  Stamping `sync_outbox.exportedAt` was insufficient because an
+  article that's been shared once and never written to since
+  has no pending outbox rows to inspect; the new table records
+  every `(bundleId, articleUuid)` shipped (both `latestState`
+  AND `manualDelete`) so the classifier has an authoritative
+  answer.
+- ~~Q11 (newly raised) — pending-desktop-deletes UX in the
+  modal~~ → **auto-include, read-only summary**. Users cannot
+  individually inspect or skip pending deletes (the live row is
+  gone; we have only the uuid). Every export carries every
+  pending desktop delete; the modal shows count + creation
+  timestamp summary.
+- ~~Q12 (newly raised) — remote-only delete (manualDelete)~~ →
+  **per-row `Sil Komutu` toggle in the right pane**. Emits a
+  `DeleteOp` with `revision = liveRev + 1` without touching
+  the desktop row. **Caveat:** if the desktop user later edits
+  the same article, the next bundle's upsert will resurrect
+  the row on mobile. Documented as known v1 behavior.
+- ~~Q13 (newly raised) — dangling `articleArticleRel`
+  targets~~ → **skip at export time**. If
+  `relatedArticleUuid` is neither in the current bundle's
+  selected articles NOR in `exported_bundle_articles` from any
+  prior bundle, drop the rel. Mobile can't apply a rel whose
+  target it's never seen.
+- ~~Q14 (newly raised) — `DeleteOp` revision for auto-included
+  desktop deletes~~ → **`SENTINEL_DELETE_REVISION = INT32_MAX`**.
+  The pointer-only outbox doesn't store the revision-at-time-of-
+  delete and the live row is gone, so we use a sentinel high
+  enough that mobile applies the tombstone regardless of any
+  revision it might already have. uuids never repeat on
+  desktop (hard-delete + uuidv7), so the sentinel can never
+  collide with a future legitimate revision for the same uuid.
+
+**Verified by smoke test (56/56)**
+
+In-memory SQLite, single-file Node script wiring the same
+model + relations + hooks pipeline as `initDB`, replicating
+`SharingService.getCandidates` / `exportBundle` inline (the
+service can't be imported standalone — pulls `electron` for
+`app.getVersion()` / `app.getPath` / `shell.showItemInFolder`
+/ `ipcMain`). Six articles seeded covering every classifier
+branch (latestState / manualDelete / autoDelete / previously-
+shared / unchanged / dangling-rel target):
+
+- All four classifier branches return the right uuids
+  (created / updated / unchanged / deleted-summary).
+- Bundle file exists, ends in `.blt`, parses as a stored zip
+  (custom mini-parser since archiver's reverse cousin isn't
+  in deps).
+- Manifest constants match the locked triple
+  (`bulutlar-sync` / `1` / `bulutlar-desktop` / schema 1).
+- Ops sorted by `APPLY_ORDER`.
+- Article ops resolve `ownerUuid` / `categoryUuid` from
+  numeric FKs and drop `ownerId` / `categoryId`.
+- Embedded `imageNode` carries `{ uuid, name, description }`
+  only (no `id` / `path` / `type` / `size`).
+- `manualDelete` op revision = `liveRev + 1`; live row
+  unchanged after export.
+- `autoDelete` op revision = `SENTINEL_DELETE_REVISION`.
+- `articleArticleRel` to a previously-shared article kept;
+  rel to a never-shared dangling target dropped.
+- `operationsChecksum` matches sha256 of `operations.json`
+  bytes; `mediaChecksums[uuid]` matches sha256 of the media
+  file in the zip.
+- `exported_bundles` row inserted; `exported_bundle_articles`
+  has `latestState` + `manualDelete` uuids but NOT
+  `autoDelete` uuids.
+- `sync_outbox.exportedAt` stamped for participating uuids;
+  `manualDelete`'s pre-existing stamped/pending counts
+  unchanged (the live row was never touched).
+- Re-running `getCandidates` after export reclassifies
+  correctly: previously-created articles drop to `unchanged`,
+  the auto-deleted article disappears from the deleted
+  summary.
+
+Test script deleted after passing per the same hygiene used
+in 0a / 0b v2 / 1; recreate from the same patterns if
+regression-testing is needed later.
+
+**Manual UI smoke (deferred to user)**
+
+Driving the actual Electron app — opening Settings, generating a
+bundle, verifying the file shows up in Downloads, tapping `Show in
+Folder`, sending the bundle through WhatsApp — is the user's
+responsibility since it requires the desktop window. The
+programmatic paths above cover everything below the IPC layer.
+
 ### Next steps
 
-Phase 3 (the export feature itself — see §8 and §10.6 for the
-concrete query that consumes `sync_outbox`). The contract is now
-locked: emitters MUST produce data shapes matching
-`backend/sync/types.js`, and writes go through
-`exported_bundles` for bookkeeping. Mobile can start its applier
-side in parallel using the same JSDoc file.
+Phase 5 candidates (none blocking, pick whichever the product needs
+first):
 
-**Design decisions locked 2026-04-29 (see §9):**
+- **History UI on top of `exported_bundles` + `exported_bundle_articles`**
+  ("you've already shared this article in N bundles, last on X").
+  Most of the data is already populated; this is a pure UI add.
+- **Multi-part splitting** for bundles over the 250 MB soft
+  warning. Requires bumping the manifest's `partIndex` /
+  `partTotal` (already reserved as `1/1` in v1) and a receiver-
+  side stitcher. Not urgent unless real-world bundles trigger
+  the warning.
+- **Schema-version-aware export** (refuse to emit if mobile's
+  last-known `schemaVersion` is too old). Depends on Q6
+  (mobile-side mismatch behavior).
+- **Optional bundle encryption** with a passphrase shared
+  out-of-band.
+- **Reverse direction** (mobile → desktop). Significant work;
+  triggers conflict-resolution policy decisions explicitly out
+  of scope for v1 (§7).
 
-- Q7 — outbox payload shape: **pointer-only**. The outbox stores
-  `(uuid, entityType, op)` and nothing else. Creates/updates JOIN to
-  the live entity table at export time; deletes carry no body in the
-  wire format anyway, so the outbox row IS the delete op. No
-  `payload` column. History is explicitly not a product requirement.
-- Q9 — coalescing: **coalesce at export, store one row per write**.
-  Multiple writes to the same row collapse to a single emitted op
-  (latest state for upsert, single delete for delete, dropped
-  entirely for create-then-delete-before-export). Hooks stay
-  trivial; complexity lives in the export query.
-- Q8 — pruning / peer registry: still open but not blocking 0b. The
-  schema supports it via `exportedAt`; `sync_peers` lands when the
-  first peer registry is needed.
+The mobile applier is independent — it depends on
+`backend/sync/types.js` (copy verbatim) plus a sample `.blt` to
+test against (the smoke-test pipeline above can synthesize one on
+demand). Apply in `APPLY_ORDER`; dispatch on `op.type` (`'upsert'`
+vs `'delete'`); honor `revision` last-writer-wins on the live row.
+
+**Still open** (none blocking the desktop side):
+
+- Q6 — schema-version mismatch behavior on mobile (mobile-side).
+- Q8 — pruning / peer registry. Schema supports it
+  (`sync_outbox.exportedAt` is set by Phase 3 export; the
+  `sync_peers` table can land when the first peer registry is
+  needed). For a single-peer v1 over WhatsApp, manual prune
+  ("delete outbox rows older than X" on the desktop user's
+  command) is enough.
 
 ---
 
@@ -730,6 +934,15 @@ These are different semantics. Use **two** tables, not one:
 - `exported_bundles` desktop-only with
   `(bundleId, createdAt, opCount, sizeBytes, articleCount, filePath)`.
 
+**Update (Phase 3):** a third desktop-only engine table,
+`exported_bundle_articles`, was added to track which articles were
+included in which bundles
+(composite PK `(bundleId, articleUuid)`, index on `articleUuid`).
+This is the canonical "previously shared" oracle used by the modal's
+classifier — see Q10 in the 2026-04-29 Phase 3 entry of §0. It
+records every uuid in either `latestState` OR `manualDelete` for a
+given bundle.
+
 ### 3h. Media on disk is already `relPath`-only
 
 `backend/service/ImageService.js` (and Audio/Video equivalents) store
@@ -796,6 +1009,10 @@ All three sub-phases are now in. The gate to start work on bundle
 emission (Phase 3) is fully open: every syncable write produces an
 `sync_outbox` row atomically with the entity write, and the §10.6
 coalescing query is the concrete export-time entry point.
+
+**Update (2026-04-29):** Phase 3 shipped the same day. See §0's Phase
+3 entry for what landed; the §10.6 query is now wired through
+`backend/sync/coalesce.js` and consumed by `SharingService.exportBundle`.
 
 ---
 
@@ -957,27 +1174,59 @@ resolved 2026-04-29 → **pointer-only outbox, coalesce at export**.
       `backend/sequelize/model/exportedBundle.model.js`, registered in
       `modelDefiners`, NOT in `SYNCABLE_MODELS`
 
-### Phase 3 — export feature
+### Phase 3 — export feature ✅ Done (2026-04-29)
 
-- [ ] Article selector UI ("Generate bundle" + multi-select + optional
-      "changed since")
-- [ ] Operation builder: emit ops in dependency order with `uuid` references
-      (§6)
-- [ ] Tiptap JSON rewrite: walk `textTiptapJson` /
-      `explanationTiptapJson` / `tiptapTextJson` and replace media `attrs`
-      with `uuid`-only refs
-- [ ] Resolve `ownerId` / `categoryId` to `ownerUuid` / `categoryUuid` in
-      article `data`
-- [ ] Media collection: copy each image/video/audio file into
-      `media/<kind>/<uuid>.<ext>`
-- [ ] SHA-256 each media file → `mediaChecksums` map
-- [ ] SHA-256 `operations.json` → `operationsChecksum`
-- [ ] Read `sourceAppVersion` from `app.getVersion()` at runtime
-- [ ] Generate `bundleId` (ULID) and embed short prefix in filename
-- [ ] Zip → rename to `.blt` → save to Downloads
-- [ ] Trigger OS share sheet / "Show in folder"
-- [ ] Insert row into `exported_bundles`
-- [ ] Size cap warning at ~250 MB (configurable)
+- [x] Article selector UI ("Generate Update Bundle" + dual-list with
+      created/updated/deleted/unchanged filter checkboxes + per-row
+      `Latest State ↔ Sil Komutu` toggle) — `SharingModal.jsx` /
+      `SharingSettings.jsx`, accordion in `SettingsScreen.jsx`
+- [x] Operation builder: emit ops in `APPLY_ORDER` with `uuid`
+      references (§6) — `bundleBuilder.js#build()` consumes the
+      shape-only inputs prepared by `SharingService.exportBundle`
+- [x] Tiptap JSON rewrite: walk `textTiptapJson` /
+      `explanationTiptapJson` / `tiptapTextJson` and replace media
+      `attrs` with the locked `TiptapMediaNodeAttrs` shape —
+      `tiptapRewrite.js#rewriteTiptap()`
+- [x] Resolve `ownerId` / `categoryId` to `ownerUuid` /
+      `categoryUuid` in article `data` (and `articleId` →
+      `articleUuid` on every child + junction row) —
+      `SharingService.exportBundle`
+- [x] Media collection: copy each image/video/audio file into
+      `media/<kind>/<uuid>.<ext>` — `bundleBuilder.js`, stored
+      uncompressed (no recompression of already-compressed
+      JPEGs/MP3s/MP4s)
+- [x] SHA-256 each media file → `mediaChecksums` map (streamed,
+      no double-buffering)
+- [x] SHA-256 `operations.json` → `operationsChecksum`
+- [x] Read `sourceAppVersion` from `app.getVersion()` at runtime
+- [x] Generate `bundleId` (UUIDv7 — chose UUIDv7 over ULID to match
+      the rest of the codebase's id scheme locked in 0a) and embed
+      short prefix in filename: `bulutlar-YYYY-MM-DD-<bundleIdShort>.blt`
+- [x] Zip → save with `.blt` extension to Downloads (or app
+      cwd if `app.getPath('downloads')` fails)
+- [x] "Show in folder" via `shell.showItemInFolder` after success
+      (skipped OS share sheet — `Show in folder` matches the rest of
+      the app's flow and lets the user attach to WhatsApp via the
+      OS file picker)
+- [x] Insert row into `exported_bundles` + new
+      `exported_bundle_articles` (Q10 fix) inside the same
+      transaction that stamps `sync_outbox.exportedAt`
+- [x] Size cap soft warning at 250 MB (Q5 resolved) — hardcoded
+      `SIZE_WARNING_BYTES` constant in `SharingModal.jsx`
+
+**Phase 3 also delivered (not in original checklist):**
+
+- [x] **Auto-include pending desktop deletes** (Q11) — read-only
+      summary in the left pane; tombstone op emitted with
+      `SENTINEL_DELETE_REVISION = INT32_MAX` (Q14) since the
+      pointer-only outbox doesn't store the row's
+      revision-at-delete-time.
+- [x] **Remote-only delete via `Sil Komutu` toggle** (Q12) — emits
+      `DeleteOp` with `revision = liveRev + 1` without touching
+      the desktop row. Resurrection caveat documented.
+- [x] **Skip dangling `articleArticleRel` at export time** (Q13) —
+      a rel whose `relatedArticleUuid` is neither in the bundle
+      nor in `exported_bundle_articles` is silently dropped.
 
 ### Phase 5 — later
 
@@ -1038,21 +1287,64 @@ Resolved during Phase 1 (2026-04-29):
   Phase 3's tiptap rewriter MUST drop `id`, `path`, `type`, `size`
   from the original `attrs` before emit.
 
-Still open, not blocking 0b coding:
+Resolved during Phase 3 (2026-04-29):
 
-8. **Pruning policy / peer registry** (Q8). When can an outbox row be
-   GC'd? Single mobile peer in v1 → prune after
-   `peer.lastAckedOutboxId`. Need a tiny `sync_peers` table even with
-   one peer (`peerId`, `lastAckedOutboxId`, `lastAckedAt`). Without it,
-   `sync_outbox` grows forever. Schema is ready (`exportedAt`); the
-   peer table can land alongside Phase 3.
+- ~~**Q5 — Bundle size cap**~~ → **250 MB soft warning, no hard cap**.
+  WhatsApp's hard limit is 2 GB; 250 MB matches §4's recommendation
+  and leaves headroom. Implemented as `SIZE_WARNING_BYTES` constant
+  in `SharingModal.jsx`; user can proceed past the warning.
+  User-configurable threshold (per §8 "configurable" hedge) deferred
+  to Phase 5 — no real-world bundle has hit it yet.
+- ~~**Q10 — "previously shared" classifier fidelity**~~ →
+  **`exported_bundle_articles` mapping table**. Stamping
+  `sync_outbox.exportedAt` was insufficient: an article shared in a
+  prior bundle and never written to since has no pending outbox rows
+  for the classifier to inspect. The new desktop-only engine table
+  records `(bundleId, articleUuid)` for every article shipped (both
+  `latestState` and `manualDelete` modes). See §3g and §0's Phase 3
+  entry.
+- ~~**Q11 — Pending-desktop-deletes UX**~~ → **auto-include,
+  read-only summary**. Users cannot individually inspect or skip
+  pending deletes (the live row is gone — only the uuid remains).
+  Every export carries every pending desktop delete; the modal shows
+  count + creation timestamp.
+- ~~**Q12 — Remote-only delete (manualDelete)**~~ → **per-row
+  `Sil Komutu` toggle in the right pane**. Emits a `DeleteOp` with
+  `revision = liveRev + 1` without touching the desktop row.
+  **Resurrection caveat:** if the desktop user later edits the same
+  article, the next bundle's upsert will resurrect the row on mobile.
+  Documented as known v1 behavior; the user opted in by toggling.
+- ~~**Q13 — Dangling `articleArticleRel` targets**~~ → **silently
+  drop at export time**. If a rel's `relatedArticleUuid` is neither
+  in the current bundle's selected articles NOR in
+  `exported_bundle_articles` from any prior bundle, skip the rel.
+  Mobile can't apply a rel whose target it's never seen.
+- ~~**Q14 — `DeleteOp.revision` for auto-included desktop deletes**~~
+  → **`SENTINEL_DELETE_REVISION = INT32_MAX = 2147483647`**. The
+  pointer-only outbox doesn't store the row's revision-at-time-of-
+  delete and the live row is gone, so we use a sentinel high enough
+  that mobile applies the tombstone regardless of any revision it
+  might already have for that uuid. uuids never repeat on desktop
+  (hard-delete + uuidv7), so the sentinel can never collide with a
+  legitimate future revision.
 
-Still open, blocking Phase 3:
+Still open, not blocking Phase 3 or downstream phases:
 
-5. **Bundle size cap**: 100 MB (conservative) vs 250 MB (recommended) vs
-    let user override.
-6. **Schema-version mismatch behavior on mobile**: hard reject newer-than-
-    mobile bundles, or allow with warning?
+- **Q8 — Pruning policy / peer registry**. When can an outbox row be
+  GC'd? Single mobile peer in v1 → prune after
+  `peer.lastAckedOutboxId`. Schema supports it (`exportedAt` is now
+  populated by Phase 3 export). The `sync_peers` table
+  (`peerId`, `lastAckedOutboxId`, `lastAckedAt`) lands when the first
+  peer registry is needed; for single-peer-via-WhatsApp v1, manual
+  prune ("delete outbox rows older than X" on user command) is enough
+  and adds no surface area.
+
+Still open, blocking later mobile work:
+
+- **Q6 — Schema-version mismatch behavior on mobile**: hard reject
+  newer-than-mobile bundles, or allow with warning? Belongs to the
+  mobile applier (which doesn't exist yet), so this only matters
+  once that side starts.
 
 ---
 

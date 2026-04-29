@@ -6,6 +6,7 @@ import GeneralSettings from './GeneralSettings';
 import EditorSettings from './EditorSettings';
 import DatabaseSettings from './DatabaseSettings';
 import UpdateSettings from './UpdateSettings';
+import SharingSettings from './SharingSettings';
 
 const SettingsScreen = () => {
     const { translate: t } = useContext(AppContext);
@@ -63,6 +64,18 @@ const SettingsScreen = () => {
                     </AccordionSummary>
                     <AccordionDetails sx={accordionDetailsSx}>
                         <DatabaseSettings />
+                    </AccordionDetails>
+                </Accordion>
+
+                <Accordion sx={accordionSx}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
+                        sx={accordionSummarySx}
+                    >
+                        <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>{t('sharing')}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={accordionDetailsSx}>
+                        <SharingSettings />
                     </AccordionDetails>
                 </Accordion>
 

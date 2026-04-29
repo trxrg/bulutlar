@@ -13,7 +13,8 @@ const servicePromises = [
     import('./LookupService.js'),
     import('./DBService.js'),
     import('./StoreService.js'),
-    import('./UrlFetchService.js')
+    import('./UrlFetchService.js'),
+    import('./SharingService.js')
 ];
 
 function initServices() {

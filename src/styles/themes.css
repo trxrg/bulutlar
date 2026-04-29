@@ -468,6 +468,105 @@ button svg {
   overflow-wrap: break-word;
 }
 
+/* SharingModal — force MUI components to use theme-aware colors so the
+   modal is readable in both themes. MUI defaults to its own palette
+   (dark text), which is invisible on top of our dark --bg-secondary. */
+.sharing-modal {
+  color: var(--text-primary);
+}
+
+.sharing-modal .MuiFormControlLabel-label,
+.sharing-modal .MuiInputBase-input,
+.sharing-modal .MuiInputBase-root {
+  color: var(--text-primary) !important;
+}
+
+.sharing-modal .MuiFormControlLabel-label {
+  font-size: 0.875rem;
+}
+
+.sharing-modal .MuiCheckbox-root {
+  color: var(--text-secondary) !important;
+}
+
+.sharing-modal .MuiCheckbox-root.Mui-checked {
+  color: var(--border-primary) !important;
+}
+
+.sharing-modal .MuiOutlinedInput-notchedOutline {
+  border-color: var(--border-secondary) !important;
+}
+
+.sharing-modal .MuiIconButton-root {
+  color: var(--text-primary) !important;
+}
+
+.sharing-modal .MuiButton-text {
+  color: var(--text-primary) !important;
+}
+
+.sharing-modal .MuiButton-text.Mui-disabled {
+  color: var(--text-tertiary) !important;
+}
+
+.sharing-modal .MuiToggleButton-root {
+  color: var(--text-primary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+.sharing-modal .MuiToggleButton-root.Mui-selected {
+  background-color: var(--border-primary) !important;
+  color: #f9fafb !important;
+}
+
+.sharing-modal .MuiToggleButton-root.Mui-selected:hover {
+  background-color: var(--border-primary) !important;
+  filter: brightness(1.1);
+}
+
+/* Manual-delete toggle: red in both unselected (text) and selected
+   (filled) states so the user always sees that this row will emit a
+   tombstone on mobile. */
+.sharing-modal .sharing-modal__delete-toggle {
+  color: #d32f2f !important;
+  border-color: rgba(211, 47, 47, 0.5) !important;
+}
+
+.sharing-modal .sharing-modal__delete-toggle.Mui-selected {
+  background-color: #d32f2f !important;
+  color: #f9fafb !important;
+  border-color: #d32f2f !important;
+}
+
+.sharing-modal .sharing-modal__delete-toggle.Mui-selected:hover {
+  background-color: #b71c1c !important;
+}
+
+.sharing-modal .MuiChip-root.MuiChip-colorDefault {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+.sharing-modal .MuiAlert-root {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .sharing-modal .MuiAlert-standardSuccess {
+  background-color: rgba(46, 125, 50, 0.18) !important;
+}
+
+[data-theme="dark"] .sharing-modal .MuiAlert-standardError {
+  background-color: rgba(211, 47, 47, 0.18) !important;
+}
+
+[data-theme="dark"] .sharing-modal .MuiAlert-standardWarning {
+  background-color: rgba(237, 108, 2, 0.18) !important;
+}
+
+[data-theme="dark"] .sharing-modal .MuiAlert-standardInfo {
+  background-color: rgba(2, 136, 209, 0.18) !important;
+}
+
 /* Toastr theme customization */
 .toast-bottom-left {
   background-color: var(--toast-bg) !important;

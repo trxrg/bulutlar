@@ -1026,7 +1026,7 @@ Resolved during 0b v2 design (2026-04-29):
 
 Resolved during Phase 1 (2026-04-29):
 
-- ~~**Q1 — JSDoc vs TypeScript** for the shared sync surface~~ →
+- ~~**JSDoc vs TypeScript** for the shared sync surface~~ →
   **JSDoc**. Lives in `backend/sync/types.js` as a single file
   mobile copies verbatim. Matches the rest of the repo (plain
   ESM JS, no tsconfig per §3a); cheapest path. The only runtime

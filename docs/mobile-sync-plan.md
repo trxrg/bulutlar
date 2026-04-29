@@ -175,10 +175,25 @@ becomes worth the cost.
 
 ### Next step — Phase 0b v2 (transactional outbox)
 
-See §10 for the design sketch and §8 for the checklist. New open
-questions Q7–Q9 in §9 must resolve before coding. Phase 0c is no
-longer a separate ship — its schema work was rolled into 0a; any
+See §10 for the design sketch and §8 for the checklist. Phase 0c is
+no longer a separate ship — its schema work was rolled into 0a; any
 remaining 0c bookkeeping is covered by the hooks.
+
+**Design decisions locked 2026-04-29 (see §9):**
+
+- Q7 — outbox payload shape: **pointer-only**. The outbox stores
+  `(uuid, entityType, op)` and nothing else. Creates/updates JOIN to
+  the live entity table at export time; deletes carry no body in the
+  wire format anyway, so the outbox row IS the delete op. No
+  `payload` column. History is explicitly not a product requirement.
+- Q9 — coalescing: **coalesce at export, store one row per write**.
+  Multiple writes to the same row collapse to a single emitted op
+  (latest state for upsert, single delete for delete, dropped
+  entirely for create-then-delete-before-export). Hooks stay
+  trivial; complexity lives in the export query.
+- Q8 — pruning / peer registry: still open but not blocking 0b. The
+  schema supports it via `exportedAt`; `sync_peers` lands when the
+  first peer registry is needed.
 
 ---
 
@@ -643,25 +658,22 @@ Deferred to Phase 1 (typing & constants):
 ### Phase 0b — transactional outbox (next)
 
 Replaces the soft-delete approach attempted on 2026-04-28 and rolled
-back on 2026-04-29 (see §0 log). Design lives in §10.
+back on 2026-04-29 (see §0 log). Design lives in §10. Q7 and Q9
+resolved 2026-04-29 → **pointer-only outbox, coalesce at export**.
 
-Resolve before coding (open questions §9):
-
-- [ ] Q7 — outbox payload shape (full snapshot vs pointer vs hybrid)
-- [ ] Q8 — pruning policy / multi-peer ack tracking
-- [ ] Q9 — coalescing multiple updates between exports
-
-Then implement:
+Implement:
 
 - [ ] Add `sync_outbox` Sequelize model (`backend/sequelize/model/syncOutbox.model.js`)
-      and let `sequelize.sync()` create the table on existing installs (it's
-      a fresh table; no `addColumnIfMissing` dance needed)
+      with columns `(id, uuid, entityType, op, createdAt, exportedAt)` —
+      no `payload`, no `revision` (see §10.2). Let `sequelize.sync()`
+      create the table on existing installs (it's a fresh table; no
+      `addColumnIfMissing` dance needed)
 - [ ] Add `sync_outbox` to `SYNCABLE_MODELS`? No — it's the engine, not
       a synced entity. Keep separate.
 - [ ] New `backend/sync/outbox.js` exporting `appendOutbox({uuid,
-      entityType, op, revision, payload}, {transaction})` and
-      `safeUnlink(absPath)` (re-introduced from the rolled-back
-      `wipe.js` — ENOENT-tolerant; rethrows other errors)
+      entityType, op}, {transaction})` and `safeUnlink(absPath)`
+      (re-introduced from the rolled-back `wipe.js` — ENOENT-tolerant;
+      rethrows other errors)
 - [ ] Extend `backend/sync/hooks.js` with `afterCreate` /
       `afterBulkCreate` / `afterUpdate` / `afterBulkUpdate` /
       `afterDestroy` / `afterBulkDestroy` hooks that append outbox rows.
@@ -747,32 +759,31 @@ Resolved during 0b rollback (2026-04-29):
   customer DBs keep theirs as harmless residue; see §0). Reads no
   longer need any tombstone filtering. See §10.
 
-Still open, blocking phase 0b (outbox):
+Resolved during 0b v2 design (2026-04-29):
 
-7. **Outbox payload shape** (Q7). Three flavors:
-   - **Pointer** (`uuid` + `op` + `revision` only): smaller, but
-     `delete` ops can't carry it (live row is gone) and a
-     `create`/`update` loses history if the row is updated again before
-     export.
-   - **Snapshot** (`payload` JSON = full row at op time): self-contained,
-     replayable, larger storage.
-   - **Hybrid**: pointer for `create`/`update` (export-time JOIN to
-     live table), snapshot for `delete`.
+- ~~**Q7 — Outbox payload shape**~~ → **pointer-only**. The outbox
+  stores `(uuid, entityType, op)` and nothing else; no `payload`
+  column, no `revision` column. Creates/updates resolve to current
+  state via `LEFT JOIN` to the live entity table at export time;
+  deletes carry no body in the wire format (§6) so the outbox row
+  itself IS the delete op. Trade-off: history is not reconstructable
+  on the receiver — only the latest state at each export. Explicitly
+  acceptable per product requirements ("last version is enough").
+- ~~**Q9 — Coalescing multiple updates between exports**~~ →
+  **coalesce at export, store one row per write**. The hook layer
+  appends a row on every write (no in-hook deduping); the export
+  query collapses to one op per `(entityType, uuid)` via `GROUP BY`.
+  See §10.6 for the query. Falls out of pointer-mode for free since
+  the outbox row carries no per-op state worth preserving.
 
-   Recommendation: start with **snapshot for `delete`, pointer for
-   create/update**. Hybrid is the cheapest correct option; pure
-   snapshot is fine if storage isn't a concern.
+Still open, not blocking 0b coding:
 
 8. **Pruning policy / peer registry** (Q8). When can an outbox row be
    GC'd? Single mobile peer in v1 → prune after
    `peer.lastAckedOutboxId`. Need a tiny `sync_peers` table even with
    one peer (`peerId`, `lastAckedOutboxId`, `lastAckedAt`). Without it,
-   `sync_outbox` grows forever.
-
-9. **Coalescing multiple updates between exports** (Q9). If a row is
-   updated 5× before sync, do we emit 5 rows (audit trail) or 1
-   (latest only)? Default: **5 rows** — simpler and gives mobile a
-   real sequence. Coalescing is an optimization for later.
+   `sync_outbox` grows forever. Schema is ready (`exportedAt`); the
+   peer table can land alongside Phase 3.
 
 Still open, blocking later phases (phase 1 / phase 3):
 
@@ -797,8 +808,9 @@ the design surface for the next implementation chat.
 
 - Live tables stay clean — no tombstone filtering on reads.
 - Hard delete = the row is genuinely gone; privacy is automatic.
-- Phase-3 wire format becomes literally
-  `SELECT * FROM sync_outbox WHERE exportedAt IS NULL ORDER BY id ASC`.
+- Phase-3 export becomes a `LEFT JOIN` from `sync_outbox` to each
+  entity table, grouped by `(entityType, uuid)` to coalesce repeated
+  writes. See §10.6.
 - Removes every Sequelize-6 paranoid footgun (§0 log).
 - Removes the `_backup`-table dance entirely (no `changeColumn` needed
   on new installs).
@@ -808,14 +820,16 @@ The cost is one new table and a slightly fatter hook layer.
 
 ### 10.2 Schema sketch
 
+Pointer-only per Q7 — the outbox records *that* a row changed, not
+*what* it changed to. State is read from the live entity table at
+export time.
+
 ```sql
 CREATE TABLE sync_outbox (
-  id           INTEGER PRIMARY KEY AUTOINCREMENT,  -- total order; mobile applies in id ASC
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,  -- total order
   uuid         VARCHAR(255) NOT NULL,              -- entity uuid (the row's, not a separate one)
   entityType   VARCHAR(64)  NOT NULL,              -- 'article' | 'tag' | 'article_tag_rel' | ...
   op           VARCHAR(8)   NOT NULL,              -- 'create' | 'update' | 'delete'
-  revision     INTEGER      NOT NULL,              -- snapshot of row.revision at op time
-  payload      TEXT,                               -- JSON snapshot per Q7; nullable for pointer-mode rows
   createdAt    DATETIME     NOT NULL,
   exportedAt   DATETIME                            -- NULL = pending; set by export, prune key
 );
@@ -823,13 +837,23 @@ CREATE INDEX sync_outbox_pending ON sync_outbox (exportedAt) WHERE exportedAt IS
 CREATE INDEX sync_outbox_entity  ON sync_outbox (entityType, uuid);
 ```
 
+No `payload` column (would have stored the row JSON; not needed —
+`create`/`update` JOIN to the live table, `delete` carries no body
+in the wire format).
+
+No `revision` column either. The outbox just says "this row is
+dirty"; the live row's current `revision` is what mobile sees. The
+op-time revision would only matter if we cared about the *sequence*
+of intermediate revisions, which we explicitly don't (Q9 → coalesce).
+
 ### 10.3 Hook flow
 
 The Phase 0a `registerSyncHooks` already wires `beforeCreate` /
 `beforeBulkCreate` / `beforeUpdate` / `beforeBulkUpdate` to generate
 `uuid` and bump `revision`. Phase 0b adds matching `after*` hooks
 (plus `afterDestroy` / `afterBulkDestroy`) that append outbox rows.
-Pseudocode:
+With pointer-mode the hooks are near-trivial — no per-entity
+serialization, no JSON column to maintain:
 
 ```js
 afterCreate(instance, options) {
@@ -837,8 +861,14 @@ afterCreate(instance, options) {
         uuid:       instance.uuid,
         entityType: model.name,
         op:         'create',
-        revision:   instance.revision,
-        payload:    serializeForWire(instance),       // or null for pointer-mode (Q7)
+    }, { transaction: options.transaction });
+}
+
+afterUpdate(instance, options) {
+    return appendOutbox({
+        uuid:       instance.uuid,
+        entityType: model.name,
+        op:         'update',
     }, { transaction: options.transaction });
 }
 
@@ -847,8 +877,6 @@ afterDestroy(instance, options) {
         uuid:       instance.uuid,
         entityType: model.name,
         op:         'delete',
-        revision:   instance.revision,
-        payload:    null,                             // delete carries no body
     }, { transaction: options.transaction });
 }
 ```
@@ -886,32 +914,85 @@ try {
 }
 ```
 
-One outbox row per cascaded destroy. Mobile applies them strictly in
-`id` ASC order. The wire-format §6 still applies — junctions and
-children carry `articleUuid` and the receiver either runs the apply
-inside a deferred-FK transaction or sorts ops dependency-first.
+One outbox row per cascaded destroy. The wire-format §6 still
+applies — junctions and children carry `articleUuid` and the receiver
+either runs the apply inside a deferred-FK transaction or sorts ops
+dependency-first. Per-row `id` order in the outbox is not load-bearing
+once we coalesce at export (see §10.6); dependency ordering on the
+emit side is what mobile relies on.
 
 ### 10.5 Privacy on hard delete
 
 Same conservative ordering as the rolled-back 0b: file unlink BEFORE
 DB transaction; non-ENOENT unlink failures abort everything. After
 commit, the row + its content + its media are all gone. The outbox
-row carries `op='delete'` + `uuid` only (no `payload`), so no content
-leakage there either.
+row stores only `(uuid, entityType, op)` — no row content, so no
+content leakage there either.
 
-### 10.6 Pruning
+### 10.6 Export query (coalescing)
 
-Out of scope for the 0b code itself (we don't even know mobile yet).
-The schema is ready: when bundle export ACKs arrive, set `exportedAt`
-on the relevant rows; later, `DELETE FROM sync_outbox WHERE exportedAt
-< :retention_cutoff`. The `sync_peers` table from Q8 lands when the
-first peer registry is needed.
+Phase-3 work, but the shape matters here because it's why the outbox
+schema can stay so thin. Per Q9 the outbox stores one row per write;
+collapsing to one op per `(entityType, uuid)` happens at export time.
 
-### 10.7 Edge cases to keep in mind
+Pseudocode for "build the next bundle":
+
+```sql
+-- Pick the latest pending op per (entityType, uuid).
+-- Op precedence at the same row: delete > update > create
+-- (a row that was created and then deleted before any export
+--  collapses to "skip entirely" — handled in app code, not SQL).
+WITH pending AS (
+  SELECT entityType, uuid,
+         MAX(id) AS lastId,
+         -- 'delete' wins, else 'create' if any, else 'update'
+         CASE
+           WHEN SUM(op = 'delete') > 0 THEN 'delete'
+           WHEN SUM(op = 'create') > 0 THEN 'create'
+           ELSE 'update'
+         END AS finalOp,
+         SUM(op = 'create') > 0 AS hadCreate
+  FROM sync_outbox
+  WHERE exportedAt IS NULL
+  GROUP BY entityType, uuid
+)
+SELECT * FROM pending;
+```
+
+Then in app code:
+
+- For each `pending` row with `finalOp IN ('create', 'update')`:
+  `LEFT JOIN` to the live entity table by `(entityType, uuid)` and
+  emit an `upsert` op with the current row state. If the JOIN comes
+  back empty, the row was deleted between coalescing and export —
+  treat as `delete` instead.
+- For each `pending` row with `finalOp = 'delete'`:
+  - If `hadCreate` is true AND no peer has previously acked any op
+    for this `(entityType, uuid)` → drop the row entirely (the
+    receiver never saw it; nothing to delete).
+  - Otherwise → emit a `delete` op (just `uuid` + `entityType`; the
+    wire format §6 needs nothing more).
+- Sort emitted ops dependency-first per §6 (owners → categories →
+  tags → groups → articles → comments/annotations/media → rels).
+- After zip is written and bundle is committed: update
+  `exportedAt = now()` for all coalesced source rows
+  (`WHERE id <= maxIdAtSnapshotTime AND exportedAt IS NULL`).
+
+### 10.7 Pruning
+
+Out of scope for the 0b code itself. The schema is ready: when
+bundle export ACKs arrive, set `exportedAt` on the relevant rows;
+later, `DELETE FROM sync_outbox WHERE exportedAt < :retention_cutoff`.
+The `sync_peers` table from Q8 lands when the first peer registry is
+needed.
+
+### 10.8 Edge cases to keep in mind
 
 - **Burst writes within one user action**. e.g. updating an article's
   title in the editor calls `Model.update` which fires `afterUpdate`
-  once per affected row → one outbox row. Fine.
+  once per affected row → one outbox row per row touched. Multiple
+  bursts on the same row before export collapse at export time
+  (§10.6).
 - **Bulk operations the user triggers** (e.g. "delete all selected
   articles") need to thread one transaction through the whole loop so
   partial failures roll back, including their outbox rows.
@@ -925,13 +1006,17 @@ first peer registry is needed.
   `uuid` (true for any post-0a row; backfilled rows are also covered).
 - **Junction destroys with composite PKs**. Use the row's `uuid` as
   the outbox identity (Phase 0a put `uuid` on every junction row);
-  the composite PK lives in `payload` if needed, or is reconstructable
-  from related entity uuids.
-- **Concurrent edits on multiple devices** (Q in §7 — out of v1 scope).
-  Last-writer-wins by `revision` still applies; the outbox is just
-  the transport.
+  the composite PK is reconstructable at export time from the live
+  junction table for `create`/`update` ops, and the wire-format
+  delete op only needs the junction row's `uuid`.
+- **Create-then-delete before any export**. Coalesces to "drop"
+  (don't emit anything). See §10.6. This is correct for v1's single
+  peer; multi-peer would need to consult the peer ack registry first.
+- **Concurrent edits on multiple devices** (out of v1 scope per §7).
+  Last-writer-wins by `revision` on the live row still applies; the
+  outbox is just the transport.
 
-### 10.8 What gets carried over from the 0b attempt
+### 10.9 What gets carried over from the 0b attempt
 
 These were paid for during the rolled-back 0b attempt and are worth
 re-introducing in the 0b-v2 patch:
@@ -946,14 +1031,14 @@ re-introducing in the 0b-v2 patch:
 - `sequelize.transaction()` wrapping `ArticleService.deleteArticleById`.
 - `options.transaction` plumbing through media-service deleters.
 
-### 10.9 Smoke-test surface (what to exercise before declaring 0b v2 done)
+### 10.10 Smoke-test surface (what to exercise before declaring 0b v2 done)
 
-- Each syncable model: `create` → outbox `create` row with correct
-  `uuid` / `revision` / `payload`.
-- Each syncable model: `update` (instance + bulk) → outbox `update`
-  row(s) with bumped `revision`.
-- Each syncable model: `destroy` (instance + bulk) → outbox `delete`
-  row(s) with last-known `revision`.
+- Each syncable model: `create` → exactly one outbox row with the
+  right `(uuid, entityType, op='create')`.
+- Each syncable model: `update` (instance + bulk) → one outbox row
+  per affected row with `op='update'`.
+- Each syncable model: `destroy` (instance + bulk) → one outbox row
+  per destroyed row with `op='delete'`.
 - `ArticleService.deleteArticleById` cascade: one transaction, one
   outbox row per cascaded child + junction + parent, all visible in
   `sync_outbox` after commit, none after rollback.
@@ -962,5 +1047,16 @@ re-introducing in the 0b-v2 patch:
 - Pre-populated DB upgrade path: existing rows (with `uuid` from 0a)
   do NOT generate retroactive outbox rows on first boot. Only writes
   after Phase 0b v2 ships emit ops.
-- `sync_outbox` `id` is monotonically increasing across a mixed
-  workload (mobile relies on this for apply ordering).
+- Coalescing (Phase 3 territory but worth a unit test now):
+  - 5 sequential `update`s to one row → outbox has 5 rows; the §10.6
+    coalesce query returns 1 row with `finalOp='update'`.
+  - `create` → 3× `update` → outbox has 4 rows; coalesce returns
+    1 row with `finalOp='create'` (the create dominates updates).
+  - `update` → `delete` → outbox has 2 rows; coalesce returns 1 row
+    with `finalOp='delete'`.
+  - `create` → `delete` (with no prior peer ack) → coalesce returns
+    `finalOp='delete'` and `hadCreate=true`; app-level filter drops
+    it from the emitted op list.
+- `appendOutbox` rejection inside a transaction → the entity write
+  rolls back too (no orphan entity write without a matching outbox
+  row).

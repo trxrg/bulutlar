@@ -1,6 +1,6 @@
 # Bulutlar Desktop → Mobile Sync — Plan & Review
 
-Status: **Phases 0a + 0b v2 + 0c complete. uuid + revision on all 13 syncable tables (incl. junctions). `sync_outbox` populated atomically by Sequelize after-hooks; pointer-only (no payload). Article-cascade wrapped in a single transaction; media-service deleters now `safeUnlink` before DB destroy. Next: Phase 1 (types & constants) and Phase 3 (export feature).**
+Status: **Phases 0a + 0b v2 + 0c + 1 complete. uuid + revision on all 13 syncable tables (incl. junctions). `sync_outbox` populated atomically by Sequelize after-hooks; pointer-only (no payload). Article-cascade wrapped in a single transaction; media-service deleters now `safeUnlink` before DB destroy. Wire-format contract locked: JSDoc typedefs + frozen constants triple in `backend/sync/`; `applied_bundles` and `exported_bundles` engine tables created. Next: Phase 3 (export feature).**
 Last updated: 2026-04-29
 
 ---
@@ -321,12 +321,103 @@ delete a comment, delete the article — is the user's
 responsibility since it requires the desktop window. The
 programmatic paths above cover everything below the IPC layer.
 
+### 2026-04-29 — Phase 1 (types & constants) shipped
+
+The wire-format contract is now written down and the two
+bookkeeping engine tables are in. No service code touched; this
+phase is pure scaffolding.
+
+**New files**
+
+- `backend/sync/syncConstants.js` — frozen exports for the on-disk
+  format: `SYNC_FORMAT='bulutlar-sync'`, `SYNC_FORMAT_VERSION=1`,
+  `SYNC_FILE_EXT='.blt'`,
+  `SYNC_MIME_TYPE='application/vnd.bulutlar.sync+zip'`,
+  `SYNC_IOS_UTI='com.bulutlar.sync'`,
+  `SYNC_SOURCE_APP='bulutlar-desktop'`, `SYNC_SCHEMA_VERSION=1`.
+  These ship in every bundle's `manifest.json` and on-disk
+  filename and must never change once Phase 3 ships.
+- `backend/sync/types.js` — JSDoc-only (Q1 resolved → JSDoc, not
+  TS, matches the rest of the repo per §3a). Defines `Manifest`,
+  `Operation` discriminated union (`UpsertOp` | `DeleteOp`),
+  `EntityType` string union, per-entity `*Data` typedefs for all
+  13 syncable entities (10 entities + 3 junctions), and
+  `TiptapMediaNodeAttrs = { uuid, name?, description? }` per Q4.
+  Only runtime export is the frozen `APPLY_ORDER` array used by
+  both desktop emitter and mobile applier to sequence ops
+  dependency-first (owner → category → tag → group → article →
+  comment/annotation/media → junctions).
+- `backend/sequelize/model/appliedBundle.model.js` — engine table
+  `applied_bundles` with `(id, bundleId UNIQUE, appliedAt,
+  opCount, sourceApp, sourceVersion)`. Symmetric across desktop
+  and mobile per §3g; idle on desktop in v1, mobile uses for
+  idempotent re-apply detection.
+- `backend/sequelize/model/exportedBundle.model.js` — engine
+  table `exported_bundles` with `(id, bundleId UNIQUE, createdAt,
+  opCount, articleCount, sizeBytes, filePath)`. Desktop-only
+  "what have I shared" log; written by Phase 3 export, read by
+  the Phase 5 history UI.
+
+**Schema changes**
+
+- Both tables created via `sequelize.sync()` — same fresh-table
+  pattern as `sync_outbox`, no `addColumnIfMissing` dance because
+  the tables are brand new on every install. `timestamps: false`
+  on both since they manage their own `appliedAt` / `createdAt`
+  columns explicitly.
+- Neither table is in `SYNCABLE_MODELS`. They are engine tables
+  (sync infrastructure itself); writes do NOT emit outbox rows —
+  verified by smoke test below. Same status as `sync_outbox`.
+
+**Code changes**
+
+- `backend/sequelize/index.js` — two new imports
+  (`appliedBundleModel`, `exportedBundleModel`), two new entries
+  in `modelDefiners` next to `syncOutboxModel`. No other changes.
+
+**Open questions resolved this round**
+
+- ~~Q1 (JSDoc vs TS for shared sync surface)~~ → **JSDoc** in
+  `backend/sync/types.js`. Matches the rest of the repo (plain
+  ESM JS, no tsconfig); cheapest path that gives mobile a single
+  file to copy.
+- ~~Q4 (Tiptap media-node `attrs` rewrite policy)~~ →
+  **`{ uuid, name, description }`** (uuid-plus-display). Keeps a
+  display fallback if media fails to apply on the receiver.
+  Phase 3's tiptap rewriter MUST drop `id`, `path`, `type`,
+  `size` from the original `attrs` before emit.
+
+**Verified by smoke + boot test (22/22)**
+
+Single-file Node script wiring the same model + relations + hooks
+pipeline as `initDB` (still can't import `backend/sequelize/`
+standalone — pulls `electron` via `config.js`).
+
+- In-memory smoke (11 checks): both new tables present;
+  `bundleId` UNIQUE rejects duplicates on each; engine tables do
+  NOT emit outbox rows on create; syncable tables still DO emit
+  outbox rows; neither model is in `SYNCABLE_MODELS`.
+- Fresh on-disk boot (5 checks): tables created; row written;
+  second boot is idempotent and the row persists.
+- Customer-DB-with-residue boot (6 checks): seed a DB with 0a
+  uuid+revision columns AND the rolled-back 0b `deletedAt`
+  residue, plus legacy owner+article rows; bootstrap on top with
+  the new modelDefiners adds both new tables cleanly; legacy
+  rows survive untouched (uuids preserved); `appliedBundle.create`
+  works on the customer DB.
+
+Test script deleted after passing per the same hygiene used in
+0a / 0b v2; recreate from the same patterns if regression-testing
+is needed later.
+
 ### Next steps
 
-Phase 1 (types & constants — see §8) and Phase 3 (the export
-feature itself). The on-disk side is now fully instrumented: every
-syncable write produces an outbox row atomically with the entity
-write, and the export query in §10.6 has a concrete test target.
+Phase 3 (the export feature itself — see §8 and §10.6 for the
+concrete query that consumes `sync_outbox`). The contract is now
+locked: emitters MUST produce data shapes matching
+`backend/sync/types.js`, and writes go through
+`exported_bundles` for bookkeeping. Mobile can start its applier
+side in parallel using the same JSDoc file.
 
 **Design decisions locked 2026-04-29 (see §9):**
 
@@ -420,7 +511,7 @@ same file is shared between desktop and mobile (copy/paste is fine for v1).
 
 - Manifest shape (see §6 below).
 - Operation union (`upsert` / `delete`) for each entity.
-- The constants triple: extension `.blz`, MIME
+- The constants triple: extension `.blt`, MIME
   `application/vnd.bulutlar.sync+zip`, iOS UTI `com.bulutlar.sync`. Put these
   in `syncConstants.*` and never change them.
 
@@ -482,8 +573,8 @@ writes its own path.
 
 - Layout: `manifest.json` at root, `operations.json` at root, `media/images/…`,
   `media/videos/…`, `media/audios/…`.
-- Output extension: `.blz` (NOT `.zip`).
-- Suggested filename: `bulutlar-YYYY-MM-DD.blz` (see §3a for refinement).
+- Output extension: `.blt` (NOT `.zip`).
+- Suggested filename: `bulutlar-YYYY-MM-DD.blt` (see §3a for refinement).
 
 #### 4f. Output + share
 
@@ -655,7 +746,7 @@ filename.
 - **`bundleId` in the filename**: include a short prefix of `bundleId` in the
   filename so re-shares of the same bundle on different days are reconciled
   on mobile (idempotency by `bundleId`). E.g.
-  `bulutlar-2026-04-28-01HXX1234.blz`.
+  `bulutlar-2026-04-28-01HXX1234.blt`.
 - **Checksum**: "compute over the zip then patch into manifest" is awkward
   (changes the zip you just hashed). Simpler: SHA-256 over `operations.json`
   bytes, plus a `mediaChecksums: { "<uuid>": "<sha256>" }` map in the
@@ -676,7 +767,7 @@ filename.
   recognizes. An unknown `application/vnd.bulutlar.sync+zip` MIME often gets
   stripped to `application/octet-stream` during transfer. That's fine for
   the goal — it means the recipient experience depends entirely on the
-  mobile OS's file-association handling for `.blz`, not on WhatsApp.
+  mobile OS's file-association handling for `.blt`, not on WhatsApp.
 - WhatsApp's document size cap is 2 GB now (bumped from 100 MB years ago).
   The plan's ~100 MB is conservative. Cap at ~250 MB for v1 to leave
   headroom; revisit splitting later.
@@ -799,11 +890,11 @@ Apply order on receiver (or one big deferred-FK transaction):
 - [x] Wire `revision = revision + 1` into every UPDATE path (via
       `beforeUpdate` + `beforeBulkUpdate` hooks)
 
-Deferred to Phase 1 (typing & constants):
+Done as part of Phase 1:
 
-- [ ] Decide JSDoc-only vs adopt TS for `backend/sync/`; create
+- [x] Decide JSDoc-only vs adopt TS for `backend/sync/`; create
       `backend/sync/types.js` with shared typedefs
-- [ ] Create `backend/sync/syncConstants.js` with `.blz`,
+- [x] Create `backend/sync/syncConstants.js` with `.blt`,
       `application/vnd.bulutlar.sync+zip`, `com.bulutlar.sync`
 
 ### Phase 0b v2 — transactional outbox ✅ Done (2026-04-29)
@@ -852,12 +943,19 @@ resolved 2026-04-29 → **pointer-only outbox, coalesce at export**.
       `uuid` + `revision` — no service edits needed; hooks fire on the
       implicit `bulkCreate` Sequelize emits for `belongsToMany` writes
 
-### Phase 1 — types & constants
+### Phase 1 — types & constants ✅ Done (2026-04-29)
 
-- [ ] JSDoc typedefs for `Manifest`, `Operation`, `UpsertOp`, `DeleteOp`,
-      per-entity `data` shapes (see §6)
-- [ ] `applied_bundles` table created (symmetric, idle on desktop in v1)
-- [ ] `exported_bundles` table created (desktop-only)
+- [x] JSDoc typedefs for `Manifest`, `Operation`, `UpsertOp`, `DeleteOp`,
+      per-entity `data` shapes (see §6) — in `backend/sync/types.js`,
+      with `APPLY_ORDER` as the only runtime export and
+      `TiptapMediaNodeAttrs` locking Q4's `{ uuid, name, description }`
+      shape
+- [x] `applied_bundles` table created (symmetric, idle on desktop in v1) —
+      `backend/sequelize/model/appliedBundle.model.js`, registered in
+      `modelDefiners`, NOT in `SYNCABLE_MODELS`
+- [x] `exported_bundles` table created (desktop-only) —
+      `backend/sequelize/model/exportedBundle.model.js`, registered in
+      `modelDefiners`, NOT in `SYNCABLE_MODELS`
 
 ### Phase 3 — export feature
 
@@ -876,7 +974,7 @@ resolved 2026-04-29 → **pointer-only outbox, coalesce at export**.
 - [ ] SHA-256 `operations.json` → `operationsChecksum`
 - [ ] Read `sourceAppVersion` from `app.getVersion()` at runtime
 - [ ] Generate `bundleId` (ULID) and embed short prefix in filename
-- [ ] Zip → rename to `.blz` → save to Downloads
+- [ ] Zip → rename to `.blt` → save to Downloads
 - [ ] Trigger OS share sheet / "Show in folder"
 - [ ] Insert row into `exported_bundles`
 - [ ] Size cap warning at ~250 MB (configurable)
@@ -926,6 +1024,20 @@ Resolved during 0b v2 design (2026-04-29):
   See §10.6 for the query. Falls out of pointer-mode for free since
   the outbox row carries no per-op state worth preserving.
 
+Resolved during Phase 1 (2026-04-29):
+
+- ~~**Q1 — JSDoc vs TypeScript** for the shared sync surface~~ →
+  **JSDoc**. Lives in `backend/sync/types.js` as a single file
+  mobile copies verbatim. Matches the rest of the repo (plain
+  ESM JS, no tsconfig per §3a); cheapest path. The only runtime
+  export is the `APPLY_ORDER` array; everything else is `@typedef`.
+- ~~**Q4 — Tiptap node `attrs`** rewrite policy~~ →
+  **`{ uuid, name, description }`** (uuid-plus-display). Locked
+  in `backend/sync/types.js` as `TiptapMediaNodeAttrs`. Keeps a
+  display fallback on the receiver if media fails to apply.
+  Phase 3's tiptap rewriter MUST drop `id`, `path`, `type`, `size`
+  from the original `attrs` before emit.
+
 Still open, not blocking 0b coding:
 
 8. **Pruning policy / peer registry** (Q8). When can an outbox row be
@@ -935,12 +1047,8 @@ Still open, not blocking 0b coding:
    `sync_outbox` grows forever. Schema is ready (`exportedAt`); the
    peer table can land alongside Phase 3.
 
-Still open, blocking later phases (phase 1 / phase 3):
+Still open, blocking Phase 3:
 
-1. **JSDoc vs TypeScript** for the shared sync surface — pick before
-   phase 1.
-4. **Tiptap node `attrs`**: keep just `uuid`, or also keep
-    `description` / `name` for display fallback?
 5. **Bundle size cap**: 100 MB (conservative) vs 250 MB (recommended) vs
     let user override.
 6. **Schema-version mismatch behavior on mobile**: hard reject newer-than-

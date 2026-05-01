@@ -79,6 +79,7 @@ async function createArticle(article) { // Now transactional
     const transaction = await sequelize.transaction();
 
     try {
+        article.date = toLocalNoon(article.date);
         article.date2 = gregorianToHijri(article.date);
         article.number = calculateNumber(article.date);
         article.number2 = calculateNumber(article.date2);
@@ -394,11 +395,14 @@ async function updateArticleDate(id, newDate) {
         if (!article)
             throw ('no article found with id: ' + id);
 
-        const newHDate = gregorianToHijri(newDate);
-        await article.update({ date: newDate });
-        await article.update({ number: calculateNumber(newDate) });
-        await article.update({ date2: newHDate });
-        await article.update({ number2: calculateNumber(newHDate) });
+        const normalized = toLocalNoon(newDate);
+        const newHDate = gregorianToHijri(normalized);
+        await article.update({
+            date: normalized,
+            number: calculateNumber(normalized),
+            date2: newHDate,
+            number2: calculateNumber(newHDate),
+        });
     } catch (error) {
         console.error('Error in updateArticleDate', error);
         throw error;
@@ -413,8 +417,11 @@ async function updateArticleDate2(id, newDate) {
         if (!article)
             throw ('no article found with id: ' + id);
 
-        await article.update({ date2: newDate });
-        await article.update({ number2: calculateNumber(newDate) });
+        const normalized = toLocalNoon(newDate);
+        await article.update({
+            date2: normalized,
+            number2: calculateNumber(normalized),
+        });
     } catch (error) {
         console.error('Error in updateArticleDate', error);
         throw error;
@@ -694,6 +701,9 @@ async function getArticleById(id) {
 }
 
 async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
+    // Whitelist the direction since it's interpolated into a raw SQL literal below.
+    const dir = String(order.direction).toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+
     let entities = await sequelize.models.article.findAll({
         include: [
             { model: sequelize.models.comment },
@@ -707,7 +717,19 @@ async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
                 attributes: ['id', 'title']
             },
         ],
-        order: [[order.field, order.direction]]
+        order: [
+            [order.field, dir],
+            // tiebreakers for rows sharing the primary key (e.g. same-day dates):
+            //   1) explicit user-set `ordering` in the same direction as the primary
+            //      sort (NULL always falls through, regardless of direction)
+            //   2) `createdAt` in the same direction as the primary sort
+            // The qualified `"article"."ordering"` is required because the eager-
+            // loaded child tables (comment, tag, image, annotation, group) also
+            // have an `ordering` column, which would otherwise be ambiguous.
+            sequelize.literal('"article"."ordering" IS NULL'),
+            sequelize.literal(`"article"."ordering" ${dir}`),
+            ['createdAt', dir],
+        ]
     });
 
     // Ensure read time is calculated for each article
@@ -1113,11 +1135,30 @@ function calculateNumber(datestr) {
     return result;
 }
 
+// Returns a Date pinned to LOCAL NOON of the calendar day represented by `input`.
+// Accepts:
+//   - "yyyy-MM-dd" string   -> noon local of that day
+//   - Date object           -> noon local of that Date's local Y/M/D
+// Local noon guarantees the day never wraps under UTC<->local conversion, so the
+// stored DATETIME's date portion always matches what toLocaleDateString shows.
+export function toLocalNoon(input) {
+    if (input == null) return input;
+    let y, m, d;
+    if (typeof input === 'string') {
+        const [ys, ms, ds] = input.slice(0, 10).split('-');
+        y = +ys; m = +ms - 1; d = +ds;
+    } else {
+        const dt = input instanceof Date ? input : new Date(input);
+        if (isNaN(dt.getTime())) return input;
+        y = dt.getFullYear(); m = dt.getMonth(); d = dt.getDate();
+    }
+    return new Date(y, m, d, 12, 0, 0, 0);
+}
+
 function gregorianToHijri(gDate) {
     let hijri = hijriSafe.toHijri(new Date(gDate));
     hijri = hijri.subtractDay(); // the library returns one day after the actual date, idk why
-    const hDate = new Date(Date.UTC(hijri.year, hijri.month - 1, hijri.date));
-    return hDate;
+    return new Date(hijri.year, hijri.month - 1, hijri.date, 12, 0, 0, 0); // local noon
 }
 
 async function resolveArticleNotes(article) {

@@ -8,6 +8,7 @@ import { mainWindow } from '../main.js';
 import { initDB, stopSequelize, startSequelize, sequelize } from '../sequelize/index.js';
 import { config, changeDbBackupFolderPath } from '../config.js';
 import { convertDraftToTiptap, isDraftJson, isTiptapJson } from '../utils/draftToTiptap.js';
+import { toLocalNoon } from './ArticleService.js';
 
 // Mark types considered "personal" that should be removed on export (highlights,
 // links that may reference local articles, quotes tied to local annotations).
@@ -1505,8 +1506,76 @@ async function copyReferencedMedia(dbPath, exportDir) {
     }
 }
 
+// ---------------------------------------------------------------------------
+// REMOVE-IN-LATER-RELEASE: one-shot date normalization migration.
+// Rewrites every article.date / article.date2 to local-noon of its current
+// local calendar day, fixing rows that were stored at arbitrary times (UTC
+// midnight from inline edits, or local-current-time from AddArticleModal,
+// which could land in a different UTC day than the screen showed).
+//
+// Safe by construction: getFullYear/getMonth/getDate use the same local
+// interpretation as toLocaleDateString, so no row will visually change day.
+// Idempotent: re-running on already-noon-local rows is a no-op.
+//
+// Once shipped and confirmed run on every active install, delete:
+//   - the runStartupMigrations / backfillDatesToLocalNoonOnce functions below
+//   - the toLocalNoon import at the top of this file
+//   - the runStartupMigrations call in backend/main.js
+//   - the `dates_normalized_to_local_noon_v1` row from the lookup table
+// ---------------------------------------------------------------------------
+async function runStartupMigrations() {
+    try {
+        await backfillDatesToLocalNoonOnce();
+    } catch (err) {
+        console.error('[date-normalization] migration failed:', err);
+    }
+}
+
+async function backfillDatesToLocalNoonOnce() {
+    const FLAG = 'dates_normalized_to_local_noon_v1';
+    const Lookup = sequelize.models.lookup;
+
+    const existing = await Lookup.findOne({ where: { label: FLAG } });
+    if (existing && existing.value === true) return;
+
+    console.info('[date-normalization] starting one-time backfill...');
+
+    try {
+        const backupPath = await handleBackup();
+        console.info(`[date-normalization] pre-migration backup at ${backupPath}`);
+    } catch (e) {
+        console.error('[date-normalization] backup failed; aborting migration:', e);
+        return;
+    }
+
+    await sequelize.transaction(async (t) => {
+        const articles = await sequelize.models.article.findAll({
+            attributes: ['id', 'date', 'date2'],
+            transaction: t,
+        });
+
+        let changed = 0;
+        for (const a of articles) {
+            const updates = {};
+            if (a.date)  updates.date  = toLocalNoon(a.date);
+            if (a.date2) updates.date2 = toLocalNoon(a.date2);
+            if (Object.keys(updates).length) {
+                await a.update(updates, { silent: true, hooks: false, transaction: t });
+                changed++;
+            }
+        }
+
+        await Lookup.upsert(
+            { label: FLAG, value: true },
+            { transaction: t }
+        );
+        console.info(`[date-normalization] processed ${articles.length} rows, rewrote ${changed}`);
+    });
+}
+
 const dbService = {
     initService,
+    runStartupMigrations,
 };
 
 export default dbService;

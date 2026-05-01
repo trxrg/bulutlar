@@ -8,6 +8,7 @@ import { startSequelize } from './sequelize/index.js';
 import { initServices } from './service/index.js';
 import { initConfig } from './config.js';
 import lookupService from './service/LookupService.js';
+import dbService from './service/DBService.js';
 import './scripts/docReader.js';
 import './scripts/jsonReader.js';
 import pkg from 'electron-updater';
@@ -443,6 +444,7 @@ app.whenReady().then(async () => {
   initConfig();
   await startSequelize();
   // await initDB();
+  await dbService.runStartupMigrations();
   initServices();
   // handleStreak();
   handleDBVersion();

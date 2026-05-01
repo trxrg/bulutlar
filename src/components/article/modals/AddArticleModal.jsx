@@ -120,15 +120,7 @@ const AddArticleModal = ({ isOpen, onRequestClose }) => {
         try {
             const result = await articleApi.create({
                 title: dispTitle,
-                date: (() => {
-                    // Combine the date from dispDate with the current time (HH:mm:ss)
-                    if (!dispDate) return '';
-                    const now = new Date();
-                    const pad = (n) => n.toString().padStart(2, '0');
-                    const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-                    
-                    return `${dispDate}T${currentTime}`;
-                })(),
+                date: dispDate, // yyyy-MM-dd; backend will pin to local noon
                 owner: { name: dispOwnerName },
                 category: { name: dispCategoryName },
                 tags: dispTags,

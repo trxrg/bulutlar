@@ -436,7 +436,14 @@ async function exportBundle(picks) {
             : kind === 'audios' ? config.audiosFolderPath
             : config.videosFolderPath;
         out.absSrcPath = path.join(folder, dv.path);
-        out.ext = dv.type || '';
+        // `dv.type` historically holds either a bare extension (e.g. "jpg",
+        // when added via filesystem import → `path.extname(...).slice(1)`)
+        // or a MIME type (e.g. "image/jpeg", when added via the renderer's
+        // File API → `file.type`). Using it raw produced zip entries like
+        // `media/images/<uuid>.image/jpeg`, which zip viewers render as a
+        // folder. Prefer the original filename's extension, fall back to
+        // the MIME subtype, then normalize to a slash-free ext.
+        out.ext = pickMediaExt(dv);
         return out;
     };
     const imageRows = images.map((m) => buildMediaRow(m, 'images'));
@@ -600,6 +607,43 @@ function stripTimestamps(dv) {
     delete out.createdAt;
     delete out.updatedAt;
     return out;
+}
+
+// Resolve a clean filesystem-safe extension for a media row.
+// Order of preference:
+//   1. extension parsed from the original filename (`name`)
+//   2. subtype after the slash in a MIME type (`image/jpeg` → `jpeg`)
+//   3. raw `type` if it looks like a bare extension
+// Anything containing `/`, `\`, whitespace, or codec parameters
+// (`; charset=...`) is rejected so it can't leak into zip entry names.
+function pickMediaExt(dv) {
+    const sanitize = (s) => {
+        if (typeof s !== 'string') return '';
+        const trimmed = s.trim().replace(/^\.+/, '');
+        if (!trimmed) return '';
+        if (/[\/\\\s;]/.test(trimmed)) return '';
+        if (!/^[A-Za-z0-9]{1,8}$/.test(trimmed)) return '';
+        return trimmed.toLowerCase();
+    };
+
+    const fromName = (() => {
+        if (typeof dv.name !== 'string') return '';
+        const ext = path.extname(dv.name);
+        return ext ? sanitize(ext) : '';
+    })();
+    if (fromName) return fromName;
+
+    const fromType = (() => {
+        if (typeof dv.type !== 'string') return '';
+        const t = dv.type.trim();
+        if (!t) return '';
+        if (t.includes('/')) {
+            const sub = t.split(';')[0].split('/').pop();
+            return sanitize(sub);
+        }
+        return sanitize(t);
+    })();
+    return fromType;
 }
 
 const SharingService = {

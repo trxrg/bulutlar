@@ -228,6 +228,19 @@ function stripMediaSourceFields(row) {
     return rest;
 }
 
+// Defensive guard against the "folder-instead-of-file" bug: zip entry
+// names use `/` as a directory separator, so an `ext` like `image/jpeg`
+// silently turns `<uuid>.image/jpeg` into a folder containing a single
+// file. SharingService normalizes this upstream, but the builder must
+// also refuse anything that could re-introduce the bug.
+function sanitizeMediaExt(ext) {
+    if (typeof ext !== 'string') return '';
+    const trimmed = ext.trim().replace(/^\.+/, '');
+    if (!trimmed) return '';
+    if (!/^[A-Za-z0-9]{1,8}$/.test(trimmed)) return '';
+    return trimmed.toLowerCase();
+}
+
 // Replacer that:
 //   - drops `undefined` (JSON.stringify already does this for object props)
 //   - converts Date instances to ISO strings (sequelize gives us Date
@@ -279,8 +292,9 @@ async function writeZip(filePath, { operationsBuffer, manifestJson, mediaFiles }
         archive.pipe(output);
 
         for (const m of mediaFiles) {
-            const ext = m.ext ? `.${m.ext}` : '';
-            archive.file(m.absSrcPath, { name: `media/${m.kind}/${m.uuid}${ext}` });
+            const ext = sanitizeMediaExt(m.ext);
+            const dot = ext ? `.${ext}` : '';
+            archive.file(m.absSrcPath, { name: `media/${m.kind}/${m.uuid}${dot}` });
         }
         archive.append(operationsBuffer, { name: 'operations.json' });
         archive.append(manifestJson, { name: 'manifest.json' });

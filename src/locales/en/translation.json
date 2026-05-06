@@ -435,6 +435,7 @@
     "sharing": "Sharing",
     "generate update bundle": "Generate Update Bundle",
     "generating bundle": "Generating Bundle",
+    "choose bundle folder": "Choose folder for bundle (.blt)",
     "since last export": "Since Last Export",
     "last exported": "Last Exported",
     "no bundles yet": "No Bundles Exported Yet",

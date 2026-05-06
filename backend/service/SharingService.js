@@ -12,7 +12,7 @@
 //
 // All Sequelize knowledge lives here; bundleBuilder.js is pure.
 
-import { ipcMain, app, shell } from 'electron';
+import { ipcMain, app, shell, dialog } from 'electron';
 import { Op, QueryTypes } from 'sequelize';
 import path from 'path';
 
@@ -21,11 +21,13 @@ import { config } from '../config.js';
 import { coalescePending, snapshotOutboxMaxId } from '../sync/coalesce.js';
 import { rewriteTiptap } from '../sync/tiptapRewrite.js';
 import { build as buildBundle } from '../sync/bundleBuilder.js';
+import { mainWindow } from '../main.js';
 
 function initService() {
     ipcMain.handle('sharing/getCandidates', async () => await getCandidates());
     ipcMain.handle('sharing/getLastExport', async () => await getLastExport());
     ipcMain.handle('sharing/exportBundle', async (_event, picks) => await exportBundle(picks));
+    ipcMain.handle('sharing/chooseOutputDir', async (_event, opts) => await chooseOutputDir(opts));
     ipcMain.handle('sharing/showInFolder', async (_event, filePath) => {
         if (typeof filePath !== 'string' || filePath.length === 0) return false;
         try { shell.showItemInFolder(filePath); return true; }
@@ -33,6 +35,22 @@ function initService() {
     });
 
     console.info('SharingService initialized');
+}
+
+// Prompt the user to pick a destination directory for the .blt file.
+// Returns the absolute path or null if the dialog was cancelled.
+async function chooseOutputDir(opts = {}) {
+    const defaultPath = (() => {
+        try { return app.getPath('downloads'); } catch { return undefined; }
+    })();
+    const result = await dialog.showOpenDialog(mainWindow, {
+        title: opts.title || 'Choose folder for bundle (.blt)',
+        defaultPath,
+        properties: ['openDirectory', 'createDirectory'],
+        buttonLabel: opts.buttonLabel,
+    });
+    if (result.canceled || !result.filePaths || result.filePaths.length === 0) return null;
+    return result.filePaths[0];
 }
 
 // =====================================================================
@@ -167,6 +185,9 @@ async function loadDeleteTimestamps(uuids) {
 async function exportBundle(picks) {
     const latestState = Array.isArray(picks?.latestState) ? picks.latestState : [];
     const manualDelete = Array.isArray(picks?.manualDelete) ? picks.manualDelete : [];
+    const requestedOutputDir = typeof picks?.outputDir === 'string' && picks.outputDir.length > 0
+        ? picks.outputDir
+        : null;
 
     const overlap = new Set(latestState).size + manualDelete.length
         - new Set([...latestState, ...manualDelete]).size;
@@ -509,7 +530,7 @@ async function exportBundle(picks) {
         try { return app.getVersion(); } catch { return 'unknown'; }
     })();
 
-    const outputDir = (() => {
+    const outputDir = requestedOutputDir || (() => {
         try { return app.getPath('downloads'); } catch { return process.cwd(); }
     })();
 

@@ -461,6 +461,7 @@
     "sharing": "Paylaşım",
     "generate update bundle": "Güncelleme Paketi Oluştur",
     "generating bundle": "Paket Oluşturuluyor",
+    "choose bundle folder": "Paket (.blt) için klasör seçin",
     "since last export": "Son Aktarımdan Beri",
     "last exported": "Son Aktarım",
     "no bundles yet": "Henüz Paket Aktarılmadı",

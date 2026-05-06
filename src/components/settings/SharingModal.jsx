@@ -199,13 +199,27 @@ const SharingModal = ({ isOpen, onRequestClose }) => {
             else if (mode === 'manualDelete') manualDelete.push(uuid);
         }
 
+        // Ask the user where to put the .blt file before doing any work.
+        // If the dialog is cancelled, abort silently.
+        let outputDir = null;
+        try {
+            outputDir = await window.api.sharing.chooseOutputDir({
+                title: t('choose bundle folder') || 'Choose folder for bundle (.blt)',
+            });
+        } catch (err) {
+            console.error('chooseOutputDir failed:', err);
+            setErrorMessage(err.message || String(err));
+            return;
+        }
+        if (!outputDir) return;
+
         setGenerating(true);
         setErrorMessage('');
         setResultSummary(null);
         setResultFilePath('');
 
         try {
-            const result = await window.api.sharing.exportBundle({ latestState, manualDelete });
+            const result = await window.api.sharing.exportBundle({ latestState, manualDelete, outputDir });
             setResultSummary(result.summary);
             setResultFilePath(result.filePath);
             // Reset selection for next round but keep candidates fresh.

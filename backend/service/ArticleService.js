@@ -156,9 +156,19 @@ async function createArticleProgrammatically(article) {
         const textHtml = wrapHtml(article.text);
         const explanationHtml = wrapHtml(article.explanation);
 
+        // Match the regular createArticle() flow: pin to local noon, derive
+        // the hijri counterpart, and compute both numerology fields. Without
+        // this, programmatically-created articles end up with NULL date2 /
+        // number2, which breaks any UI that orders or filters on them.
+        const normalizedDate = toLocalNoon(article.date ? new Date(article.date) : new Date());
+        const hijriDate = gregorianToHijri(normalizedDate);
+
         const articleFields = {
             title: article.title,
-            date: article.date ? new Date(article.date) : new Date(),
+            date: normalizedDate,
+            number: calculateNumber(normalizedDate),
+            date2: hijriDate,
+            number2: calculateNumber(hijriDate),
             code: article.code || Math.random().toString(36).substring(2),
             text: textHtml,
             textJson: article.textJson || htmlToDraftRaw(textHtml),
@@ -184,7 +194,12 @@ async function createArticleProgrammatically(article) {
             field2: article.field2,
             field3: article.field3,
         };
-        articleFields.number = calculateNumber(articleFields.date);
+        // uuid and revision are populated automatically by the Sequelize
+        // hooks registered in backend/sync/hooks.js (beforeCreate /
+        // beforeBulkCreate), so we intentionally don't set them here. The
+        // same goes for every association created below — comments,
+        // annotations, images, audios, videos, and the article_tag_rel /
+        // article_group_rel junction rows added via add{Tag,Group}().
 
         const entity = await sequelize.models.article.create(articleFields);
 

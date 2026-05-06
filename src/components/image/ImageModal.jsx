@@ -23,28 +23,30 @@ const ImageModal = ({ isOpen, onClose, imageData }) => {
         <Modal
             isOpen={isOpen}
             onRequestClose={onClose}
-            className="fixed inset-0 flex items-center justify-center p-4"
-            overlayClassName="fixed top-0 left-0 z-50 w-full h-full bg-black bg-opacity-75"
+            className="fixed inset-0 flex items-center justify-center"
+            overlayClassName="fixed top-0 left-0 z-50 w-full h-full bg-black"
             shouldCloseOnOverlayClick={true}
+            shouldFocusAfterRender={false}
+            shouldReturnFocusAfterClose={false}
         >
-            <div className="relative rounded-lg shadow-lg">
-                <div className="max-w-[80vw] max-h-[80vh] overflow-auto">
+            <div className="relative w-screen h-screen">
+                <div className="w-screen h-screen overflow-auto flex items-center justify-center">
                     {imageData && <img
                         src={imageData}
                         alt={'image'}
                         style={{
                             transform: `scale(${scale})`,
-                            transformOrigin: 'left top',
+                            transformOrigin: scale === 1 ? 'center center' : 'left top',
                             transition: 'transform 0.3s',
-                            maxWidth: '80vw',
-                            maxHeight: '80vh',
+                            width: '100vw',
+                            height: '100vh',
                             display: 'block',
                             objectFit: 'contain'
                         }}
                     />}
                 </div>
 
-                <div className="fixed top-4 right-4 z-30 flex flex-col h-[80vh] justify-between items-center">
+                <div className="fixed top-4 right-4 z-30 flex flex-col items-center">
                     <div className='space-y-2'>
                         <RoundButton onClick={zoomIn} color='blue'>
                             <MagnifyingGlassPlusIcon className="h-6 w-6" />

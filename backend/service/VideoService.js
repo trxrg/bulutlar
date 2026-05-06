@@ -43,7 +43,7 @@ async function createVideo(video, transaction = null) {
             type: video.type,
             path: relPath,
             size: video.size,
-            description: video.name,
+            description: video.description || video.name,
             duration: video.duration,
             width: video.width,
             height: video.height

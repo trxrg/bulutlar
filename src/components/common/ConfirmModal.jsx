@@ -17,6 +17,8 @@ const ConfirmModal = ({ message, isOpen, onClose, onConfirm }) => {
             className="fixed inset-0 flex items-center justify-center p-4"
             overlayClassName="fixed top-0 left-0 z-50 w-full h-full bg-black bg-opacity-75"
             shouldCloseOnOverlayClick={true}
+            shouldFocusAfterRender={false}
+            shouldReturnFocusAfterClose={false}
         >
             <div className="relative rounded-lg shadow-lg bg-white p-4 whitespace-pre-line">
                 <div className="text-lg">{message}</div>

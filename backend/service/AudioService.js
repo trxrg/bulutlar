@@ -42,7 +42,7 @@ async function createAudio(audio, transaction = null) {
             type: audio.type,
             path: relPath,
             size: audio.size,
-            description: audio.name,
+            description: audio.description || audio.name,
             duration: audio.duration
         }, { transaction });
 

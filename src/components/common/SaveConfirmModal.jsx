@@ -16,6 +16,8 @@ const SaveConfirmModal = ({ isOpen, onClose, onSave, onDiscard }) => {
             className="fixed inset-0 flex items-center justify-center p-4"
             overlayClassName="fixed top-0 left-0 z-50 w-full h-full bg-black bg-opacity-75"
             shouldCloseOnOverlayClick={true}
+            shouldFocusAfterRender={false}
+            shouldReturnFocusAfterClose={false}
         >
             <div className="relative rounded-lg shadow-lg p-6 whitespace-pre-line" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
                 <div className="text-lg mb-4">{t('saveChangesMessage')}</div>

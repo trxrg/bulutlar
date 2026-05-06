@@ -39,7 +39,7 @@ async function createImage(image, transaction = null) {
             type: image.type,
             path: relPath,
             size: image.size,
-            description: image.name
+            description: image.description || image.name
         }, { transaction });
 
         return result;
@@ -66,7 +66,7 @@ async function createImageFromBuffer(image, transaction = null) {
             type: image.type,
             path: relPath,
             size: image.size != null ? image.size : buffer.length,
-            description: image.name
+            description: image.description || image.name
         }, { transaction });
 
         return result;

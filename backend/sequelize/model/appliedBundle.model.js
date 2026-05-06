@@ -1,11 +1,11 @@
-// Phase 1: receiver-side log of every bundle that has been applied to this
-// DB, keyed by the bundle's manifest.bundleId. Symmetric across desktop and
-// mobile per docs/mobile-sync-plan.md §3g — but in v1 (one-way desktop ->
-// mobile) it stays empty on the desktop and is written only by the mobile
-// applier.
-//
-// Engine table — NOT a member of SYNCABLE_MODELS; bundle-application state
-// is per-device and never travels across the wire.
+import { Sequelize } from 'sequelize';
+
+// Receiver-side log of every bundle that has been applied to this DB,
+// keyed by manifest.bundleId. Schema is symmetric across desktop and
+// mobile (see docs/mobile-sync-plan.md §1c) so a content.db snapshot
+// from either side applies cleanly on the other. Engine table — NOT a
+// member of SYNCABLE_MODELS; bundle-application state is per-device
+// and never travels across the wire.
 export default (sequelize, DataTypes) => {
     const AppliedBundle = sequelize.define('appliedBundle', {
         id: {
@@ -19,19 +19,28 @@ export default (sequelize, DataTypes) => {
             unique: true,
         },
         appliedAt: {
-            type: DataTypes.DATE,
+            type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
+            defaultValue: Sequelize.literal("(datetime('now'))"),
         },
         opCount: {
             type: DataTypes.INTEGER,
             allowNull: false,
         },
+        articleCount: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
         sourceApp: {
             type: DataTypes.STRING,
+            allowNull: false,
         },
-        sourceVersion: {
+        sourceAppVersion: {
             type: DataTypes.STRING,
+        },
+        schemaVersion: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
     }, {
         tableName: 'applied_bundles',

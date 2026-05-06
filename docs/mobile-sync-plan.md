@@ -349,9 +349,11 @@ phase is pure scaffolding.
   comment/annotation/media → junctions).
 - `backend/sequelize/model/appliedBundle.model.js` — engine table
   `applied_bundles` with `(id, bundleId UNIQUE, appliedAt,
-  opCount, sourceApp, sourceVersion)`. Symmetric across desktop
-  and mobile per §3g; idle on desktop in v1, mobile uses for
-  idempotent re-apply detection.
+  opCount, articleCount, sourceApp, sourceAppVersion,
+  schemaVersion)`. Byte-equivalent across desktop and mobile per
+  §1c / §3g; idle on desktop in v1, mobile uses for idempotent
+  re-apply detection. Both apps will eventually act as senders
+  and receivers, so the column set must stay symmetric.
 - `backend/sequelize/model/exportedBundle.model.js` — engine
   table `exported_bundles` with `(id, bundleId UNIQUE, createdAt,
   opCount, articleCount, sizeBytes, filePath)`. Desktop-only
@@ -680,17 +682,55 @@ Only `uuid` crosses devices.
 
 #### 1c. Add the `applied_bundles` table
 
-Used only by mobile in v1, but kept symmetric to ease later changes.
+Receiver-side log of every bundle that has been applied to this DB. Schema
+is **byte-equivalent across desktop and mobile** — both apps will eventually
+act as senders and receivers, so a `content.db` snapshot from either side
+must apply cleanly on the other. Mobile has already landed this canonical
+shape; desktop matches via Sequelize model attributes whose `sync()`-emitted
+DDL is functionally identical.
 
 ```sql
-CREATE TABLE applied_bundles (
-  id            INTEGER PRIMARY KEY,
-  bundleId      TEXT NOT NULL UNIQUE,
-  appliedAt     INTEGER NOT NULL,
-  opCount       INTEGER NOT NULL,
-  sourceApp     TEXT,
-  sourceVersion TEXT
+CREATE TABLE IF NOT EXISTS applied_bundles (
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  bundleId         TEXT NOT NULL UNIQUE,
+  appliedAt        TEXT NOT NULL DEFAULT (datetime('now')),
+  opCount          INTEGER NOT NULL,
+  articleCount     INTEGER NOT NULL,
+  sourceApp        TEXT NOT NULL,
+  sourceAppVersion TEXT,
+  schemaVersion    INTEGER NOT NULL
 );
+```
+
+Column notes:
+
+- `id INTEGER PRIMARY KEY AUTOINCREMENT` — project-wide convention.
+  `bundleId` is the natural key used for idempotency lookups
+  (`SELECT bundleId FROM applied_bundles WHERE bundleId = ?`) but is NOT
+  the PK.
+- `appliedAt TEXT` (ISO datetime via `datetime('now')`) — matches
+  `createdAt`/`updatedAt` everywhere else in the schema. NOT epoch
+  INTEGER.
+- `opCount INTEGER NOT NULL` — from `manifest.opCount`.
+- `articleCount INTEGER NOT NULL` — from `manifest.articles.length`.
+  Used by the success-modal UI without re-querying.
+- `sourceApp TEXT NOT NULL` — from `manifest.sourceApp`. Distinguishes
+  `'bulutlar-desktop'` from `'bulutlar-mobile'` once both apps receive
+  bundles.
+- `sourceAppVersion TEXT` — from `manifest.sourceAppVersion`. Note the
+  field name — not `sourceVersion`.
+- `schemaVersion INTEGER NOT NULL` — from `manifest.schemaVersion`.
+  Diagnostic for future bundle-format migrations.
+- No `createdAt`/`updatedAt` — `appliedAt` IS the creation time, and
+  rows are immutable.
+
+The receiver's INSERT populates all eight columns from the manifest:
+
+```sql
+INSERT INTO applied_bundles (
+  bundleId, appliedAt, opCount, articleCount,
+  sourceApp, sourceAppVersion, schemaVersion
+) VALUES (?, datetime('now'), ?, ?, ?, ?, ?)
 ```
 
 #### 1d. Bump `schemaVersion`
@@ -929,8 +969,10 @@ destroy. See §10 for the new design.
 
 These are different semantics. Use **two** tables, not one:
 
-- `applied_bundles` on both sides: same schema, used by mobile when apply
-  succeeds, used by desktop only if reverse direction is ever added.
+- `applied_bundles` on both sides: byte-equivalent schema (see §1c for
+  the canonical DDL and column-by-column manifest mapping), written by
+  whichever side is currently acting as receiver. Mobile writes it today;
+  desktop will once the reverse direction lands.
 - `exported_bundles` desktop-only with
   `(bundleId, createdAt, opCount, sizeBytes, articleCount, filePath)`.
 

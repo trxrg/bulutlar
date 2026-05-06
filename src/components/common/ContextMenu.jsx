@@ -23,6 +23,24 @@ const ContextMenu = ({ isOpen, onClose, position, children }) => {
         };
     }, [isOpen]);
 
+    // Auto-close the context menu whenever any react-modal opens. react-modal adds
+    // the `ReactModal__Body--open` class to <body>, so we observe that class and
+    // call onClose when it appears (so the menu doesn't float over the modal).
+    useEffect(() => {
+        if (!isOpen || typeof document === 'undefined') return;
+        if (document.body.classList.contains('ReactModal__Body--open')) {
+            onClose();
+            return;
+        }
+        const observer = new MutationObserver(() => {
+            if (document.body.classList.contains('ReactModal__Body--open')) {
+                onClose();
+            }
+        });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        return () => observer.disconnect();
+    }, [isOpen, onClose]);
+
 
     if (!isOpen) return null;
 

@@ -22,7 +22,7 @@ const ReadContent = () => {
     
     const { article, readContentRef, fontSize, editable, syncArticleFromBE, 
         isAddLinkModalOpen, setAddLinkModalOpen, contextMenuIsOpen,
-        contextMenuPosition, setContextMenuIsOpen,
+        contextMenuPosition, setContextMenuIsOpen, isAnyModalOpen,
         showExplanationEditor, setShowExplanationEditor,
         showCommentEditor, setShowCommentEditor,
         hasExplanationContent, hasCommentContent, isHtmlStringEmpty } = useContext(ReadContext);
@@ -279,7 +279,7 @@ const ReadContent = () => {
                 excludedArticleIds={[article.id]}
                 onAdd={handleAddLink}
             />
-            <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>
+            <ContextMenu isOpen={contextMenuIsOpen && !isAnyModalOpen} onClose={() => setContextMenuIsOpen(false)} position={contextMenuPosition}>
                 <InlineToolbar />
             </ContextMenu>
         </div>

@@ -21,8 +21,42 @@ export default function ReadContextProvider({ children, article }) {
     const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
     const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
     const [isAddLinkModalOpen, setAddLinkModalOpen] = useState(false);
-    const [contextMenuIsOpen, setContextMenuIsOpen] = useState(false);
+    const [contextMenuIsOpen, setContextMenuIsOpenRaw] = useState(false);
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 10, y: 10 });
+    const [isAnyModalOpen, setIsAnyModalOpen] = useState(
+        typeof document !== 'undefined' && document.body.classList.contains('ReactModal__Body--open')
+    );
+
+    // Track whether any react-modal is currently mounted. react-modal adds the
+    // `ReactModal__Body--open` class to <body> whenever any modal is open, so we
+    // observe that class to keep `isAnyModalOpen` in sync reactively.
+    useEffect(() => {
+        if (typeof document === 'undefined') return;
+        const update = () => {
+            setIsAnyModalOpen(document.body.classList.contains('ReactModal__Body--open'));
+        };
+        update();
+        const observer = new MutationObserver(update);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        return () => observer.disconnect();
+    }, []);
+
+    // Force-close the inline toolbar / context menu whenever a modal is open.
+    useEffect(() => {
+        if (isAnyModalOpen) {
+            setContextMenuIsOpenRaw(false);
+        }
+    }, [isAnyModalOpen]);
+
+    // Block opening the inline toolbar / context menu while any modal is open.
+    const setContextMenuIsOpen = useCallback((value) => {
+        const nextValue = typeof value === 'function' ? value(contextMenuIsOpen) : value;
+        if (nextValue && typeof document !== 'undefined'
+            && document.body.classList.contains('ReactModal__Body--open')) {
+            return;
+        }
+        setContextMenuIsOpenRaw(nextValue);
+    }, [contextMenuIsOpen]);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentHighlightIndex, setCurrentHighlightIndex] = useState(-1);
     const [allHighlightRefs, setAllHighlightRefs] = useState([]); // Combined refs from all editors
@@ -284,6 +318,7 @@ export default function ReadContextProvider({ children, article }) {
         setContextMenuIsOpen,
         contextMenuPosition,
         setContextMenuPosition,
+        isAnyModalOpen,
         searchTerm,
         setSearchTerm,
         currentHighlightIndex,

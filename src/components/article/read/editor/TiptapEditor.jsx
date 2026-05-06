@@ -714,6 +714,9 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
     // ================================ MOUSE SELECTION TOOLBAR ================================
     const handleMouseUp = (e) => {
         if (!editor) return;
+        // Ignore right/middle clicks so right-clicking media (which can also bubble
+        // mouseup here) doesn't reopen the inline selection toolbar.
+        if (e.button !== 0) return;
         const { from, to } = editor.state.selection;
         if (from !== to) {
             let left = e.clientX;

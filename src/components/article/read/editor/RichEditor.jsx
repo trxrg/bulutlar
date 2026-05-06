@@ -470,6 +470,9 @@ const RichEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handleCo
     // ================================ END OF IMAGES ================================
 
     const handleMouseUp = (e) => {
+        // Ignore right/middle clicks so right-clicking media (which can also bubble
+        // mouseup here) doesn't reopen the inline selection toolbar.
+        if (e.button !== 0) return;
         const selection = window.getSelection();
         if (selection.rangeCount > 0 && !selection.isCollapsed) {
             // Use viewport coordinates directly for fixed positioning

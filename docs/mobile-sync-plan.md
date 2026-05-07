@@ -641,6 +641,64 @@ vs `'delete'`); honor `revision` last-writer-wins on the live row.
   ("delete outbox rows older than X" on the desktop user's
   command) is enough.
 
+### 2026-05-06 — Bundle header v1 (prefixed manifest)
+
+The `.blt` wire format gains a fixed-size prefix in front of the
+existing zip so the mobile receiver can render its confirm modal in
+milliseconds even for video-heavy bundles. Before, mobile had to deep-
+link the file in, copy it locally, then fully unzip it just to read
+`manifest.json` — multiple seconds of "app is unresponsive" perception
+on hundreds-of-MB bundles. Now mobile reads the manifest directly from
+the prefix in a single small disk read; the inner zip is only opened
+later, after the user confirms.
+
+**Layout** (canonical spec lives in `backend/sync/syncConstants.js`,
+all little-endian):
+
+```
+offset 0  : 4 bytes   magic = 'BLTM' (0x42 0x4C 0x54 0x4D)
+offset 4  : 1 byte    header version = BLT_HEADER_VERSION (1)
+offset 5  : 4 bytes   manifest length, uint32 LE
+offset 9  : N bytes   manifest.json (UTF-8)
+offset 9+N: rest      standard zip with operations.json + media/
+```
+
+**Code changes**
+
+- `backend/sync/syncConstants.js` — added `BLT_MAGIC = 'BLTM'` and
+  `BLT_HEADER_VERSION = 1` plus a layout-spec comment block. The
+  header is a transport-level concern with its own version byte and
+  is intentionally independent of `SYNC_FORMAT_VERSION` /
+  `SYNC_SCHEMA_VERSION`, which describe the manifest/operations
+  contract — neither is bumped.
+- `backend/sync/bundleBuilder.js` — emit step now writes the 9-byte
+  header + `manifestBytes` to the output file, then pipes the inner
+  zip (which carries only `operations.json` + `media/...`) into the
+  same write stream. Streamed throughout — bundles are still hundreds
+  of MB, so nothing is buffered just to prepend the prefix.
+  `manifest.json` is no longer an entry inside the zip; it lives in
+  the prefix and ONLY in the prefix (the single source of truth, so
+  the two copies cannot diverge).
+- `backend/sync/types.js` — `Manifest` typedef preamble updated to
+  point at the prefix, not at an in-zip `manifest.json`.
+
+**Compat / rollout**
+
+The mobile receiver was updated ahead of this change to read both
+formats — prefix-first, with a fallback to in-zip `manifest.json` for
+any legacy bundles still sitting in users' Documents/Inbox. So the
+desktop change ships independently; old bundles already in the wild
+keep working.
+
+**Verification**
+
+- `xxd -l 4 sample.blt` → `4254 4c4d`.
+- `unzip sample.blt` prints "N extra bytes at beginning" and extracts
+  `operations.json` + `media/...`. The absence of `manifest.json`
+  from the extraction tree is expected and correct.
+- Mobile confirm modal renders in milliseconds even on video-heavy
+  bundles.
+
 ---
 
 ## 1. Goal & constraints
@@ -815,8 +873,16 @@ writes its own path.
 
 #### 4e. Zipping
 
-- Layout: `manifest.json` at root, `operations.json` at root, `media/images/…`,
-  `media/videos/…`, `media/audios/…`.
+- Layout (header v1, shipped 2026-05-06): the `.blt` is a standard zip
+  with a 9-byte fixed header + raw `manifest.json` bytes prepended.
+  `manifest.json` is in the prefix and ONLY in the prefix — it is no
+  longer an entry inside the inner zip. The inner zip carries
+  `operations.json` at root plus `media/images/…`, `media/videos/…`,
+  `media/audios/…`. See `backend/sync/syncConstants.js` (`BLT_MAGIC`,
+  `BLT_HEADER_VERSION`) for the canonical byte layout. Standard zip
+  readers locate the End Of Central Directory from the end of the file,
+  so the prefix is transparent: `unzip sample.blt` prints "N extra bytes
+  at beginning" and extracts `operations.json` + `media/` cleanly.
 - Output extension: `.blt` (NOT `.zip`).
 - Suggested filename: `bulutlar-YYYY-MM-DD.blt` (see §3a for refinement).
 

@@ -58,8 +58,11 @@ export const APPLY_ORDER = Object.freeze([
  */
 
 /**
- * Top-level manifest written to manifest.json at the root of every .blt
- * bundle. See docs/mobile-sync-plan.md §6.
+ * Top-level manifest. As of header v1 it is written into the fixed-size
+ * prefix at the start of every .blt (NOT inside the inner zip) so the
+ * receiver can render its confirm modal from a single small disk read.
+ * See backend/sync/syncConstants.js for the byte layout and
+ * docs/mobile-sync-plan.md §6 / §4e for the high-level spec.
  *
  * @typedef {Object} Manifest
  * @property {'bulutlar-sync'} format               Always SYNC_FORMAT.

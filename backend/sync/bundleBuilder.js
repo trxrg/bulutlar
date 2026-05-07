@@ -4,15 +4,25 @@
 // and writes a single .blt zip to disk. No Sequelize knowledge here —
 // the service is responsible for all DB reads + FK -> uuid mapping.
 //
-// Output bundle layout (locked by docs/mobile-sync-plan.md §6):
+// Output bundle layout (header v1 — see syncConstants.js for the
+// canonical spec; high-level spec in docs/mobile-sync-plan.md §6 + §4e):
 //
-//     <bundleFile>.blt        (zip; .blt extension never .zip)
-//       ├── manifest.json      (last entry written; receiver reads first)
-//       ├── operations.json    ({ ops: Operation[] })
-//       └── media/
-//           ├── images/<uuid>.<ext>
-//           ├── audios/<uuid>.<ext>
-//           └── videos/<uuid>.<ext>
+//     <bundleFile>.blt
+//       ├── 9-byte fixed header  ('BLTM' + version byte + uint32 LE manifest length)
+//       ├── manifest.json bytes  (UTF-8, length given by the header)
+//       └── inner zip            (standard zip; .blt extension never .zip)
+//             ├── operations.json    ({ ops: Operation[] })
+//             └── media/
+//                 ├── images/<uuid>.<ext>
+//                 ├── audios/<uuid>.<ext>
+//                 └── videos/<uuid>.<ext>
+//
+// manifest.json lives in the prefix and ONLY in the prefix — never in the
+// inner zip. The receiver reads it from a single small disk read so the
+// confirm modal renders in milliseconds even on video-heavy bundles.
+// Standard zip readers locate the End Of Central Directory from the end
+// of the file, so the prefix is transparent: `unzip sample.blt` prints
+// "N extra bytes at beginning" and extracts operations.json + media/.
 //
 // Media is stored uncompressed (`store: true` per file). Recompressing
 // JPEGs/MP3s/MP4s would burn CPU for negligible gain and risks lossy
@@ -35,6 +45,8 @@ import {
     SYNC_FILE_EXT,
     SYNC_SOURCE_APP,
     SYNC_SCHEMA_VERSION,
+    BLT_MAGIC,
+    BLT_HEADER_VERSION,
 } from './syncConstants.js';
 import { APPLY_ORDER } from './types.js';
 
@@ -183,7 +195,7 @@ export async function build(input) {
         partTotal: 1,
     };
 
-    const manifestJson = JSON.stringify(manifest, null, 2);
+    const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2), 'utf-8');
 
     // Filename: bulutlar-YYYY-MM-DD-<bundleIdShort>.blt
     const today = new Date().toISOString().slice(0, 10);
@@ -192,9 +204,9 @@ export async function build(input) {
     const filePath = path.join(outputDir, fileName);
 
     await fs.mkdir(outputDir, { recursive: true });
-    await writeZip(filePath, {
+    await writePrefixedBundle(filePath, {
+        manifestBytes,
         operationsBuffer,
-        manifestJson,
         mediaFiles,
     });
 
@@ -265,11 +277,14 @@ async function sha256File(absPath) {
     });
 }
 
-// Single archiver pipeline that streams everything to the output file.
-// Order matters only for downstream readers that scan the central
-// directory backwards; we still write manifest LAST so a forward-only
-// reader doesn't need to know the layout up front.
-async function writeZip(filePath, { operationsBuffer, manifestJson, mediaFiles }) {
+// Streams the bundle to disk as: 9-byte fixed header, then manifest
+// bytes, then the inner zip. Bundles can be hundreds of MB, so the zip
+// portion flows through `archiver -> output` without buffering. Node
+// preserves write order on a single stream, so the synchronous
+// `output.write(...)` calls for the prefix land before the piped zip
+// chunks. Layout is the canonical .blt header v1 described in
+// syncConstants.js.
+async function writePrefixedBundle(filePath, { manifestBytes, operationsBuffer, mediaFiles }) {
     return new Promise((resolve, reject) => {
         const output = createWriteStream(filePath);
         const archive = archiver('zip', { store: true });
@@ -289,6 +304,13 @@ async function writeZip(filePath, { operationsBuffer, manifestJson, mediaFiles }
             else { cleanup(); reject(err); }
         });
 
+        const header = Buffer.alloc(9);
+        header.write(BLT_MAGIC, 0, 4, 'ascii');
+        header.writeUInt8(BLT_HEADER_VERSION, 4);
+        header.writeUInt32LE(manifestBytes.length, 5);
+        output.write(header);
+        output.write(manifestBytes);
+
         archive.pipe(output);
 
         for (const m of mediaFiles) {
@@ -297,7 +319,6 @@ async function writeZip(filePath, { operationsBuffer, manifestJson, mediaFiles }
             archive.file(m.absSrcPath, { name: `media/${m.kind}/${m.uuid}${dot}` });
         }
         archive.append(operationsBuffer, { name: 'operations.json' });
-        archive.append(manifestJson, { name: 'manifest.json' });
 
         archive.finalize().catch((err) => { cleanup(); reject(err); });
     });

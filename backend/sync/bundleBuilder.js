@@ -4,25 +4,19 @@
 // and writes a single .blt zip to disk. No Sequelize knowledge here —
 // the service is responsible for all DB reads + FK -> uuid mapping.
 //
-// Output bundle layout (header v1 — see syncConstants.js for the
-// canonical spec; high-level spec in docs/mobile-sync-plan.md §6 + §4e):
+// Output bundle layout — Shape B (standard ZIP — see syncConstants.js and
+// docs/mobile-sync-plan.md §6 + §4e):
 //
-//     <bundleFile>.blt
-//       ├── 9-byte fixed header  ('BLTM' + version byte + uint32 LE manifest length)
-//       ├── manifest.json bytes  (UTF-8, length given by the header)
-//       └── inner zip            (standard zip; .blt extension never .zip)
-//             ├── operations.json    ({ ops: Operation[] })
-//             └── media/
-//                 ├── images/<uuid>.<ext>
-//                 ├── audios/<uuid>.<ext>
-//                 └── videos/<uuid>.<ext>
+//     <bundleFile>.blt          // standard ZIP from byte 0 (PK..); no prefix
+//       ├── manifest.json       // MUST be first local entry; STORED (method 0); UTF-8
+//       ├── operations.json     // { ops: Operation[] }
+//       └── media/
+//           ├── images/<uuid>.<ext>
+//           ├── audios/<uuid>.<ext>
+//           └── videos/<uuid>.<ext>
 //
-// manifest.json lives in the prefix and ONLY in the prefix — never in the
-// inner zip. The receiver reads it from a single small disk read so the
-// confirm modal renders in milliseconds even on video-heavy bundles.
-// Standard zip readers locate the End Of Central Directory from the end
-// of the file, so the prefix is transparent: `unzip sample.blt` prints
-// "N extra bytes at beginning" and extracts operations.json + media/.
+// manifest.json is only inside the ZIP (single source of truth). Mobile can
+// read the manifest from the first local header + payload without inflating.
 //
 // Media is stored uncompressed (`store: true` per file). Recompressing
 // JPEGs/MP3s/MP4s would burn CPU for negligible gain and risks lossy
@@ -45,8 +39,7 @@ import {
     SYNC_FILE_EXT,
     SYNC_SOURCE_APP,
     SYNC_SCHEMA_VERSION,
-    BLT_MAGIC,
-    BLT_HEADER_VERSION,
+    SYNC_BUNDLE_LAYOUT_SHAPE_B_ZIP,
 } from './syncConstants.js';
 import { APPLY_ORDER } from './types.js';
 
@@ -193,6 +186,7 @@ export async function build(input) {
         articles: articleUuidsInBundle,
         partIndex: 1,
         partTotal: 1,
+        bundleLayout: SYNC_BUNDLE_LAYOUT_SHAPE_B_ZIP,
     };
 
     const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2), 'utf-8');
@@ -204,7 +198,7 @@ export async function build(input) {
     const filePath = path.join(outputDir, fileName);
 
     await fs.mkdir(outputDir, { recursive: true });
-    await writePrefixedBundle(filePath, {
+    await writeShapeBZipBundle(filePath, {
         manifestBytes,
         operationsBuffer,
         mediaFiles,
@@ -277,14 +271,11 @@ async function sha256File(absPath) {
     });
 }
 
-// Streams the bundle to disk as: 9-byte fixed header, then manifest
-// bytes, then the inner zip. Bundles can be hundreds of MB, so the zip
-// portion flows through `archiver -> output` without buffering. Node
-// preserves write order on a single stream, so the synchronous
-// `output.write(...)` calls for the prefix land before the piped zip
-// chunks. Layout is the canonical .blt header v1 described in
-// syncConstants.js.
-async function writePrefixedBundle(filePath, { manifestBytes, operationsBuffer, mediaFiles }) {
+// Streams a Shape B .blt: one standard ZIP (`store: true` for all entries).
+// First appended entry is manifest.json so it is first in local (stream)
+// order and remains STORED (method 0). Bundles can be hundreds of MB; the
+// zip flows through archiver without buffering the payload in memory.
+async function writeShapeBZipBundle(filePath, { manifestBytes, operationsBuffer, mediaFiles }) {
     return new Promise((resolve, reject) => {
         const output = createWriteStream(filePath);
         const archive = archiver('zip', { store: true });
@@ -304,14 +295,9 @@ async function writePrefixedBundle(filePath, { manifestBytes, operationsBuffer, 
             else { cleanup(); reject(err); }
         });
 
-        const header = Buffer.alloc(9);
-        header.write(BLT_MAGIC, 0, 4, 'ascii');
-        header.writeUInt8(BLT_HEADER_VERSION, 4);
-        header.writeUInt32LE(manifestBytes.length, 5);
-        output.write(header);
-        output.write(manifestBytes);
-
         archive.pipe(output);
+
+        archive.append(manifestBytes, { name: 'manifest.json' });
 
         for (const m of mediaFiles) {
             const ext = sanitizeMediaExt(m.ext);

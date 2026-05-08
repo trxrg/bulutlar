@@ -562,9 +562,10 @@ shared / unchanged / dangling-rel target):
 
 - All four classifier branches return the right uuids
   (created / updated / unchanged / deleted-summary).
-- Bundle file exists, ends in `.blt`, parses as a stored zip
-  (custom mini-parser since archiver's reverse cousin isn't
-  in deps).
+- Bundle file exists, ends in `.blt`, starts with ZIP local header
+  (`PK\x03\x04`); first local entry is `manifest.json` with compression
+  method 0 (STORED); `operations.json` + `media/` present in the archive
+  (see `npm run verify:blt-shape-b`).
 - Manifest constants match the locked triple
   (`bulutlar-sync` / `1` / `bulutlar-desktop` / schema 1).
 - Ops sorted by `APPLY_ORDER`.
@@ -641,7 +642,39 @@ vs `'delete'`); honor `revision` last-writer-wins on the live row.
   ("delete outbox rows older than X" on the desktop user's
   command) is enough.
 
-### 2026-05-06 — Bundle header v1 (prefixed manifest)
+### 2026-05-08 — Shape B (standard ZIP; current desktop export)
+
+New `.blt` files are a **plain ZIP** starting at offset 0 (`PK\x03\x04`).
+There is **no** BLTM prefix. **`manifest.json`** is the **first local file
+entry** (stream order), at the archive root, **STORED** (compression method
+0). The rest of the archive matches the previous inner zip layout:
+`operations.json` and `media/...`. Writers set optional `bundleLayout:
+"shape-b-zip"` on the manifest for tooling; mobile can detect Shape B by
+layout alone.
+
+**Why:** many mobile ZIP implementations cannot open archives with arbitrary
+prepended bytes (central-directory offsets assume the ZIP starts at 0). Shape
+B avoids a strip-to-temp copy while still allowing a small read for preview
+(first local header + manifest payload only).
+
+**Verification**
+
+- First 4 bytes of `sample.blt`: `50 4B 03 04`.
+- `unzip -l sample.blt` lists `manifest.json` at root alongside
+  `operations.json` and `media/...`.
+- `npm run verify:blt-shape-b` (desktop repo) builds a minimal bundle and
+  asserts first-entry name + STORED method.
+
+**Compat:** production mobile must ship a reader for Shape B before users
+rely on bundles exported from this desktop version. Legacy Shape A files
+(BLTM prefix) may still exist in the wild.
+
+---
+
+### 2026-05-06 — Bundle header v1 (Shape A — legacy prefixed manifest)
+
+*Legacy.* Superseded for **new** desktop exports by Shape B (2026-05-08).
+Some existing bundles in the wild still use this layout.
 
 The `.blt` wire format gains a fixed-size prefix in front of the
 existing zip so the mobile receiver can render its confirm modal in
@@ -663,32 +696,22 @@ offset 9  : N bytes   manifest.json (UTF-8)
 offset 9+N: rest      standard zip with operations.json + media/
 ```
 
-**Code changes**
+**Code changes** (historical — at ship time)
 
-- `backend/sync/syncConstants.js` — added `BLT_MAGIC = 'BLTM'` and
-  `BLT_HEADER_VERSION = 1` plus a layout-spec comment block. The
-  header is a transport-level concern with its own version byte and
-  is intentionally independent of `SYNC_FORMAT_VERSION` /
-  `SYNC_SCHEMA_VERSION`, which describe the manifest/operations
-  contract — neither is bumped.
-- `backend/sync/bundleBuilder.js` — emit step now writes the 9-byte
-  header + `manifestBytes` to the output file, then pipes the inner
-  zip (which carries only `operations.json` + `media/...`) into the
-  same write stream. Streamed throughout — bundles are still hundreds
-  of MB, so nothing is buffered just to prepend the prefix.
-  `manifest.json` is no longer an entry inside the zip; it lives in
-  the prefix and ONLY in the prefix (the single source of truth, so
-  the two copies cannot diverge).
-- `backend/sync/types.js` — `Manifest` typedef preamble updated to
-  point at the prefix, not at an in-zip `manifest.json`.
+- `syncConstants.js` — `BLT_MAGIC` / `BLT_HEADER_VERSION` (retained for
+  **readers** of legacy bundles; **deprecated for writers** after Shape B).
+- `bundleBuilder.js` — *formerly* wrote the 9-byte header + raw
+  `manifestBytes`, then the inner zip with only `operations.json` +
+  `media/...`. Shape B instead writes a single zip whose **first** entry is
+  `manifest.json` (STORED).
+- `types.js` — `Manifest` typedef updated again for Shape B (manifest inside
+  the zip).
 
 **Compat / rollout**
 
-The mobile receiver was updated ahead of this change to read both
-formats — prefix-first, with a fallback to in-zip `manifest.json` for
-any legacy bundles still sitting in users' Documents/Inbox. So the
-desktop change ships independently; old bundles already in the wild
-keep working.
+Legacy Shape A bundles may still be on disk. Mobile readers should support
+Shape B (zip from byte 0, first entry `manifest.json` STORED) and **Shape A**
+(BLTM prefix) for old files.
 
 **Verification**
 
@@ -873,16 +896,22 @@ writes its own path.
 
 #### 4e. Zipping
 
-- Layout (header v1, shipped 2026-05-06): the `.blt` is a standard zip
-  with a 9-byte fixed header + raw `manifest.json` bytes prepended.
-  `manifest.json` is in the prefix and ONLY in the prefix — it is no
-  longer an entry inside the inner zip. The inner zip carries
-  `operations.json` at root plus `media/images/…`, `media/videos/…`,
-  `media/audios/…`. See `backend/sync/syncConstants.js` (`BLT_MAGIC`,
-  `BLT_HEADER_VERSION`) for the canonical byte layout. Standard zip
-  readers locate the End Of Central Directory from the end of the file,
-  so the prefix is transparent: `unzip sample.blt` prints "N extra bytes
-  at beginning" and extracts `operations.json` + `media/` cleanly.
+- Layout (**Shape B**, current desktop export): the `.blt` is a **standard
+  ZIP from byte 0** — no bytes prepended, no BLTM magic. The **first entry
+  in local (stream) order** is **`manifest.json`** at the archive root
+  (path `manifest.json`, not in a subfolder), **compression method 0
+  (STORED)** so readers can parse manifest from the first local header +
+  payload without inflating. After that, the archive contains
+  `operations.json` at root and `media/images/…`, `media/videos/…`,
+  `media/audios/…` (media entries also stored uncompressed). Optional
+  manifest field `bundleLayout: "shape-b-zip"` (`SYNC_BUNDLE_LAYOUT_SHAPE_B_ZIP`)
+  may be set for tooling; detection is by file layout (starts with `PK`,
+  first entry rules). **`BLT_MAGIC` / `BLT_HEADER_VERSION`** in
+  `syncConstants.js` are **legacy Shape A** metadata for readers only —
+  new exports do not use a prefix.
+- **Legacy Shape A** (2026-05-06): some bundles used a 9-byte BLTM prefix +
+  raw UTF-8 `manifest.json` + inner ZIP; see the historical note below.
+  Mobile may still need to read those for files already in the wild.
 - Output extension: `.blt` (NOT `.zip`).
 - Suggested filename: `bulutlar-YYYY-MM-DD.blt` (see §3a for refinement).
 
@@ -1310,8 +1339,10 @@ resolved 2026-04-29 → **pointer-only outbox, coalesce at export**.
 - [x] Generate `bundleId` (UUIDv7 — chose UUIDv7 over ULID to match
       the rest of the codebase's id scheme locked in 0a) and embed
       short prefix in filename: `bulutlar-YYYY-MM-DD-<bundleIdShort>.blt`
-- [x] Zip → save with `.blt` extension to Downloads (or app
-      cwd if `app.getPath('downloads')` fails)
+- [x] Zip (Shape B) → standard `.blt` ZIP from byte 0; first entry
+      `manifest.json` (STORED); then `operations.json` + `media/` — save
+      with `.blt` extension to Downloads (or app cwd if
+      `app.getPath('downloads')` fails)
 - [x] "Show in folder" via `shell.showItemInFolder` after success
       (skipped OS share sheet — `Show in folder` matches the rest of
       the app's flow and lets the user attach to WhatsApp via the

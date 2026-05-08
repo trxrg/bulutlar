@@ -58,11 +58,11 @@ export const APPLY_ORDER = Object.freeze([
  */
 
 /**
- * Top-level manifest. As of header v1 it is written into the fixed-size
- * prefix at the start of every .blt (NOT inside the inner zip) so the
- * receiver can render its confirm modal from a single small disk read.
- * See backend/sync/syncConstants.js for the byte layout and
- * docs/mobile-sync-plan.md §6 / §4e for the high-level spec.
+ * Top-level manifest. Shape B (current desktop export): UTF-8 JSON file
+ * `manifest.json` is the first local ZIP entry (STORED) inside the .blt;
+ * there is no out-of-band copy. Legacy Shape A placed raw manifest bytes
+ * after a BLTM prefix (see syncConstants.js deprecations). See
+ * docs/mobile-sync-plan.md §6 / §4e.
  *
  * @typedef {Object} Manifest
  * @property {'bulutlar-sync'} format               Always SYNC_FORMAT.
@@ -80,6 +80,7 @@ export const APPLY_ORDER = Object.freeze([
  * @property {string[]}        articles             Array of article uuids included; lets mobile preview without parsing operations.json.
  * @property {number}          partIndex            Always 1 in v1 (no multi-part).
  * @property {number}          partTotal            Always 1 in v1.
+ * @property {string=}        bundleLayout         Optional; `'shape-b-zip'` on Shape B exports.
  */
 
 /**

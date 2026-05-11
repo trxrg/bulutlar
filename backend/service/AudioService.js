@@ -6,6 +6,13 @@ import fs from 'fs/promises';
 import { config } from '../config.js';
 import { mainWindow } from '../main.js';
 import { safeUnlink } from '../sync/outbox.js';
+// Circular import: ArticleService also imports this module. Safe because
+// `articleService.touchArticleRevision` is only invoked at runtime (inside
+// deleteAudioById, after both modules have fully evaluated), so ESM's live
+// binding is populated by call time. Used to bump the parent article's
+// revision when the user destroys an audio so the change propagates to
+// mobile via the article-upsert reconciliation pass.
+import articleService from './ArticleService.js';
 
 let audiosFolderPath;
 let publicFolderPath;
@@ -114,9 +121,20 @@ async function deleteAudioById(audioId) {
     if (!audio)
         throw new Error('no audio found with id: ' + audioId);
 
+    // Capture the FK before destroy so we can bump the parent article's
+    // revision after the audio row is gone. The instance still has it
+    // here; `audio.destroy()` later inside the tx clears it.
+    const articleId = audio.articleId;
+
     const tx = await sequelize.transaction();
     try {
         await deleteAudioEntity(audio, { transaction: tx });
+        // Bump the parent article so mobile's article-upsert
+        // reconciliation pass picks up the missing media uuid and
+        // reaps its local copy. No-op if the article is already gone
+        // (cascade-delete in flight from another path), since the UPDATE
+        // matches 0 rows.
+        await articleService.touchArticleRevision(articleId, { transaction: tx });
         await tx.commit();
     } catch (err) {
         await tx.rollback();

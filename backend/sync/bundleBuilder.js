@@ -156,12 +156,67 @@ export async function build(input) {
         ...videos.map((v) => ({ kind: 'videos', uuid: v.uuid, ext: v.ext, absSrcPath: v.absSrcPath })),
     ];
 
+    // Invariant: every image / audio / video upsert op has a matching
+    // mediaFiles entry (and vice versa). Today this is true by
+    // construction — both sides come from the same input arrays — but
+    // an explicit assertion turns the convention into a guarantee that
+    // any future "metadata-only" mode would have to break loudly rather
+    // than silently shipping op-without-file pairs that would interpret
+    // as "this attachment exists but its bytes are missing" on mobile.
+    const mediaOpUuids = new Set([
+        ...opsByEntity.image.map((o) => o.uuid),
+        ...opsByEntity.audio.map((o) => o.uuid),
+        ...opsByEntity.video.map((o) => o.uuid),
+    ]);
+    if (mediaFiles.length !== mediaOpUuids.size) {
+        throw new Error(
+            `bundleBuilder: media op count (${mediaOpUuids.size}) does not match `
+            + `mediaFiles count (${mediaFiles.length})`
+        );
+    }
+    for (const m of mediaFiles) {
+        if (!mediaOpUuids.has(m.uuid)) {
+            throw new Error(
+                `bundleBuilder: mediaFiles entry for uuid ${m.uuid} has no matching upsert op`
+            );
+        }
+    }
+    {
+        const mediaFileUuids = new Set(mediaFiles.map((m) => m.uuid));
+        for (const u of mediaOpUuids) {
+            if (!mediaFileUuids.has(u)) {
+                throw new Error(
+                    `bundleBuilder: media upsert op for uuid ${u} has no matching mediaFiles entry`
+                );
+            }
+        }
+    }
+
+    // Pre-pass: stat + checksum every media file. We capture each file's
+    // size and mtime here so writeShapeBZipBundle can re-verify just
+    // before handing the file to archiver — that closes the race where a
+    // media file is unlinked or rewritten between checksum and zip write
+    // and we'd otherwise ship a manifest+ops referencing bytes that
+    // aren't actually packed in the zip.
+    //
+    // A mismatched size between fs.stat and the streamed sha256 is also
+    // fatal: it means the file was being modified during the checksum,
+    // so the digest we'd record is meaningless.
     const mediaChecksums = {};
     let mediaTotalBytes = 0;
     for (const m of mediaFiles) {
+        const stat = await fs.stat(m.absSrcPath);
         const { hex, size } = await sha256File(m.absSrcPath);
+        if (size !== stat.size) {
+            throw new Error(
+                `bundleBuilder: media file changed during checksum: ${m.absSrcPath} `
+                + `(stat=${stat.size}, sha256=${size})`
+            );
+        }
         mediaChecksums[m.uuid] = `sha256:${hex}`;
         mediaTotalBytes += size;
+        m.expectedSize = size;
+        m.expectedMtimeMs = stat.mtimeMs;
     }
 
     const articleUuidsInBundle = [
@@ -275,6 +330,14 @@ async function sha256File(absPath) {
 // First appended entry is manifest.json so it is first in local (stream)
 // order and remains STORED (method 0). Bundles can be hundreds of MB; the
 // zip flows through archiver without buffering the payload in memory.
+//
+// Every `'warning'` from archiver (including the previously-ignored
+// ENOENT case) is fatal: every entry we hand to archive.file came from
+// `mediaFiles`, whose existence + size + mtime were validated in the
+// sha256 pre-pass. Anything wrong at zip time means the media set we
+// recorded into the manifest no longer matches what the zip actually
+// contains, which would silently violate the article-as-authoritative-
+// media-set contract on the receiver.
 async function writeShapeBZipBundle(filePath, { manifestBytes, operationsBuffer, mediaFiles }) {
     return new Promise((resolve, reject) => {
         const output = createWriteStream(filePath);
@@ -290,22 +353,43 @@ async function writeShapeBZipBundle(filePath, { manifestBytes, operationsBuffer,
         output.on('close', () => resolve());
         output.on('error', (err) => { cleanup(); reject(err); });
         archive.on('error', (err) => { cleanup(); reject(err); });
-        archive.on('warning', (err) => {
-            if (err && err.code === 'ENOENT') console.warn('archive warning:', err);
-            else { cleanup(); reject(err); }
-        });
+        archive.on('warning', (err) => { cleanup(); reject(err); });
 
         archive.pipe(output);
 
         archive.append(manifestBytes, { name: 'manifest.json' });
 
-        for (const m of mediaFiles) {
-            const ext = sanitizeMediaExt(m.ext);
-            const dot = ext ? `.${ext}` : '';
-            archive.file(m.absSrcPath, { name: `media/${m.kind}/${m.uuid}${dot}` });
-        }
-        archive.append(operationsBuffer, { name: 'operations.json' });
+        // Re-stat each media file just before queuing it for the zip
+        // stream and reject on any mismatch with the sha256 pre-pass.
+        // Caveat: archiver opens the file asynchronously inside
+        // finalize(), so a sub-microsecond unlink window still exists;
+        // the warning handler above catches that case and rejects too.
+        const queueMedia = async () => {
+            for (const m of mediaFiles) {
+                let stat;
+                try {
+                    stat = await fs.stat(m.absSrcPath);
+                } catch (err) {
+                    throw new Error(
+                        `bundleBuilder: media file disappeared between sha256 and archive: `
+                        + `${m.absSrcPath}: ${err.message}`
+                    );
+                }
+                if (stat.size !== m.expectedSize || stat.mtimeMs !== m.expectedMtimeMs) {
+                    throw new Error(
+                        `bundleBuilder: media file changed between sha256 and archive: `
+                        + `${m.absSrcPath} (size ${m.expectedSize}->${stat.size}, `
+                        + `mtimeMs ${m.expectedMtimeMs}->${stat.mtimeMs})`
+                    );
+                }
+                const ext = sanitizeMediaExt(m.ext);
+                const dot = ext ? `.${ext}` : '';
+                archive.file(m.absSrcPath, { name: `media/${m.kind}/${m.uuid}${dot}` });
+            }
+            archive.append(operationsBuffer, { name: 'operations.json' });
+            await archive.finalize();
+        };
 
-        archive.finalize().catch((err) => { cleanup(); reject(err); });
+        queueMedia().catch((err) => { cleanup(); reject(err); });
     });
 }

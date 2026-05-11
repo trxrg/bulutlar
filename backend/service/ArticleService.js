@@ -479,77 +479,114 @@ async function updateArticleCategory(id, newCategoryName) {
     }
 }
 
+// Forces the article's revision to bump and a sync_outbox row to be appended,
+// without touching any user-visible field. Goes through Model.update at the
+// class level so the existing beforeBulkUpdate / afterBulkUpdate hooks in
+// backend/sync/hooks.js fire (revision = revision + 1 in SQL; one outbox
+// row per affected uuid). No-op if the article row is already gone (e.g.
+// cascade-delete in progress) — the UPDATE simply matches 0 rows.
+//
+// Called from the user-facing add/destroy entry points for child media so
+// that mobile sees a fresh article revision and runs its
+// "article-upsert = authoritative media set" reconciliation pass. Cascade
+// callers that delete media as part of an article destroy must NOT call
+// this — the article tombstone is what should propagate, not a wasted
+// update-then-delete pair.
+async function touchArticleRevision(articleId, { transaction } = {}) {
+    if (articleId == null) return;
+    await sequelize.models.article.update(
+        { revision: sequelize.literal('revision + 1') },
+        { where: { id: articleId }, transaction }
+    );
+}
+
 async function addImageToArticle(id, image) {
+    const tx = await sequelize.transaction();
     try {
-        const article = await sequelize.models.article.findByPk(id);
+        const article = await sequelize.models.article.findByPk(id, { transaction: tx });
 
         if (!article)
-            throw ('no article found with id: ' + id);
+            throw new Error('no article found with id: ' + id);
 
-        const imageEntity = await imageService.createImage(image);
+        const imageEntity = await imageService.createImage(image, tx);
 
-        await article.addImage(imageEntity);
+        await article.addImage(imageEntity, { transaction: tx });
+        await touchArticleRevision(id, { transaction: tx });
 
+        await tx.commit();
         return imageEntity.dataValues;
 
     } catch (error) {
+        await tx.rollback();
         console.error('Error in addImage', error);
         throw error;
     }
 }
 
 async function addImageFromBufferToArticle(id, image) {
+    const tx = await sequelize.transaction();
     try {
-        const article = await sequelize.models.article.findByPk(id);
+        const article = await sequelize.models.article.findByPk(id, { transaction: tx });
 
         if (!article)
-            throw ('no article found with id: ' + id);
+            throw new Error('no article found with id: ' + id);
 
-        const imageEntity = await imageService.createImageFromBuffer(image);
+        const imageEntity = await imageService.createImageFromBuffer(image, tx);
 
-        await article.addImage(imageEntity);
+        await article.addImage(imageEntity, { transaction: tx });
+        await touchArticleRevision(id, { transaction: tx });
 
+        await tx.commit();
         return imageEntity.dataValues;
 
     } catch (error) {
+        await tx.rollback();
         console.error('Error in addImageFromBuffer', error);
         throw error;
     }
 }
 
 async function addAudioToArticle(id, audio) {
+    const tx = await sequelize.transaction();
     try {
-        const article = await sequelize.models.article.findByPk(id);
+        const article = await sequelize.models.article.findByPk(id, { transaction: tx });
 
         if (!article)
-            throw ('no article found with id: ' + id);
+            throw new Error('no article found with id: ' + id);
 
-        const audioEntity = await audioService.createAudio(audio);
+        const audioEntity = await audioService.createAudio(audio, tx);
 
-        await article.addAudio(audioEntity);
+        await article.addAudio(audioEntity, { transaction: tx });
+        await touchArticleRevision(id, { transaction: tx });
 
+        await tx.commit();
         return audioEntity.dataValues;
 
     } catch (error) {
+        await tx.rollback();
         console.error('Error in addAudio', error);
         throw error;
     }
 }
 
 async function addVideoToArticle(id, video) {
+    const tx = await sequelize.transaction();
     try {
-        const article = await sequelize.models.article.findByPk(id);
+        const article = await sequelize.models.article.findByPk(id, { transaction: tx });
 
         if (!article)
-            throw ('no article found with id: ' + id);
+            throw new Error('no article found with id: ' + id);
 
-        const videoEntity = await videoService.createVideo(video);
+        const videoEntity = await videoService.createVideo(video, tx);
 
-        await article.addVideo(videoEntity);
+        await article.addVideo(videoEntity, { transaction: tx });
+        await touchArticleRevision(id, { transaction: tx });
 
+        await tx.commit();
         return videoEntity.dataValues;
 
     } catch (error) {
+        await tx.rollback();
         console.error('Error in addVideo', error);
         throw error;
     }
@@ -1357,6 +1394,7 @@ const ArticleService = {
     createArticleProgrammatically,
     updateRelatedArticleOrdering,
     updateRelatedArticleOrderings,
+    touchArticleRevision,
     getAllArticles, //  TODO: remove
     updateArticleDate, // TODO: remove
 };

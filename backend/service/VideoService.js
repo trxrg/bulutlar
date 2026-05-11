@@ -6,6 +6,13 @@ import fs from 'fs/promises';
 import { config } from '../config.js';
 import { mainWindow } from '../main.js';
 import { safeUnlink } from '../sync/outbox.js';
+// Circular import: ArticleService also imports this module. Safe because
+// `articleService.touchArticleRevision` is only invoked at runtime (inside
+// deleteVideoById, after both modules have fully evaluated), so ESM's live
+// binding is populated by call time. Used to bump the parent article's
+// revision when the user destroys a video so the change propagates to
+// mobile via the article-upsert reconciliation pass.
+import articleService from './ArticleService.js';
 
 let videosFolderPath;
 let publicFolderPath;
@@ -119,9 +126,20 @@ async function deleteVideoById(videoId) {
     if (!video)
         throw new Error('no video found with id: ' + videoId);
 
+    // Capture the FK before destroy so we can bump the parent article's
+    // revision after the video row is gone. The instance still has it
+    // here; `video.destroy()` later inside the tx clears it.
+    const articleId = video.articleId;
+
     const tx = await sequelize.transaction();
     try {
         await deleteVideoEntity(video, { transaction: tx });
+        // Bump the parent article so mobile's article-upsert
+        // reconciliation pass picks up the missing media uuid and
+        // reaps its local copy. No-op if the article is already gone
+        // (cascade-delete in flight from another path), since the UPDATE
+        // matches 0 rows.
+        await articleService.touchArticleRevision(articleId, { transaction: tx });
         await tx.commit();
     } catch (err) {
         await tx.rollback();

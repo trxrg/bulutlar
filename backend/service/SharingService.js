@@ -154,10 +154,11 @@ async function getLastExport() {
     return row ? row.dataValues : null;
 }
 
-async function loadSharedArticleUuidSet() {
+async function loadSharedArticleUuidSet({ transaction } = {}) {
     const rows = await sequelize.models.exportedBundleArticle.findAll({
         attributes: [[sequelize.fn('DISTINCT', sequelize.col('articleUuid')), 'articleUuid']],
         raw: true,
+        transaction,
     });
     return new Set(rows.map((r) => r.articleUuid));
 }
@@ -201,204 +202,254 @@ async function exportBundle(picks) {
         // article-deletes; we'll detect and proceed below.
     }
 
-    // Snapshot the outbox upper bound so the post-build stamp UPDATE
-    // doesn't race with concurrent writes.
-    const maxOutboxId = await snapshotOutboxMaxId(sequelize);
-
-    // ------------------------------------------------------------------
-    // 1. Resolve `latestState` articles from live tables.
-    // ------------------------------------------------------------------
-
-    const articles = latestState.length > 0
-        ? await sequelize.models.article.findAll({
-            where: { uuid: { [Op.in]: latestState } },
-        })
-        : [];
-
-    if (articles.length !== latestState.length) {
-        const found = new Set(articles.map((a) => a.uuid));
-        const missing = latestState.filter((u) => !found.has(u));
-        console.warn(`exportBundle: ${missing.length} latestState uuids not found on disk; skipping:`, missing);
-    }
-
-    const articleIds = articles.map((a) => a.id);
-    const articleUuidsInBundle = new Set(articles.map((a) => a.uuid));
-
-    // ------------------------------------------------------------------
-    // 2. Resolve children (comments, annotations, media) by articleId.
-    // ------------------------------------------------------------------
-
-    const [comments, annotations, images, audios, videos] = articleIds.length === 0
-        ? [[], [], [], [], []]
-        : await Promise.all([
-            sequelize.models.comment.findAll({ where: { articleId: { [Op.in]: articleIds } } }),
-            sequelize.models.annotation.findAll({ where: { articleId: { [Op.in]: articleIds } } }),
-            sequelize.models.image.findAll({ where: { articleId: { [Op.in]: articleIds } } }),
-            sequelize.models.audio.findAll({ where: { articleId: { [Op.in]: articleIds } } }),
-            sequelize.models.video.findAll({ where: { articleId: { [Op.in]: articleIds } } }),
-        ]);
-
-    // ------------------------------------------------------------------
-    // 3. Resolve junctions.
-    // ------------------------------------------------------------------
-
-    const ATR = sequelize.models.article_tag_rel;
-    const AGR = sequelize.models.article_group_rel;
-    const AAR = sequelize.models.article_article_rel;
-
-    const [tagRels, groupRels, relRels] = articleIds.length === 0
-        ? [[], [], []]
-        : await Promise.all([
-            ATR.findAll({ where: { articleId: { [Op.in]: articleIds } } }),
-            AGR.findAll({ where: { articleId: { [Op.in]: articleIds } } }),
-            AAR.findAll({
-                where: {
-                    [Op.or]: [
-                        { articleId: { [Op.in]: articleIds } },
-                        { relatedArticleId: { [Op.in]: articleIds } },
-                    ],
-                },
-            }),
-        ]);
-
-    // ------------------------------------------------------------------
-    // 4. Resolve referenced owners / categories / tags / groups (full rows
-    //    so the bundle carries them). Also resolve id <-> uuid maps to FK-
-    //    rewrite the rows we emit.
-    // ------------------------------------------------------------------
-
-    const ownerIds = [...new Set(articles.map((a) => a.ownerId).filter((x) => x != null))];
-    const categoryIds = [...new Set(articles.map((a) => a.categoryId).filter((x) => x != null))];
-    const tagIds = [...new Set(tagRels.map((r) => r.tagId).filter((x) => x != null))];
-    const groupIds = [...new Set(groupRels.map((r) => r.groupId).filter((x) => x != null))];
-
-    const owners = ownerIds.length
-        ? await sequelize.models.owner.findAll({ where: { id: { [Op.in]: ownerIds } } })
-        : [];
-    const categories = categoryIds.length
-        ? await sequelize.models.category.findAll({ where: { id: { [Op.in]: categoryIds } } })
-        : [];
-    const tags = tagIds.length
-        ? await sequelize.models.tag.findAll({ where: { id: { [Op.in]: tagIds } } })
-        : [];
-    const groups = groupIds.length
-        ? await sequelize.models.group.findAll({ where: { id: { [Op.in]: groupIds } } })
-        : [];
-
-    const ownerUuidById = new Map(owners.map((o) => [o.id, o.uuid]));
-    const categoryUuidById = new Map(categories.map((c) => [c.id, c.uuid]));
-    const tagUuidById = new Map(tags.map((t) => [t.id, t.uuid]));
-    const groupUuidById = new Map(groups.map((g) => [g.id, g.uuid]));
-
-    // For comments: ownerId -> ownerUuid. The full owner row is already
-    // in the bundle if the article references that owner; otherwise we
-    // also need to pull the comment's owner.
-    const commentOwnerIds = [...new Set(comments.map((c) => c.ownerId).filter((x) => x != null))];
-    const extraCommentOwnerIds = commentOwnerIds.filter((id) => !ownerUuidById.has(id));
-    if (extraCommentOwnerIds.length > 0) {
-        const extra = await sequelize.models.owner.findAll({ where: { id: { [Op.in]: extraCommentOwnerIds } } });
-        for (const o of extra) {
-            owners.push(o);
-            ownerUuidById.set(o.id, o.uuid);
-        }
-    }
-
-    // For each article, build articleId -> mediaIdToUuid map for tiptap rewrite.
-    const articleIdToMediaIdMap = new Map();
-    for (const id of articleIds) articleIdToMediaIdMap.set(id, new Map());
-    for (const im of images) articleIdToMediaIdMap.get(im.articleId)?.set(im.id, im.uuid);
-    for (const au of audios) articleIdToMediaIdMap.get(au.articleId)?.set(au.id, au.uuid);
-    for (const vi of videos) articleIdToMediaIdMap.get(vi.articleId)?.set(vi.id, vi.uuid);
-
-    // Article id -> uuid for the related-article rel rewrite.
-    const articleUuidById = new Map(articles.map((a) => [a.id, a.uuid]));
-
-    // ------------------------------------------------------------------
-    // 5. Resolve `manualDelete` articles (need current revision to emit
-    //    revision = liveRev + 1).
-    // ------------------------------------------------------------------
-
-    const manualDeleteRows = manualDelete.length > 0
-        ? await sequelize.models.article.findAll({
-            where: { uuid: { [Op.in]: manualDelete } },
-            attributes: ['uuid', 'revision'],
-        })
-        : [];
-    const manualDeleteFound = new Set(manualDeleteRows.map((r) => r.uuid));
-    const manualDeleteSkipped = manualDelete.filter((u) => !manualDeleteFound.has(u));
-    if (manualDeleteSkipped.length > 0) {
-        console.warn(`exportBundle: ${manualDeleteSkipped.length} manualDelete uuids missing from live table; skipping (auto-include path will pick them up if their delete is pending):`, manualDeleteSkipped);
-    }
-    const manualDeletes = manualDeleteRows.map((r) => ({
-        uuid: r.uuid,
-        revision: (r.revision || 0) + 1,
-    }));
-
-    // ------------------------------------------------------------------
-    // 6. Auto-include pending desktop deletes.
-    // ------------------------------------------------------------------
-
-    const allArticleCoalesced = await coalescePending(sequelize, {
-        entityTypes: ['article'],
-        maxOutboxId,
-    });
-    const autoDeletes = allArticleCoalesced
-        .filter((p) => p.finalOp === 'delete')
-        .filter((p) => !articleUuidsInBundle.has(p.uuid))
-        .filter((p) => !manualDeleteFound.has(p.uuid))
-        .map((p) => ({ uuid: p.uuid }));
-
-    // Track which outbox rows participated so we know what to stamp.
-    // - latestState articles: their pending coalesced rows (any op).
-    // - dependency entities: their pending coalesced rows (computed below).
-    // - autoDeletes: their pending delete rows.
-    // (manualDeletes have NO outbox rows - the desktop row was never
-    //  touched.)
-    const participatingArticleUuids = new Set([
-        ...articles.map((a) => a.uuid),
-        ...autoDeletes.map((d) => d.uuid),
-    ]);
-
-    // ------------------------------------------------------------------
-    // 7. Filter dangling articleArticleRels.
+    // ==================================================================
+    // Read phase — wrapped in a single transaction so every findAll sees
+    // a consistent snapshot of the desktop DB. Without this, a concurrent
+    // write between the article load and the media load could ship an
+    // article upsert with an empty media set, which mobile's reconciliation
+    // pass would interpret as "this article has zero attachments" and wipe
+    // every local image / audio / video for that article.
     //
-    //    Drop any rel whose relatedArticleUuid is neither in this
-    //    bundle's articles set NOR present in `exported_bundle_articles`
-    //    (mobile won't have the target). Also drop rels whose
-    //    articleId-side article isn't in the bundle (could happen if
-    //    the rel was returned because the article is on the
-    //    relatedArticleId side).
-    // ------------------------------------------------------------------
+    // Committed (not rolled back) before the heavy file-I/O build phase
+    // so SQLite's read lock isn't held while sha256 + zip stream run.
+    // ==================================================================
 
-    const sharedSet = await loadSharedArticleUuidSet();
+    const readTx = await sequelize.transaction();
+    let readTxFinalized = false;
 
-    // Need related article uuids (the ones not in bundle) — pull just
-    // their uuids, not whole rows.
-    const allRelArticleIds = new Set();
-    for (const r of relRels) {
-        allRelArticleIds.add(r.articleId);
-        allRelArticleIds.add(r.relatedArticleId);
-    }
-    const missingArticleIds = [...allRelArticleIds].filter((id) => !articleUuidById.has(id));
-    if (missingArticleIds.length > 0) {
-        const extraArticles = await sequelize.models.article.findAll({
-            where: { id: { [Op.in]: missingArticleIds } },
-            attributes: ['id', 'uuid'],
+    let maxOutboxId;
+    let articles, articleIds, articleUuidsInBundle;
+    let comments, annotations, images, audios, videos;
+    let tagRels, groupRels, relRels;
+    let owners, categories, tags, groups;
+    let ownerUuidById, categoryUuidById, tagUuidById, groupUuidById;
+    let articleIdToMediaIdMap, articleUuidById;
+    let manualDeleteRows, manualDeleteFound, manualDeletes;
+    let autoDeletes, participatingArticleUuids;
+    let filteredRelRels;
+
+    try {
+        // Snapshot the outbox upper bound so the post-build stamp UPDATE
+        // doesn't race with concurrent writes.
+        maxOutboxId = await snapshotOutboxMaxId(sequelize, { transaction: readTx });
+
+        // --------------------------------------------------------------
+        // 1. Resolve `latestState` articles from live tables.
+        // --------------------------------------------------------------
+
+        articles = latestState.length > 0
+            ? await sequelize.models.article.findAll({
+                where: { uuid: { [Op.in]: latestState } },
+                transaction: readTx,
+            })
+            : [];
+
+        if (articles.length !== latestState.length) {
+            const found = new Set(articles.map((a) => a.uuid));
+            const missing = latestState.filter((u) => !found.has(u));
+            console.warn(`exportBundle: ${missing.length} latestState uuids not found on disk; skipping:`, missing);
+        }
+
+        articleIds = articles.map((a) => a.id);
+        articleUuidsInBundle = new Set(articles.map((a) => a.uuid));
+
+        // --------------------------------------------------------------
+        // 2. Resolve children (comments, annotations, media) by articleId.
+        // --------------------------------------------------------------
+
+        [comments, annotations, images, audios, videos] = articleIds.length === 0
+            ? [[], [], [], [], []]
+            : await Promise.all([
+                sequelize.models.comment.findAll({ where: { articleId: { [Op.in]: articleIds } }, transaction: readTx }),
+                sequelize.models.annotation.findAll({ where: { articleId: { [Op.in]: articleIds } }, transaction: readTx }),
+                sequelize.models.image.findAll({ where: { articleId: { [Op.in]: articleIds } }, transaction: readTx }),
+                sequelize.models.audio.findAll({ where: { articleId: { [Op.in]: articleIds } }, transaction: readTx }),
+                sequelize.models.video.findAll({ where: { articleId: { [Op.in]: articleIds } }, transaction: readTx }),
+            ]);
+
+        // --------------------------------------------------------------
+        // 3. Resolve junctions.
+        // --------------------------------------------------------------
+
+        const ATR = sequelize.models.article_tag_rel;
+        const AGR = sequelize.models.article_group_rel;
+        const AAR = sequelize.models.article_article_rel;
+
+        [tagRels, groupRels, relRels] = articleIds.length === 0
+            ? [[], [], []]
+            : await Promise.all([
+                ATR.findAll({ where: { articleId: { [Op.in]: articleIds } }, transaction: readTx }),
+                AGR.findAll({ where: { articleId: { [Op.in]: articleIds } }, transaction: readTx }),
+                AAR.findAll({
+                    where: {
+                        [Op.or]: [
+                            { articleId: { [Op.in]: articleIds } },
+                            { relatedArticleId: { [Op.in]: articleIds } },
+                        ],
+                    },
+                    transaction: readTx,
+                }),
+            ]);
+
+        // --------------------------------------------------------------
+        // 4. Resolve referenced owners / categories / tags / groups (full
+        //    rows so the bundle carries them). Also resolve id <-> uuid
+        //    maps to FK-rewrite the rows we emit.
+        // --------------------------------------------------------------
+
+        const ownerIds = [...new Set(articles.map((a) => a.ownerId).filter((x) => x != null))];
+        const categoryIds = [...new Set(articles.map((a) => a.categoryId).filter((x) => x != null))];
+        const tagIds = [...new Set(tagRels.map((r) => r.tagId).filter((x) => x != null))];
+        const groupIds = [...new Set(groupRels.map((r) => r.groupId).filter((x) => x != null))];
+
+        owners = ownerIds.length
+            ? await sequelize.models.owner.findAll({ where: { id: { [Op.in]: ownerIds } }, transaction: readTx })
+            : [];
+        categories = categoryIds.length
+            ? await sequelize.models.category.findAll({ where: { id: { [Op.in]: categoryIds } }, transaction: readTx })
+            : [];
+        tags = tagIds.length
+            ? await sequelize.models.tag.findAll({ where: { id: { [Op.in]: tagIds } }, transaction: readTx })
+            : [];
+        groups = groupIds.length
+            ? await sequelize.models.group.findAll({ where: { id: { [Op.in]: groupIds } }, transaction: readTx })
+            : [];
+
+        ownerUuidById = new Map(owners.map((o) => [o.id, o.uuid]));
+        categoryUuidById = new Map(categories.map((c) => [c.id, c.uuid]));
+        tagUuidById = new Map(tags.map((t) => [t.id, t.uuid]));
+        groupUuidById = new Map(groups.map((g) => [g.id, g.uuid]));
+
+        // For comments: ownerId -> ownerUuid. The full owner row is already
+        // in the bundle if the article references that owner; otherwise we
+        // also need to pull the comment's owner.
+        const commentOwnerIds = [...new Set(comments.map((c) => c.ownerId).filter((x) => x != null))];
+        const extraCommentOwnerIds = commentOwnerIds.filter((id) => !ownerUuidById.has(id));
+        if (extraCommentOwnerIds.length > 0) {
+            const extra = await sequelize.models.owner.findAll({
+                where: { id: { [Op.in]: extraCommentOwnerIds } },
+                transaction: readTx,
+            });
+            for (const o of extra) {
+                owners.push(o);
+                ownerUuidById.set(o.id, o.uuid);
+            }
+        }
+
+        // For each article, build articleId -> mediaIdToUuid map for tiptap rewrite.
+        articleIdToMediaIdMap = new Map();
+        for (const id of articleIds) articleIdToMediaIdMap.set(id, new Map());
+        for (const im of images) articleIdToMediaIdMap.get(im.articleId)?.set(im.id, im.uuid);
+        for (const au of audios) articleIdToMediaIdMap.get(au.articleId)?.set(au.id, au.uuid);
+        for (const vi of videos) articleIdToMediaIdMap.get(vi.articleId)?.set(vi.id, vi.uuid);
+
+        // Article id -> uuid for the related-article rel rewrite.
+        articleUuidById = new Map(articles.map((a) => [a.id, a.uuid]));
+
+        // --------------------------------------------------------------
+        // 5. Resolve `manualDelete` articles (need current revision to
+        //    emit revision = liveRev + 1).
+        // --------------------------------------------------------------
+
+        manualDeleteRows = manualDelete.length > 0
+            ? await sequelize.models.article.findAll({
+                where: { uuid: { [Op.in]: manualDelete } },
+                attributes: ['uuid', 'revision'],
+                transaction: readTx,
+            })
+            : [];
+        manualDeleteFound = new Set(manualDeleteRows.map((r) => r.uuid));
+        const manualDeleteSkipped = manualDelete.filter((u) => !manualDeleteFound.has(u));
+        if (manualDeleteSkipped.length > 0) {
+            console.warn(`exportBundle: ${manualDeleteSkipped.length} manualDelete uuids missing from live table; skipping (auto-include path will pick them up if their delete is pending):`, manualDeleteSkipped);
+        }
+        manualDeletes = manualDeleteRows.map((r) => ({
+            uuid: r.uuid,
+            revision: (r.revision || 0) + 1,
+        }));
+
+        // --------------------------------------------------------------
+        // 6. Auto-include pending desktop deletes.
+        // --------------------------------------------------------------
+
+        const allArticleCoalesced = await coalescePending(sequelize, {
+            entityTypes: ['article'],
+            maxOutboxId,
+            transaction: readTx,
         });
-        for (const a of extraArticles) articleUuidById.set(a.id, a.uuid);
-    }
+        autoDeletes = allArticleCoalesced
+            .filter((p) => p.finalOp === 'delete')
+            .filter((p) => !articleUuidsInBundle.has(p.uuid))
+            .filter((p) => !manualDeleteFound.has(p.uuid))
+            .map((p) => ({ uuid: p.uuid }));
 
-    const filteredRelRels = relRels.filter((r) => {
-        const aUuid = articleUuidById.get(r.articleId);
-        const rUuid = articleUuidById.get(r.relatedArticleId);
-        if (!aUuid || !rUuid) return false;
-        // article side must be IN this bundle (we don't emit a rel whose
-        // owning article isn't being shared).
-        if (!articleUuidsInBundle.has(aUuid)) return false;
-        // related side must be either in this bundle OR previously shared.
-        if (!articleUuidsInBundle.has(rUuid) && !sharedSet.has(rUuid)) return false;
-        return true;
-    });
+        // Track which outbox rows participated so we know what to stamp.
+        // - latestState articles: their pending coalesced rows (any op).
+        // - dependency entities: their pending coalesced rows (computed below).
+        // - autoDeletes: their pending delete rows.
+        // (manualDeletes have NO outbox rows - the desktop row was never
+        //  touched.)
+        participatingArticleUuids = new Set([
+            ...articles.map((a) => a.uuid),
+            ...autoDeletes.map((d) => d.uuid),
+        ]);
+
+        // --------------------------------------------------------------
+        // 7. Filter dangling articleArticleRels.
+        //
+        //    Drop any rel whose relatedArticleUuid is neither in this
+        //    bundle's articles set NOR present in `exported_bundle_articles`
+        //    (mobile won't have the target). Also drop rels whose
+        //    articleId-side article isn't in the bundle (could happen if
+        //    the rel was returned because the article is on the
+        //    relatedArticleId side).
+        // --------------------------------------------------------------
+
+        const sharedSet = await loadSharedArticleUuidSet({ transaction: readTx });
+
+        // Need related article uuids (the ones not in bundle) — pull just
+        // their uuids, not whole rows.
+        const allRelArticleIds = new Set();
+        for (const r of relRels) {
+            allRelArticleIds.add(r.articleId);
+            allRelArticleIds.add(r.relatedArticleId);
+        }
+        const missingArticleIds = [...allRelArticleIds].filter((id) => !articleUuidById.has(id));
+        if (missingArticleIds.length > 0) {
+            const extraArticles = await sequelize.models.article.findAll({
+                where: { id: { [Op.in]: missingArticleIds } },
+                attributes: ['id', 'uuid'],
+                transaction: readTx,
+            });
+            for (const a of extraArticles) articleUuidById.set(a.id, a.uuid);
+        }
+
+        filteredRelRels = relRels.filter((r) => {
+            const aUuid = articleUuidById.get(r.articleId);
+            const rUuid = articleUuidById.get(r.relatedArticleId);
+            if (!aUuid || !rUuid) return false;
+            // article side must be IN this bundle (we don't emit a rel whose
+            // owning article isn't being shared).
+            if (!articleUuidsInBundle.has(aUuid)) return false;
+            // related side must be either in this bundle OR previously shared.
+            if (!articleUuidsInBundle.has(rUuid) && !sharedSet.has(rUuid)) return false;
+            return true;
+        });
+
+        // Read phase complete — release the snapshot before the heavy
+        // file-I/O build phase below. Step 8's projections only touch
+        // already-loaded sequelize instances (no DB queries) and step 9
+        // / step 10 manage their own transactions, so dropping the read
+        // lock here is safe and avoids holding SQLite while sha256 and
+        // archiver stream through hundreds of MB of media.
+        await readTx.commit();
+        readTxFinalized = true;
+    } catch (err) {
+        if (!readTxFinalized) {
+            try { await readTx.rollback(); } catch (_) { /* ignore */ }
+        }
+        throw err;
+    }
 
     // ------------------------------------------------------------------
     // 8. Project rows to bundle-builder shape.
@@ -467,9 +518,22 @@ async function exportBundle(picks) {
         out.ext = pickMediaExt(dv);
         return out;
     };
-    const imageRows = images.map((m) => buildMediaRow(m, 'images'));
-    const audioRows = audios.map((m) => buildMediaRow(m, 'audios'));
-    const videoRows = videos.map((m) => buildMediaRow(m, 'videos'));
+    // Belt-and-suspenders: every media row's articleUuid MUST resolve to
+    // one of this bundle's articles. Today this is true by construction
+    // (the media findAll above is keyed on articleIds derived from
+    // `articles`, and articleUuidById is built from the same set), but
+    // the explicit filter mirrors the guard the junction projections use
+    // and would catch any future regression that accidentally drops the
+    // FK rewrite or expands the media query scope.
+    const imageRows = images
+        .map((m) => buildMediaRow(m, 'images'))
+        .filter((r) => r.articleUuid && articleUuidsInBundle.has(r.articleUuid));
+    const audioRows = audios
+        .map((m) => buildMediaRow(m, 'audios'))
+        .filter((r) => r.articleUuid && articleUuidsInBundle.has(r.articleUuid));
+    const videoRows = videos
+        .map((m) => buildMediaRow(m, 'videos'))
+        .filter((r) => r.articleUuid && articleUuidsInBundle.has(r.articleUuid));
 
     const tagRelRows = tagRels.map((r) => {
         const dv = r.dataValues;

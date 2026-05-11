@@ -258,16 +258,6 @@ const SharingModal = ({ isOpen, onRequestClose }) => {
                 style={{ flex: 1, minHeight: 0, color: 'var(--text-primary)' }}
             >
 
-                {/* Top status bar */}
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-                    <Typography sx={{ color: 'var(--text-secondary)' }}>
-                        {candidates.lastExport
-                            ? `${t('last exported')}: ${new Date(candidates.lastExport.createdAt).toLocaleString()}`
-                            : t('no bundles yet')}
-                    </Typography>
-                    {loading && <CircularProgress size={20} />}
-                </Box>
-
                 {errorMessage && (
                     <Alert severity='error' onClose={() => setErrorMessage('')}>
                         {errorMessage}
@@ -303,8 +293,15 @@ const SharingModal = ({ isOpen, onRequestClose }) => {
                     </Alert>
                 )}
 
-                {/* Filters */}
+                {/* Search + filters + last export status (single row) */}
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+                    <TextField
+                        size='small'
+                        placeholder={t('search articles')}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        sx={{ minWidth: 200 }}
+                    />
                     {(['created', 'updated', 'deleted', 'unchanged']).map((key) => (
                         <FormControlLabel
                             key={key}
@@ -323,13 +320,12 @@ const SharingModal = ({ isOpen, onRequestClose }) => {
                         />
                     ))}
                     <Box sx={{ flexGrow: 1 }} />
-                    <TextField
-                        size='small'
-                        placeholder={t('search articles')}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        sx={{ minWidth: 200 }}
-                    />
+                    {loading && <CircularProgress size={20} />}
+                    <Typography sx={{ color: 'var(--text-secondary)', textAlign: 'right' }}>
+                        {candidates.lastExport
+                            ? `${t('last exported')}: ${new Date(candidates.lastExport.createdAt).toLocaleString()}`
+                            : t('no bundles yet')}
+                    </Typography>
                 </Box>
 
                 {/* Two-pane layout */}

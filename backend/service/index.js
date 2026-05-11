@@ -14,7 +14,8 @@ const servicePromises = [
     import('./DBService.js'),
     import('./StoreService.js'),
     import('./UrlFetchService.js'),
-    import('./SharingService.js')
+    import('./SharingService.js'),
+    import('./MaintenanceService.js')
 ];
 
 function initServices() {

@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { HomeIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import toastr from 'toastr';
 
 import { AppContext } from '../../store/app-context';
 import FormatButton from '../common/FormatButton';
@@ -15,6 +16,26 @@ const AppHeader = () => {
     const { fetchAllData } = useContext(DBContext);
 
     const handleRefresh = async () => {
+        // Reap orphan media rows (DB rows whose backing file is gone) before
+        // we re-pull data into the renderer caches. Failure here is
+        // non-fatal: the user clicked refresh expecting their data to
+        // refresh, so we still call fetchAllData even if reap blew up.
+        try {
+            const reapApi = window.api && window.api.maintenance && window.api.maintenance.reapOrphanMedia;
+            if (reapApi) {
+                const r = await reapApi();
+                const reaped = (r?.images?.reaped || 0)
+                    + (r?.audios?.reaped || 0)
+                    + (r?.videos?.reaped || 0);
+                if (reaped > 0) {
+                    toastr.warning(t('reaped n orphan media', { count: reaped }));
+                }
+            }
+        } catch (err) {
+            console.error('reapOrphanMedia failed:', err);
+            toastr.error(t('reap orphan media failed'));
+        }
+
         await fetchAllData();
     }
 

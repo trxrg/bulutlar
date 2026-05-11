@@ -161,6 +161,9 @@ contextBridge.exposeInMainWorld('api', {
     chooseOutputDir: (opts)                                     => ipcRenderer.invoke('sharing/chooseOutputDir', opts || {}),
     showInFolder:    (filePath)                                 => ipcRenderer.invoke('sharing/showInFolder', filePath),
   },
+  maintenance: {
+    reapOrphanMedia: ()                                         => ipcRenderer.invoke('maintenance/reapOrphanMedia'),
+  },
   getOwnerWithName:          (ownerName)   => ipcRenderer.invoke('getOwnerWithName', ownerName),
   getOwnerWithNameLike:      (nameLike)    => ipcRenderer.invoke('getOwnerWithNameLike', nameLike),
   ping:                      ()            => ipcRenderer.invoke('ping'),

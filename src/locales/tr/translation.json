@@ -329,6 +329,8 @@
 
     "homescreen": "Ana Sayfa",
     "refresh": "Yenile",
+    "reaped n orphan media": "{{count}} sahipsiz medya kaydı temizlendi",
+    "reap orphan media failed": "Sahipsiz medya temizliği çalıştırılamadı",
 
     "preferences": "Tercihler",
 

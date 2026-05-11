@@ -324,6 +324,8 @@
 
     "homescreen": "Home Screen",
     "refresh": "Refresh",
+    "reaped n orphan media": "Cleaned up {{count}} orphan media row(s)",
+    "reap orphan media failed": "Could not run orphan media cleanup",
 
     "preferences": "Preferences",
 

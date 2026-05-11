@@ -53,8 +53,17 @@ export function registerSyncHooks(sequelize) {
             }
         });
 
-        Model.beforeUpdate((row) => {
+        Model.beforeUpdate((row, options) => {
             row.revision = (row.revision || 0) + 1;
+            // Mirror the bulk-update guard below: when the caller passed an
+            // explicit `fields` whitelist (e.g. Sequelize's belongsTo setter
+            // mixins always do `save({ fields: [foreignKey] })`), Sequelize
+            // strictly intersects the SET clause with that list and would
+            // silently drop our revision bump. Adding `revision` to the list
+            // keeps the increment in the SQL.
+            if (Array.isArray(options.fields) && !options.fields.includes('revision')) {
+                options.fields.push('revision');
+            }
         });
 
         Model.beforeBulkUpdate(async (opts) => {

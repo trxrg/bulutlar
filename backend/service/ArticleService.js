@@ -449,7 +449,7 @@ async function updateArticleOwner(id, newOwnerName) {
         if (!article)
             throw ('no article found with id: ' + id);
         if (!newOwnerName) {
-            article.setOwner(null);
+            await article.setOwner(null);
             return;
         }
 
@@ -457,7 +457,7 @@ async function updateArticleOwner(id, newOwnerName) {
         if (!owner)
             throw ('no owner found with name: ' + newOwnerName);
 
-        article.setOwner(owner);
+        await article.setOwner(owner);
 
     } catch (error) {
         console.error('Error in updateArticleOwner', error);
@@ -468,8 +468,10 @@ async function updateArticleOwner(id, newOwnerName) {
 async function updateArticleCategory(id, newCategoryName) {
     try {
         const article = await sequelize.models.article.findByPk(id);
+        if (!article)
+            throw ('no article found with id: ' + id);
         const cat = await categoryService.getCategoryWithNameAddIfNotPresent(newCategoryName);
-        article.setCategory(cat);
+        await article.setCategory(cat);
 
     } catch (error) {
         console.error('Error in updateArticleCategory', error);

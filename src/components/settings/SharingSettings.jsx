@@ -5,7 +5,7 @@ import { AppContext } from '../../store/app-context';
 import SharingModal from './SharingModal';
 
 const SharingSettings = () => {
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, getLanguage } = useContext(AppContext);
 
     const [modalOpen, setModalOpen] = useState(false);
     const [lastExport, setLastExport] = useState(null);
@@ -25,7 +25,8 @@ const SharingSettings = () => {
     const formatLastExport = () => {
         if (!lastExport) return t('no bundles yet');
         const d = new Date(lastExport.createdAt);
-        return `${t('last exported')}: ${d.toLocaleString()}`;
+        const locale = getLanguage() === 'tr' ? 'tr-TR' : 'en-US';
+        return `${t('last exported')}: ${d.toLocaleString(locale)}`;
     };
 
     const buttonSx = {

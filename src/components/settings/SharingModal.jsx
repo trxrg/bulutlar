@@ -31,6 +31,18 @@ function statusChipColor(status) {
     }
 }
 
+// Local-time yyyy-mm-dd. Using toISOString would shift by the local
+// UTC offset and silently produce yesterday/tomorrow near midnight.
+function formatYmd(value) {
+    if (!value) return '—';
+    const d = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(d.getTime())) return '—';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
 function humanBytes(bytes) {
     if (!bytes) return '0 B';
     const units = ['B', 'KB', 'MB', 'GB'];
@@ -354,7 +366,7 @@ const SharingModal = ({ isOpen, onRequestClose }) => {
                                             {a.title || '(untitled)'}
                                         </Typography>
                                         <Typography variant='caption' sx={{ color: 'var(--text-secondary)' }}>
-                                            {a.ownerName || '—'} · {a.categoryName || '—'} · {new Date(a.updatedAt).toLocaleDateString()}
+                                            {a.ownerName || '—'} · {a.categoryName || '—'} · {formatYmd(a.date)}
                                         </Typography>
                                     </Box>
                                     <Chip

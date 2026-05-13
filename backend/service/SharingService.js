@@ -75,7 +75,7 @@ async function getCandidates() {
     // Live articles needed for created/updated rows + unchanged listing.
     // Pull both in one query for simplicity; partition in memory.
     const liveArticles = await sequelize.models.article.findAll({
-        attributes: ['id', 'uuid', 'title', 'updatedAt', 'ownerId', 'categoryId'],
+        attributes: ['id', 'uuid', 'title', 'date', 'updatedAt', 'ownerId', 'categoryId'],
         order: [['updatedAt', 'DESC']],
     });
 
@@ -100,6 +100,7 @@ async function getCandidates() {
         const view = {
             uuid: a.uuid,
             title: a.title,
+            date: a.date,
             updatedAt: a.updatedAt,
             ownerName: ownerNameById.get(a.ownerId) || null,
             categoryName: categoryNameById.get(a.categoryId) || null,

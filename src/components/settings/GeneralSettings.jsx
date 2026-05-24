@@ -1,12 +1,20 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { FormControl, InputLabel, Select, MenuItem, TextField, Button, CircularProgress } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, TextField, Button, CircularProgress, Switch, FormControlLabel, Typography } from '@mui/material';
 import { AppContext } from '../../store/app-context';
 import { DBContext } from '../../store/db-context';
 import { articleApi } from '../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
 
 const GeneralSettings = () => {
-    const { translate: t, changeLanguage, getLanguage, wordsPerMinute, setWordsPerMinute } = useContext(AppContext);
+    const {
+        translate: t,
+        changeLanguage,
+        getLanguage,
+        wordsPerMinute,
+        setWordsPerMinute,
+        hijriDateEnabled,
+        setHijriDateEnabled,
+    } = useContext(AppContext);
     const { fetchAllData } = useContext(DBContext);
     const language = getLanguage();
     const [wpmInput, setWpmInput] = useState(wordsPerMinute?.toString() || '100');
@@ -113,6 +121,28 @@ const GeneralSettings = () => {
                     </MenuItem>
                 </Select>
             </FormControl>
+
+            <FormControlLabel
+                control={
+                    <Switch
+                        checked={hijriDateEnabled}
+                        onChange={(e) => setHijriDateEnabled(e.target.checked)}
+                        sx={{
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                                color: '#059669',
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                backgroundColor: '#059669',
+                            },
+                        }}
+                    />
+                }
+                label={t('show hijri date')}
+                sx={{ color: 'var(--text-primary)', alignItems: 'flex-start', m: 0 }}
+            />
+            <Typography variant="body2" sx={{ color: 'var(--text-secondary)', mt: -2, mb: 1, ml: 4.5 }}>
+                {t('show hijri date description')}
+            </Typography>
 
             <div className='flex flex-row items-start gap-3'>
                 <TextField

@@ -19,7 +19,7 @@ import Checkbox from '@mui/material/Checkbox';
 
 const SearchFilterings = () => {
 
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, hijriDateEnabled } = useContext(AppContext);
     const { keywords, setKeywords,
         selectedCategoryNames, setSelectedCategoryNames,
         selectedGroupNames, setSelectedGroupNames,
@@ -131,18 +131,22 @@ const SearchFilterings = () => {
                     <FilterAccordion title={t('tag')} isFilterActive={selectedTagNames && selectedTagNames.length > 0} clearFilter={() => setSelectedTagNames([])}>
                         <TagFiltering />
                     </FilterAccordion>
-                    <FilterAccordion title={t('gregorian date')} isFilterActive={isDate1Active} clearFilter={clearDate1}>
+                    <FilterAccordion title={hijriDateEnabled ? t('gregorian date') : t('date')} isFilterActive={isDate1Active} clearFilter={clearDate1}>
                         <Date1Filtering />
                     </FilterAccordion>
-                    <FilterAccordion title={t('hijri date')} isFilterActive={isDate2Active} clearFilter={clearDate2}>
-                        <Date2Filtering />
-                    </FilterAccordion>
+                    {hijriDateEnabled && (
+                        <FilterAccordion title={t('hijri date')} isFilterActive={isDate2Active} clearFilter={clearDate2}>
+                            <Date2Filtering />
+                        </FilterAccordion>
+                    )}
                     <FilterAccordion title={t('gregorian number')} isFilterActive={selectedNumbers1 && selectedNumbers1.length > 0} clearFilter={() => setSelectedNumbers1([])}>
                         <Number1Filtering />
                     </FilterAccordion>
-                    <FilterAccordion title={t('hijri number')} isFilterActive={selectedNumbers2 && selectedNumbers2.length > 0} clearFilter={() => setSelectedNumbers2([])}>
-                        <Number2Filtering />
-                    </FilterAccordion>
+                    {hijriDateEnabled && (
+                        <FilterAccordion title={t('hijri number')} isFilterActive={selectedNumbers2 && selectedNumbers2.length > 0} clearFilter={() => setSelectedNumbers2([])}>
+                            <Number2Filtering />
+                        </FilterAccordion>
+                    )}
                 </div>
             </BodyWithFixedHeader>
             <SaveFilterModal

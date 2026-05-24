@@ -10,7 +10,7 @@ import toastr from 'toastr';
 
 const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true, showReadTime = true }) => {
 
-    const { translate: t } = useContext(AppContext);
+    const { translate: t, hijriDateEnabled } = useContext(AppContext);
     const { fetchAllData, getOwnerById, fetchArticleById, getCategoryById } = useContext(DBContext);
 
     const [ownerModalIsOpen, setOwnerModalIsOpen] = useState(false);
@@ -83,12 +83,17 @@ const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true, showRea
                     :
                     new Date(article.date).toLocaleDateString('tr')}</span>
                 <span style={{ color: 'var(--text-primary)' }}>{" (" + article.number + ") | "}</span>
-                <span style={{ color: 'var(--text-primary)' }}>{getDayOfWeek() + " | "}</span>
-                <span className='inline-flex' style={{ color: 'var(--text-primary)' }}>{isEditable ?
-                    <RichInput className='flex' initialText={new Date(article.date2).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate2}></RichInput>
-                    :
-                    new Date(article.date2).toLocaleDateString('tr')}</span>
-                <span style={{ color: 'var(--text-primary)' }}>{" (" + article.number2 + ")"}</span>
+                <span style={{ color: 'var(--text-primary)' }}>{getDayOfWeek()}</span>
+                {hijriDateEnabled && (
+                    <>
+                        <span style={{ color: 'var(--text-primary)' }}>{" | "}</span>
+                        <span className='inline-flex' style={{ color: 'var(--text-primary)' }}>{isEditable ?
+                            <RichInput className='flex' initialText={new Date(article.date2).toLocaleDateString('tr')} inputType='date' handleSave={handleUpdateDate2}></RichInput>
+                            :
+                            new Date(article.date2).toLocaleDateString('tr')}</span>
+                        <span style={{ color: 'var(--text-primary)' }}>{" (" + article.number2 + ")"}</span>
+                    </>
+                )}
             </>}
             {showReadTime && readTime && (
                 <>

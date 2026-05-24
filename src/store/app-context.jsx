@@ -27,6 +27,7 @@ export default function AppContextProvider({ children }) {
     });
     const [autoHideControls, setAutoHideControls] = usePersistentState('autoHideControls', false);
     const [wordsPerMinute, setWordsPerMinute] = usePersistentState('wordsPerMinute', 100);
+    const [hijriDateEnabled, setHijriDateEnabled] = usePersistentState('hijriDateEnabled', true);
     const [dataIsCleaned, setDataIsCleaned] = useState(false);
     const [isReadyToShow, setIsReadyToShow] = useState(false);
     const [loadingStartTime] = useState(Date.now());
@@ -390,7 +391,9 @@ export default function AppContextProvider({ children }) {
         autoHideControls,
         setAutoHideControls,
         wordsPerMinute,
-        setWordsPerMinute
+        setWordsPerMinute,
+        hijriDateEnabled,
+        setHijriDateEnabled,
     };
 
     return (

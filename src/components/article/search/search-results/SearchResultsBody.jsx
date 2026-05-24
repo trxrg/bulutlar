@@ -95,7 +95,7 @@ const getMonthYear = (dateString) => {
 };
 
 const SearchResultsBody = React.memo(() => {
-    const { handleAddTab, translate: t } = useContext(AppContext);
+    const { handleAddTab, translate: t, hijriDateEnabled } = useContext(AppContext);
     const { allArticles, getOwnerById, getTagById, getCategoryById, getGroupById, articleOrder } = useContext(DBContext);
     const { filtering, filteredArticles, setFilteredArticles,
         searchInTitle, searchInExplanation,
@@ -178,14 +178,14 @@ const SearchResultsBody = React.memo(() => {
                     if (!passesStartDate(art, 'date', startDateInfo)) return false;
                     if (!passesEndDate(art, 'date', endDateInfo)) return false;
                 }
-                if (startDate2Info || endDate2Info) {
+                if (hijriDateEnabled && (startDate2Info || endDate2Info)) {
                     if (!passesStartDate(art, 'date2', startDate2Info)) return false;
                     if (!passesEndDate(art, 'date2', endDate2Info)) return false;
                 }
 
                 // Number filters
                 if (number1Set && (art.isDateUncertain || !number1Set.has(String(art.number)))) return false;
-                if (number2Set && (art.isDateUncertain || !number2Set.has(String(art.number2)))) return false;
+                if (hijriDateEnabled && number2Set && (art.isDateUncertain || !number2Set.has(String(art.number2)))) return false;
 
                 // Text search: normalize each article's text fields ONCE,
                 // shared by both keyword and quickSearch filters
@@ -252,7 +252,7 @@ const SearchResultsBody = React.memo(() => {
         }
     }, [getOwnerById, getTagById, getCategoryById, getGroupById,
         searchInTitle, searchInExplanation, searchInMainText, searchInComments,
-        setFilteredArticles]);
+        setFilteredArticles, hijriDateEnabled]);
 
     // Single effect to apply filtering (removed the redundant useEffect that just copied allArticles)
     useEffect(() => {

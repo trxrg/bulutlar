@@ -161,6 +161,11 @@ contextBridge.exposeInMainWorld('api', {
     chooseOutputDir: (opts)                                     => ipcRenderer.invoke('sharing/chooseOutputDir', opts || {}),
     showInFolder:    (filePath)                                 => ipcRenderer.invoke('sharing/showInFolder', filePath),
   },
+  admin: {
+    isEnabled: () => ipcRenderer.invoke('admin/isEnabled'),
+    unlock: (passphrase) => ipcRenderer.invoke('admin/unlock', passphrase),
+    lock: () => ipcRenderer.invoke('admin/lock'),
+  },
   maintenance: {
     reapOrphanMedia: ()                                         => ipcRenderer.invoke('maintenance/reapOrphanMedia'),
   },

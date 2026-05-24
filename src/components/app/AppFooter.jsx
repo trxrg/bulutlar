@@ -7,6 +7,7 @@ import {
 } from '../../utils/formatFooterDateTime.js';
 import FooterDateCalendar from './FooterDateCalendar.jsx';
 import FooterHijriCalendar from './FooterHijriCalendar.jsx';
+import AdminModeFooterBadge from './AdminModeFooterBadge.jsx';
 
 const FooterDivider = () => <span className="opacity-40">|</span>;
 
@@ -95,7 +96,9 @@ const AppFooter = () => {
                         </button>
                     </>
                 )}
-                <div className="footer-extras flex-1 flex justify-end items-center gap-2 min-w-0" />
+                <div className="footer-extras flex-1 flex justify-end items-center gap-2 min-w-0">
+                    <AdminModeFooterBadge label={t('admin mode')} />
+                </div>
             </div>
             {calendarMode === 'gregorian' && (
                 <FooterDateCalendar

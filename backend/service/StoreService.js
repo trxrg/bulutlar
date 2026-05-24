@@ -5,6 +5,18 @@ import { config } from '../config.js';
 
 let store;
 
+const SHARING_ADMIN_KEY = 'sharingAdminEnabled';
+
+function isSharingAdminEnabled() {
+    if (!store) return false;
+    return store.get(SHARING_ADMIN_KEY) === true;
+}
+
+function setSharingAdminEnabled(value) {
+    if (!store) return;
+    store.set(SHARING_ADMIN_KEY, !!value);
+}
+
 function initService() {
     store = new Store({
         cwd: config.storeFolderPath,
@@ -41,6 +53,8 @@ function deleteManyStates(keys) {
 const storeService = {
     initService,
     getState: (key) => getState(key),
+    isSharingAdminEnabled,
+    setSharingAdminEnabled,
 };
 
 export default storeService;

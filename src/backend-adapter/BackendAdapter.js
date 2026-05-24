@@ -149,6 +149,12 @@ export const storeApi = {
     deleteMany: async (keys) => window.api.store.deleteMany(keys),
 };
 
+export const adminApi = {
+    isEnabled: async () => window.api.admin.isEnabled(),
+    unlock: async (passphrase) => window.api.admin.unlock(passphrase),
+    lock: async () => window.api.admin.lock(),
+};
+
 export const urlApi = {
     fetchContent: async (url) => window.api.url.fetchContent(url),
     fetchTweet: async (tweetUrl) => window.api.url.fetchTweet(tweetUrl),

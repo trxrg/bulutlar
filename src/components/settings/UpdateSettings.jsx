@@ -1,19 +1,41 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { Button, Typography, LinearProgress, Box, Alert } from '@mui/material';
 import { AppContext } from '../../store/app-context';
+import { useSharingAdmin } from '../../contexts/SharingAdminContext';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DownloadIcon from '@mui/icons-material/Download';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import toastr from 'toastr';
+import AdminModeModal from './AdminModeModal';
+
+const ADMIN_TAP_COUNT = 7;
+const ADMIN_TAP_RESET_MS = 2000;
+
+const versionTriggerStyle = {
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    margin: 0,
+    color: 'inherit',
+    font: 'inherit',
+    lineHeight: 'inherit',
+    cursor: 'default',
+};
 
 const UpdateSettings = () => {
     const { translate: t } = useContext(AppContext);
-    
+    const { unlock } = useSharingAdmin();
+
     const [status, setStatus] = useState('idle'); // idle, checking, available, not-available, downloading, downloaded, error
     const [currentVersion, setCurrentVersion] = useState('');
     const [newVersion, setNewVersion] = useState('');
     const [downloadProgress, setDownloadProgress] = useState(0);
     const [errorMessage, setErrorMessage] = useState('');
+    const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+
+    const tapCountRef = useRef(0);
+    const tapTimerRef = useRef(null);
 
     useEffect(() => {
         // Get current version on mount
@@ -55,22 +77,47 @@ const UpdateSettings = () => {
         // Cleanup listeners on unmount
         return () => {
             window.api.updater.removeAllListeners();
+            if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
         };
     }, []);
+
+    const handleVersionClick = useCallback(() => {
+        tapCountRef.current += 1;
+        if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+        tapTimerRef.current = setTimeout(() => {
+            tapCountRef.current = 0;
+        }, ADMIN_TAP_RESET_MS);
+
+        if (tapCountRef.current >= ADMIN_TAP_COUNT) {
+            tapCountRef.current = 0;
+            if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+            setUnlockModalOpen(true);
+        }
+    }, []);
+
+    const handleEnableAdminMode = async (passphrase) => {
+        const ok = await unlock(passphrase);
+        if (ok) {
+            toastr.success(t('admin mode enabled'));
+            setUnlockModalOpen(false);
+        } else {
+            toastr.error(t('admin mode failed'));
+        }
+    };
 
     const handleCheckForUpdates = async () => {
         setStatus('checking');
         setErrorMessage('');
-        
+
         try {
             const result = await window.api.updater.checkForUpdates();
-            
+
             if (result.isDev) {
                 setStatus('error');
                 setErrorMessage(t('update check disabled in dev mode'));
                 return;
             }
-            
+
             if (result.updateAvailable) {
                 setStatus('available');
                 setNewVersion(result.newVersion);
@@ -86,7 +133,7 @@ const UpdateSettings = () => {
     const handleDownloadUpdate = async () => {
         setStatus('downloading');
         setDownloadProgress(0);
-        
+
         try {
             await window.api.updater.downloadUpdate();
         } catch (error) {
@@ -159,11 +206,11 @@ const UpdateSettings = () => {
                         <Typography sx={{ color: 'var(--text-secondary)' }}>
                             {t('downloading update')}... {Math.round(downloadProgress)}%
                         </Typography>
-                        <LinearProgress 
-                            variant="determinate" 
-                            value={downloadProgress} 
+                        <LinearProgress
+                            variant="determinate"
+                            value={downloadProgress}
                             color="primary"
-                            sx={{ 
+                            sx={{
                                 width: '100%',
                                 height: 10,
                                 borderRadius: 5,
@@ -172,7 +219,7 @@ const UpdateSettings = () => {
                                     backgroundColor: '#1976d2',
                                     borderRadius: 5,
                                 }
-                            }} 
+                            }}
                         />
                     </Box>
                 );
@@ -233,16 +280,30 @@ const UpdateSettings = () => {
 
     return (
         <div className='flex flex-col gap-4'>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, mb: 2 }}>
                 <Typography sx={{ color: 'var(--text-secondary)' }}>
-                    {t('current version')}: <strong style={{ color: 'var(--text-primary)' }}>{currentVersion}</strong>
+                    {t('current version')}:{' '}
+                    <button
+                        type='button'
+                        onClick={handleVersionClick}
+                        style={versionTriggerStyle}
+                        aria-label={t('current version')}
+                    >
+                        <strong style={{ color: 'var(--text-primary)' }}>{currentVersion}</strong>
+                    </button>
                 </Typography>
             </Box>
-            
+
             {renderContent()}
+
+            <AdminModeModal
+                isOpen={unlockModalOpen}
+                onRequestClose={() => setUnlockModalOpen(false)}
+                onEnable={handleEnableAdminMode}
+                t={t}
+            />
         </div>
     );
 };
 
 export default UpdateSettings;
-

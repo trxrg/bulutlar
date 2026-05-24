@@ -22,13 +22,33 @@ import { coalescePending, snapshotOutboxMaxId } from '../sync/coalesce.js';
 import { rewriteTiptap } from '../sync/tiptapRewrite.js';
 import { build as buildBundle } from '../sync/bundleBuilder.js';
 import { mainWindow } from '../main.js';
+import storeService from './StoreService.js';
+
+function assertSharingAdmin() {
+    if (!storeService.isSharingAdminEnabled()) {
+        throw new Error('Sharing is not enabled');
+    }
+}
 
 function initService() {
-    ipcMain.handle('sharing/getCandidates', async () => await getCandidates());
-    ipcMain.handle('sharing/getLastExport', async () => await getLastExport());
-    ipcMain.handle('sharing/exportBundle', async (_event, picks) => await exportBundle(picks));
-    ipcMain.handle('sharing/chooseOutputDir', async (_event, opts) => await chooseOutputDir(opts));
+    ipcMain.handle('sharing/getCandidates', async () => {
+        assertSharingAdmin();
+        return await getCandidates();
+    });
+    ipcMain.handle('sharing/getLastExport', async () => {
+        assertSharingAdmin();
+        return await getLastExport();
+    });
+    ipcMain.handle('sharing/exportBundle', async (_event, picks) => {
+        assertSharingAdmin();
+        return await exportBundle(picks);
+    });
+    ipcMain.handle('sharing/chooseOutputDir', async (_event, opts) => {
+        assertSharingAdmin();
+        return await chooseOutputDir(opts);
+    });
     ipcMain.handle('sharing/showInFolder', async (_event, filePath) => {
+        assertSharingAdmin();
         if (typeof filePath !== 'string' || filePath.length === 0) return false;
         try { shell.showItemInFolder(filePath); return true; }
         catch (err) { console.warn('sharing/showInFolder failed:', err); return false; }

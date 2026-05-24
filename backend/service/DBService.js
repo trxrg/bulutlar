@@ -16,6 +16,20 @@ import { toLocalNoon } from './ArticleService.js';
 // are intentionally preserved so exports don't lose basic text formatting.
 const PERSONAL_TIPTAP_MARKS = new Set(['highlight', 'link', 'articleLink', 'articleQuote']);
 
+// UI prefs (electron-store) live beside content.db but must not travel with library
+// backup/export/import packages — they are per-machine and can reference stale ids.
+const DATA_PACKAGE_SKIP_FILES = new Set(['config.json']);
+
+function shouldCopyDataPackageEntry(srcPath) {
+    return !DATA_PACKAGE_SKIP_FILES.has(path.basename(srcPath));
+}
+
+async function copyDataPackageDir(srcDir, destDir) {
+    await fs.copy(srcDir, destDir, {
+        filter: (src) => shouldCopyDataPackageEntry(src),
+    });
+}
+
 function stripRichFormattingKeepMediaTiptap(jsonInput) {
     try {
         const content = typeof jsonInput === 'string' ? JSON.parse(jsonInput) : jsonInput;
@@ -378,8 +392,8 @@ async function handleExport() {
     const dateTime = new Date().toISOString().replace(/[:.]/g, '-');
     const dir = path.join(result.filePaths[0], `data-${dateTime}`);
     try {
-        await fs.copy(dbDir, dir);
-        console.info(`Database copied from ${dbDir} to ${dir}`);
+        await copyDataPackageDir(dbDir, dir);
+        console.info(`Database copied from ${dbDir} to ${dir} (config.json excluded)`);
         return dir;
     } catch (err) {
         console.error('Error in DBService handleExport ', err);
@@ -406,8 +420,8 @@ async function handleImport() {
         // backup current db before importing new one
         await handleBackup();
         await stopSequelize(); // we can stop sequelize
-        await fs.copy(dirOfNewData, dirOfActive); // we can copy the files
-        console.info(`Imported database copied from ${dirOfNewData}`);
+        await copyDataPackageDir(dirOfNewData, dirOfActive);
+        console.info(`Imported database copied from ${dirOfNewData} (config.json excluded)`);
         
         // Restart sequelize with retry logic
         let retries = 3;
@@ -441,8 +455,8 @@ async function handleBackup() {
     const targetDir = path.join(config.dbBackupFolderPath, `data-${dateTime}`);
     const dbDir = path.dirname(config.contentDbPath);
     try {
-        await fs.copy(dbDir, targetDir);
-        console.info(`Original database backed up to ${targetDir}`);
+        await copyDataPackageDir(dbDir, targetDir);
+        console.info(`Original database backed up to ${targetDir} (config.json excluded)`);
         return targetDir;
     } catch (err) {
         console.error('Error in DBService handleBackup ', err);
@@ -502,13 +516,7 @@ async function handleAdvancedExport(options) {
         
         // Copy only the media files that are still referenced
         await copyReferencedMedia(targetDbPath, exportDir);
-        
-        // Copy config.json
-        const configPath = path.join(path.dirname(sourceDbPath), 'config.json');
-        if (await fs.pathExists(configPath)) {
-            await fs.copy(configPath, path.join(exportDir, 'config.json'));
-        }
-        
+
         console.info(`Advanced export completed to ${exportDir}`);
         return exportDir;
     } catch (err) {

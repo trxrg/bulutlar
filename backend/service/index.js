@@ -1,3 +1,6 @@
+import storeService from './StoreService.js';
+import adminService from './AdminService.js';
+
 const servicePromises = [
     import('./OwnerService.js'),
     import('./ArticleService.js'),
@@ -12,18 +15,20 @@ const servicePromises = [
     import('./AnnotationService.js'),
     import('./LookupService.js'),
     import('./DBService.js'),
-    import('./StoreService.js'),
     import('./UrlFetchService.js'),
     import('./SharingService.js'),
-    import('./MaintenanceService.js')
+    import('./MaintenanceService.js'),
 ];
 
 function initServices() {
+    storeService.initService();
+    adminService.initService();
+
     Promise.all(servicePromises).then(modules => {
-        const services = modules.map(module => module.default);
-        for (const service of services)
-            service.initService();
+        for (const module of modules) {
+            module.default.initService();
+        }
     });
 }
 
-export { initServices }
+export { initServices };

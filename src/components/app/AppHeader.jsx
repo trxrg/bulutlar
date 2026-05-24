@@ -41,7 +41,7 @@ const AppHeader = () => {
 
     return (
         <div 
-            className={'flex justify-between items-center py-2 px-2 border-b-4 w-full h-full'} 
+            className='app-header flex justify-between items-center py-2 px-2 border-b-4 w-full h-full' 
             style={{ 
                 borderColor: 'var(--border-primary)', 
                 backgroundColor: 'var(--bg-tertiary)' 

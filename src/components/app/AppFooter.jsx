@@ -64,8 +64,8 @@ const AppFooter = () => {
                 style={{
                     height: '22px',
                     borderTop: '1px solid var(--border-primary)',
-                    backgroundColor: 'var(--bg-tertiary)',
-                    color: 'var(--text-secondary)',
+                    backgroundColor: 'var(--bg-footer)',
+                    color: 'var(--text-footer)',
                 }}
             >
                 <button

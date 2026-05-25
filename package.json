@@ -26,7 +26,9 @@
     "dist": "npm run build-react && electron-builder",
     "postinstall2": "node postInstall.js",
     "publish-mac-universal": "npm run build-react && dotenv -- electron-builder --mac --universal --publish always",
-    "publish-win": "npm run build-react && dotenv -- electron-builder --win --publish always"
+    "publish-only-mac": "dotenv -- node scripts/publish-dist-only.mjs mac",
+    "publish-win": "npm run build-react && dotenv -- electron-builder --win --publish always",
+    "publish-only-win": "dotenv -- node scripts/publish-dist-only.mjs win"
   },
   "eslintConfig": {
     "extends": [

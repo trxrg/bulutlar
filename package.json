@@ -1,6 +1,6 @@
 {
   "name": "bulutlar",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "",
   "main": "public/electron.js",
   "homepage": "./",
@@ -129,6 +129,16 @@
       "owner": "trxrg",
       "repo": "bulutlar"
     },
+    "fileAssociations": [
+      {
+        "ext": "blt",
+        "name": "Bulutlar Archive",
+        "description": "Bulutlar shareable archive bundle",
+        "mimeType": "application/vnd.bulutlar.sync+zip",
+        "role": "Editor",
+        "rank": "Owner"
+      }
+    ],
     "asar": true,
     "asarUnpack": [
       "**/node_modules/sqlite3/**/*",
@@ -170,7 +180,20 @@
         "zip"
       ],
       "asar": true,
-      "compression": "maximum"
+      "compression": "maximum",
+      "extendInfo": {
+        "UTExportedTypeDeclarations": [
+          {
+            "UTTypeIdentifier": "com.kargilabs.bulutlar.blt",
+            "UTTypeDescription": "Bulutlar Archive",
+            "UTTypeConformsTo": ["public.data", "public.archive"],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": ["blt"],
+              "public.mime-type": ["application/vnd.bulutlar.sync+zip"]
+            }
+          }
+        ]
+      }
     },
     "dmg": {
       "contents": [

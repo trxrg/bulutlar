@@ -234,6 +234,7 @@
     "database (share)": "Database (share)",
     "appearance": "Appearance",
     "export": "Export",
+    "export (zip)": "Export (ZIP)",
     "db exported to": "Database exported to",
     "db export error": "Database export error",
     "db backed up to": "Database backed up to: ",
@@ -397,6 +398,9 @@
     "generating pdf": "Generating PDF",
     "generating word": "Generating Word",
     "exporting": "Exporting",
+    "importing": "Importing",
+    "backing up": "Backing up",
+    "merge importing": "Merge importing",
 
     "advanced export": "Advanced Export",
     "simple": "Simple",

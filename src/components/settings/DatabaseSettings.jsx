@@ -1,12 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import FolderZipIcon from '@mui/icons-material/FolderZip';
 import DatasetIcon from '@mui/icons-material/Dataset';
 import { Button, Typography } from '@mui/material';
 import { AppContext } from '../../store/app-context';
 import { DBContext } from '../../store/db-context';
 import { dbApi } from '../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
+import LoadingToastr from '../common/LoadingToastr';
 import AdvancedExportDialog from './AdvancedExportDialog';
 import ConfirmModal from '../common/ConfirmModal';
 
@@ -15,6 +17,9 @@ const DatabaseSettings = () => {
     const { fetchAllData } = useContext(DBContext);
     const [backupDir, setBackupDir] = useState('');
     const [showAdvancedExport, setShowAdvancedExport] = useState(false);
+    // Which output the AdvancedExportDialog should produce when confirmed:
+    // 'folder' (legacy loose folder) or 'zip' (standardized ZIP for mobile import).
+    const [advancedExportMode, setAdvancedExportMode] = useState('folder');
     const [showImportReplaceConfirm, setShowImportReplaceConfirm] = useState(false);
 
     // Button styling
@@ -58,6 +63,7 @@ const DatabaseSettings = () => {
 
     const handleExportDb = async () => {
         console.log('Exporting database...');
+        const loader = LoadingToastr.show(t('exporting') + '...', LoadingToastr.colors.green);
         try {
             const result = await dbApi.handleExport();
             if (result) {
@@ -67,11 +73,14 @@ const DatabaseSettings = () => {
         } catch (err) {
             console.error('Error exporting database', err);
             toastr.error(t('db export error'));
+        } finally {
+            loader.hide();
         }
     };
 
     const handleImportDb = async () => {
         console.log('Importing database...');
+        const loader = LoadingToastr.show(t('importing') + '...', LoadingToastr.colors.blue);
         try {
             const result = await dbApi.handleImport();
             if (result) {
@@ -83,11 +92,14 @@ const DatabaseSettings = () => {
         } catch (err) {
             console.error('Error importing database', err);
             toastr.error(t('db import error'));
+        } finally {
+            loader.hide();
         }
     };
 
     const handleBackupDb = async () => {
         console.log('Backing up database...');
+        const loader = LoadingToastr.show(t('backing up') + '...', LoadingToastr.colors.orange);
         try {
             const result = await dbApi.handleBackup();
             if (result) {
@@ -97,6 +109,8 @@ const DatabaseSettings = () => {
         } catch (err) {
             console.error('Error backing up database', err);
             toastr.error(t('db backup error'));
+        } finally {
+            loader.hide();
         }
     };
 
@@ -117,6 +131,7 @@ const DatabaseSettings = () => {
 
     const handleMergeImportDb = async () => {
         console.log('Merge importing database...');
+        const loader = LoadingToastr.show(t('merge importing') + '...', LoadingToastr.colors.blue);
         try {
             const result = await dbApi.handleMergeImport();
             if (result) {
@@ -127,6 +142,8 @@ const DatabaseSettings = () => {
         } catch (err) {
             console.error('Error merge importing database', err);
             toastr.error(t('db merge import error'));
+        } finally {
+            loader.hide();
         }
     };
 
@@ -149,9 +166,13 @@ const DatabaseSettings = () => {
     };
 
     const handleAdvancedExport = async (options) => {
-        console.log('Advanced exporting database with options:', options);
+        const isZip = advancedExportMode === 'zip';
+        console.log(`Advanced ${isZip ? 'zip ' : ''}exporting database with options:`, options);
+        const loader = LoadingToastr.show(t('exporting') + '...', LoadingToastr.colors.green);
         try {
-            const result = await dbApi.handleAdvancedExport(options);
+            const result = isZip
+                ? await dbApi.handleAdvancedExportZip(options)
+                : await dbApi.handleAdvancedExport(options);
             if (result) {
                 console.log('Database exported successfully to ', result);
                 toastr.success(t('db exported to') + ' ' + result);
@@ -159,7 +180,14 @@ const DatabaseSettings = () => {
         } catch (err) {
             console.error('Error exporting database', err);
             toastr.error(t('db export error'));
+        } finally {
+            loader.hide();
         }
+    };
+
+    const openAdvancedExport = (mode) => {
+        setAdvancedExportMode(mode);
+        setShowAdvancedExport(true);
     };
 
     return (
@@ -169,8 +197,11 @@ const DatabaseSettings = () => {
                     <Button startIcon={<FileUploadIcon />} {...secondaryButtonProps} onClick={handleBackupDb}>
                         {t('backup')}
                     </Button>
-                    <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={() => setShowAdvancedExport(true)}>
+                    <Button startIcon={<FileUploadIcon />} {...primaryButtonProps} onClick={() => openAdvancedExport('folder')}>
                         {t('export')}
+                    </Button>
+                    <Button startIcon={<FolderZipIcon />} {...primaryButtonProps} onClick={() => openAdvancedExport('zip')}>
+                        {t('export (zip)')}
                     </Button>
                     <Button startIcon={<FileDownloadIcon />} {...primaryButtonProps} onClick={handleMergeImportDb}>
                         {t('import (merge)')}

@@ -12,6 +12,7 @@
     "sleep2s": "node -e \"setTimeout(() => process.exit(0), 2000)\"",
     "dev": "concurrently \"npm run start-react\" \"npm run sleep2s && npm run start-electron\"",
     "verify:blt-shape-b": "node scripts/verify-shape-b-blt.mjs",
+    "verify:archiver-utf8": "node scripts/verify-archiver-utf8-flag.mjs",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "rebuild-native": "electron-rebuild -f -w sqlite3",

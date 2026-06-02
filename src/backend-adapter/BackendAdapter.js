@@ -116,6 +116,7 @@ export const dbApi = {
     loadSampleData: async () => window.api.db.loadSampleData(),
     handleExport: async () => window.api.db.handleExport(),
     handleAdvancedExport: async (options) => window.api.db.handleAdvancedExport(options),
+    handleAdvancedExportZip: async (options) => window.api.db.handleAdvancedExportZip(options),
     handleImport: async () => window.api.db.handleImport(),
     handleMergeImport: async () => window.api.db.handleMergeImport(),
     handleShareArticles: async (articleIds, options) => window.api.db.handleShareArticles(articleIds, options),

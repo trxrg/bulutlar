@@ -1,8 +1,10 @@
 import fs from 'fs-extra';
+import os from 'os';
 import path from 'path';
 import { ipcMain, dialog } from 'electron';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
+import archiver from 'archiver';
 
 import { mainWindow } from '../main.js';
 import { initDB, stopSequelize, startSequelize, sequelize } from '../sequelize/index.js';
@@ -297,6 +299,7 @@ function remapMediaIdsInDraftJson(jsonString, mediaIdMaps, mediaPathMaps) {
 function initService() {
     ipcMain.handle('DB/handleExport', () => handleExport());
     ipcMain.handle('DB/handleAdvancedExport', (event, options) => handleAdvancedExport(options));
+    ipcMain.handle('DB/handleAdvancedExportZip', (event, options) => handleAdvancedExportZip(options));
     ipcMain.handle('DB/handleImport', async () => handleImport());
     ipcMain.handle('DB/handleMergeImport', async () => handleMergeImport());
     ipcMain.handle('DB/handleShareArticles', (event, articleIds, options) => handleShareArticles(articleIds, options));
@@ -523,6 +526,187 @@ async function handleAdvancedExport(options) {
         console.error('Error in DBService handleAdvancedExport ', err);
         throw err;
     }
+}
+
+// Same filtering + media set as handleAdvancedExport, but wraps the result in
+// a single standardized ZIP instead of leaving a loose folder for the user to
+// zip with whatever tool they have. We control the ZIP encoding so non-ASCII
+// media filenames survive the trip to the mobile importer (see
+// writeMobileImportZip for the load-bearing properties).
+async function handleAdvancedExportZip(options) {
+    const dateTime = new Date().toISOString().replace(/[:.]/g, '-');
+
+    const result = await dialog.showSaveDialog(mainWindow, {
+        defaultPath: `data-export-${dateTime}.zip`,
+        filters: [{ name: 'ZIP archive', extensions: ['zip'] }],
+    });
+
+    if (result.canceled || !result.filePath) {
+        console.info('Advanced zip export cancelled');
+        return;
+    }
+
+    const zipPath = result.filePath;
+    const sourceDir = path.dirname(config.contentDbPath);
+
+    // Build the trimmed content.db in a temp dir, reusing the same
+    // DB-modification pipeline the folder export uses. The media files
+    // themselves are streamed straight from the live data folder into the
+    // zip, so we never copy them to a staging folder first.
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'bulutlar-zip-export-'));
+    const tmpDbPath = path.join(tmpDir, 'content.db');
+
+    try {
+        await fs.copy(config.contentDbPath, tmpDbPath);
+        await modifyExportedDatabase(tmpDbPath, options);
+
+        await writeMobileImportZip(zipPath, tmpDbPath, sourceDir);
+
+        console.info(`Advanced zip export completed to ${zipPath}`);
+        return zipPath;
+    } catch (err) {
+        console.error('Error in DBService handleAdvancedExportZip ', err);
+        throw err;
+    } finally {
+        await fs.remove(tmpDir);
+    }
+}
+
+// Media subdir keys map directly to both the DB table names and the on-disk
+// subfolders the mobile import expects.
+const MOBILE_MEDIA_KINDS = ['images', 'audios', 'videos'];
+
+// Builds an index of a media directory's on-disk filenames keyed by their NFC
+// form -> the actual (raw) on-disk name. Used only as a fallback when an exact
+// path lookup fails, to find a file whose name is stored in a different Unicode
+// normalization than the DB recorded. Read once per kind, lazily (only if some
+// row misses its exact path). Returns an empty index if the dir is absent.
+async function buildNfcNameIndex(dir) {
+    const index = new Map();
+    let names = [];
+    try {
+        names = await fs.readdir(dir);
+    } catch (_) {
+        return index; // dir may not exist yet — treat as no files
+    }
+    for (const name of names) {
+        const key = name.normalize('NFC');
+        // First writer wins; app-authored filenames don't collide across
+        // normalization forms, so this only matters for pathological inputs.
+        if (!index.has(key)) index.set(key, name);
+    }
+    return index;
+}
+
+// Resolves every media row to a { absSrcPath, entryName } pair, skipping rows
+// whose file can't be found on disk (warn, don't abort). The ZIP entry name is
+// always derived from the DB `path` column and NFC-normalized; the on-disk
+// lookup tries the exact stored name first, then falls back to a
+// normalization-insensitive match so a DB/disk normalization mismatch (e.g. a
+// library migrated from macOS, where the filesystem may have decomposed names
+// to NFD) packs the bytes under the correct DB-derived name instead of being
+// silently dropped as "missing".
+async function collectMobileMediaEntries(db, sourceDir) {
+    const present = [];
+    for (const kind of MOBILE_MEDIA_KINDS) {
+        const rows = await db.all(`SELECT path FROM ${kind}`);
+        if (rows.length === 0) continue;
+
+        const mediaDir = path.join(sourceDir, kind);
+        let nfcIndex = null; // built lazily on the first exact-path miss
+
+        for (const row of rows) {
+            if (!row.path) continue;
+            // path holds a bare relative filename; basename is defensive
+            // against any stray separators.
+            const rawName = path.basename(row.path);
+            const nfcName = rawName.normalize('NFC');
+            const entryName = `${kind}/${nfcName}`;
+
+            const exactPath = path.join(mediaDir, rawName);
+            if (await fs.pathExists(exactPath)) {
+                present.push({ absSrcPath: exactPath, entryName });
+                continue;
+            }
+
+            if (!nfcIndex) nfcIndex = await buildNfcNameIndex(mediaDir);
+            const matchedName = nfcIndex.get(nfcName);
+            if (matchedName) {
+                present.push({ absSrcPath: path.join(mediaDir, matchedName), entryName });
+                continue;
+            }
+
+            console.warn(
+                `Zip export: skipping missing media file ${exactPath} `
+                + `(DB ${kind}.path=${rawName})`
+            );
+        }
+    }
+    return present;
+}
+
+// Streams a single ZIP in the mobile-import shape: content.db at the root plus
+// images/ audios/ videos/ subdirs. Load-bearing properties:
+//
+//   1. Filename encoding — archiver writes UTF-8 names with general-purpose
+//      bit 11 (EFS) set unconditionally, verified by
+//      scripts/verify-archiver-utf8-flag.mjs. The receiver decodes the bytes
+//      as UTF-8 instead of guessing a codepage.
+//   2. NFC normalization — a macOS-stored file may sit on disk with NFD
+//      (decomposed) combining marks; the DB path may use a different form.
+//      The entry name is always the NFC form, and the on-disk lookup is
+//      normalization-insensitive so the bytes are found either way
+//      (see collectMobileMediaEntries).
+//   3. Entry name derives from the DB `path` column, NOT a readdir() of the
+//      media folder — the mobile app looks files up by row.path. (readdir is
+//      used only to *locate* bytes on a normalization mismatch, never to name
+//      the entry.)
+//   4. Rows whose media file is missing on disk are skipped with a warning,
+//      not fatal (orphaned DB rows exist for historical reasons).
+//   5. Streamed to disk via archiver — multi-GB libraries never buffer in
+//      memory.
+//
+// Media is STORED (store: true): re-deflating already-compressed jpg/mp3/mp4
+// burns CPU for no gain.
+async function writeMobileImportZip(zipPath, dbPath, sourceDir) {
+    const db = await open({ filename: dbPath, driver: sqlite3.Database });
+
+    let presentEntries;
+    try {
+        presentEntries = await collectMobileMediaEntries(db, sourceDir);
+    } finally {
+        await db.close();
+    }
+
+    return new Promise((resolve, reject) => {
+        const output = fs.createWriteStream(zipPath);
+        const archive = archiver('zip', { store: true });
+
+        let settled = false;
+        const fail = (err) => {
+            if (settled) return;
+            settled = true;
+            try { output.destroy(); } catch (_) { /* ignore */ }
+            reject(err);
+        };
+
+        output.on('close', () => { if (!settled) { settled = true; resolve(); } });
+        output.on('error', fail);
+        archive.on('error', fail);
+        // Every entry we queue was just confirmed to exist; treat any archiver
+        // warning (e.g. a file vanishing mid-write) as fatal so we never ship a
+        // zip whose contents silently disagree with the DB.
+        archive.on('warning', fail);
+
+        archive.pipe(output);
+
+        archive.file(dbPath, { name: 'content.db' });
+        for (const entry of presentEntries) {
+            archive.file(entry.absSrcPath, { name: entry.entryName });
+        }
+
+        archive.finalize().catch(fail);
+    });
 }
 
 async function modifyExportedDatabase(dbPath, options) {

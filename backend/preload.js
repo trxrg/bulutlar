@@ -133,6 +133,7 @@ contextBridge.exposeInMainWorld('api', {
     loadSampleData: () => ipcRenderer.invoke('DB/loadSampleData'),
     handleExport: () => ipcRenderer.invoke('DB/handleExport'),
     handleAdvancedExport: (options) => ipcRenderer.invoke('DB/handleAdvancedExport', options),
+    handleAdvancedExportZip: (options) => ipcRenderer.invoke('DB/handleAdvancedExportZip', options),
     handleImport: () => ipcRenderer.invoke('DB/handleImport'),
     handleMergeImport: () => ipcRenderer.invoke('DB/handleMergeImport'),
     handleShareArticles: (articleIds, options) => ipcRenderer.invoke('DB/handleShareArticles', articleIds, options),

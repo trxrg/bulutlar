@@ -239,6 +239,7 @@
     "database (share)": "Veritabanı (paylaş)",
     "appearance": "Görünüm",
     "export": "Dışa Aktar",
+    "export (zip)": "Dışa Aktar (ZIP)",
     "db exported to": "Veritabanı şu dizine aktarıldı",
     "db backed up to": "Veritabanı şu dizine yedeklendi: ",
     "db export error": "Veritabanı dışa aktarılırken hata oluştu",
@@ -405,6 +406,9 @@
     "generating pdf": "PDF Oluşturuluyor",
     "generating word": "Word Oluşturuluyor",
     "exporting": "Dışa Aktarılıyor",
+    "importing": "İçe Aktarılıyor",
+    "backing up": "Yedekleniyor",
+    "merge importing": "Birleştirilerek İçe Aktarılıyor",
 
     "Manual Entry": "Manuel Giriş",
     "Fetch From Url": "URL'den Al",

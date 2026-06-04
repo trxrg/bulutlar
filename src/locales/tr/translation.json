@@ -490,6 +490,10 @@
 
     "sharing": "Paylaşım",
     "generate update bundle": "Güncelleme Paketi Oluştur",
+    "import bundle": "Paket İçe Aktar (.blt)",
+    "bundle imported": "Paket başarıyla içe aktarıldı",
+    "bundle already imported": "Bu paket zaten içe aktarılmış",
+    "bundle import error": "Paket içe aktarılamadı",
     "generating bundle": "Paket Oluşturuluyor",
     "choose bundle folder": "Paket (.blt) için klasör seçin",
     "since last export": "Son Aktarımdan Beri",

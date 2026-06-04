@@ -161,6 +161,20 @@ contextBridge.exposeInMainWorld('api', {
     exportBundle:    ({ latestState, manualDelete, outputDir }) => ipcRenderer.invoke('sharing/exportBundle', { latestState, manualDelete, outputDir }),
     chooseOutputDir: (opts)                                     => ipcRenderer.invoke('sharing/chooseOutputDir', opts || {}),
     showInFolder:    (filePath)                                 => ipcRenderer.invoke('sharing/showInFolder', filePath),
+    chooseBundleFile: ()                                        => ipcRenderer.invoke('sharing/chooseBundleFile'),
+    importBundle:    (filePath)                                 => ipcRenderer.invoke('sharing/importBundle', filePath),
+    // click-to-open: main process imports a .blt then notifies the renderer
+    // so it can refresh its in-memory data. Returns a disposer.
+    onBundleImported: (callback) => {
+      const handler = (_event, summary) => callback(summary);
+      ipcRenderer.on('bundle-imported', handler);
+      return () => ipcRenderer.removeListener('bundle-imported', handler);
+    },
+    onBundleImportError: (callback) => {
+      const handler = (_event, message) => callback(message);
+      ipcRenderer.on('bundle-import-error', handler);
+      return () => ipcRenderer.removeListener('bundle-import-error', handler);
+    },
   },
   admin: {
     isEnabled: () => ipcRenderer.invoke('admin/isEnabled'),

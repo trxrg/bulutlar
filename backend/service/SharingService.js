@@ -21,6 +21,8 @@ import { config } from '../config.js';
 import { coalescePending, snapshotOutboxMaxId } from '../sync/coalesce.js';
 import { rewriteTiptap } from '../sync/tiptapRewrite.js';
 import { build as buildBundle } from '../sync/bundleBuilder.js';
+import { readBundle } from '../sync/bundleReader.js';
+import { applyBundle } from '../sync/applyBundle.js';
 import { mainWindow } from '../main.js';
 import storeService from './StoreService.js';
 
@@ -54,7 +56,48 @@ function initService() {
         catch (err) { console.warn('sharing/showInFolder failed:', err); return false; }
     });
 
+    // Import is the consumer side of sharing and is intentionally NOT gated
+    // behind admin/sharing mode — any user can pull a .blt into their library.
+    ipcMain.handle('sharing/chooseBundleFile', async () => {
+        return await chooseBundleFile();
+    });
+    ipcMain.handle('sharing/importBundle', async (_event, filePath) => {
+        const target = typeof filePath === 'string' && filePath.length > 0
+            ? filePath
+            : await chooseBundleFile();
+        if (!target) return null; // user cancelled the dialog
+        return await importBundleFromPath(target);
+    });
+
     console.info('SharingService initialized');
+}
+
+// Prompt the user to pick a .blt file to import. Returns the absolute path
+// or null if cancelled.
+async function chooseBundleFile() {
+    const defaultPath = (() => {
+        try { return app.getPath('downloads'); } catch { return undefined; }
+    })();
+    const result = await dialog.showOpenDialog(mainWindow, {
+        title: 'Choose a Bulutlar bundle (.blt) to import',
+        defaultPath,
+        properties: ['openFile'],
+        filters: [{ name: 'Bulutlar Archive', extensions: ['blt'] }],
+    });
+    if (result.canceled || !result.filePaths || result.filePaths.length === 0) return null;
+    return result.filePaths[0];
+}
+
+// Reads, validates, and applies a .blt at `filePath` to the live DB. Shared
+// by the Settings "import" button and the OS file-open (click-to-open) flow
+// wired in main.js. Throws on a malformed/corrupt bundle so the caller can
+// surface the error.
+export async function importBundleFromPath(filePath) {
+    console.info('Importing .blt bundle from', filePath);
+    const bundle = await readBundle(filePath);
+    const summary = await applyBundle(sequelize, config, bundle);
+    console.info('Bundle import complete:', JSON.stringify(summary));
+    return summary;
 }
 
 // Prompt the user to pick a destination directory for the .blt file.
@@ -758,6 +801,7 @@ const SharingService = {
     getCandidates,
     getLastExport,
     exportBundle,
+    importBundleFromPath,
 };
 
 export default SharingService;

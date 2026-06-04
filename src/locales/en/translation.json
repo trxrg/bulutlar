@@ -464,6 +464,10 @@
 
     "sharing": "Sharing",
     "generate update bundle": "Generate Update Bundle",
+    "import bundle": "Import Bundle (.blt)",
+    "bundle imported": "Bundle imported successfully",
+    "bundle already imported": "This bundle has already been imported",
+    "bundle import error": "Failed to import bundle",
     "generating bundle": "Generating Bundle",
     "choose bundle folder": "Choose folder for bundle (.blt)",
     "since last export": "Since Last Export",

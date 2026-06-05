@@ -41,8 +41,16 @@ let mainWindow;
 // Lets a double-clicked / "Open with" .blt import into the library. macOS
 // delivers the path via the 'open-file' event; Windows/Linux pass it as a
 // launch argument (and, for an already-running instance, via 'second-instance'
-// argv). We queue the path until the renderer has finished loading so the
-// post-import refresh event isn't fired into a window that can't hear it yet.
+// argv). The renderer shows a confirmation modal before applying (the apply
+// itself runs via the 'sharing/importBundle' IPC).
+//
+// Two hand-off paths, because cold launch is racy:
+//   - COLD LAUNCH (pull): the launch path lands before the renderer has
+//     registered its IPC listener, so pushing would drop the message. Instead
+//     the renderer *pulls* via 'sharing/takePendingBlt' right after it mounts
+//     its listeners. That call also drains the initial argv exactly once.
+//   - ALREADY RUNNING (push): the listener is already up, so 'open-file' /
+//     'second-instance' paths are pushed straight to the renderer.
 
 let rendererReady = false;
 let pendingBltPath = null;
@@ -53,29 +61,33 @@ function findBltInArgv(argv) {
   return argv.find((a) => typeof a === 'string' && a.toLowerCase().endsWith('.blt')) || null;
 }
 
-async function importBltAndNotify(filePath) {
-  if (!filePath) return;
-  try {
-    // Dynamic import keeps main.js free of a static cycle with SharingService
-    // (which imports `mainWindow` from here); by call time the module is loaded.
-    const { importBundleFromPath } = await import('./service/SharingService.js');
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
-    }
-    const summary = await importBundleFromPath(filePath);
-    if (mainWindow) mainWindow.webContents.send('bundle-imported', summary);
-  } catch (err) {
-    console.error('Failed to import .blt file:', err);
-    if (mainWindow) mainWindow.webContents.send('bundle-import-error', err?.message || String(err));
-  }
+function requestBltOpen(filePath) {
+  if (!filePath || !mainWindow) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.focus();
+  mainWindow.webContents.send('bundle-open-request', filePath);
 }
 
 function handleOpenBlt(filePath) {
   if (!filePath) return;
-  if (rendererReady && mainWindow) importBltAndNotify(filePath);
+  // Only push once the renderer has pulled (so we know its listener is up).
+  if (rendererReady && mainWindow) requestBltOpen(filePath);
   else pendingBltPath = filePath;
 }
+
+// Renderer calls this once on mount, after registering its listener. Returns
+// (and clears) any queued path: one captured by 'open-file'/'second-instance'
+// before the renderer was ready, or the initial launch argv (consumed once so
+// a renderer reload / HMR doesn't re-trigger the same file). Marks the renderer
+// ready so subsequent paths are pushed instead of queued.
+ipcMain.handle('sharing/takePendingBlt', () => {
+  rendererReady = true;
+  let p = pendingBltPath;
+  pendingBltPath = null;
+  if (!p && !initialArgvChecked) p = findBltInArgv(process.argv);
+  initialArgvChecked = true;
+  return p || null;
+});
 
 // 'open-file' can fire before the app is ready, so register it eagerly.
 app.on('open-file', (event, filePath) => {
@@ -83,15 +95,19 @@ app.on('open-file', (event, filePath) => {
   handleOpenBlt(filePath);
 });
 
-// Single-instance: a second launch (double-clicking another .blt) hands the
-// file to the running instance instead of spawning a duplicate.
-const gotSingleInstanceLock = app.requestSingleInstanceLock();
-if (!gotSingleInstanceLock) {
-  app.quit();
+// Single-instance only in production: a second launch (double-clicking another
+// .blt) hands the file to the running instance instead of spawning a duplicate.
+// Skipped in dev so the installed app and `npm run dev` can run side by side
+// (the lock identity is shared via userData, so it would otherwise quit one).
+if (!isDev) {
+  const gotSingleInstanceLock = app.requestSingleInstanceLock();
+  if (!gotSingleInstanceLock) {
+    app.quit();
+  }
+  app.on('second-instance', (_event, argv) => {
+    handleOpenBlt(findBltInArgv(argv));
+  });
 }
-app.on('second-instance', (_event, argv) => {
-  handleOpenBlt(findBltInArgv(argv));
-});
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -119,19 +135,6 @@ const createWindow = () => {
   // Show window only when ready to prevent white flash
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
-  });
-
-  // Once the renderer is loaded, drain any queued .blt open: a path captured
-  // by 'open-file'/'second-instance' before the window existed, or one passed
-  // on the initial launch argv (Windows/Linux). Idempotency in applyBundle
-  // protects against re-importing the same file on a renderer reload.
-  mainWindow.webContents.on('did-finish-load', () => {
-    rendererReady = true;
-    let p = pendingBltPath;
-    pendingBltPath = null;
-    if (!p && !initialArgvChecked) p = findBltInArgv(process.argv);
-    initialArgvChecked = true;
-    if (p) importBltAndNotify(p);
   });
 
   mainWindow.loadURL(

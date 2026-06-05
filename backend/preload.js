@@ -163,17 +163,16 @@ contextBridge.exposeInMainWorld('api', {
     showInFolder:    (filePath)                                 => ipcRenderer.invoke('sharing/showInFolder', filePath),
     chooseBundleFile: ()                                        => ipcRenderer.invoke('sharing/chooseBundleFile'),
     importBundle:    (filePath)                                 => ipcRenderer.invoke('sharing/importBundle', filePath),
-    // click-to-open: main process imports a .blt then notifies the renderer
-    // so it can refresh its in-memory data. Returns a disposer.
-    onBundleImported: (callback) => {
-      const handler = (_event, summary) => callback(summary);
-      ipcRenderer.on('bundle-imported', handler);
-      return () => ipcRenderer.removeListener('bundle-imported', handler);
-    },
-    onBundleImportError: (callback) => {
-      const handler = (_event, message) => callback(message);
-      ipcRenderer.on('bundle-import-error', handler);
-      return () => ipcRenderer.removeListener('bundle-import-error', handler);
+    // click-to-open (cold launch): renderer pulls any path queued before its
+    // listener was ready (and the initial launch argv). Call once on mount.
+    takePendingBlt: ()                                          => ipcRenderer.invoke('sharing/takePendingBlt'),
+    // click-to-open (already running): main pushes the .blt path so the
+    // renderer can confirm before applying (apply runs via importBundle).
+    // Returns a disposer.
+    onBundleOpenRequest: (callback) => {
+      const handler = (_event, filePath) => callback(filePath);
+      ipcRenderer.on('bundle-open-request', handler);
+      return () => ipcRenderer.removeListener('bundle-open-request', handler);
     },
   },
   admin: {

@@ -609,7 +609,11 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
         if (!editor) return;
         const images = Array.isArray(imageOrImages) ? imageOrImages : [imageOrImages];
         const content = images.map(image => ({ type: 'imageNode', attrs: image }));
-        editor.chain().focus().insertContent(content).run();
+        // Insert at the end of the current selection rather than replacing it.
+        // Media nodes are atoms, so after an insert the selection is a NodeSelection
+        // covering the new node; a plain insertContent would replace that node on the
+        // next call. Using selection.to appends after it instead.
+        editor.chain().focus().insertContentAt(editor.state.selection.to, content).run();
         setAddedImageIdsWhileEditing(prev => [...prev, ...images.map(i => i.id)]);
     }, [editor]);
 
@@ -617,7 +621,7 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
         if (!editor) return;
         const audios = Array.isArray(audioOrAudios) ? audioOrAudios : [audioOrAudios];
         const content = audios.map(audio => ({ type: 'audioNode', attrs: audio }));
-        editor.chain().focus().insertContent(content).run();
+        editor.chain().focus().insertContentAt(editor.state.selection.to, content).run();
         setAddedAudioIdsWhileEditing(prev => [...prev, ...audios.map(a => a.id)]);
     }, [editor]);
 
@@ -625,7 +629,7 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
         if (!editor) return;
         const videos = Array.isArray(videoOrVideos) ? videoOrVideos : [videoOrVideos];
         const content = videos.map(video => ({ type: 'videoNode', attrs: video }));
-        editor.chain().focus().insertContent(content).run();
+        editor.chain().focus().insertContentAt(editor.state.selection.to, content).run();
         setAddedVideoIdsWhileEditing(prev => [...prev, ...videos.map(v => v.id)]);
     }, [editor]);
 

@@ -1,40 +1,33 @@
 import { useContext, useEffect } from 'react';
-import toastr from 'toastr';
 import AppHeader from './AppHeader';
 import AppBody from './AppBody';
 import AppFooter from './AppFooter';
 import { AppContext } from '../../store/app-context';
-import { DBContext } from '../../store/db-context';
 import { SharingAdminProvider } from '../../contexts/SharingAdminContext';
+import useBundleImport from '../../hooks/useBundleImport';
 
 const AppScreen = () => {
-    const { activeScreen, fullScreen, translate: t, resetTabs } = useContext(AppContext);
-    const { fetchAllData } = useContext(DBContext);
+    const { activeScreen, fullScreen } = useContext(AppContext);
+    const { requestImport, confirmModal, resultModal } = useBundleImport();
     const showFooter = activeScreen !== 'home' && !fullScreen;
 
-    // Click-to-open: when the OS opens a .blt with the app, main.js imports it
-    // and notifies us so the in-memory library reflects the new data.
+    // Click-to-open: when the OS opens a .blt with the app, main.js hands the
+    // path here so we can confirm before applying. Apply + refresh runs through
+    // the same useBundleImport flow as the Settings button. Two cases:
+    //   - already running: main pushes via 'bundle-open-request'
+    //   - cold launch: we pull the queued path once on mount (the push would
+    //     race our listener registration and get dropped)
     useEffect(() => {
-        if (!window.api?.sharing?.onBundleImported) return;
-        const offImported = window.api.sharing.onBundleImported(async (summary) => {
-            try {
-                await fetchAllData();
-                resetTabs();
-            } catch (err) {
-                console.error('Refresh after bundle import failed:', err);
-            }
-            if (summary?.alreadyApplied) {
-                toastr.info(t('bundle already imported'));
-            } else {
-                const count = summary?.articleCount;
-                toastr.success(t('bundle imported') + (count ? ` (${count})` : ''));
-            }
+        if (!window.api?.sharing) return;
+        const off = window.api.sharing.onBundleOpenRequest?.((filePath) => {
+            requestImport(filePath);
         });
-        const offError = window.api.sharing.onBundleImportError((message) => {
-            toastr.error(t('bundle import error') + (message ? `: ${message}` : ''));
-        });
-        return () => { offImported && offImported(); offError && offError(); };
-    }, [fetchAllData, resetTabs, t]);
+        let cancelled = false;
+        window.api.sharing.takePendingBlt?.()
+            .then((filePath) => { if (!cancelled && filePath) requestImport(filePath); })
+            .catch((err) => console.error('takePendingBlt failed:', err));
+        return () => { cancelled = true; off && off(); };
+    }, [requestImport]);
 
     return (
         <SharingAdminProvider>
@@ -46,6 +39,8 @@ const AppScreen = () => {
                 <AppBody />
             </div>
             {showFooter && <AppFooter />}
+            {confirmModal}
+            {resultModal}
         </div>
         </SharingAdminProvider>
     );

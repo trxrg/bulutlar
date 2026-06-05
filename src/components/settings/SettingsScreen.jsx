@@ -82,22 +82,22 @@ const SettingsScreenContent = () => {
                     </AccordionDetails>
                 </Accordion>
 
-                {adminModeEnabled && (
-                    <Accordion sx={accordionSx} className='settings-accordion--sharing-admin'>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
-                            sx={accordionSummarySx}
-                        >
-                            <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>
-                                {t('sharing')}
-                                <span className='settings-sharing-admin-mark' aria-hidden='true' />
-                            </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails sx={accordionDetailsSx}>
-                            <SharingSettings />
-                        </AccordionDetails>
-                    </Accordion>
-                )}
+                {/* Always available: the Sharing section hosts the import
+                    button (ungated). Export controls inside are admin-gated. */}
+                <Accordion sx={accordionSx} className={adminModeEnabled ? 'settings-accordion--sharing-admin' : undefined}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
+                        sx={accordionSummarySx}
+                    >
+                        <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>
+                            {t('sharing')}
+                            {adminModeEnabled && <span className='settings-sharing-admin-mark' aria-hidden='true' />}
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={accordionDetailsSx}>
+                        <SharingSettings />
+                    </AccordionDetails>
+                </Accordion>
 
                 <Accordion sx={accordionSx}>
                     <AccordionSummary

@@ -110,6 +110,7 @@ export async function applyBundle(sequelize, config, bundle) {
             skipped: 0,
             mediaWritten: 0,
             articleCount: Array.isArray(manifest.articles) ? manifest.articles.length : 0,
+            articleEffects: [],
             warnings: [],
         };
     }
@@ -120,6 +121,10 @@ export async function applyBundle(sequelize, config, bundle) {
     let applied = 0;
     let skipped = 0;
     let mediaWritten = 0;
+    // Per-article record of what the apply actually changed, surfaced to the
+    // user after import: { title, effect: 'new' | 'updated' | 'deleted' }.
+    // Only rows that genuinely changed (passed the revision gate) are listed.
+    const articleEffects = [];
 
     // uuid -> local id, and uuid -> local revision, per model. Preloaded once
     // and kept live as we insert so later ops in the same bundle resolve FKs
@@ -196,9 +201,12 @@ export async function applyBundle(sequelize, config, bundle) {
                 if (localId == null) { skipped++; continue; }
                 const localRev = revByUuid.article.get(op.uuid) || 0;
                 if (incomingRev <= localRev) { skipped++; continue; }
+                // Capture the title before the row is gone so we can report it.
+                const doomed = await M.article.findOne({ attributes: ['title'], where: { id: localId }, transaction });
                 await cascadeDeleteArticle(M, config, localId, transaction);
                 idByUuid.article.delete(op.uuid);
                 revByUuid.article.delete(op.uuid);
+                articleEffects.push({ title: (doomed && doomed.title) || op.uuid, effect: 'deleted' });
                 applied++;
                 continue;
             }
@@ -236,11 +244,17 @@ export async function applyBundle(sequelize, config, bundle) {
             }
 
             if (entity === 'article') {
+                // Snapshot existence before the upsert so we can tell a brand-new
+                // article apart from an update to one already in the library.
+                const existedBefore = idByUuid.article.has(op.uuid);
                 const fields = pick(data, FIELDS.article);
                 fields.ownerId = resolveId('owner', data.ownerUuid);
                 fields.categoryId = resolveId('category', data.categoryUuid);
                 const res = await upsertByUuid(M.article, idByUuid.article, revByUuid.article, op.uuid, incomingRev, fields, transaction);
-                if (res === 'applied') appliedArticleUuids.add(op.uuid);
+                if (res === 'applied') {
+                    appliedArticleUuids.add(op.uuid);
+                    articleEffects.push({ title: fields.title || op.uuid, effect: existedBefore ? 'updated' : 'new' });
+                }
                 tally(res);
                 continue;
             }
@@ -449,6 +463,7 @@ export async function applyBundle(sequelize, config, bundle) {
         skipped,
         mediaWritten,
         articleCount: Array.isArray(manifest.articles) ? manifest.articles.length : 0,
+        articleEffects,
         warnings,
     };
 

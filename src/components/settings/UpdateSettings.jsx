@@ -8,6 +8,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import toastr from 'toastr';
 import AdminModeModal from './AdminModeModal';
+import ReleaseNotesDisplay from './ReleaseNotesDisplay';
 
 const ADMIN_TAP_COUNT = 7;
 const ADMIN_TAP_RESET_MS = 2000;
@@ -30,6 +31,7 @@ const UpdateSettings = () => {
     const [status, setStatus] = useState('idle'); // idle, checking, available, not-available, downloading, downloaded, error
     const [currentVersion, setCurrentVersion] = useState('');
     const [newVersion, setNewVersion] = useState('');
+    const [releaseNotes, setReleaseNotes] = useState('');
     const [downloadProgress, setDownloadProgress] = useState(0);
     const [errorMessage, setErrorMessage] = useState('');
     const [unlockModalOpen, setUnlockModalOpen] = useState(false);
@@ -51,6 +53,9 @@ const UpdateSettings = () => {
         window.api.updater.onAvailable((info) => {
             setStatus('available');
             setNewVersion(info.version);
+            if (info.releaseNotes) {
+                setReleaseNotes(info.releaseNotes);
+            }
         });
 
         window.api.updater.onNotAvailable(() => {
@@ -108,6 +113,7 @@ const UpdateSettings = () => {
     const handleCheckForUpdates = async () => {
         setStatus('checking');
         setErrorMessage('');
+        setReleaseNotes('');
 
         try {
             const result = await window.api.updater.checkForUpdates();
@@ -121,6 +127,7 @@ const UpdateSettings = () => {
             if (result.updateAvailable) {
                 setStatus('available');
                 setNewVersion(result.newVersion);
+                setReleaseNotes(result.releaseNotes || '');
             } else {
                 setStatus('not-available');
             }
@@ -173,6 +180,14 @@ const UpdateSettings = () => {
                         <Alert severity="info" sx={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}>
                             {t('new version available')}: <strong>{newVersion}</strong>
                         </Alert>
+                        {releaseNotes && (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                <Typography variant="body2" sx={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
+                                    {t('whats new since your version')}
+                                </Typography>
+                                <ReleaseNotesDisplay notes={releaseNotes} />
+                            </Box>
+                        )}
                         <Button
                             variant="contained"
                             startIcon={<DownloadIcon />}

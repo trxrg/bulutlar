@@ -69,10 +69,21 @@ export default function useBundleImport() {
         try {
             const summary = await window.api.sharing.importBundle(target);
             if (!summary) return;
-            await fetchAllData();
-            resetTabs();
+            // Only refresh the UI when the apply actually changed something —
+            // a no-op import (already applied, or everything revision-gated)
+            // shouldn't refetch data or reset the user's open tabs.
+            const changed = !summary.alreadyApplied && (summary.applied || 0) > 0;
+            if (changed) {
+                await fetchAllData();
+                resetTabs();
+            }
             if (summary.alreadyApplied) {
                 toastr.info(t('bundle already imported'));
+            } else if ((summary.applied || 0) === 0) {
+                // Every op was revision-gated (the local copies are already at
+                // or ahead of the bundle's revisions): nothing actually changed,
+                // so don't report it as an applied import.
+                toastr.info(t('bundle nothing to apply'));
             } else {
                 const effects = Array.isArray(summary.articleEffects) ? summary.articleEffects : [];
                 // Show the affected-articles breakdown when there's something to

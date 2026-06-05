@@ -20,6 +20,7 @@ import { sequelize } from '../sequelize/index.js';
 import { config } from '../config.js';
 import { coalescePending, snapshotOutboxMaxId } from '../sync/coalesce.js';
 import { rewriteTiptap } from '../sync/tiptapRewrite.js';
+import { stripMediaFromTiptapDoc, stripMediaFromDraftRaw, stripMediaFromHtml } from '../sync/mediaContentFilter.js';
 import { build as buildBundle } from '../sync/bundleBuilder.js';
 import { readBundle } from '../sync/bundleReader.js';
 import { applyBundle } from '../sync/applyBundle.js';
@@ -44,6 +45,10 @@ function initService() {
     ipcMain.handle('sharing/exportBundle', async (_event, picks) => {
         assertSharingAdmin();
         return await exportBundle(picks);
+    });
+    ipcMain.handle('sharing/exportSingleArticleBundle', async (_event, picks) => {
+        assertSharingAdmin();
+        return await exportSingleArticleBundle(picks);
     });
     ipcMain.handle('sharing/chooseOutputDir', async (_event, opts) => {
         assertSharingAdmin();
@@ -751,6 +756,424 @@ async function exportBundle(picks) {
     };
 }
 
+// =====================================================================
+// exportSingleArticleBundle
+// =====================================================================
+//
+// Ad-hoc "share this one article" .blt, driven by the read-view Export
+// modal. Differs from exportBundle in three ways:
+//
+//   1. Scope is a single live article (by desktop id), always its latest
+//      state. There is no manualDelete path — the read view can't tombstone.
+//   2. The content checkboxes (`options`) are honored: unchecked sections
+//      (comment / notes / images / tags / collections / relatedArticles)
+//      are omitted, and unchecked mainText / explanation are nulled on the
+//      article row. This makes the bundle a *partial* share, fine for a
+//      recipient who doesn't already have the article.
+//   3. No bookkeeping. We deliberately skip `exported_bundles` /
+//      `exported_bundle_articles` inserts and the outbox `exportedAt`
+//      stamp so a lossy ad-hoc share never pollutes the canonical sync
+//      state managed by the Settings flow.
+//
+// Pending desktop article-deletes are auto-included as tombstones, same
+// as exportBundle (so a fresh receiver converges on deletions too).
+async function exportSingleArticleBundle(picks) {
+    const articleId = picks?.articleId;
+    if (articleId == null) {
+        throw new Error('exportSingleArticleBundle: articleId is required');
+    }
+    const options = picks?.options || {};
+    const requestedOutputDir = typeof picks?.outputDir === 'string' && picks.outputDir.length > 0
+        ? picks.outputDir
+        : null;
+
+    // A missing flag defaults to "include" (true). The renderer always
+    // sends the full set, but defaulting keeps the IPC robust.
+    const inc = {
+        explanation: options.explanation !== false,
+        mainText: options.mainText !== false,
+        comment: options.comment !== false,
+        images: options.images !== false,
+        audios: options.audios !== false,
+        videos: options.videos !== false,
+        notes: options.notes !== false,         // annotations
+        tags: options.tags !== false,
+        collections: options.collections !== false, // groups
+        relatedArticles: options.relatedArticles !== false,
+    };
+
+    // ------------------------------------------------------------------
+    // Read phase — single snapshot transaction (same rationale as
+    // exportBundle: an article upsert must ship with a consistent media
+    // set or mobile reconciliation would wipe attachments).
+    // ------------------------------------------------------------------
+
+    const readTx = await sequelize.transaction();
+    let readTxFinalized = false;
+
+    let article;
+    let comments, annotations, images, audios, videos;
+    let tagRels, groupRels, relRels;
+    let owners, categories, tags, groups;
+    let ownerUuidById, categoryUuidById, tagUuidById, groupUuidById;
+    let articleIdToMediaIdMap, articleUuidById;
+    let autoDeletes, filteredRelRels;
+    // Hoisted so the post-build outbox stamp (below, outside this tx) can
+    // bound its UPDATE to the same snapshot the reads used.
+    let maxOutboxId;
+
+    try {
+        maxOutboxId = await snapshotOutboxMaxId(sequelize, { transaction: readTx });
+
+        article = await sequelize.models.article.findByPk(articleId, { transaction: readTx });
+        if (!article) {
+            throw new Error(`exportSingleArticleBundle: article ${articleId} not found`);
+        }
+        const articleUuid = article.uuid;
+        const articleUuidsInBundle = new Set([articleUuid]);
+        const articleIds = [articleId];
+
+        comments = inc.comment
+            ? await sequelize.models.comment.findAll({ where: { articleId }, transaction: readTx })
+            : [];
+        annotations = inc.notes
+            ? await sequelize.models.annotation.findAll({ where: { articleId }, transaction: readTx })
+            : [];
+        [images, audios, videos] = await Promise.all([
+            inc.images ? sequelize.models.image.findAll({ where: { articleId }, transaction: readTx }) : [],
+            inc.audios ? sequelize.models.audio.findAll({ where: { articleId }, transaction: readTx }) : [],
+            inc.videos ? sequelize.models.video.findAll({ where: { articleId }, transaction: readTx }) : [],
+        ]);
+
+        const ATR = sequelize.models.article_tag_rel;
+        const AGR = sequelize.models.article_group_rel;
+        const AAR = sequelize.models.article_article_rel;
+
+        tagRels = inc.tags
+            ? await ATR.findAll({ where: { articleId }, transaction: readTx })
+            : [];
+        groupRels = inc.collections
+            ? await AGR.findAll({ where: { articleId }, transaction: readTx })
+            : [];
+        relRels = inc.relatedArticles
+            ? await AAR.findAll({
+                where: {
+                    [Op.or]: [
+                        { articleId },
+                        { relatedArticleId: articleId },
+                    ],
+                },
+                transaction: readTx,
+            })
+            : [];
+
+        const ownerIds = [...new Set([article.ownerId].filter((x) => x != null))];
+        const categoryIds = [...new Set([article.categoryId].filter((x) => x != null))];
+        const tagIds = [...new Set(tagRels.map((r) => r.tagId).filter((x) => x != null))];
+        const groupIds = [...new Set(groupRels.map((r) => r.groupId).filter((x) => x != null))];
+
+        owners = ownerIds.length
+            ? await sequelize.models.owner.findAll({ where: { id: { [Op.in]: ownerIds } }, transaction: readTx })
+            : [];
+        categories = categoryIds.length
+            ? await sequelize.models.category.findAll({ where: { id: { [Op.in]: categoryIds } }, transaction: readTx })
+            : [];
+        tags = tagIds.length
+            ? await sequelize.models.tag.findAll({ where: { id: { [Op.in]: tagIds } }, transaction: readTx })
+            : [];
+        groups = groupIds.length
+            ? await sequelize.models.group.findAll({ where: { id: { [Op.in]: groupIds } }, transaction: readTx })
+            : [];
+
+        ownerUuidById = new Map(owners.map((o) => [o.id, o.uuid]));
+        categoryUuidById = new Map(categories.map((c) => [c.id, c.uuid]));
+        tagUuidById = new Map(tags.map((t) => [t.id, t.uuid]));
+        groupUuidById = new Map(groups.map((g) => [g.id, g.uuid]));
+
+        // Comment owners not already covered by the article's owner.
+        const commentOwnerIds = [...new Set(comments.map((c) => c.ownerId).filter((x) => x != null))];
+        const extraCommentOwnerIds = commentOwnerIds.filter((id) => !ownerUuidById.has(id));
+        if (extraCommentOwnerIds.length > 0) {
+            const extra = await sequelize.models.owner.findAll({
+                where: { id: { [Op.in]: extraCommentOwnerIds } },
+                transaction: readTx,
+            });
+            for (const o of extra) {
+                owners.push(o);
+                ownerUuidById.set(o.id, o.uuid);
+            }
+        }
+
+        articleIdToMediaIdMap = new Map([[articleId, new Map()]]);
+        for (const im of images) articleIdToMediaIdMap.get(im.articleId)?.set(im.id, im.uuid);
+        for (const au of audios) articleIdToMediaIdMap.get(au.articleId)?.set(au.id, au.uuid);
+        for (const vi of videos) articleIdToMediaIdMap.get(vi.articleId)?.set(vi.id, vi.uuid);
+
+        articleUuidById = new Map([[articleId, articleUuid]]);
+
+        // Set of article uuids ever shipped before (peer-ack oracle).
+        const sharedSet = await loadSharedArticleUuidSet({ transaction: readTx });
+
+        // Auto-include pending desktop deletes (excluding this article).
+        // Drop create+…+delete sequences the receiver never saw (hadCreate
+        // and no prior ack in exported_bundle_articles): there's nothing to
+        // tombstone on the other side, so emitting the delete is just noise.
+        const allArticleCoalesced = await coalescePending(sequelize, {
+            entityTypes: ['article'],
+            maxOutboxId,
+            transaction: readTx,
+        });
+        autoDeletes = allArticleCoalesced
+            .filter((p) => p.finalOp === 'delete')
+            .filter((p) => !articleUuidsInBundle.has(p.uuid))
+            .filter((p) => !(p.hadCreate && !sharedSet.has(p.uuid)))
+            .map((p) => ({ uuid: p.uuid }));
+
+        // Drop related-article rels whose other side mobile won't have.
+        const allRelArticleIds = new Set();
+        for (const r of relRels) {
+            allRelArticleIds.add(r.articleId);
+            allRelArticleIds.add(r.relatedArticleId);
+        }
+        const missingArticleIds = [...allRelArticleIds].filter((id) => !articleUuidById.has(id));
+        if (missingArticleIds.length > 0) {
+            const extraArticles = await sequelize.models.article.findAll({
+                where: { id: { [Op.in]: missingArticleIds } },
+                attributes: ['id', 'uuid'],
+                transaction: readTx,
+            });
+            for (const a of extraArticles) articleUuidById.set(a.id, a.uuid);
+        }
+
+        filteredRelRels = relRels.filter((r) => {
+            const aUuid = articleUuidById.get(r.articleId);
+            const rUuid = articleUuidById.get(r.relatedArticleId);
+            if (!aUuid || !rUuid) return false;
+            if (!articleUuidsInBundle.has(aUuid)) return false;
+            if (!articleUuidsInBundle.has(rUuid) && !sharedSet.has(rUuid)) return false;
+            return true;
+        });
+
+        await readTx.commit();
+        readTxFinalized = true;
+    } catch (err) {
+        if (!readTxFinalized) {
+            try { await readTx.rollback(); } catch (_) { /* ignore */ }
+        }
+        throw err;
+    }
+
+    // ------------------------------------------------------------------
+    // Project rows to bundle-builder shape, honoring text/explanation
+    // checkboxes by nulling the corresponding columns.
+    // ------------------------------------------------------------------
+
+    // Media types the user deselected. Their media rows are already
+    // excluded from the bundle above; here we also scrub their now-dangling
+    // nodes out of every body representation (tiptap / draft.js / HTML) so
+    // the article doesn't ship empty media placeholders.
+    const excludedMediaNodeTypes = new Set();
+    if (!inc.images) excludedMediaNodeTypes.add('imageNode');
+    if (!inc.audios) excludedMediaNodeTypes.add('audioNode');
+    if (!inc.videos) excludedMediaNodeTypes.add('videoNode');
+
+    const idMap = articleIdToMediaIdMap.get(article.id) || new Map();
+    const articleRow = await (async () => {
+        const dv = article.dataValues;
+        const out = stripTimestamps(dv);
+        out.ownerUuid = dv.ownerId != null ? ownerUuidById.get(dv.ownerId) || null : null;
+        out.categoryUuid = dv.categoryId != null ? categoryUuidById.get(dv.categoryId) || null : null;
+        delete out.ownerId;
+        delete out.categoryId;
+
+        if (inc.mainText) {
+            out.text = await stripMediaFromHtml(out.text, excludedMediaNodeTypes);
+            out.textJson = stripMediaFromDraftRaw(out.textJson, excludedMediaNodeTypes);
+            out.textTiptapJson = stripMediaFromTiptapDoc(out.textTiptapJson, excludedMediaNodeTypes);
+            if (out.textTiptapJson != null) out.textTiptapJson = rewriteTiptap(out.textTiptapJson, idMap);
+        } else {
+            out.text = null;
+            out.textJson = null;
+            out.textTiptapJson = null;
+        }
+        if (inc.explanation) {
+            out.explanation = await stripMediaFromHtml(out.explanation, excludedMediaNodeTypes);
+            out.explanationJson = stripMediaFromDraftRaw(out.explanationJson, excludedMediaNodeTypes);
+            out.explanationTiptapJson = stripMediaFromTiptapDoc(out.explanationTiptapJson, excludedMediaNodeTypes);
+            if (out.explanationTiptapJson != null) out.explanationTiptapJson = rewriteTiptap(out.explanationTiptapJson, idMap);
+        } else {
+            out.explanation = null;
+            out.explanationJson = null;
+            out.explanationTiptapJson = null;
+        }
+        return out;
+    })();
+
+    const ownerRows = owners.map((o) => stripTimestamps(o.dataValues));
+    const categoryRows = categories.map((c) => stripTimestamps(c.dataValues));
+    const tagRows = tags.map((t) => stripTimestamps(t.dataValues));
+    const groupRows = groups.map((g) => stripTimestamps(g.dataValues));
+
+    const commentRows = await Promise.all(comments.map(async (c) => {
+        const dv = c.dataValues;
+        const out = stripTimestamps(dv);
+        out.articleUuid = articleUuidById.get(dv.articleId);
+        out.ownerUuid = dv.ownerId != null ? ownerUuidById.get(dv.ownerId) || null : null;
+        delete out.articleId;
+        delete out.ownerId;
+        out.text = await stripMediaFromHtml(out.text, excludedMediaNodeTypes);
+        out.textJson = stripMediaFromDraftRaw(out.textJson, excludedMediaNodeTypes);
+        out.tiptapTextJson = stripMediaFromTiptapDoc(out.tiptapTextJson, excludedMediaNodeTypes);
+        if (out.tiptapTextJson != null) out.tiptapTextJson = rewriteTiptap(out.tiptapTextJson, idMap);
+        return out;
+    }));
+
+    const annotationRows = annotations.map((a) => {
+        const dv = a.dataValues;
+        const out = stripTimestamps(dv);
+        out.articleUuid = articleUuidById.get(dv.articleId);
+        delete out.articleId;
+        return out;
+    });
+
+    const articleUuidsInBundle = new Set([article.uuid]);
+    const buildMediaRow = (m, kind) => {
+        const dv = m.dataValues;
+        const out = stripTimestamps(dv);
+        out.articleUuid = articleUuidById.get(dv.articleId);
+        delete out.articleId;
+        const folder = kind === 'images' ? config.imagesFolderPath
+            : kind === 'audios' ? config.audiosFolderPath
+            : config.videosFolderPath;
+        out.absSrcPath = path.join(folder, dv.path);
+        out.ext = pickMediaExt(dv);
+        return out;
+    };
+    const imageRows = images
+        .map((m) => buildMediaRow(m, 'images'))
+        .filter((r) => r.articleUuid && articleUuidsInBundle.has(r.articleUuid));
+    const audioRows = audios
+        .map((m) => buildMediaRow(m, 'audios'))
+        .filter((r) => r.articleUuid && articleUuidsInBundle.has(r.articleUuid));
+    const videoRows = videos
+        .map((m) => buildMediaRow(m, 'videos'))
+        .filter((r) => r.articleUuid && articleUuidsInBundle.has(r.articleUuid));
+
+    const tagRelRows = tagRels.map((r) => {
+        const dv = r.dataValues;
+        return {
+            uuid: dv.uuid,
+            revision: dv.revision,
+            articleUuid: articleUuidById.get(dv.articleId),
+            tagUuid: tagUuidById.get(dv.tagId),
+            tagOrdering: dv.tagOrdering,
+        };
+    }).filter((r) => r.articleUuid && r.tagUuid && articleUuidsInBundle.has(r.articleUuid));
+
+    const groupRelRows = groupRels.map((r) => {
+        const dv = r.dataValues;
+        return {
+            uuid: dv.uuid,
+            revision: dv.revision,
+            articleUuid: articleUuidById.get(dv.articleId),
+            groupUuid: groupUuidById.get(dv.groupId),
+            groupOrdering: dv.groupOrdering,
+        };
+    }).filter((r) => r.articleUuid && r.groupUuid && articleUuidsInBundle.has(r.articleUuid));
+
+    const articleArticleRelRows = filteredRelRels.map((r) => {
+        const dv = r.dataValues;
+        return {
+            uuid: dv.uuid,
+            revision: dv.revision,
+            articleUuid: articleUuidById.get(dv.articleId),
+            relatedArticleUuid: articleUuidById.get(dv.relatedArticleId),
+            relatedArticleOrdering: dv.relatedArticleOrdering,
+        };
+    });
+
+    // ------------------------------------------------------------------
+    // Build the .blt file. No bookkeeping (see function header).
+    // ------------------------------------------------------------------
+
+    const sourceAppVersion = (() => {
+        try { return app.getVersion(); } catch { return 'unknown'; }
+    })();
+
+    const outputDir = requestedOutputDir || (() => {
+        try { return app.getPath('downloads'); } catch { return process.cwd(); }
+    })();
+
+    const buildResult = await buildBundle({
+        articles: [articleRow],
+        owners: ownerRows,
+        categories: categoryRows,
+        tags: tagRows,
+        groups: groupRows,
+        comments: commentRows,
+        annotations: annotationRows,
+        images: imageRows,
+        audios: audioRows,
+        videos: videoRows,
+        articleTagRels: tagRelRows,
+        articleGroupRels: groupRelRows,
+        articleArticleRels: articleArticleRelRows,
+        manualDeletes: [],
+        autoDeletes,
+        sourceAppVersion,
+        outputDir,
+    });
+
+    // Stamp ONLY the auto-included tombstones as exported, so each pending
+    // delete ships exactly once instead of riding along in every ad-hoc
+    // share forever. We deliberately do NOT stamp the shared article's own
+    // content rows: a partial/lossy single-article share must not mark the
+    // canonical article as "published" (that would let it lose later
+    // revision races against a full settings sync).
+    if (autoDeletes.length > 0) {
+        const stampTx = await sequelize.transaction();
+        try {
+            await sequelize.query(
+                `UPDATE sync_outbox
+                 SET exportedAt = :now
+                 WHERE id <= :maxId
+                   AND exportedAt IS NULL
+                   AND entityType = 'article'
+                   AND uuid IN (:uuids)`,
+                {
+                    replacements: {
+                        now: new Date(),
+                        maxId: maxOutboxId,
+                        uuids: autoDeletes.map((d) => d.uuid),
+                    },
+                    transaction: stampTx,
+                }
+            );
+            await stampTx.commit();
+        } catch (err) {
+            await stampTx.rollback();
+            // The .blt is already written; failing to stamp only means the
+            // same deletes may re-appear next time. Surface it but don't
+            // fail the export the user already completed.
+            console.error('exportSingleArticleBundle: failed to stamp auto-deletes as exported:', err);
+        }
+    }
+
+    return {
+        filePath: buildResult.filePath,
+        summary: {
+            bundleId: buildResult.bundleId,
+            articleCount: buildResult.articleCount,
+            mediaCount: buildResult.mediaCount,
+            opCount: buildResult.opCount,
+            latestState: 1,
+            manualDelete: 0,
+            autoDeleted: autoDeletes.length,
+            sizeBytes: buildResult.sizeBytes,
+        },
+    };
+}
+
 function stripTimestamps(dv) {
     const out = { ...dv };
     delete out.createdAt;
@@ -801,6 +1224,7 @@ const SharingService = {
     getCandidates,
     getLastExport,
     exportBundle,
+    exportSingleArticleBundle,
     importBundleFromPath,
 };
 

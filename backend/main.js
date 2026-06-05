@@ -14,6 +14,8 @@ import './scripts/jsonReader.js';
 import pkg from 'electron-updater';
 const { autoUpdater } = pkg;
 import log from 'electron-log';
+import { compareVersions } from './lib/changelog.js';
+import releaseNotesService from './service/ReleaseNotesService.js';
 
 import { fileURLToPath } from 'url';
 
@@ -552,11 +554,25 @@ ipcMain.handle('updater/checkForUpdates', async () => {
   try {
     log.info('Checking for updates...');
     const result = await autoUpdater.checkForUpdates();
+    const currentVersion = app.getVersion();
+    const newVersion = result?.updateInfo?.version;
+    const updateAvailable = Boolean(
+      newVersion && compareVersions(currentVersion, newVersion) < 0,
+    );
+
+    let releaseNotes = null;
+    if (updateAvailable) {
+      releaseNotes = await releaseNotesService.getCumulativeNotes(currentVersion, newVersion);
+      if (!releaseNotes) {
+        releaseNotes = result?.updateInfo?.releaseNotes ?? null;
+      }
+    }
+
     return {
-      updateAvailable: result?.updateInfo?.version !== app.getVersion(),
-      currentVersion: app.getVersion(),
-      newVersion: result?.updateInfo?.version,
-      releaseNotes: result?.updateInfo?.releaseNotes
+      updateAvailable,
+      currentVersion,
+      newVersion,
+      releaseNotes,
     };
   } catch (error) {
     log.error('Error checking for updates:', error);
@@ -595,10 +611,15 @@ autoUpdater.on('checking-for-update', () => {
   }
 });
 
-autoUpdater.on('update-available', (info) => {
+autoUpdater.on('update-available', async (info) => {
   log.info('Update available:', info.version);
   if (mainWindow) {
-    mainWindow.webContents.send('updater-available', info);
+    const currentVersion = app.getVersion();
+    let releaseNotes = await releaseNotesService.getCumulativeNotes(currentVersion, info.version);
+    if (!releaseNotes) {
+      releaseNotes = info.releaseNotes ?? null;
+    }
+    mainWindow.webContents.send('updater-available', { ...info, releaseNotes });
   }
 });
 

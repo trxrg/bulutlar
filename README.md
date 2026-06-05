@@ -57,56 +57,6 @@ to get executable for Linux
 npm run package-linux
 ```
 
+## Release notes
 
-## Versions
-1.4.12
-- layout improvements
-- bug fixes
-  
-1.4.11
-- security fixes
-
-1.4.10
-- improve styling
-- fix bugs
-  
-1.4.9
-- make tabs and all cards orderable
-- fix bugs
-- improve styling
-  
-1.4.8
-- add export as word and pdf functionalities
-- improve styling
-  
-1.4.7
-- add read-time estimations for articles
-- fix layout and styling issues
-  
-1.4.6
-- fix layout issues
-  
-1.4.5
-- fix some styling issues
-
-1.4.4
-- quicksearch
-- collapsible tag and group panels
-- styling fixes
-  
-1.4.3
-- efficiency fixes
-
-1.4.2
-- add dark mode
-- some styling
-
-1.4.1
-- more efficient media streaming
-
-1.4.0
-- in-article search
-- navigate-to-search
-- ctrl / cmd + f shortcut for searchbar
-- adding audio and video to articles
-- audio/video players inside article screen
+See [CHANGELOG.md](CHANGELOG.md) for version history. Published releases are also listed on [GitHub Releases](https://github.com/trxrg/bulutlar/releases).

@@ -26,10 +26,12 @@
     "migrate": "npx sequelize-cli db:migrate",
     "dist": "npm run build-react && electron-builder",
     "postinstall2": "node postInstall.js",
-    "publish-mac-universal": "npm run build-react && dotenv -- electron-builder --mac --universal --publish always",
-    "publish-only-mac": "dotenv -- node scripts/publish-dist-only.mjs mac",
-    "publish-win": "npm run build-react && dotenv -- electron-builder --win --publish always",
-    "publish-only-win": "dotenv -- node scripts/publish-dist-only.mjs win"
+    "prepare-release-notes": "node scripts/prepare-release-notes.mjs",
+    "ensure-github-release-notes": "dotenv -- node scripts/ensure-github-release-notes.mjs",
+    "publish-mac-universal": "npm run build-react && npm run prepare-release-notes && dotenv -- electron-builder --mac --universal --publish always && npm run ensure-github-release-notes",
+    "publish-only-mac": "npm run prepare-release-notes && dotenv -- node scripts/publish-dist-only.mjs mac && npm run ensure-github-release-notes",
+    "publish-win": "npm run build-react && npm run prepare-release-notes && dotenv -- electron-builder --win --publish always && npm run ensure-github-release-notes",
+    "publish-only-win": "npm run prepare-release-notes && dotenv -- node scripts/publish-dist-only.mjs win && npm run ensure-github-release-notes"
   },
   "eslintConfig": {
     "extends": [
@@ -126,6 +128,9 @@
   },
   "build": {
     "appId": "com.kargilabs.bulutlar",
+    "releaseInfo": {
+      "releaseNotesFile": "release-notes.md"
+    },
     "publish": {
       "provider": "github",
       "owner": "trxrg",
@@ -152,7 +157,8 @@
       "backend/**/*",
       "public/**/*",
       "postInstall.js",
-      "package.json"
+      "package.json",
+      "CHANGELOG.md"
     ],
     "directories": {
       "buildResources": "assets"

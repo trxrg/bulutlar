@@ -33,7 +33,7 @@ import { APPLY_ORDER } from './types.js';
 import { SYNCABLE_MODELS } from './syncableModels.js';
 import { ensureFolderExists } from '../fsOps.js';
 import { safeUnlink } from './outbox.js';
-import { resolveTiptapMedia, collectMediaUuids } from './tiptapResolve.js';
+import { resolveTiptapMedia, collectMediaUuids, stripMediaNodesById } from './tiptapResolve.js';
 
 // Wire-format entity name -> sequelize model name. Most are identical; the
 // three junctions use snake_case model names.
@@ -58,6 +58,23 @@ const MEDIA_ENTITIES = new Set(['image', 'audio', 'video']);
 // Junction (belongsToMany through) tables use a composite PK on the FK pair —
 // they have NO `id` column, so they're keyed/updated by `uuid` instead.
 const JUNCTION_MODELS = new Set(['article_tag_rel', 'article_group_rel', 'article_article_rel']);
+
+// Master switch for last-writer-wins-by-revision conflict resolution.
+//
+// When true (the §3a design), an incoming op is applied only if its
+// revision is strictly greater than the local row's; otherwise it's
+// skipped. When false, the revision check is bypassed and every op
+// applies unconditionally ("last bundle wins"), so a re-import overwrites
+// local rows regardless of revision.
+//
+// Disabled for now: the gate was silently dropping legitimate
+// partial-update content whose revision hadn't advanced (e.g. a
+// media-stripped comment body the editor never re-versioned), which made
+// updates look like they didn't take. Revisit flipping this back on once
+// every meaningful edit reliably bumps its row's revision. The bundleId
+// idempotency guard (applied_bundles) still prevents re-applying the exact
+// same bundle either way.
+const REVISION_GATE_ENABLED = false;
 
 // Per-entity column whitelists. Anything not listed (FK *Uuid fields, id,
 // uuid, revision, timestamps) is handled explicitly or intentionally dropped.
@@ -109,6 +126,7 @@ export async function applyBundle(sequelize, config, bundle) {
             applied: 0,
             skipped: 0,
             mediaWritten: 0,
+            mediaDeleted: 0,
             articleCount: Array.isArray(manifest.articles) ? manifest.articles.length : 0,
             articleEffects: [],
             warnings: [],
@@ -121,6 +139,9 @@ export async function applyBundle(sequelize, config, bundle) {
     let applied = 0;
     let skipped = 0;
     let mediaWritten = 0;
+    // Media rows (and their files) pruned by the authoritative-media-set
+    // reconciliation in the post-pass — see that block for the contract.
+    let mediaDeleted = 0;
     // Per-article record of what the apply actually changed, surfaced to the
     // user after import: { title, effect: 'new' | 'updated' | 'deleted' }.
     // Only rows that genuinely changed (passed the revision gate) are listed.
@@ -200,7 +221,7 @@ export async function applyBundle(sequelize, config, bundle) {
                 const localId = idByUuid.article.get(op.uuid);
                 if (localId == null) { skipped++; continue; }
                 const localRev = revByUuid.article.get(op.uuid) || 0;
-                if (incomingRev <= localRev) { skipped++; continue; }
+                if (REVISION_GATE_ENABLED && incomingRev <= localRev) { skipped++; continue; }
                 // Capture the title before the row is gone so we can report it.
                 const doomed = await M.article.findOne({ attributes: ['title'], where: { id: localId }, transaction });
                 await cascadeDeleteArticle(M, config, localId, transaction);
@@ -219,7 +240,7 @@ export async function applyBundle(sequelize, config, bundle) {
 
                 if (idByUuid[modelName].has(op.uuid)) {
                     const localRev = revByUuid[modelName].get(op.uuid) || 0;
-                    if (incomingRev <= localRev) { skipped++; continue; }
+                    if (REVISION_GATE_ENABLED && incomingRev <= localRev) { skipped++; continue; }
                     const id = idByUuid[modelName].get(op.uuid);
                     await M[modelName].update({ ...fields, revision: incomingRev }, { where: { id }, hooks: false, transaction });
                     revByUuid[modelName].set(op.uuid, incomingRev);
@@ -289,7 +310,7 @@ export async function applyBundle(sequelize, config, bundle) {
                 // with older bundle bytes.
                 if (idByUuid[entity].has(op.uuid)) {
                     const localRev = revByUuid[entity].get(op.uuid) || 0;
-                    if (incomingRev <= localRev) { skipped++; continue; }
+                    if (REVISION_GATE_ENABLED && incomingRev <= localRev) { skipped++; continue; }
                 }
 
                 const meta = mediaIndex.get(op.uuid);
@@ -355,7 +376,7 @@ export async function applyBundle(sequelize, config, bundle) {
                 // have no `id`).
                 if (idByUuid[modelName].has(op.uuid)) {
                     const localRev = revByUuid[modelName].get(op.uuid) || 0;
-                    if (incomingRev <= localRev) { skipped++; continue; }
+                    if (REVISION_GATE_ENABLED && incomingRev <= localRev) { skipped++; continue; }
                     await M[modelName].update({ ...fields, revision: incomingRev }, { where: { uuid: op.uuid }, hooks: false, transaction });
                     revByUuid[modelName].set(op.uuid, incomingRev);
                     applied++;
@@ -440,6 +461,45 @@ export async function applyBundle(sequelize, config, bundle) {
             }
         }
 
+        // ----- post-pass: reconcile the authoritative media set -----
+        // The bundle's article is authoritative for its own attachments: for
+        // every article we actually wrote this run, delete any local media
+        // (rows + files) whose uuid the incoming bundle's article no longer
+        // includes. This turns a media-less or partial-media update into a
+        // prune instead of leaving the recipient's removed attachments
+        // orphaned. Articles whose upsert was revision-gated (skipped) are NOT
+        // in appliedArticleUuids, so their media is never touched.
+        if (appliedArticleUuids.size > 0) {
+            // uuid set of media the bundle claims for each article, regardless
+            // of whether each media op itself passed its own revision gate (a
+            // skipped-but-present media uuid is still part of the set, so we
+            // keep the local copy rather than prune it).
+            const bundleMediaUuidsByArticleUuid = new Map();
+            for (const op of ops) {
+                if (op.type === 'upsert' && MEDIA_ENTITIES.has(op.entity)) {
+                    const au = op.data && op.data.articleUuid;
+                    if (au == null) continue;
+                    let set = bundleMediaUuidsByArticleUuid.get(au);
+                    if (!set) { set = new Set(); bundleMediaUuidsByArticleUuid.set(au, set); }
+                    set.add(op.uuid);
+                }
+            }
+            for (const articleUuid of appliedArticleUuids) {
+                const localArticleId = idByUuid.article.get(articleUuid);
+                if (localArticleId == null) continue;
+                const keep = bundleMediaUuidsByArticleUuid.get(articleUuid) || new Set();
+                const { deleted, deletedIds } = await reconcileArticleMedia(M, config, localArticleId, keep, transaction);
+                mediaDeleted += deleted;
+                // Scrub the now-dangling media nodes out of this article and
+                // its comments — including revision-gated (skipped) comment
+                // bodies, which the upsert pass never rewrote and would
+                // otherwise still embed the deleted attachments.
+                if (deletedIds.size > 0) {
+                    await stripDanglingMediaRefs(M, localArticleId, deletedIds, transaction);
+                }
+            }
+        }
+
         await M.appliedBundle.create({
             bundleId: manifest.bundleId,
             appliedAt: new Date().toISOString(),
@@ -462,6 +522,7 @@ export async function applyBundle(sequelize, config, bundle) {
         applied,
         skipped,
         mediaWritten,
+        mediaDeleted,
         articleCount: Array.isArray(manifest.articles) ? manifest.articles.length : 0,
         articleEffects,
         warnings,
@@ -479,7 +540,7 @@ export async function applyBundle(sequelize, config, bundle) {
 async function upsertByUuid(Model, idMap, revMap, uuid, incomingRev, fields, transaction) {
     if (idMap.has(uuid)) {
         const localRev = revMap.get(uuid) || 0;
-        if (incomingRev <= localRev) return 'skipped';
+        if (REVISION_GATE_ENABLED && incomingRev <= localRev) return 'skipped';
         const id = idMap.get(uuid);
         await Model.update({ ...fields, revision: incomingRev }, { where: { id }, hooks: false, transaction });
         revMap.set(uuid, incomingRev);
@@ -489,6 +550,66 @@ async function upsertByUuid(Model, idMap, revMap, uuid, incomingRev, fields, tra
     idMap.set(uuid, created.id);
     revMap.set(uuid, incomingRev);
     return 'applied';
+}
+
+// Prunes the local media of one article down to the bundle's authoritative
+// set: deletes every image/audio/video row for `articleId` whose uuid is not
+// in `keepUuids`, unlinking the file before destroying the row (so a failed
+// unlink aborts the transaction rather than orphaning bytes). A local media
+// row with no uuid is purely local and not in the bundle's set, so it is
+// pruned too. Returns { deleted, deletedIds } where deletedIds holds every
+// pruned row's local id in both number and string form (tiptap attrs.id type
+// is not guaranteed) so callers can scrub dangling node references.
+async function reconcileArticleMedia(M, config, articleId, keepUuids, transaction) {
+    let deleted = 0;
+    const deletedIds = new Set();
+    for (const [entity, folderKey] of [['image', 'imagesFolderPath'], ['audio', 'audiosFolderPath'], ['video', 'videosFolderPath']]) {
+        const rows = await M[entity].findAll({ where: { articleId }, transaction });
+        for (const r of rows) {
+            if (r.uuid && keepUuids.has(r.uuid)) continue;
+            if (r.path) await safeUnlink(path.join(config[folderKey], r.path));
+            await r.destroy({ hooks: false, transaction });
+            deletedIds.add(r.id);
+            deletedIds.add(String(r.id));
+            deleted++;
+        }
+    }
+    return { deleted, deletedIds };
+}
+
+// Removes references to just-deleted media (by local id) from an article's
+// own tiptap bodies and every one of its comments' tiptap bodies. This is
+// the cleanup half of media reconciliation: the rows are gone, so any body
+// still embedding them — notably revision-gated comment bodies the upsert
+// pass left untouched — must drop those nodes or they render broken.
+async function stripDanglingMediaRefs(M, articleId, deletedIds, transaction) {
+    const art = await M.article.findOne({
+        attributes: ['id', 'textTiptapJson', 'explanationTiptapJson'],
+        where: { id: articleId },
+        transaction,
+    });
+    if (art) {
+        const t = stripMediaNodesById(art.textTiptapJson, deletedIds);
+        const e = stripMediaNodesById(art.explanationTiptapJson, deletedIds);
+        if (t.changed || e.changed) {
+            const upd = {};
+            if (t.changed) upd.textTiptapJson = t.doc;
+            if (e.changed) upd.explanationTiptapJson = e.doc;
+            await M.article.update(upd, { where: { id: articleId }, hooks: false, transaction });
+        }
+    }
+
+    const comments = await M.comment.findAll({
+        attributes: ['id', 'tiptapTextJson'],
+        where: { articleId },
+        transaction,
+    });
+    for (const c of comments) {
+        const r = stripMediaNodesById(c.tiptapTextJson, deletedIds);
+        if (r.changed) {
+            await M.comment.update({ tiptapTextJson: r.doc }, { where: { id: c.id }, hooks: false, transaction });
+        }
+    }
 }
 
 // Hard-deletes an article and everything hanging off it, unlinking media

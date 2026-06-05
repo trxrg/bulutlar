@@ -10,6 +10,7 @@ import { mainWindow } from '../main.js';
 import { initDB, stopSequelize, startSequelize, sequelize } from '../sequelize/index.js';
 import { config, changeDbBackupFolderPath } from '../config.js';
 import { convertDraftToTiptap, isDraftJson, isTiptapJson } from '../utils/draftToTiptap.js';
+import { stripMediaFromTiptapDoc, stripMediaFromDraftRaw, stripMediaFromHtml } from '../sync/mediaContentFilter.js';
 import { toLocalNoon } from './ArticleService.js';
 
 // Mark types considered "personal" that should be removed on export (highlights,
@@ -1015,52 +1016,81 @@ async function trimDatabaseToArticles(dbPath, articleIds, options = {}) {
             await db.run('DELETE FROM comments');
         }
 
-        // Handle images option (also covers audios/videos since they are all media)
-        if (options.images === false) {
-            await db.run('DELETE FROM images');
-            await db.run('DELETE FROM audios');
-            await db.run('DELETE FROM videos');
-            // Strip media entities from remaining JSON fields (both Draft and Tiptap)
-            const articles = await db.all('SELECT id, explanationJson, textJson, explanationTiptapJson, textTiptapJson FROM articles');
-            const stripTiptapMedia = (doc) => {
-                if (!doc || doc.type !== 'doc' || !Array.isArray(doc.content)) return doc;
-                const mediaTypes = new Set(['imageNode', 'audioNode', 'videoNode']);
-                const filterNodes = (nodes) => nodes
-                    .filter(n => !mediaTypes.has(n?.type))
-                    .map(n => (n && Array.isArray(n.content)) ? { ...n, content: filterNodes(n.content) } : n);
-                return { ...doc, content: filterNodes(doc.content) };
-            };
+        // Handle media options per type. Each deselected type drops its own
+        // rows and scrubs its now-dangling nodes from every body
+        // representation (HTML / Draft / Tiptap), in both articles and
+        // comments. Audio and video are independent of images.
+        const excludedMediaNodeTypes = new Set();
+        if (options.images === false) { await db.run('DELETE FROM images'); excludedMediaNodeTypes.add('imageNode'); }
+        if (options.audios === false) { await db.run('DELETE FROM audios'); excludedMediaNodeTypes.add('audioNode'); }
+        if (options.videos === false) { await db.run('DELETE FROM videos'); excludedMediaNodeTypes.add('videoNode'); }
+
+        if (excludedMediaNodeTypes.size > 0) {
+            const articles = await db.all('SELECT id, explanation, text, explanationJson, textJson, explanationTiptapJson, textTiptapJson FROM articles');
             for (const article of articles) {
+                // HTML fields: drop elements tagged with the excluded media type.
+                if (article.explanation) {
+                    const cleaned = await stripMediaFromHtml(article.explanation, excludedMediaNodeTypes);
+                    if (cleaned !== article.explanation) {
+                        await db.run('UPDATE articles SET explanation = ? WHERE id = ?', [cleaned, article.id]);
+                    }
+                }
+                if (article.text) {
+                    const cleaned = await stripMediaFromHtml(article.text, excludedMediaNodeTypes);
+                    if (cleaned !== article.text) {
+                        await db.run('UPDATE articles SET text = ? WHERE id = ?', [cleaned, article.id]);
+                    }
+                }
+                // Draft.js fields: keep media (only personal formatting goes),
+                // then remove just the excluded media atomic blocks.
                 if (article.explanationJson) {
                     const stripped = stripRichFormattingKeepMedia(article.explanationJson);
-                    // Since we're removing media, clear out the media entities too
                     if (stripped) {
-                        stripped.entityMap = {};
-                        stripped.blocks = stripped.blocks.filter(b => b.type !== 'atomic');
-                        await db.run('UPDATE articles SET explanationJson = ? WHERE id = ?', [JSON.stringify(stripped), article.id]);
+                        const cleared = stripMediaFromDraftRaw(stripped, excludedMediaNodeTypes);
+                        await db.run('UPDATE articles SET explanationJson = ? WHERE id = ?', [JSON.stringify(cleared), article.id]);
                     }
                 }
                 if (article.textJson) {
                     const stripped = stripRichFormattingKeepMedia(article.textJson);
                     if (stripped) {
-                        stripped.entityMap = {};
-                        stripped.blocks = stripped.blocks.filter(b => b.type !== 'atomic');
-                        await db.run('UPDATE articles SET textJson = ? WHERE id = ?', [JSON.stringify(stripped), article.id]);
+                        const cleared = stripMediaFromDraftRaw(stripped, excludedMediaNodeTypes);
+                        await db.run('UPDATE articles SET textJson = ? WHERE id = ?', [JSON.stringify(cleared), article.id]);
                     }
                 }
+                // Tiptap fields: same idea — strip personal marks, then drop
+                // only the excluded media nodes.
                 if (article.explanationTiptapJson) {
                     const stripped = stripRichFormattingKeepMediaTiptap(article.explanationTiptapJson);
                     if (stripped) {
-                        const cleared = stripTiptapMedia(stripped);
+                        const cleared = stripMediaFromTiptapDoc(stripped, excludedMediaNodeTypes);
                         await db.run('UPDATE articles SET explanationTiptapJson = ? WHERE id = ?', [JSON.stringify(cleared), article.id]);
                     }
                 }
                 if (article.textTiptapJson) {
                     const stripped = stripRichFormattingKeepMediaTiptap(article.textTiptapJson);
                     if (stripped) {
-                        const cleared = stripTiptapMedia(stripped);
+                        const cleared = stripMediaFromTiptapDoc(stripped, excludedMediaNodeTypes);
                         await db.run('UPDATE articles SET textTiptapJson = ? WHERE id = ?', [JSON.stringify(cleared), article.id]);
                     }
+                }
+            }
+
+            // Comments embed media too — scrub them with the same rules.
+            const commentsWithMedia = await db.all('SELECT id, text, textJson, tiptapTextJson FROM comments');
+            for (const comment of commentsWithMedia) {
+                if (comment.text) {
+                    const cleaned = await stripMediaFromHtml(comment.text, excludedMediaNodeTypes);
+                    if (cleaned !== comment.text) {
+                        await db.run('UPDATE comments SET text = ? WHERE id = ?', [cleaned, comment.id]);
+                    }
+                }
+                if (comment.textJson) {
+                    const cleared = stripMediaFromDraftRaw(comment.textJson, excludedMediaNodeTypes);
+                    await db.run('UPDATE comments SET textJson = ? WHERE id = ?', [typeof cleared === 'string' ? cleared : JSON.stringify(cleared), comment.id]);
+                }
+                if (comment.tiptapTextJson) {
+                    const cleared = stripMediaFromTiptapDoc(comment.tiptapTextJson, excludedMediaNodeTypes);
+                    await db.run('UPDATE comments SET tiptapTextJson = ? WHERE id = ?', [typeof cleared === 'string' ? cleared : JSON.stringify(cleared), comment.id]);
                 }
             }
         }

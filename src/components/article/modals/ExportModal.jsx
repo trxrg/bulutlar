@@ -3,12 +3,38 @@ import GeneralModal from '../../common/GeneralModal.jsx';
 import ActionButton from '../../common/ActionButton.jsx';
 import LoadingToastr from '../../common/LoadingToastr.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
+import { useSharingAdmin } from '../../../contexts/SharingAdminContext.jsx';
 import Checkbox from '@mui/material/Checkbox';
 import toastr from 'toastr';
 import { articleApi, dbApi } from '../../../backend-adapter/BackendAdapter.js';
 
+// A single labelled checkbox used throughout the content-selection cards.
+const OptionCheckbox = ({ checked, onChange, label }) => (
+    <label className='flex items-center gap-2 cursor-pointer rounded-md px-1 py-0.5 transition-colors hover:bg-[var(--bg-tertiary)]'>
+        <Checkbox checked={checked} onChange={onChange} size='small' />
+        <span style={{ color: 'var(--text-primary)' }}>{label}</span>
+    </label>
+);
+
+// A bordered card grouping a set of related options under a heading.
+const OptionCard = ({ title, children }) => (
+    <div
+        className='flex flex-col gap-1 rounded-lg p-4'
+        style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-secondary)' }}
+    >
+        <h3 className='text-sm font-semibold mb-1 uppercase tracking-wide' style={{ color: 'var(--text-secondary)' }}>
+            {title}
+        </h3>
+        {children}
+    </div>
+);
+
 const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArticle = false }) => {
     const { translate: t } = useContext(AppContext);
+    // The .blt bundle option is the same admin-gated sharing feature as the
+    // Settings "generate update bundle" flow, so only surface it in admin mode.
+    const { enabled: sharingAdminEnabled } = useSharingAdmin();
+    const showBltOption = sharingAdminEnabled && !isMultiArticle && !!article;
 
 
     const [exportOptions, setExportOptions] = useState({
@@ -16,6 +42,8 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         mainText: true,
         comment: true,
         images: true,
+        audios: true,
+        videos: true,
         notes: true,
         tags: true,
         relatedArticles: true,
@@ -182,8 +210,48 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         }
     };
 
+    const handleBltExport = async () => {
+        let loadingToastr = null;
+        try {
+            // Ask where to drop the .blt before doing any work; abort silently
+            // if the directory dialog is cancelled.
+            const outputDir = await window.api.sharing.chooseOutputDir({
+                title: t('choose bundle folder'),
+            });
+            if (!outputDir) return; // keep the modal open so the user can retry
+
+            setIsExporting(true);
+            loadingToastr = LoadingToastr.show(t('generating bundle') + '...');
+            onRequestClose();
+
+            const result = await window.api.sharing.exportSingleArticleBundle({
+                articleId: article.id,
+                options: exportOptions,
+                outputDir,
+            });
+
+            loadingToastr.hide();
+            loadingToastr = null;
+
+            if (result && result.filePath) {
+                toastr.success(t('article exported successfully'));
+            } else {
+                toastr.error(t('export failed'));
+            }
+        } catch (error) {
+            console.error('Single article .blt export error:', error);
+            if (loadingToastr) loadingToastr.hide();
+            toastr.error(t('export failed'));
+            onRequestClose();
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     const handleExport = async () => {
-        if (exportOptions.format === 'db') {
+        if (exportOptions.format === 'blt') {
+            await handleBltExport();
+        } else if (exportOptions.format === 'db') {
             await handleDbExport();
         } else if (isMultiArticle) {
             await handleMultiArticleExport();
@@ -193,32 +261,42 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
     };
 
 
+    // Radio choices for the format selector, rendered as selectable cards.
+    // BLT is intentionally first (and only shown in sharing-admin mode).
+    const formatOptions = [
+        ...(showBltOption ? [{ value: 'blt', label: t('BLT (.blt)') }] : []),
+        { value: 'pdf', label: 'PDF' },
+        { value: 'docx', label: 'Word (.docx)' },
+        { value: 'db', label: t('database (share)') },
+    ];
+
     return (
         <GeneralModal
             isOpen={isOpen}
             onRequestClose={onRequestClose}
             title={isMultiArticle ? t('export selected articles') : t('export article')}
+            style={{ width: '90%', maxWidth: '820px', height: 'auto', maxHeight: '88vh' }}
         >
             <div className='flex flex-col h-full min-h-0'>
                 {/* Scrollable Content Area */}
                 <div className='flex-1 overflow-y-auto pr-2 -mr-2'>
-                    <div className='flex flex-col gap-4'>
+                    <div className='flex flex-col gap-6'>
                         {/* Document Title Input for Multi-Article Export */}
                         {isMultiArticle && (
-                            <div className='mb-4'>
-                                <h3 className='text-lg font-semibold mb-2' style={{ color: 'var(--text-primary)' }}>
-                                    {t('document title')}:
+                            <div>
+                                <h3 className='text-sm font-semibold mb-2 uppercase tracking-wide' style={{ color: 'var(--text-secondary)' }}>
+                                    {t('document title')}
                                 </h3>
                                 <input
                                     type="text"
                                     value={documentTitle}
                                     onChange={(e) => setDocumentTitle(e.target.value)}
                                     placeholder={t('enter document title (optional)')}
-                                    className='w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                                    style={{ 
-                                        backgroundColor: 'var(--bg-secondary)', 
+                                    className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                    style={{
+                                        backgroundColor: 'var(--bg-secondary)',
                                         color: 'var(--text-primary)',
-                                        borderColor: 'var(--border-color)'
+                                        borderColor: 'var(--border-secondary)'
                                     }}
                                 />
                                 <p className='text-sm mt-1' style={{ color: 'var(--text-tertiary)' }}>
@@ -226,185 +304,77 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                                 </p>
                             </div>
                         )}
-                        {/* Text Content Section */}
-                        <div className='mb-4'>
-                            <h3 className='text-lg font-semibold mb-2' style={{ color: 'var(--text-primary)' }}>
-                                {t('text content')}:
+
+                        {/* Format Section — first thing the user picks */}
+                        <div>
+                            <h3 className='text-sm font-semibold mb-2 uppercase tracking-wide' style={{ color: 'var(--text-secondary)' }}>
+                                {t('export format')}
                             </h3>
-                            <div className='grid grid-cols-2 gap-2'>
-                                {/* Explanation */}
-                                <label className='flex items-center gap-2 cursor-pointer'>
-                                    <Checkbox
-                                        checked={exportOptions.explanation}
-                                        onChange={() => handleOptionChange('explanation')}
-                                        size="small"
-                                        disabled={false}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>
-                                        {t('explanation')}
-                                    </span>
-                                </label>
-
-                                {/* Main Text */}
-                                <label className='flex items-center gap-2 cursor-pointer'>
-                                    <Checkbox
-                                        checked={exportOptions.mainText}
-                                        onChange={() => handleOptionChange('mainText')}
-                                        size="small"
-                                        disabled={false}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>
-                                        {t('main text')}
-                                    </span>
-                                </label>
-
-                                {/* Comment */}
-                                <label className='flex items-center gap-2 cursor-pointer'>
-                                    <Checkbox
-                                        checked={exportOptions.comment}
-                                        onChange={() => handleOptionChange('comment')}
-                                        size="small"
-                                        disabled={false}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>
-                                        {t('comment')}
-                                    </span>
-                                </label>
-
-                                {/* Images */}
-                                <label className='flex items-center gap-2 cursor-pointer'>
-                                    <Checkbox
-                                        checked={exportOptions.images}
-                                        onChange={() => handleOptionChange('images')}
-                                        size="small"
-                                        disabled={false}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>
-                                        {t('images')}
-                                    </span>
-                                </label>                       
+                            <div className='flex flex-wrap gap-2'>
+                                {formatOptions.map((opt) => {
+                                    const selected = exportOptions.format === opt.value;
+                                    return (
+                                        <label
+                                            key={opt.value}
+                                            className='flex items-center gap-2 cursor-pointer rounded-lg px-4 py-2 transition-all'
+                                            style={{
+                                                border: `1px solid ${selected ? 'var(--border-primary)' : 'var(--border-secondary)'}`,
+                                                backgroundColor: selected ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
+                                                boxShadow: selected ? '0 0 0 1px var(--border-primary)' : 'none',
+                                            }}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="format"
+                                                value={opt.value}
+                                                checked={selected}
+                                                onChange={() => handleFormatChange(opt.value)}
+                                            />
+                                            <span className='font-medium' style={{ color: 'var(--text-primary)' }}>{opt.label}</span>
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
 
-                        {/* Relational Information Section */}
-                        <div className='mb-4'>
-                            <h3 className='text-lg font-semibold mb-2' style={{ color: 'var(--text-primary)' }}>
-                                {t('relational information')}:
+                        {/* Content Selection — what goes into the export */}
+                        <div>
+                            <h3 className='text-base font-semibold mb-3' style={{ color: 'var(--text-primary)' }}>
+                                {t('content selection')}
                             </h3>
-                            <div className='grid grid-cols-2 gap-2'>
-                                {/* Tags */}
-                                <label className='flex items-center gap-2 cursor-pointer'>
-                                    <Checkbox
-                                        checked={exportOptions.tags}
-                                        onChange={() => handleOptionChange('tags')}
-                                        size="small"
-                                        disabled={false}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>
-                                        {t('tags')}
-                                    </span>
-                                </label>
+                            <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+                                <OptionCard title={t('text content')}>
+                                    <OptionCheckbox label={t('explanation')} checked={exportOptions.explanation} onChange={() => handleOptionChange('explanation')} />
+                                    <OptionCheckbox label={t('main text')} checked={exportOptions.mainText} onChange={() => handleOptionChange('mainText')} />
+                                    <OptionCheckbox label={t('comment')} checked={exportOptions.comment} onChange={() => handleOptionChange('comment')} />
+                                </OptionCard>
 
-                                {/* Related Articles */}
-                                <label className='flex items-center gap-2 cursor-pointer'>
-                                    <Checkbox
-                                        checked={exportOptions.relatedArticles}
-                                        onChange={() => handleOptionChange('relatedArticles')}
-                                        size="small"
-                                        disabled={false}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>
-                                        {t('related articles')}
-                                    </span>
-                                </label>
+                                <OptionCard title={t('media')}>
+                                    <OptionCheckbox label={t('images')} checked={exportOptions.images} onChange={() => handleOptionChange('images')} />
+                                    <OptionCheckbox label={t('audio')} checked={exportOptions.audios} onChange={() => handleOptionChange('audios')} />
+                                    <OptionCheckbox label={t('video')} checked={exportOptions.videos} onChange={() => handleOptionChange('videos')} />
+                                </OptionCard>
 
-                                {/* Collections */}
-                                <label className='flex items-center gap-2 cursor-pointer'>
-                                    <Checkbox
-                                        checked={exportOptions.collections}
-                                        onChange={() => handleOptionChange('collections')}
-                                        size="small"
-                                        disabled={false}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>
-                                        {t('collections')}
-                                    </span>
-                                </label>
-
-                                 {/* Notes */}
-                                 <label className='flex items-center gap-2 cursor-pointer'>
-                                    <Checkbox
-                                        checked={exportOptions.notes}
-                                        onChange={() => handleOptionChange('notes')}
-                                        size="small"
-                                        disabled={false}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>
-                                        {t('notes')}
-                                    </span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div className='mb-4'>
-                            <h3 className='text-lg font-semibold mb-2' style={{ color: 'var(--text-primary)' }}>
-                                {t('export format')}:
-                            </h3>
-                            <div className='flex gap-4'>
-                                {/* <label className='flex items-center gap-2 cursor-pointer'>
-                                    <input
-                                        type="radio"
-                                        name="format"
-                                        value="html"
-                                        checked={exportOptions.format === 'html'}
-                                        onChange={() => handleFormatChange('html')}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>HTML</span>
-                                </label> */}
-                                <label className='flex items-center gap-2 cursor-pointer'>
-                                    <input
-                                        type="radio"
-                                        name="format"
-                                        value="pdf"
-                                        checked={exportOptions.format === 'pdf'}
-                                        onChange={() => handleFormatChange('pdf')}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>PDF</span>
-                                </label>
-                                <label className='flex items-center gap-2 cursor-pointer'>
-                                    <input
-                                        type="radio"
-                                        name="format"
-                                        value="docx"
-                                        checked={exportOptions.format === 'docx'}
-                                        onChange={() => handleFormatChange('docx')}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>Word (.docx)</span>
-                                </label>
-                                <label className='flex items-center gap-2 cursor-pointer'>
-                                    <input
-                                        type="radio"
-                                        name="format"
-                                        value="db"
-                                        checked={exportOptions.format === 'db'}
-                                        onChange={() => handleFormatChange('db')}
-                                    />
-                                    <span style={{ color: 'var(--text-primary)' }}>{t('database (share)')}</span>
-                                </label>
+                                <OptionCard title={t('relational information')}>
+                                    <OptionCheckbox label={t('tags')} checked={exportOptions.tags} onChange={() => handleOptionChange('tags')} />
+                                    <OptionCheckbox label={t('related articles')} checked={exportOptions.relatedArticles} onChange={() => handleOptionChange('relatedArticles')} />
+                                    <OptionCheckbox label={t('collections')} checked={exportOptions.collections} onChange={() => handleOptionChange('collections')} />
+                                    <OptionCheckbox label={t('notes')} checked={exportOptions.notes} onChange={() => handleOptionChange('notes')} />
+                                </OptionCard>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Fixed Button Area */}
-                <div className='flex justify-end gap-2 mt-4 pt-4 border-t' style={{ borderColor: 'var(--border-color)' }}>
+                <div className='flex justify-end gap-2 mt-6 pt-4 border-t' style={{ borderColor: 'var(--border-secondary)' }}>
                     <ActionButton onClick={onRequestClose} color='red'>{t('cancel')}</ActionButton>
-                    <ActionButton 
-                    onClick={handleExport} 
-                    disabled={isExporting}
-                >
-                    {isExporting ? t('exporting') + '...' : t('export')}
-                </ActionButton>
+                    <ActionButton
+                        onClick={handleExport}
+                        disabled={isExporting}
+                    >
+                        {isExporting ? t('exporting') + '...' : t('export')}
+                    </ActionButton>
                 </div>
             </div>
         </GeneralModal>

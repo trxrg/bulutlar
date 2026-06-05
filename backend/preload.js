@@ -159,6 +159,7 @@ contextBridge.exposeInMainWorld('api', {
     getCandidates:   ()                                          => ipcRenderer.invoke('sharing/getCandidates'),
     getLastExport:   ()                                          => ipcRenderer.invoke('sharing/getLastExport'),
     exportBundle:    ({ latestState, manualDelete, outputDir }) => ipcRenderer.invoke('sharing/exportBundle', { latestState, manualDelete, outputDir }),
+    exportSingleArticleBundle: ({ articleId, options, outputDir }) => ipcRenderer.invoke('sharing/exportSingleArticleBundle', { articleId, options, outputDir }),
     chooseOutputDir: (opts)                                     => ipcRenderer.invoke('sharing/chooseOutputDir', opts || {}),
     showInFolder:    (filePath)                                 => ipcRenderer.invoke('sharing/showInFolder', filePath),
     chooseBundleFile: ()                                        => ipcRenderer.invoke('sharing/chooseBundleFile'),

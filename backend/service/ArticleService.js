@@ -2,7 +2,7 @@ import { ipcMain, dialog } from 'electron';
 import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
-import hijriSafe from 'hijri-date/lib/safe.js';
+import { toHijri } from 'hijri-date/lib/safe.js';
 import { sequelize } from '../sequelize/index.js';
 import tagService from './TagService.js';
 import ownerService from './OwnerService.js';
@@ -1198,7 +1198,7 @@ export function toLocalNoon(input) {
 }
 
 function gregorianToHijri(gDate) {
-    let hijri = hijriSafe.toHijri(new Date(gDate));
+    let hijri = toHijri(new Date(gDate));
     hijri = hijri.subtractDay(); // the library returns one day after the actual date, idk why
     return new Date(hijri.year, hijri.month - 1, hijri.date, 12, 0, 0, 0); // local noon
 }

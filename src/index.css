@@ -1,6 +1,7 @@
+@import 'toastr/build/toastr.min.css';
+
 /* Local Orbitron font declarations */
-@font-face {
-  font-family: 'Orbitron';
+@font-face {  font-family: 'Orbitron';
   font-style: normal;
   font-weight: 400;
   font-display: block;
@@ -36,9 +37,6 @@ body {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
       monospace;
   }
-  
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-@import 'toastr/build/toastr.min.css';
+@tailwind base;@tailwind components;
+@tailwind utilities;

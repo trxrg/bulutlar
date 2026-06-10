@@ -1,7 +1,7 @@
-import hijriSafe from 'hijri-date/lib/safe.js';
+import { toHijri } from 'hijri-date/lib/safe.js';
 
 export function gregorianToHijri(gDate) {
-    let hijri = hijriSafe.toHijri(new Date(gDate));
+    let hijri = toHijri(new Date(gDate));
     hijri = hijri.subtractDay(); // matches ArticleService.js workaround
     return { year: hijri.year, month: hijri.month, day: hijri.date };
 }

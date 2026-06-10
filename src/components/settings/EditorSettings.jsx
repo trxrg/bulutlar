@@ -112,10 +112,10 @@ const EditorSettings = () => {
                             onChange={(e) => handleEditorSettingChange('autosaveEnabled', e.target.checked)}
                             sx={{
                                 '& .MuiSwitch-switchBase.Mui-checked': {
-                                    color: '#059669',
+                                    color: 'var(--accent-primary)',
                                 },
                                 '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: '#059669',
+                                    backgroundColor: 'var(--accent-primary)',
                                 },
                             }}
                         />

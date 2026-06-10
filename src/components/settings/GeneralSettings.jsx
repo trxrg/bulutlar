@@ -4,6 +4,7 @@ import { AppContext } from '../../store/app-context';
 import { DBContext } from '../../store/db-context';
 import { articleApi } from '../../backend-adapter/BackendAdapter';
 import toastr from 'toastr';
+import ColorThemePicker from './ColorThemePicker';
 
 const GeneralSettings = () => {
     const {
@@ -68,8 +69,30 @@ const GeneralSettings = () => {
 
     const wpmChanged = parseInt(wpmInput, 10) !== wordsPerMinute;
 
+    const accentSwitchSx = {
+        '& .MuiSwitch-switchBase.Mui-checked': {
+            color: 'var(--accent-primary)',
+        },
+        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: 'var(--accent-primary)',
+        },
+    };
+
+    const accentButtonSx = {
+        fontWeight: '600',
+        backgroundColor: 'var(--accent-primary)',
+        color: '#f9fafb',
+        '&:hover': { backgroundColor: 'var(--accent-primary-hover)' },
+        '&.Mui-disabled': {
+            backgroundColor: 'var(--bg-primary)',
+            color: 'var(--text-secondary)',
+        },
+    };
+
     return (
         <div className='flex flex-col gap-5'>
+            <ColorThemePicker t={t} />
+
             <FormControl variant="outlined" fullWidth>
                 <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('language')}</InputLabel>
                 <Select
@@ -127,14 +150,7 @@ const GeneralSettings = () => {
                     <Switch
                         checked={hijriDateEnabled}
                         onChange={(e) => setHijriDateEnabled(e.target.checked)}
-                        sx={{
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: '#059669',
-                            },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: '#059669',
-                            },
-                        }}
+                        sx={accentSwitchSx}
                     />
                 }
                 label={t('show hijri date')}
@@ -161,18 +177,7 @@ const GeneralSettings = () => {
                     variant="contained"
                     onClick={handleApplyWpm}
                     disabled={applying || !wpmChanged}
-                    sx={{
-                        mt: '8px',
-                        height: '56px',
-                        fontWeight: '600',
-                        backgroundColor: '#059669',
-                        color: '#f9fafb',
-                        '&:hover': { backgroundColor: '#047857' },
-                        '&.Mui-disabled': {
-                            backgroundColor: 'var(--bg-primary)',
-                            color: 'var(--text-secondary)',
-                        },
-                    }}
+                    sx={{ mt: '8px', height: '56px', ...accentButtonSx }}
                 >
                     {applying ? <CircularProgress size={24} sx={{ color: '#f9fafb' }} /> : t('apply')}
                 </Button>

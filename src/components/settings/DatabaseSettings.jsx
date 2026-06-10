@@ -28,10 +28,10 @@ const DatabaseSettings = () => {
         sx: {
             fontWeight: '600',
             fontSize: '1rem',
-            backgroundColor: '#059669',
+            backgroundColor: 'var(--accent-primary)',
             color: '#f9fafb',
             '&:hover': {
-                backgroundColor: '#047857',
+                backgroundColor: 'var(--accent-primary-hover)',
             }
         }
     };
@@ -44,7 +44,7 @@ const DatabaseSettings = () => {
             backgroundColor: 'var(--border-primary)',
             color: '#f9fafb',
             '&:hover': {
-                backgroundColor: '#2f4f0bff',
+                backgroundColor: 'var(--accent-primary-hover)',
             }
         }
     };

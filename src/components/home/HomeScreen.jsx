@@ -42,9 +42,9 @@ const HomeScreen = () => {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             '&:hover': {
-                backgroundColor: '#4a6b1a', // lighter, more vibrant green
+                backgroundColor: 'var(--accent-primary-hover)',
                 transform: 'translateY(-1px)',
-                boxShadow: '0 4px 12px rgba(74, 107, 26, 0.3)'
+                boxShadow: '0 4px 12px var(--accent-glow)'
             }
         }
     };

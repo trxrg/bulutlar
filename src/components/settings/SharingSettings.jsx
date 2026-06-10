@@ -38,7 +38,7 @@ const SharingSettings = () => {
         fontWeight: 600,
         backgroundColor: 'var(--border-primary)',
         color: '#f9fafb',
-        '&:hover': { backgroundColor: '#2f4f0bff' },
+        '&:hover': { backgroundColor: 'var(--accent-primary-hover)' },
     };
 
     return (

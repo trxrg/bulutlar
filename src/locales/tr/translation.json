@@ -379,6 +379,14 @@
     "switch to light mode": "Açık Temaya Geç",
     "switch to dark mode": "Koyu Temaya Geç",
 
+    "color theme": "Renk Teması",
+    "color theme description": "Arayüz vurgu rengini seçin. Hem açık hem koyu temayla uyumludur.",
+    "color theme green": "Yeşil",
+    "color theme blue": "Mavi",
+    "color theme pink": "Pembe",
+    "color theme purple": "Mor",
+    "color theme amber": "Kehribar",
+
     "read time": "Okuma Süresi",
     "min read": "dk okuma",
     "mins read": "dk okuma",

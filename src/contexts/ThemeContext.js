@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useCallback, useMemo } from 'react';
 import { usePersistentState } from '../hooks/usePersistentState.js';
+import { DEFAULT_COLOR_THEME } from '../constants/colorThemes.js';
 
 const ThemeContext = createContext();
 
@@ -13,10 +14,15 @@ export const useTheme = () => {
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = usePersistentState('theme', 'light');
+  const [colorTheme, setColorThemeState] = usePersistentState('colorTheme', DEFAULT_COLOR_THEME);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-color-theme', colorTheme);
+  }, [colorTheme]);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
@@ -26,13 +32,19 @@ export const ThemeProvider = ({ children }) => {
     setTheme(themeName);
   }, []);
 
+  const setColorTheme = useCallback((colorThemeName) => {
+    setColorThemeState(colorThemeName);
+  }, []);
+
   const value = useMemo(() => ({
     theme,
+    colorTheme,
     toggleTheme,
     setTheme: setSpecificTheme,
+    setColorTheme,
     isDark: theme === 'dark',
     isLight: theme === 'light'
-  }), [theme, toggleTheme, setSpecificTheme]);
+  }), [theme, colorTheme, toggleTheme, setSpecificTheme, setColorTheme]);
 
   return (
     <ThemeContext.Provider value={value}>

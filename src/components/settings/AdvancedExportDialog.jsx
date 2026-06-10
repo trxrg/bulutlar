@@ -84,11 +84,11 @@ const AdvancedExportDialog = ({ isOpen, onClose, onExport }) => {
                                 className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer"
                                 style={{
                                     backgroundColor: selectedCategories.includes(category.id) 
-                                        ? category.color || '#059669'
+                                        ? category.color || 'var(--accent-primary)'
                                         : '#e5e7eb',
                                     color: selectedCategories.includes(category.id) ? '#ffffff' : '#374151',
                                     border: selectedCategories.includes(category.id) 
-                                        ? `2px solid ${category.color || '#059669'}`
+                                        ? `2px solid ${category.color || 'var(--accent-primary)'}`
                                         : '2px solid transparent',
                                     opacity: selectedCategories.includes(category.id) ? 1 : 0.6
                                 }}

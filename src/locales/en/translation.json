@@ -374,6 +374,14 @@
     "switch to light mode": "Switch to Light Mode",
     "switch to dark mode": "Switch to Dark Mode",
 
+    "color theme": "Color Theme",
+    "color theme description": "Choose an accent color for the interface. Works with both light and dark mode.",
+    "color theme green": "Green",
+    "color theme blue": "Blue",
+    "color theme pink": "Pink",
+    "color theme purple": "Purple",
+    "color theme amber": "Amber",
+
     "read time": "Read Time",
     "min read": "min read",
     "mins read": "mins read",

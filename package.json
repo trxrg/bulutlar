@@ -60,8 +60,8 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@heroicons/react": "^2.1.5",
-    "@mui/icons-material": "^5.15.4",
-    "@mui/material": "^5.16.13",
+    "@mui/icons-material": "^5.18.0",
+    "@mui/material": "^5.18.0",
     "@tiptap/core": "3.26.0",
     "@tiptap/extension-highlight": "3.26.0",
     "@tiptap/extension-placeholder": "3.26.0",
@@ -89,9 +89,9 @@
     "lodash.debounce": "^4.0.8",
     "path-browserify": "^1.0.1",
     "pdfkit": "^0.17.2",
-    "react": "^18.2.0",
+    "react": "^19.2.0",
     "react-datepicker": "^7.5.0",
-    "react-dom": "^18.2.0",
+    "react-dom": "^19.2.0",
     "react-i18next": "^15.0.3",
     "react-modal": "^3.16.1",
     "react-resizable-panels": "^4.7.2",
@@ -99,7 +99,7 @@
     "sequelize": "^6.35.2",
     "sequelize-cli": "^6.6.2",
     "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7",
+    "sqlite3": "^6.0.1",
     "toastr": "^2.1.4",
     "umzug": "^3.8.2",
     "uuid": "^14.0.0"
@@ -108,7 +108,13 @@
     "nth-check": "^2.0.1",
     "@tiptap/core": "3.26.0",
     "@tiptap/pm": "3.26.0",
-    "@tiptap/react": "3.26.0"
+    "@tiptap/react": "3.26.0",
+    "ajv": "^8.18.0",
+    "tar": "^7.5.16",
+    "@tootallnate/once": "^2.0.1",
+    "sequelize": {
+      "uuid": "^11.1.1"
+    }
   },
   "build": {
     "appId": "com.kargilabs.bulutlar",

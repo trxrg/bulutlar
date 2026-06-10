@@ -110,6 +110,12 @@
     "@tiptap/pm": "3.26.0",
     "@tiptap/react": "3.26.0",
     "ajv": "^8.18.0",
+    "@develar/schema-utils": {
+      "ajv": "^6.12.6"
+    },
+    "dmg-license": {
+      "ajv": "^6.12.6"
+    },
     "tar": "^7.5.16",
     "@tootallnate/once": "^2.0.1",
     "sequelize": {

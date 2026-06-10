@@ -150,7 +150,7 @@ async function createArticleProgrammatically(article) {
     console.log('adding article with title: ' + article.title);
 
     try {
-        const { htmlToTiptapJson, htmlToDraftRaw } = await getHtmlConverters();
+        const { htmlToTiptapJson } = await getHtmlConverters();
 
         const wrapHtml = (s) => s && !s.trim().startsWith('<') ? `<p>${s}</p>` : s;
         const textHtml = wrapHtml(article.text);
@@ -171,10 +171,8 @@ async function createArticleProgrammatically(article) {
             number2: calculateNumber(hijriDate),
             code: article.code || Math.random().toString(36).substring(2),
             text: textHtml,
-            textJson: article.textJson || htmlToDraftRaw(textHtml),
             textTiptapJson: article.textTiptapJson || htmlToTiptapJson(textHtml),
             explanation: explanationHtml,
-            explanationJson: article.explanationJson || htmlToDraftRaw(explanationHtml),
             explanationTiptapJson: article.explanationTiptapJson || htmlToTiptapJson(explanationHtml),
             isStarred: article.isStarred,
             isFeatured: article.isFeatured,
@@ -221,7 +219,6 @@ async function createArticleProgrammatically(article) {
                 const html = rawHtml.trim().startsWith('<') ? rawHtml : `<p>${rawHtml}</p>`;
                 const commentData = {
                     html,
-                    json: c.json || htmlToDraftRaw(html),
                     tiptapJson: c.tiptapJson || htmlToTiptapJson(html),
                 };
                 await entity.addComment(await commentService.createComment(commentData));
@@ -327,9 +324,6 @@ async function deleteArticleById(id) {
 async function updateArticleMainText(id, newMainText) {
     try {
         const updateFields = { text: newMainText.html };
-        // Only overwrite the legacy Draft.js column when a non-null value is supplied,
-        // so Tiptap saves (which pass json: null) don't erase existing Draft JSON.
-        if (newMainText.json != null) updateFields.textJson = newMainText.json;
         if (newMainText.tiptapJson !== undefined) updateFields.textTiptapJson = newMainText.tiptapJson;
 
         await sequelize.models.article.update(updateFields, { where: { id: id } });
@@ -345,9 +339,6 @@ async function updateArticleMainText(id, newMainText) {
 async function updateArticleExplanation(id, newExplanation) {
     try {
         const updateFields = { explanation: newExplanation.html };
-        // Only overwrite the legacy Draft.js column when a non-null value is supplied,
-        // so Tiptap saves (which pass json: null) don't erase existing Draft JSON.
-        if (newExplanation.json != null) updateFields.explanationJson = newExplanation.json;
         if (newExplanation.tiptapJson !== undefined) updateFields.explanationTiptapJson = newExplanation.tiptapJson;
 
         await sequelize.models.article.update(updateFields, { where: { id: id } });
@@ -371,9 +362,6 @@ async function updateFirstCommentText(id, newComment) {
             await article.addComment(comment);
         } else {
             const updateFields = { text: newComment.html };
-            // Only overwrite the legacy Draft.js column when a non-null value is supplied,
-            // so Tiptap saves (which pass json: null) don't erase existing Draft JSON.
-            if (newComment.json != null) updateFields.textJson = newComment.json;
             if (newComment.tiptapJson !== undefined) updateFields.tiptapTextJson = newComment.tiptapJson;
             await comment.update(updateFields);
         }

@@ -172,10 +172,10 @@ export const APPLY_ORDER = Object.freeze([
  * @property {number|null}   [number2]
  * @property {number|null}   [ordering]
  * @property {string|null}   [explanation]
- * @property {Object|null}   [explanationJson]      Legacy draft-js JSON; kept opaque.
+ * @property {Object|null}   [explanationJson]      Legacy JSON; kept opaque for sync compat.
  * @property {Object|null}   [explanationTiptapJson] Tiptap doc with TiptapMediaNodeAttrs on media nodes.
  * @property {string|null}   [text]
- * @property {Object|null}   [textJson]             Legacy draft-js JSON; kept opaque.
+ * @property {Object|null}   [textJson]             Legacy JSON; kept opaque for sync compat.
  * @property {Object|null}   [textTiptapJson]       Tiptap doc with TiptapMediaNodeAttrs on media nodes.
  * @property {string|null}   [code]
  * @property {boolean}       [isEditable]
@@ -240,7 +240,7 @@ export const APPLY_ORDER = Object.freeze([
  * @property {string|null}   [ownerUuid]
  * @property {string|null}   [date]
  * @property {string|null}   [text]
- * @property {Object|null}   [textJson]             Legacy draft-js JSON.
+ * @property {Object|null}   [textJson]             Legacy JSON; kept opaque for sync compat.
  * @property {Object|null}   [tiptapTextJson]       Tiptap doc with TiptapMediaNodeAttrs on media nodes.
  * @property {number|null}   [ordering]
  * @property {string|null}   [field1]

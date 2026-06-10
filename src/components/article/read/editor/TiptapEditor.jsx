@@ -401,7 +401,7 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
 
     const persist = useCallback(() => {
         if (!editor) return;
-        handleContentChange(editor.getHTML(), null, editor.getJSON());
+        handleContentChange(editor.getHTML(), editor.getJSON());
     }, [editor, handleContentChange]);
 
     // ================================ DND / PASTE UPLOAD ================================
@@ -678,7 +678,7 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
         setAddedVideoIdsWhileEditing([]);
         setDeletedVideoIdsWhileEditing([]);
 
-        return { html: editor.getHTML(), json: null, tiptapJson: editor.getJSON() };
+        return { html: editor.getHTML(), tiptapJson: editor.getJSON() };
     }, [editor, deletedImageIdsWhileEditing, deletedAudioIdsWhileEditing, deletedVideoIdsWhileEditing]);
 
     const resetContent = useCallback(() => {

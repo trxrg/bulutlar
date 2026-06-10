@@ -304,7 +304,7 @@ const EditorSettings = () => {
                 </Select>
             </FormControl>
 
-            {/* Editor Type Toggle */}
+            {/* Legacy Draft.js data migration */}
             <div
                 className='p-4 rounded-lg border'
                 style={{
@@ -320,56 +320,8 @@ const EditorSettings = () => {
                         fontWeight: 600
                     }}
                 >
-                    {t('editor type')}
+                    {t('migrate existing data to tiptap')}
                 </Typography>
-
-                <FormControl variant="outlined" fullWidth>
-                    <InputLabel sx={{ color: 'var(--text-primary)' }}>{t('editor type')}</InputLabel>
-                    <Select
-                        value={editorSettings?.editorType || 'draftjs'}
-                        onChange={(e) => handleEditorSettingChange('editorType', e.target.value)}
-                        label={t('editor type')}
-                        MenuProps={{
-                            PaperProps: {
-                                sx: {
-                                    backgroundColor: 'var(--bg-primary)',
-                                    color: 'var(--text-primary)',
-                                }
-                            }
-                        }}
-                        sx={{
-                            color: 'var(--text-primary)',
-                            '.MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'var(--border-secondary)',
-                            },
-                            '.MuiSvgIcon-root': {
-                                color: 'var(--text-primary)',
-                            },
-                            backgroundColor: 'var(--bg-primary)',
-                        }}
-                    >
-                        <MenuItem
-                            value="draftjs"
-                            sx={{
-                                color: 'var(--text-primary)',
-                                backgroundColor: 'var(--bg-primary)',
-                                '&:hover': { backgroundColor: 'var(--bg-secondary)' }
-                            }}
-                        >
-                            Draft.js
-                        </MenuItem>
-                        <MenuItem
-                            value="tiptap"
-                            sx={{
-                                color: 'var(--text-primary)',
-                                backgroundColor: 'var(--bg-primary)',
-                                '&:hover': { backgroundColor: 'var(--bg-secondary)' }
-                            }}
-                        >
-                            Tiptap
-                        </MenuItem>
-                    </Select>
-                </FormControl>
 
                 <Button
                     variant="outlined"

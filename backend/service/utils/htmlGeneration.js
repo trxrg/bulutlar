@@ -300,7 +300,7 @@ function getEmbeddedCSS() {
             line-height: 1.8;
         }
         
-        /* Preserve Draft.js formatting */
+        /* Preserve rich-text formatting */
         .content-html p {
             margin-bottom: 0.5rem;
         }
@@ -317,7 +317,7 @@ function getEmbeddedCSS() {
             text-decoration: underline;
         }
         
-        /* Handle Draft.js custom styles */
+        /* Handle highlight / custom inline styles */
         .content-html span[style*="background-color"] {
             padding: 2px 4px;
             border-radius: 3px;

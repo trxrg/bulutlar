@@ -1,7 +1,6 @@
 /**
  * Converts simple HTML (paragraphs, bold, italic, underline, links) into
- * TipTap JSON and Draft.js rawContentState so that programmatically created
- * articles render correctly in both editor modes.
+ * TipTap JSON so that programmatically created articles render correctly.
  */
 import { JSDOM } from 'jsdom';
 
@@ -9,12 +8,6 @@ const TIPTAP_MEDIA_TAG_TO_TYPE = {
     videoNode: 'videoNode',
     imageNode: 'imageNode',
     audioNode: 'audioNode',
-};
-
-const DRAFT_MEDIA_TAG_TO_TYPE = {
-    videoNode: 'VIDEO',
-    imageNode: 'IMAGE',
-    audioNode: 'AUDIO',
 };
 
 // Attribute names that our media node extensions persist onto HTML elements.
@@ -158,112 +151,4 @@ function collectInlineNodes(node, marks, result) {
     }
 }
 
-// --- Draft.js raw content state ---
-
-function htmlToDraftRaw(html) {
-    if (!html) return null;
-    const dom = new JSDOM(html);
-    const body = dom.window.document.body;
-    const blocks = [];
-    const entityMap = {};
-    const ctx = { nextEntityKey: 0, entityMap };
-
-    for (const node of body.childNodes) {
-        const block = convertNodeToDraft(node, ctx);
-        if (block) blocks.push(...(Array.isArray(block) ? block : [block]));
-    }
-
-    if (blocks.length === 0) {
-        blocks.push(makeDraftBlock('', 'unstyled'));
-    }
-
-    return { blocks, entityMap };
-}
-
-function makeDraftBlock(text, type, inlineStyleRanges = [], entityRanges = []) {
-    const key = Math.random().toString(36).substring(2, 7);
-    return { key, text, type, depth: 0, inlineStyleRanges, entityRanges, data: {} };
-}
-
-function makeDraftMediaBlock(entityType, attrs, ctx) {
-    const entityKey = String(ctx.nextEntityKey++);
-    ctx.entityMap[entityKey] = {
-        type: entityType,
-        mutability: 'IMMUTABLE',
-        data: { ...attrs },
-    };
-    // Draft.js atomic blocks conventionally contain a single placeholder
-    // character whose entity range covers the full block.
-    return makeDraftBlock(' ', 'atomic', [], [{ key: Number(entityKey), length: 1, offset: 0 }]);
-}
-
-function convertNodeToDraft(node, ctx) {
-    if (node.nodeType === 3) {
-        const text = node.textContent;
-        if (!text.trim()) return null;
-        return makeDraftBlock(text, 'unstyled');
-    }
-    if (node.nodeType !== 1) return null;
-
-    const mediaDataType = isMediaElement(node);
-    if (mediaDataType) {
-        return makeDraftMediaBlock(DRAFT_MEDIA_TAG_TO_TYPE[mediaDataType], parseMediaAttrs(node), ctx);
-    }
-
-    const tag = node.tagName.toLowerCase();
-
-    let blockType = 'unstyled';
-    if (tag === 'h1') blockType = 'header-one';
-    else if (tag === 'h2') blockType = 'header-two';
-    else if (tag === 'h3') blockType = 'header-three';
-    else if (tag === 'blockquote') blockType = 'blockquote';
-
-    if (tag === 'ul' || tag === 'ol') {
-        const listType = tag === 'ul' ? 'unordered-list-item' : 'ordered-list-item';
-        const items = [];
-        for (const li of node.children) {
-            if (li.tagName.toLowerCase() === 'li') {
-                const { text, styles } = extractTextAndStyles(li);
-                items.push(makeDraftBlock(text, listType, styles));
-            }
-        }
-        return items;
-    }
-
-    const { text, styles } = extractTextAndStyles(node);
-    return makeDraftBlock(text, blockType, styles);
-}
-
-function extractTextAndStyles(node) {
-    const result = { text: '', styles: [] };
-    collectDraftInline(node, [], result);
-    return result;
-}
-
-function collectDraftInline(node, activeStyles, result) {
-    if (node.nodeType === 3) {
-        const text = node.textContent;
-        if (text) {
-            const offset = result.text.length;
-            result.text += text;
-            for (const style of activeStyles) {
-                result.styles.push({ offset, length: text.length, style });
-            }
-        }
-        return;
-    }
-    if (node.nodeType !== 1) return;
-
-    const tag = node.tagName.toLowerCase();
-    const newStyles = [...activeStyles];
-    if (tag === 'strong' || tag === 'b') newStyles.push('BOLD');
-    if (tag === 'em' || tag === 'i') newStyles.push('ITALIC');
-    if (tag === 'u') newStyles.push('UNDERLINE');
-    if (tag === 'code') newStyles.push('CODE');
-
-    for (const child of node.childNodes) {
-        collectDraftInline(child, newStyles, result);
-    }
-}
-
-export { htmlToTiptapJson, htmlToDraftRaw };
+export { htmlToTiptapJson };

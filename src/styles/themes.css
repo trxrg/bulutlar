@@ -370,55 +370,6 @@ button svg {
   stroke: currentColor !important;
 }
 
-/* Draft.js RichEditor theming */
-.DraftEditor-root {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-editor) !important;
-  transition: background-color 0.3s ease;
-}
-
-.DraftEditor-editorContainer {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-editor) !important;
-  transition: background-color 0.3s ease;
-}
-
-.public-DraftEditor-content {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-editor) !important;
-  transition: background-color 0.3s ease;
-}
-
-.public-DraftEditorPlaceholder-root {
-  color: var(--text-tertiary) !important;
-  transition: none;
-}
-
-/* Draft.js block elements */
-.public-DraftStyleDefault-block {
-  color: var(--text-editor) !important;
-  transition: none;
-}
-
-/* Draft.js list items */
-.public-DraftStyleDefault-ol,
-.public-DraftStyleDefault-ul {
-  color: var(--text-editor) !important;
-  transition: none;
-}
-
-.public-DraftStyleDefault-ol li,
-.public-DraftStyleDefault-ul li {
-  color: var(--text-editor) !important;
-  transition: none;
-}
-
-/* Draft.js selection */
-.DraftEditor-editorContainer .public-DraftEditor-content [data-contents="true"] {
-  color: var(--text-editor) !important;
-  transition: none;
-}
-
 /* Tiptap / ProseMirror theming */
 .ProseMirror {
   background-color: var(--bg-primary) !important;

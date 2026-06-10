@@ -6,7 +6,7 @@ import Highlight from '@tiptap/extension-highlight';
 import Superscript from '@tiptap/extension-superscript';
 import Subscript from '@tiptap/extension-subscript';
 import Placeholder from '@tiptap/extension-placeholder';
-import { imageApi, audioApi, videoApi, articleApi, annotationApi } from '../../../../backend-adapter/BackendAdapter';
+import { flushMediaDeletes, articleApi, annotationApi } from '../../../../backend-adapter/BackendAdapter';
 import { ReadContext } from '../../../../store/read-context';
 import { AppContext } from '../../../../store/app-context';
 import { DBContext } from '../../../../store/db-context';
@@ -665,39 +665,55 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
     }, [editor]);
 
     // ================================ GET/RESET CONTENT ================================
+    const clearPendingMediaState = useCallback(() => {
+        setAddedImageIdsWhileEditing([]);
+        setDeletedImageIdsWhileEditing([]);
+        setAddedAudioIdsWhileEditing([]);
+        setDeletedAudioIdsWhileEditing([]);
+        setAddedVideoIdsWhileEditing([]);
+        setDeletedVideoIdsWhileEditing([]);
+    }, []);
+
     const getContent = useCallback(() => {
-        deletedImageIdsWhileEditing.forEach(imageId => imageApi.deleteById(imageId));
-        setAddedImageIdsWhileEditing([]);
-        setDeletedImageIdsWhileEditing([]);
-
-        deletedAudioIdsWhileEditing.forEach(audioId => audioApi.deleteById(audioId));
-        setAddedAudioIdsWhileEditing([]);
-        setDeletedAudioIdsWhileEditing([]);
-
-        deletedVideoIdsWhileEditing.forEach(videoId => videoApi.deleteById(videoId));
-        setAddedVideoIdsWhileEditing([]);
-        setDeletedVideoIdsWhileEditing([]);
-
         return { html: editor.getHTML(), tiptapJson: editor.getJSON() };
-    }, [editor, deletedImageIdsWhileEditing, deletedAudioIdsWhileEditing, deletedVideoIdsWhileEditing]);
+    }, [editor]);
 
-    const resetContent = useCallback(() => {
-        addedImageIdsWhileEditing.forEach(imageId => imageApi.deleteById(imageId));
-        setAddedImageIdsWhileEditing([]);
-        setDeletedImageIdsWhileEditing([]);
+    const takePendingMediaDeletes = useCallback(() => {
+        const pending = {
+            imageIds: [...deletedImageIdsWhileEditing],
+            audioIds: [...deletedAudioIdsWhileEditing],
+            videoIds: [...deletedVideoIdsWhileEditing],
+        };
+        clearPendingMediaState();
+        return pending;
+    }, [
+        deletedImageIdsWhileEditing,
+        deletedAudioIdsWhileEditing,
+        deletedVideoIdsWhileEditing,
+        clearPendingMediaState,
+    ]);
 
-        addedAudioIdsWhileEditing.forEach(audioId => audioApi.deleteById(audioId));
-        setAddedAudioIdsWhileEditing([]);
-        setDeletedAudioIdsWhileEditing([]);
+    const takePendingAddedMedia = useCallback(() => {
+        const pending = {
+            imageIds: [...addedImageIdsWhileEditing],
+            audioIds: [...addedAudioIdsWhileEditing],
+            videoIds: [...addedVideoIdsWhileEditing],
+        };
+        clearPendingMediaState();
+        return pending;
+    }, [
+        addedImageIdsWhileEditing,
+        addedAudioIdsWhileEditing,
+        addedVideoIdsWhileEditing,
+        clearPendingMediaState,
+    ]);
 
-        addedVideoIdsWhileEditing.forEach(videoId => videoApi.deleteById(videoId));
-        setAddedVideoIdsWhileEditing([]);
-        setDeletedVideoIdsWhileEditing([]);
-
+    const resetContent = useCallback(async () => {
+        await flushMediaDeletes(takePendingAddedMedia());
         if (editor) {
             editor.commands.setContent(originalContentRef.current);
         }
-    }, [editor, addedImageIdsWhileEditing, addedAudioIdsWhileEditing, addedVideoIdsWhileEditing]);
+    }, [editor, takePendingAddedMedia]);
 
     // ================================ IMPERATIVE HANDLE ================================
     React.useImperativeHandle(ref, () => ({
@@ -707,6 +723,7 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
         addAudio,
         addVideo,
         getContent,
+        takePendingMediaDeletes,
         resetContent,
         toggleInlineStyle,
         toggleBlockType,

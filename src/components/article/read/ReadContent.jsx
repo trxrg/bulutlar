@@ -1,5 +1,5 @@
 import React, { useRef, useState, useContext, useEffect } from "react";
-import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
+import { articleApi, flushMediaDeletes, mergeMediaDeleteBuckets } from '../../../backend-adapter/BackendAdapter.js';
 import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
 import { DBContext } from "../../../store/db-context.jsx";
@@ -63,18 +63,27 @@ const ReadContent = () => {
         await syncArticleFromBE();
     }
 
+    const editorRefs = [explanationEditorRef, mainTextEditorRef, commentEditorRef];
+
     const saveContent = async () => {
         const explanation = explanationEditorRef.current ? explanationEditorRef.current.getContent() : null;
         const mainText = mainTextEditorRef.current ? mainTextEditorRef.current.getContent() : null;
         const comment = commentEditorRef.current ? commentEditorRef.current.getContent() : null;
 
+        const pendingDeletes = mergeMediaDeleteBuckets(
+            ...editorRefs.map((ref) => ref.current?.takePendingMediaDeletes?.())
+        );
+        await flushMediaDeletes(pendingDeletes);
+
         await updateArticleContent(explanation, mainText, comment);
     }
 
-    const resetContent = () => {
-        explanationEditorRef && explanationEditorRef.current && explanationEditorRef.current.resetContent();
-        mainTextEditorRef && mainTextEditorRef.current && mainTextEditorRef.current.resetContent();
-        commentEditorRef && commentEditorRef.current && commentEditorRef.current.resetContent();
+    const resetContent = async () => {
+        for (const ref of editorRefs) {
+            if (ref.current?.resetContent) {
+                await ref.current.resetContent();
+            }
+        }
     }
 
     const addLink = (url) => activeEditorRef && activeEditorRef.current.addLink(url);

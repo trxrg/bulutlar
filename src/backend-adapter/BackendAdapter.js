@@ -102,6 +102,31 @@ export const videoApi = {
     updateMissingDurations: async ()                => window.api.video.updateMissingDurations(),
 };
 
+// Run pending media deletes one at a time so concurrent SQLite
+// transactions don't trip SQLITE_BUSY during save/cancel.
+export async function flushMediaDeletes({ imageIds = [], audioIds = [], videoIds = [] } = {}) {
+    for (const id of imageIds) await imageApi.deleteById(id);
+    for (const id of audioIds) await audioApi.deleteById(id);
+    for (const id of videoIds) await videoApi.deleteById(id);
+}
+
+export function mergeMediaDeleteBuckets(...buckets) {
+    const imageIds = new Set();
+    const audioIds = new Set();
+    const videoIds = new Set();
+    for (const bucket of buckets) {
+        if (!bucket) continue;
+        bucket.imageIds?.forEach((id) => imageIds.add(id));
+        bucket.audioIds?.forEach((id) => audioIds.add(id));
+        bucket.videoIds?.forEach((id) => videoIds.add(id));
+    }
+    return {
+        imageIds: [...imageIds],
+        audioIds: [...audioIds],
+        videoIds: [...videoIds],
+    };
+}
+
 export const tagApi = {
     create:             async (tag)                 => window.api.tag.create(tag),
     updateName:         async (id, newName)         => window.api.tag.updateName(id, newName),

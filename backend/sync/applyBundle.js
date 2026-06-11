@@ -34,7 +34,7 @@ import { SYNCABLE_MODELS } from './syncableModels.js';
 import { ensureFolderExists } from '../fsOps.js';
 import { safeUnlink } from './outbox.js';
 import { resolveTiptapMedia, collectMediaUuids, stripMediaNodesById } from './tiptapResolve.js';
-import { resolveHtmlMedia } from './htmlResolve.js';
+import { resolveHtmlMedia, stripHtmlMediaById } from './htmlResolve.js';
 
 // Wire-format entity name -> sequelize model name. Most are identical; the
 // three junctions use snake_case model names.
@@ -593,30 +593,38 @@ async function reconcileArticleMedia(M, config, articleId, keepUuids, transactio
 // pass left untouched — must drop those nodes or they render broken.
 async function stripDanglingMediaRefs(M, articleId, deletedIds, transaction) {
     const art = await M.article.findOne({
-        attributes: ['id', 'textTiptapJson', 'explanationTiptapJson'],
+        attributes: ['id', 'text', 'textTiptapJson', 'explanation', 'explanationTiptapJson'],
         where: { id: articleId },
         transaction,
     });
     if (art) {
         const t = stripMediaNodesById(art.textTiptapJson, deletedIds);
         const e = stripMediaNodesById(art.explanationTiptapJson, deletedIds);
-        if (t.changed || e.changed) {
+        const h1 = await stripHtmlMediaById(art.text, deletedIds);
+        const h2 = await stripHtmlMediaById(art.explanation, deletedIds);
+        if (t.changed || e.changed || h1.changed || h2.changed) {
             const upd = {};
             if (t.changed) upd.textTiptapJson = t.doc;
             if (e.changed) upd.explanationTiptapJson = e.doc;
+            if (h1.changed) upd.text = h1.html;
+            if (h2.changed) upd.explanation = h2.html;
             await M.article.update(upd, { where: { id: articleId }, hooks: false, transaction });
         }
     }
 
     const comments = await M.comment.findAll({
-        attributes: ['id', 'tiptapTextJson'],
+        attributes: ['id', 'text', 'tiptapTextJson'],
         where: { articleId },
         transaction,
     });
     for (const c of comments) {
         const r = stripMediaNodesById(c.tiptapTextJson, deletedIds);
-        if (r.changed) {
-            await M.comment.update({ tiptapTextJson: r.doc }, { where: { id: c.id }, hooks: false, transaction });
+        const h = await stripHtmlMediaById(c.text, deletedIds);
+        if (r.changed || h.changed) {
+            const upd = {};
+            if (r.changed) upd.tiptapTextJson = r.doc;
+            if (h.changed) upd.text = h.html;
+            await M.comment.update(upd, { where: { id: c.id }, hooks: false, transaction });
         }
     }
 }

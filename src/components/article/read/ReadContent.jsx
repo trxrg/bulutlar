@@ -19,7 +19,7 @@ const ReadContent = () => {
     const [activeEditorRef, setActiveEditorRef] = useState(mainTextEditorRef);
     const [hasContentError, setHasContentError] = useState(false);
     
-    const { article, readContentRef, fontSize, editable, syncArticleFromBE, 
+    const { article, readContentRef, fontSize, editable, syncArticleFromBE, editSnapshotRef,
         isAddLinkModalOpen, setAddLinkModalOpen, contextMenuIsOpen,
         contextMenuPosition, setContextMenuIsOpen, isAnyModalOpen,
         showExplanationEditor, setShowExplanationEditor,
@@ -63,6 +63,18 @@ const ReadContent = () => {
         await syncArticleFromBE();
     }
 
+    const revertToSnapshot = async (snapshot) => {
+        await articleApi.updateExplanation(article.id, snapshot.explanation);
+        await articleApi.updateMainText(article.id, snapshot.mainText);
+        if (snapshot.comment) {
+            await articleApi.updateComment(article.id, snapshot.comment);
+        } else if (article.comments?.[0]) {
+            await articleApi.updateComment(article.id, { html: '', tiptapJson: emptyDoc });
+        }
+    }
+
+    const emptyDoc = { type: 'doc', content: [] };
+
     const editorRefs = [explanationEditorRef, mainTextEditorRef, commentEditorRef];
 
     const saveContent = async () => {
@@ -79,10 +91,38 @@ const ReadContent = () => {
     }
 
     const resetContent = async () => {
+        const snapshot = editSnapshotRef?.current;
+        if (!snapshot) return;
+
+        const pendingAdded = mergeMediaDeleteBuckets(
+            ...editorRefs.map((ref) => ref.current?.takePendingAddedMedia?.())
+        );
+        await flushMediaDeletes(pendingAdded);
+
+        await revertToSnapshot(snapshot);
+
+        if (explanationEditorRef.current) {
+            explanationEditorRef.current.setContentFromSnapshot(snapshot.explanation);
+        }
+        if (mainTextEditorRef.current) {
+            mainTextEditorRef.current.setContentFromSnapshot(snapshot.mainText);
+        }
+        if (commentEditorRef.current) {
+            commentEditorRef.current.setContentFromSnapshot(
+                snapshot.comment ?? { html: '', tiptapJson: emptyDoc }
+            );
+        }
+
         for (const ref of editorRefs) {
-            if (ref.current?.resetContent) {
-                await ref.current.resetContent();
-            }
+            ref.current?.clearPendingMediaState?.();
+        }
+
+        await syncArticleFromBE();
+    }
+
+    const clearEditSession = async () => {
+        for (const ref of editorRefs) {
+            ref.current?.clearPendingMediaState?.();
         }
     }
 
@@ -107,7 +147,6 @@ const ReadContent = () => {
             console.error('Error inserting image:', error);
             toastr.error(t('errorAddingImage'));
         }
-        syncArticleFromBE();
     };
 
     const handleInsertAudioClicked = async () => {
@@ -125,7 +164,6 @@ const ReadContent = () => {
             console.error('Error inserting audio:', error);
             toastr.error(t('errorAddingAudio'));
         }
-        syncArticleFromBE();
     };
 
     const handleInsertVideoClicked = async () => {
@@ -143,7 +181,6 @@ const ReadContent = () => {
             console.error('Error inserting video:', error);
             toastr.error(t('errorAddingVideo'));
         }
-        syncArticleFromBE();
     };
 
     React.useImperativeHandle(readContentRef, () => ({
@@ -151,6 +188,7 @@ const ReadContent = () => {
         addQuote,
         saveContent,
         resetContent,
+        clearEditSession,
         toggleStyle,
         toggleBlockType,
         handleInsertImageClicked,

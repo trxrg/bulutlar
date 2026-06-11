@@ -64,7 +64,13 @@ const TiptapVideo = ({ node, deleteNode, extension }) => {
         }
     };
 
-    useEffect(() => { fetchVideoData(); }, [videoEntity.id]);
+    useEffect(() => {
+        setVideoData(null);
+        setVideoMetadata(null);
+        setIsVideoLoaded(false);
+        setIsVideoPlaying(false);
+        fetchVideoData();
+    }, [videoEntity.id]);
 
     useEffect(() => {
         if (videoUrl && videoMetadata && !videoMetadata.duration) {

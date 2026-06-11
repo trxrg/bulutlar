@@ -64,7 +64,13 @@ const TiptapAudio = ({ node, deleteNode, extension }) => {
         }
     };
 
-    useEffect(() => { fetchAudioData(); }, [audioEntity.id]);
+    useEffect(() => {
+        setAudioData(null);
+        setAudioMetadata(null);
+        setIsAudioLoaded(false);
+        setIsAudioPlaying(false);
+        fetchAudioData();
+    }, [audioEntity.id]);
 
     useEffect(() => {
         if (audioUrl && audioMetadata && !audioMetadata.duration) {

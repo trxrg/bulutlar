@@ -20,7 +20,7 @@ import toastr from 'toastr';
 
 const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef, showExplanationEditor, setShowExplanationEditor, showCommentEditor, setShowCommentEditor, hasExplanationContent, hasCommentContent } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, clearEditSession, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef, showExplanationEditor, setShowExplanationEditor, showCommentEditor, setShowCommentEditor, hasExplanationContent, hasCommentContent } = useContext(ReadContext);
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings, activeTabId, autoHideControls, setAutoHideControls } = useContext(AppContext);
     
     // Wrapper to capture scroll before toggling fullscreen
@@ -440,12 +440,12 @@ const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
                             </div>
                         )}
                         <ActionButton
-                            onClick={() => { resetContent(); setEditable(false); }}
+                            onClick={async () => { await resetContent(); setEditable(false); }}
                             color={'red'}>
                             {t('cancel')}
                         </ActionButton>
                         <ActionButton
-                            onClick={() => { saveContent(); setEditable(false); }}>
+                            onClick={async () => { await saveContent(); await clearEditSession(); setEditable(false); }}>
                             {t('save')}
                         </ActionButton>
                     </div>

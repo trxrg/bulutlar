@@ -6,7 +6,7 @@ import Highlight from '@tiptap/extension-highlight';
 import Superscript from '@tiptap/extension-superscript';
 import Subscript from '@tiptap/extension-subscript';
 import Placeholder from '@tiptap/extension-placeholder';
-import { flushMediaDeletes, articleApi, annotationApi } from '../../../../backend-adapter/BackendAdapter';
+import { articleApi, annotationApi } from '../../../../backend-adapter/BackendAdapter';
 import { ReadContext } from '../../../../store/read-context';
 import { AppContext } from '../../../../store/app-context';
 import { DBContext } from '../../../../store/db-context';
@@ -70,7 +70,6 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
     const [quoteContextMenu, setQuoteContextMenu] = useState(null);
 
     const initErrorRef = useRef(null);
-    const originalContentRef = useRef(null);
     const lastDispatchedActiveIndexRef = useRef(-1);
     const editableRef = useRef(editable);
     const uploadHandlerRef = useRef(null);
@@ -105,7 +104,6 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
     };
 
     const initialContent = getInitialContent();
-    originalContentRef.current = initialContent;
 
     const editor = useEditor({
         extensions: [
@@ -684,13 +682,14 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
             audioIds: [...deletedAudioIdsWhileEditing],
             videoIds: [...deletedVideoIdsWhileEditing],
         };
-        clearPendingMediaState();
+        setDeletedImageIdsWhileEditing([]);
+        setDeletedAudioIdsWhileEditing([]);
+        setDeletedVideoIdsWhileEditing([]);
         return pending;
     }, [
         deletedImageIdsWhileEditing,
         deletedAudioIdsWhileEditing,
         deletedVideoIdsWhileEditing,
-        clearPendingMediaState,
     ]);
 
     const takePendingAddedMedia = useCallback(() => {
@@ -699,21 +698,21 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
             audioIds: [...addedAudioIdsWhileEditing],
             videoIds: [...addedVideoIdsWhileEditing],
         };
-        clearPendingMediaState();
+        setAddedImageIdsWhileEditing([]);
+        setAddedAudioIdsWhileEditing([]);
+        setAddedVideoIdsWhileEditing([]);
         return pending;
     }, [
         addedImageIdsWhileEditing,
         addedAudioIdsWhileEditing,
         addedVideoIdsWhileEditing,
-        clearPendingMediaState,
     ]);
 
-    const resetContent = useCallback(async () => {
-        await flushMediaDeletes(takePendingAddedMedia());
-        if (editor) {
-            editor.commands.setContent(originalContentRef.current);
-        }
-    }, [editor, takePendingAddedMedia]);
+    const setContentFromSnapshot = useCallback(({ html, tiptapJson }) => {
+        if (!editor) return;
+        const content = (tiptapJson && tiptapJson.type === 'doc') ? tiptapJson : (html ?? '');
+        editor.commands.setContent(content);
+    }, [editor]);
 
     // ================================ IMPERATIVE HANDLE ================================
     React.useImperativeHandle(ref, () => ({
@@ -724,7 +723,9 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
         addVideo,
         getContent,
         takePendingMediaDeletes,
-        resetContent,
+        takePendingAddedMedia,
+        setContentFromSnapshot,
+        clearPendingMediaState,
         toggleInlineStyle,
         toggleBlockType,
         hasError: () => initErrorRef.current != null,

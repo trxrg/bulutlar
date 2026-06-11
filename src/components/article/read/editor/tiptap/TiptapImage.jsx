@@ -30,6 +30,7 @@ const TiptapImage = ({ node, deleteNode, extension }) => {
     };
 
     useEffect(() => {
+        setImageData(null);
         fetchImageData();
     }, [imageEntity.id]);
 

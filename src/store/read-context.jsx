@@ -5,6 +5,28 @@ import toastr from 'toastr';
 
 export const ReadContext = createContext();
 
+function cloneTiptapJson(json) {
+    if (json == null) return null;
+    return structuredClone(json);
+}
+
+function captureBodySnapshot(art) {
+    return {
+        explanation: {
+            html: art.explanation ?? '',
+            tiptapJson: cloneTiptapJson(art.explanationTiptapJson),
+        },
+        mainText: {
+            html: art.text ?? '',
+            tiptapJson: cloneTiptapJson(art.textTiptapJson),
+        },
+        comment: art.comments?.[0] ? {
+            html: art.comments[0].text ?? '',
+            tiptapJson: cloneTiptapJson(art.comments[0].tiptapTextJson),
+        } : null,
+    };
+}
+
 export default function ReadContextProvider({ children, article }) {
 
     const { getOwnerById, getCategoryById, fetchArticleById } = useContext(DBContext);
@@ -78,6 +100,8 @@ export default function ReadContextProvider({ children, article }) {
     const hasCommentContent = article.comments?.[0] && !isHtmlStringEmpty(article.comments[0].text);
 
     const readContentRef = useRef();
+    const editSnapshotRef = useRef(null);
+    const prevEditableRef = useRef(false);
     // Ref to store callback for capturing scroll before fullscreen toggle
     const beforeFullScreenToggleRef = useRef(null);
 
@@ -87,14 +111,19 @@ export default function ReadContextProvider({ children, article }) {
         await fetchArticleById(article.id);
     }
 
-    const saveContent = () => {
-        if (readContentRef && readContentRef.current)
-            readContentRef.current.saveContent();
+    const saveContent = async () => {
+        if (readContentRef?.current)
+            await readContentRef.current.saveContent();
     }
 
-    const resetContent = () => {
-        if (readContentRef && readContentRef.current)
-            readContentRef.current.resetContent();
+    const resetContent = async () => {
+        if (readContentRef?.current)
+            await readContentRef.current.resetContent();
+    }
+
+    const clearEditSession = async () => {
+        if (readContentRef?.current)
+            await readContentRef.current.clearEditSession();
     }
 
     const increaseFontSize = () => {
@@ -187,14 +216,36 @@ export default function ReadContextProvider({ children, article }) {
         }
     }, [editable, article.id]);
 
+    // Capture body content once when edit mode opens (before any edits/autosave).
+    useEffect(() => {
+        if (editable && !prevEditableRef.current) {
+            editSnapshotRef.current = captureBodySnapshot(article);
+        }
+        prevEditableRef.current = editable;
+    }, [editable, article]);
+
+    // Re-snapshot if the article tab changes while still in edit mode.
+    useEffect(() => {
+        if (editable) {
+            editSnapshotRef.current = captureBodySnapshot(article);
+        }
+    }, [article.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
     // Register/unregister editable state with AppContext for close confirmation
     useEffect(() => {
         if (editable) {
-            registerEditableTab(article.id, saveContent);
+            const saveAndFinalize = async () => {
+                await saveContent();
+                await clearEditSession();
+            };
+            registerEditableTab(article.id, {
+                saveCallback: saveAndFinalize,
+                discardCallback: resetContent,
+            });
         } else {
             unregisterEditableTab(article.id);
         }
-        
+
         // Cleanup on unmount
         return () => {
             unregisterEditableTab(article.id);
@@ -299,6 +350,8 @@ export default function ReadContextProvider({ children, article }) {
         handleInsertVideoClicked,
         saveContent,
         resetContent,
+        clearEditSession,
+        editSnapshotRef,
         syncArticleFromBE,
         fontSize,
         increaseFontSize,

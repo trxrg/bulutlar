@@ -18,6 +18,12 @@ import {
     rewriteHtmlMediaPaths,
     rewriteTiptapMediaPaths,
 } from '../sync/mediaPath.js';
+import {
+    buildMediaInfoLookup,
+    relinkHtmlMedia,
+    relinkTiptapMedia,
+    rowToMediaInfo,
+} from '../sync/mediaRelink.js';
 
 // Mark types considered "personal" that should be removed on export (highlights,
 // links that may reference local articles, quotes tied to local annotations).
@@ -1777,6 +1783,11 @@ async function runStartupMigrations() {
     } catch (err) {
         console.error('[media-path-migration] migration failed:', err);
     }
+    try {
+        await relinkEmbeddedMediaOnce();
+    } catch (err) {
+        console.error('[media-id-relink] migration failed:', err);
+    }
 }
 
 async function backfillDatesToLocalNoonOnce() {
@@ -1959,6 +1970,91 @@ async function migrateMediaPathsToUuidOnce() {
         );
         console.info(
             `[media-path-migration] renamed ${filesRenamed} files, updated ${rowsUpdated} media rows`
+        );
+    });
+}
+
+async function relinkEmbeddedMediaOnce() {
+    const FLAG = 'media_embedded_ids_relinked_v1';
+    const Lookup = sequelize.models.lookup;
+
+    const existing = await Lookup.findOne({ where: { label: FLAG } });
+    if (existing && existing.value === true) return;
+
+    console.info('[media-id-relink] starting one-time embedded media relink...');
+
+    const mediaEntities = ['image', 'audio', 'video'];
+
+    await sequelize.transaction(async (t) => {
+        const allRows = [];
+        for (const modelName of mediaEntities) {
+            const rows = await sequelize.models[modelName].findAll({ transaction: t });
+            for (const row of rows) allRows.push(rowToMediaInfo(row));
+        }
+        const lookup = buildMediaInfoLookup(allRows);
+
+        const articles = await sequelize.models.article.findAll({
+            attributes: ['id', 'text', 'explanation', 'textTiptapJson', 'explanationTiptapJson'],
+            transaction: t,
+        });
+        let articlesChanged = 0;
+        for (const article of articles) {
+            const updates = {};
+            if (article.text) {
+                const r = await relinkHtmlMedia(article.text, lookup);
+                if (r.changed) updates.text = r.html;
+            }
+            if (article.explanation) {
+                const r = await relinkHtmlMedia(article.explanation, lookup);
+                if (r.changed) updates.explanation = r.html;
+            }
+            if (article.textTiptapJson) {
+                const r = relinkTiptapMedia(article.textTiptapJson, lookup);
+                if (r.changed) updates.textTiptapJson = r.doc;
+            }
+            if (article.explanationTiptapJson) {
+                const r = relinkTiptapMedia(article.explanationTiptapJson, lookup);
+                if (r.changed) updates.explanationTiptapJson = r.doc;
+            }
+            if (Object.keys(updates).length) {
+                await sequelize.models.article.update(
+                    updates,
+                    { where: { id: article.id }, hooks: false, transaction: t }
+                );
+                articlesChanged++;
+            }
+        }
+
+        const comments = await sequelize.models.comment.findAll({
+            attributes: ['id', 'text', 'tiptapTextJson'],
+            transaction: t,
+        });
+        let commentsChanged = 0;
+        for (const comment of comments) {
+            const updates = {};
+            if (comment.text) {
+                const r = await relinkHtmlMedia(comment.text, lookup);
+                if (r.changed) updates.text = r.html;
+            }
+            if (comment.tiptapTextJson) {
+                const r = relinkTiptapMedia(comment.tiptapTextJson, lookup);
+                if (r.changed) updates.tiptapTextJson = r.doc;
+            }
+            if (Object.keys(updates).length) {
+                await sequelize.models.comment.update(
+                    updates,
+                    { where: { id: comment.id }, hooks: false, transaction: t }
+                );
+                commentsChanged++;
+            }
+        }
+
+        await Lookup.upsert(
+            { label: FLAG, value: true },
+            { transaction: t }
+        );
+        console.info(
+            `[media-id-relink] relinked ${articlesChanged} articles, ${commentsChanged} comments`
         );
     });
 }

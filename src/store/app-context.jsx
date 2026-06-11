@@ -170,9 +170,9 @@ export default function AppContextProvider({ children }) {
         handleAddTab(e, randomArticle.id);
     };
 
-    // Register a tab as editable with its save callback
-    const registerEditableTab = useCallback((tabId, saveCallback) => {
-        editableTabsRef.current[tabId] = { saveCallback };
+    // Register a tab as editable with save/discard callbacks
+    const registerEditableTab = useCallback((tabId, { saveCallback, discardCallback }) => {
+        editableTabsRef.current[tabId] = { saveCallback, discardCallback };
     }, []);
 
     // Unregister a tab from editable registry
@@ -218,8 +218,14 @@ export default function AppContextProvider({ children }) {
     };
 
     // Handle discard and close from confirmation modal
-    const handleDiscardAndClose = () => {
+    const handleDiscardAndClose = async () => {
         const tabId = saveConfirmModal.tabId;
+        const tabInfo = editableTabsRef.current[tabId];
+
+        if (tabInfo?.discardCallback) {
+            await tabInfo.discardCallback();
+        }
+
         unregisterEditableTab(tabId);
         setSaveConfirmModal({ isOpen: false, tabId: null });
         closeTabDirectly(tabId);

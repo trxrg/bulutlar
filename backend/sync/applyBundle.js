@@ -34,6 +34,7 @@ import { SYNCABLE_MODELS } from './syncableModels.js';
 import { ensureFolderExists } from '../fsOps.js';
 import { safeUnlink } from './outbox.js';
 import { resolveTiptapMedia, collectMediaUuids, stripMediaNodesById } from './tiptapResolve.js';
+import { resolveHtmlMedia } from './htmlResolve.js';
 
 // Wire-format entity name -> sequelize model name. Most are identical; the
 // three junctions use snake_case model names.
@@ -446,17 +447,25 @@ export async function applyBundle(sequelize, config, bundle) {
             for (const a of arts) {
                 const r1 = resolveTiptapMedia(a.textTiptapJson, mediaInfoByUuid);
                 const r2 = resolveTiptapMedia(a.explanationTiptapJson, mediaInfoByUuid);
-                if (r1.changed || r2.changed) {
+                const h1 = await resolveHtmlMedia(a.text, mediaInfoByUuid);
+                const h2 = await resolveHtmlMedia(a.explanation, mediaInfoByUuid);
+                if (r1.changed || r2.changed || h1.changed || h2.changed) {
                     const upd = {};
                     if (r1.changed) upd.textTiptapJson = r1.doc;
                     if (r2.changed) upd.explanationTiptapJson = r2.doc;
+                    if (h1.changed) upd.text = h1.html;
+                    if (h2.changed) upd.explanation = h2.html;
                     await M.article.update(upd, { where: { id: a.id }, hooks: false, transaction });
                 }
             }
             for (const c of cmts) {
                 const r = resolveTiptapMedia(c.tiptapTextJson, mediaInfoByUuid);
-                if (r.changed) {
-                    await M.comment.update({ tiptapTextJson: r.doc }, { where: { id: c.id }, hooks: false, transaction });
+                const h = await resolveHtmlMedia(c.text, mediaInfoByUuid);
+                if (r.changed || h.changed) {
+                    const upd = {};
+                    if (r.changed) upd.tiptapTextJson = r.doc;
+                    if (h.changed) upd.text = h.html;
+                    await M.comment.update(upd, { where: { id: c.id }, hooks: false, transaction });
                 }
             }
         }

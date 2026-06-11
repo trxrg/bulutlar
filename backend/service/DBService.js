@@ -12,6 +12,12 @@ import { config, changeDbBackupFolderPath } from '../config.js';
 import { convertDraftToTiptap, isDraftJson, isTiptapJson } from '../utils/draftToTiptap.js';
 import { stripMediaFromTiptapDoc, stripMediaFromDraftRaw, stripMediaFromHtml } from '../sync/mediaContentFilter.js';
 import { toLocalNoon } from './ArticleService.js';
+import { v7 as uuidv7 } from 'uuid';
+import {
+    buildMediaRelPath,
+    rewriteHtmlMediaPaths,
+    rewriteTiptapMediaPaths,
+} from '../sync/mediaPath.js';
 
 // Mark types considered "personal" that should be removed on export (highlights,
 // links that may reference local articles, quotes tied to local annotations).
@@ -1359,51 +1365,66 @@ async function handleMergeImport() {
                 commentIdMap[comment.id] = cmtResult.lastID;
             }
 
-            // --- 7. Images (remap articleId, track id mapping, generate unique path) ---
+            // --- 7. Images (remap articleId, track id mapping, generate uuid path) ---
             for (const image of sourceImages) {
                 const newArticleId = image.articleId ? articleIdMap[image.articleId] || null : null;
-                const newPath = image.name + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+                const mediaUuid = image.uuid || uuidv7();
+                const newPath = buildMediaRelPath(mediaUuid, {
+                    name: image.name,
+                    type: image.type,
+                    path: image.path,
+                });
                 if (image.path) {
                     mediaFileCopyMap.images[image.path] = newPath;
                 }
                 const imgResult = await activeDb.run(
-                    `INSERT INTO images (name, type, path, size, description, ordering, field1, field2, articleId, createdAt, updatedAt)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [image.name, image.type, newPath, image.size, image.description,
+                    `INSERT INTO images (uuid, name, type, path, size, description, ordering, field1, field2, articleId, createdAt, updatedAt)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [mediaUuid, image.name, image.type, newPath, image.size, image.description,
                         image.ordering, image.field1, image.field2, newArticleId,
                         image.createdAt, image.updatedAt]
                 );
                 imageIdMap[image.id] = imgResult.lastID;
             }
 
-            // --- 8. Audios (remap articleId, track id mapping, generate unique path) ---
+            // --- 8. Audios (remap articleId, track id mapping, generate uuid path) ---
             for (const audio of sourceAudios) {
                 const newArticleId = audio.articleId ? articleIdMap[audio.articleId] || null : null;
-                const newPath = audio.name + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+                const mediaUuid = audio.uuid || uuidv7();
+                const newPath = buildMediaRelPath(mediaUuid, {
+                    name: audio.name,
+                    type: audio.type,
+                    path: audio.path,
+                });
                 if (audio.path) {
                     mediaFileCopyMap.audios[audio.path] = newPath;
                 }
                 const audResult = await activeDb.run(
-                    `INSERT INTO audios (name, type, path, size, description, duration, ordering, field1, field2, articleId, createdAt, updatedAt)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [audio.name, audio.type, newPath, audio.size, audio.description,
+                    `INSERT INTO audios (uuid, name, type, path, size, description, duration, ordering, field1, field2, articleId, createdAt, updatedAt)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [mediaUuid, audio.name, audio.type, newPath, audio.size, audio.description,
                         audio.duration, audio.ordering, audio.field1, audio.field2, newArticleId,
                         audio.createdAt, audio.updatedAt]
                 );
                 audioIdMap[audio.id] = audResult.lastID;
             }
 
-            // --- 9. Videos (remap articleId, track id mapping, generate unique path) ---
+            // --- 9. Videos (remap articleId, track id mapping, generate uuid path) ---
             for (const video of sourceVideos) {
                 const newArticleId = video.articleId ? articleIdMap[video.articleId] || null : null;
-                const newPath = video.name + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+                const mediaUuid = video.uuid || uuidv7();
+                const newPath = buildMediaRelPath(mediaUuid, {
+                    name: video.name,
+                    type: video.type,
+                    path: video.path,
+                });
                 if (video.path) {
                     mediaFileCopyMap.videos[video.path] = newPath;
                 }
                 const vidResult = await activeDb.run(
-                    `INSERT INTO videos (name, type, path, size, description, duration, width, height, ordering, field1, field2, articleId, createdAt, updatedAt)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [video.name, video.type, newPath, video.size, video.description,
+                    `INSERT INTO videos (uuid, name, type, path, size, description, duration, width, height, ordering, field1, field2, articleId, createdAt, updatedAt)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [mediaUuid, video.name, video.type, newPath, video.size, video.description,
                         video.duration, video.width, video.height, video.ordering,
                         video.field1, video.field2, newArticleId,
                         video.createdAt, video.updatedAt]
@@ -1751,6 +1772,11 @@ async function runStartupMigrations() {
     } catch (err) {
         console.error('[date-normalization] migration failed:', err);
     }
+    try {
+        await migrateMediaPathsToUuidOnce();
+    } catch (err) {
+        console.error('[media-path-migration] migration failed:', err);
+    }
 }
 
 async function backfillDatesToLocalNoonOnce() {
@@ -1792,6 +1818,148 @@ async function backfillDatesToLocalNoonOnce() {
             { transaction: t }
         );
         console.info(`[date-normalization] processed ${articles.length} rows, rewrote ${changed}`);
+    });
+}
+
+async function migrateMediaPathsToUuidOnce() {
+    const FLAG = 'media_paths_migrated_to_uuid_v1';
+    const Lookup = sequelize.models.lookup;
+
+    const existing = await Lookup.findOne({ where: { label: FLAG } });
+    if (existing && existing.value === true) return;
+
+    console.info('[media-path-migration] starting one-time backfill...');
+
+    try {
+        const backupPath = await handleBackup();
+        console.info(`[media-path-migration] pre-migration backup at ${backupPath}`);
+    } catch (e) {
+        console.error('[media-path-migration] backup failed; aborting migration:', e);
+        return;
+    }
+
+    const mediaEntities = [
+        { modelName: 'image', folderKey: 'imagesFolderPath' },
+        { modelName: 'audio', folderKey: 'audiosFolderPath' },
+        { modelName: 'video', folderKey: 'videosFolderPath' },
+    ];
+
+    await sequelize.transaction(async (t) => {
+        const pathMap = new Map();
+        let filesRenamed = 0;
+        let rowsUpdated = 0;
+
+        for (const { modelName, folderKey } of mediaEntities) {
+            const Model = sequelize.models[modelName];
+            const folder = config[folderKey];
+            const rows = await Model.findAll({ transaction: t });
+
+            for (const row of rows) {
+                if (!row.uuid) {
+                    console.warn(`[media-path-migration] ${modelName} id=${row.id} has no uuid; skipping`);
+                    continue;
+                }
+
+                const newPath = buildMediaRelPath(row.uuid, {
+                    name: row.name,
+                    type: row.type,
+                    path: row.path,
+                });
+                const oldPath = row.path;
+                if (!oldPath || oldPath === newPath) continue;
+
+                const oldAbs = path.join(folder, oldPath);
+                const newAbs = path.join(folder, newPath);
+                const oldExists = await fs.pathExists(oldAbs);
+                const newExists = await fs.pathExists(newAbs);
+
+                if (oldExists) {
+                    await fs.rename(oldAbs, newAbs);
+                    filesRenamed++;
+                } else if (!newExists) {
+                    console.warn(
+                        `[media-path-migration] missing file for ${modelName} id=${row.id}: ${oldPath}`
+                    );
+                }
+
+                await Model.update(
+                    { path: newPath },
+                    { where: { id: row.id }, hooks: false, transaction: t }
+                );
+                pathMap.set(oldPath, newPath);
+                rowsUpdated++;
+            }
+        }
+
+        if (pathMap.size > 0) {
+            const articles = await sequelize.models.article.findAll({
+                attributes: ['id', 'text', 'explanation', 'textTiptapJson', 'explanationTiptapJson'],
+                transaction: t,
+            });
+            let articlesChanged = 0;
+            for (const article of articles) {
+                const updates = {};
+                if (article.text) {
+                    const r = await rewriteHtmlMediaPaths(article.text, pathMap);
+                    if (r.changed) updates.text = r.html;
+                }
+                if (article.explanation) {
+                    const r = await rewriteHtmlMediaPaths(article.explanation, pathMap);
+                    if (r.changed) updates.explanation = r.html;
+                }
+                if (article.textTiptapJson) {
+                    const r = rewriteTiptapMediaPaths(article.textTiptapJson, pathMap);
+                    if (r.changed) updates.textTiptapJson = r.doc;
+                }
+                if (article.explanationTiptapJson) {
+                    const r = rewriteTiptapMediaPaths(article.explanationTiptapJson, pathMap);
+                    if (r.changed) updates.explanationTiptapJson = r.doc;
+                }
+                if (Object.keys(updates).length) {
+                    await sequelize.models.article.update(
+                        updates,
+                        { where: { id: article.id }, hooks: false, transaction: t }
+                    );
+                    articlesChanged++;
+                }
+            }
+
+            const comments = await sequelize.models.comment.findAll({
+                attributes: ['id', 'text', 'tiptapTextJson'],
+                transaction: t,
+            });
+            let commentsChanged = 0;
+            for (const comment of comments) {
+                const updates = {};
+                if (comment.text) {
+                    const r = await rewriteHtmlMediaPaths(comment.text, pathMap);
+                    if (r.changed) updates.text = r.html;
+                }
+                if (comment.tiptapTextJson) {
+                    const r = rewriteTiptapMediaPaths(comment.tiptapTextJson, pathMap);
+                    if (r.changed) updates.tiptapTextJson = r.doc;
+                }
+                if (Object.keys(updates).length) {
+                    await sequelize.models.comment.update(
+                        updates,
+                        { where: { id: comment.id }, hooks: false, transaction: t }
+                    );
+                    commentsChanged++;
+                }
+            }
+
+            console.info(
+                `[media-path-migration] content rewrite: ${articlesChanged} articles, ${commentsChanged} comments`
+            );
+        }
+
+        await Lookup.upsert(
+            { label: FLAG, value: true },
+            { transaction: t }
+        );
+        console.info(
+            `[media-path-migration] renamed ${filesRenamed} files, updated ${rowsUpdated} media rows`
+        );
     });
 }
 

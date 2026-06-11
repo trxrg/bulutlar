@@ -6,6 +6,8 @@ import fs from 'fs/promises';
 import { config } from '../config.js';
 import { mainWindow } from '../main.js';
 import { safeUnlink } from '../sync/outbox.js';
+import { v7 as uuidv7 } from 'uuid';
+import { buildMediaRelPath } from '../sync/mediaPath.js';
 // Circular import: ArticleService also imports this module. Safe because
 // `articleService.touchArticleRevision` is only invoked at runtime (inside
 // deleteImageById, after both modules have fully evaluated), so ESM's live
@@ -34,7 +36,8 @@ function initService() {
 
 async function createImage(image, transaction = null) {
     try {
-        const relPath = path.join(image.name + '_' + Date.now());
+        const uuid = uuidv7();
+        const relPath = buildMediaRelPath(uuid, { name: image.name, type: image.type });
         const absPath = path.join(imagesFolderPath, relPath);
 
         console.info('Copying file from:', image.path);
@@ -42,6 +45,7 @@ async function createImage(image, transaction = null) {
         await fs.copyFile(image.path, absPath);
 
         const result = await sequelize.models.image.create({
+            uuid,
             name: image.name,
             type: image.type,
             path: relPath,
@@ -58,7 +62,8 @@ async function createImage(image, transaction = null) {
 
 async function createImageFromBuffer(image, transaction = null) {
     try {
-        const relPath = path.join(image.name + '_' + Date.now());
+        const uuid = uuidv7();
+        const relPath = buildMediaRelPath(uuid, { name: image.name, type: image.type });
         const absPath = path.join(imagesFolderPath, relPath);
 
         const buffer = Buffer.isBuffer(image.buffer)
@@ -69,6 +74,7 @@ async function createImageFromBuffer(image, transaction = null) {
         await fs.writeFile(absPath, buffer);
 
         const result = await sequelize.models.image.create({
+            uuid,
             name: image.name,
             type: image.type,
             path: relPath,

@@ -6,6 +6,8 @@ import fs from 'fs/promises';
 import { config } from '../config.js';
 import { mainWindow } from '../main.js';
 import { safeUnlink } from '../sync/outbox.js';
+import { v7 as uuidv7 } from 'uuid';
+import { buildMediaRelPath } from '../sync/mediaPath.js';
 // Circular import: ArticleService also imports this module. Safe because
 // `articleService.touchArticleRevision` is only invoked at runtime (inside
 // deleteVideoById, after both modules have fully evaluated), so ESM's live
@@ -38,7 +40,8 @@ function initService() {
 
 async function createVideo(video, transaction = null) {
     try {
-        const relPath = path.join(video.name + '_' + Date.now());
+        const uuid = uuidv7();
+        const relPath = buildMediaRelPath(uuid, { name: video.name, type: video.type });
         const absPath = path.join(videosFolderPath, relPath);
 
         console.info('Copying file from:', video.path);
@@ -46,6 +49,7 @@ async function createVideo(video, transaction = null) {
         await fs.copyFile(video.path, absPath);
 
         const result = await sequelize.models.video.create({
+            uuid,
             name: video.name,
             type: video.type,
             path: relPath,

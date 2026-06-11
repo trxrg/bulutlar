@@ -6,6 +6,8 @@ import fs from 'fs/promises';
 import { config } from '../config.js';
 import { mainWindow } from '../main.js';
 import { safeUnlink } from '../sync/outbox.js';
+import { v7 as uuidv7 } from 'uuid';
+import { buildMediaRelPath } from '../sync/mediaPath.js';
 // Circular import: ArticleService also imports this module. Safe because
 // `articleService.touchArticleRevision` is only invoked at runtime (inside
 // deleteAudioById, after both modules have fully evaluated), so ESM's live
@@ -37,7 +39,8 @@ function initService() {
 
 async function createAudio(audio, transaction = null) {
     try {
-        const relPath = path.join(audio.name + '_' + Date.now());
+        const uuid = uuidv7();
+        const relPath = buildMediaRelPath(uuid, { name: audio.name, type: audio.type });
         const absPath = path.join(audiosFolderPath, relPath);
 
         console.info('Copying file from:', audio.path);
@@ -45,6 +48,7 @@ async function createAudio(audio, transaction = null) {
         await fs.copyFile(audio.path, absPath);
 
         const result = await sequelize.models.audio.create({
+            uuid,
             name: audio.name,
             type: audio.type,
             path: relPath,

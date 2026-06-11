@@ -24,6 +24,7 @@ import { stripMediaFromTiptapDoc, stripMediaFromDraftRaw, stripMediaFromHtml } f
 import { build as buildBundle } from '../sync/bundleBuilder.js';
 import { readBundle } from '../sync/bundleReader.js';
 import { applyBundle } from '../sync/applyBundle.js';
+import { pickMediaExt } from '../sync/mediaPath.js';
 import { mainWindow } from '../main.js';
 import storeService from './StoreService.js';
 
@@ -1182,42 +1183,6 @@ function stripTimestamps(dv) {
 }
 
 // Resolve a clean filesystem-safe extension for a media row.
-// Order of preference:
-//   1. extension parsed from the original filename (`name`)
-//   2. subtype after the slash in a MIME type (`image/jpeg` → `jpeg`)
-//   3. raw `type` if it looks like a bare extension
-// Anything containing `/`, `\`, whitespace, or codec parameters
-// (`; charset=...`) is rejected so it can't leak into zip entry names.
-function pickMediaExt(dv) {
-    const sanitize = (s) => {
-        if (typeof s !== 'string') return '';
-        const trimmed = s.trim().replace(/^\.+/, '');
-        if (!trimmed) return '';
-        if (/[\/\\\s;]/.test(trimmed)) return '';
-        if (!/^[A-Za-z0-9]{1,8}$/.test(trimmed)) return '';
-        return trimmed.toLowerCase();
-    };
-
-    const fromName = (() => {
-        if (typeof dv.name !== 'string') return '';
-        const ext = path.extname(dv.name);
-        return ext ? sanitize(ext) : '';
-    })();
-    if (fromName) return fromName;
-
-    const fromType = (() => {
-        if (typeof dv.type !== 'string') return '';
-        const t = dv.type.trim();
-        if (!t) return '';
-        if (t.includes('/')) {
-            const sub = t.split(';')[0].split('/').pop();
-            return sanitize(sub);
-        }
-        return sanitize(t);
-    })();
-    return fromType;
-}
-
 const SharingService = {
     initService,
     // Exported for the smoke script in scripts/.

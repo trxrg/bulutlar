@@ -3,7 +3,13 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { ensureUTF8, buildArticleInfoParts } from './documentHelpers.js';
+import {
+    ensureUTF8,
+    buildArticleInfoParts,
+    resolveMergedDocumentTitle,
+    formatGenerationDate,
+    shouldShowMergedDocumentHeader,
+} from './documentHelpers.js';
 import { htmlToFormattedSegmentsPDF, isHtmlStringEmpty } from './htmlProcessing.js';
 
 // Get __dirname equivalent for ES modules
@@ -209,16 +215,53 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
     doc.end();
 }
 
+function renderMergedPdfHeader(doc, options, documentTitle, translations, locale) {
+    if (!shouldShowMergedDocumentHeader(options)) return;
+
+    const resolvedTitle = resolveMergedDocumentTitle(documentTitle, options);
+    const showTitle = options?.includeDocumentTitle !== false && resolvedTitle;
+    const showDate = options?.includeGenerationDate === true;
+    const separatePage = options?.documentTitleSeparatePage === true;
+
+    if (separatePage && (showTitle || showDate)) {
+        const pageHeight = doc.page.height - doc.page.margins.top - doc.page.margins.bottom;
+        let blockHeight = 0;
+        if (showTitle) blockHeight += 36;
+        if (showDate) blockHeight += 24;
+        const startY = doc.page.margins.top + Math.max(0, (pageHeight - blockHeight) / 2);
+        doc.y = startY;
+    }
+
+    if (showTitle) {
+        doc.fontSize(24).text(ensureUTF8(resolvedTitle), { align: 'center' });
+        doc.moveDown(showDate ? 0.5 : 2);
+    }
+
+    if (showDate) {
+        doc.fontSize(12).fillColor('#666666').text(
+            ensureUTF8(formatGenerationDate(locale)),
+            { align: 'center' },
+        );
+        doc.fillColor('#000000');
+        doc.moveDown(2);
+    }
+
+    if (separatePage && (showTitle || showDate)) {
+        doc.addPage();
+    }
+}
+
 // Generate merged PDF document from multiple articles
 export async function generateMergedPDF(exportData, filePath, imagesFolderPath, articleService) {
-    const { articles, options, documentTitle, translations } = exportData;
+    const { articles, options, documentTitle, translations, locale } = exportData;
+    const metadataTitle = resolveMergedDocumentTitle(documentTitle, options) || 'Merged Articles';
     
     const doc = new PDFDocument({ margin: 50, bufferPages: true });
     const writeStream = fsSync.createWriteStream(filePath);
     doc.pipe(writeStream);
     
     // Set document info
-    doc.info.Title = documentTitle || 'Merged Articles';
+    doc.info.Title = metadataTitle;
     doc.info.Author = 'Article Export';
     doc.info.Subject = 'Merged Articles Export';
     doc.info.Creator = 'Article Export Tool';
@@ -226,9 +269,7 @@ export async function generateMergedPDF(exportData, filePath, imagesFolderPath, 
     // Initialize fonts
     initializePDFFont(doc);
 
-    // Document Title
-    doc.fontSize(24).text(ensureUTF8(documentTitle || 'Merged Articles'), { align: 'center' });
-    doc.moveDown(2);
+    renderMergedPdfHeader(doc, options, documentTitle, translations, locale);
 
     // Process each article
     for (let i = 0; i < articles.length; i++) {

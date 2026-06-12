@@ -1,0 +1,38 @@
+// Keep in sync with scripts/font-catalog.mjs (used by the font copy script).
+
+export const FONT_OPTIONS = [
+    { label: 'System UI', value: 'system-ui', system: true },
+    { label: 'Roboto', value: '"Roboto", sans-serif', package: 'roboto', family: 'Roboto' },
+    { label: 'Open Sans', value: '"Open Sans", sans-serif', package: 'open-sans', family: 'Open Sans' },
+    { label: 'Lato', value: '"Lato", sans-serif', package: 'lato', family: 'Lato' },
+    { label: 'Montserrat', value: '"Montserrat", sans-serif', package: 'montserrat', family: 'Montserrat' },
+    { label: 'Raleway', value: '"Raleway", sans-serif', package: 'raleway', family: 'Raleway' },
+    { label: 'Nunito', value: '"Nunito", sans-serif', package: 'nunito', family: 'Nunito' },
+    { label: 'Archivo', value: '"Archivo", sans-serif', package: 'archivo', family: 'Archivo' },
+    { label: 'Helvetica', value: '"Helvetica", sans-serif', system: true, family: 'Helvetica' },
+    { label: 'Inter', value: '"Inter", sans-serif', package: 'inter', family: 'Inter' },
+    { label: 'Source Sans Pro', value: '"Source Sans Pro", sans-serif', package: 'source-sans-pro', family: 'Source Sans Pro' },
+    { label: 'Noto Sans', value: '"Noto Sans", sans-serif', package: 'noto-sans', family: 'Noto Sans' },
+    { label: 'Exo 2', value: '"Exo 2", sans-serif', package: 'exo-2', family: 'Exo 2' },
+    { label: 'Audiowide', value: '"Audiowide", sans-serif', package: 'audiowide', family: 'Audiowide' },
+    { label: 'Electrolize', value: '"Electrolize", sans-serif', package: 'electrolize', family: 'Electrolize' },
+    { label: 'Saira', value: '"Saira", sans-serif', package: 'saira', family: 'Saira' },
+    { label: 'Times New Roman', value: '"Times New Roman", serif', system: true, family: 'Times New Roman' },
+    { label: 'Georgia', value: '"Georgia", serif', system: true, family: 'Georgia' },
+    { label: 'Merriweather', value: '"Merriweather", serif', package: 'merriweather', family: 'Merriweather' },
+    { label: 'Playfair Display', value: '"Playfair Display", serif', package: 'playfair-display', family: 'Playfair Display' },
+    { label: 'Lora', value: '"Lora", serif', package: 'lora', family: 'Lora' },
+    { label: 'PT Serif', value: '"PT Serif", serif', package: 'pt-serif', family: 'PT Serif' },
+    { label: 'Crimson Text', value: '"Crimson Text", serif', package: 'crimson-text', family: 'Crimson Text' },
+    { label: 'Libre Baskerville', value: '"Libre Baskerville", serif', package: 'libre-baskerville', family: 'Libre Baskerville' },
+    { label: 'EB Garamond', value: '"EB Garamond", serif', package: 'eb-garamond', family: 'EB Garamond' },
+    { label: 'Bitter', value: '"Bitter", serif', package: 'bitter', family: 'Bitter' },
+    { label: 'Noto Serif', value: '"Noto Serif", serif', package: 'noto-serif', family: 'Noto Serif' },
+    { label: 'Cinzel', value: '"Cinzel", serif', package: 'cinzel', family: 'Cinzel' },
+    { label: 'Cormorant', value: '"Cormorant Garamond", serif', package: 'cormorant-garamond', family: 'Cormorant Garamond' },
+    { label: 'Old Standard', value: '"Old Standard TT", serif', package: 'old-standard-tt', family: 'Old Standard TT' },
+    { label: 'Spectral', value: '"Spectral", serif', package: 'spectral', family: 'Spectral' },
+    { label: 'Cardo', value: '"Cardo", serif', package: 'cardo', family: 'Cardo' },
+];
+
+export const FONT_FAMILY_SELECT_OPTIONS = FONT_OPTIONS.map(({ label, value }) => ({ label, value }));

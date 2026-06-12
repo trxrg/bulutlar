@@ -1,9 +1,15 @@
-import { Document, Packer, Paragraph, TextRun, ImageRun, HeadingLevel } from 'docx';
+import { Document, Packer, Paragraph, TextRun, ImageRun, HeadingLevel, PageBreak } from 'docx';
 import fs from 'fs/promises';
 import path from 'path';
 import sizeOf from 'image-size';
-import { buildArticleInfoParts } from './documentHelpers.js';
+import {
+    buildArticleInfoParts,
+    resolveMergedDocumentTitle,
+    formatGenerationDate,
+    shouldShowMergedDocumentHeader,
+} from './documentHelpers.js';
 import { htmlToFormattedRuns, isHtmlStringEmpty, stripInvalidXmlChars } from './htmlProcessing.js';
+import { resolveExportLayout } from './exportLayout.js';
 
 // Scrub user-supplied plain strings before they end up as <w:t> text in the
 // exported docx. Tiptap/Draft content may pass through here indirectly (e.g.
@@ -12,14 +18,22 @@ import { htmlToFormattedRuns, isHtmlStringEmpty, stripInvalidXmlChars } from './
 // as corrupt/unsafe.
 const s = (str) => stripInvalidXmlChars(str || '');
 
-// Default Word document styling applied to every run that doesn't override it
-// itself. Also provides a font for headings/title so Mac Word doesn't fall back
-// to Cambria or the installation-specific Normal font.
-const DOC_STYLES = {
+const buildDocStyles = (layout) => ({
     default: {
-        document: { run: { font: 'Arial', size: 22 } }, // 22 half-points = 11pt
+        document: { run: { font: layout.docxFont, size: layout.docxBodySize } },
     },
-};
+});
+
+const buildSectionProperties = (layout) => ({
+    page: {
+        margin: {
+            top: layout.pageMarginTwips,
+            right: layout.pageMarginTwips,
+            bottom: layout.pageMarginTwips,
+            left: layout.pageMarginTwips,
+        },
+    },
+});
 
 // Basic OOXML metadata (goes into docProps/core.xml). Adding these avoids some
 // "file might be unsafe / format mismatch" warnings Word for Mac shows for
@@ -61,7 +75,7 @@ const resolveDocxImageType = ({ detectedType, mime, filename }) => {
 // image can't be embedded (missing file, unreadable dimensions, unsupported
 // format), fall back to a small italic placeholder paragraph so the export
 // still succeeds and stays well-formed.
-const buildImageParagraph = async (image, imagesFolderPath) => {
+const buildImageParagraph = async (image, imagesFolderPath, docxFont = 'Segoe UI') => {
     try {
         const imagePath = path.join(imagesFolderPath, image.path);
         const imageBuffer = await fs.readFile(imagePath);
@@ -79,7 +93,7 @@ const buildImageParagraph = async (image, imagesFolderPath) => {
                 children: [new TextRun({
                     text: `[Image: ${s(image.name)} — format not supported in Word]`,
                     italics: true,
-                    font: 'Arial',
+                    font: docxFont,
                 })],
                 alignment: 'center',
                 spacing: { before: 200, after: 200 },
@@ -108,7 +122,7 @@ const buildImageParagraph = async (image, imagesFolderPath) => {
             children: [new TextRun({
                 text: `[Image: ${s(image.name)}]`,
                 italics: true,
-                font: 'Arial',
+                font: docxFont,
             })],
             alignment: 'center',
             spacing: { before: 200, after: 200 },
@@ -119,12 +133,13 @@ const buildImageParagraph = async (image, imagesFolderPath) => {
 // Generate Word document
 export async function generateWordDocument(exportData, filePath, imagesFolderPath) {
     const { article, options, annotations, tags, relatedArticles, collections, category, owner, translations } = exportData;
-    
+    const layout = resolveExportLayout(options);
+    const runDefaults = { font: layout.docxFont, size: layout.docxBodySize };
     const children = [];
 
     // Title
     children.push(new Paragraph({
-        children: [new TextRun({ text: s(article.title) || 'Untitled Article', bold: true, size: 32, font: 'Arial' })],
+        children: [new TextRun({ text: s(article.title) || 'Untitled Article', bold: true, size: layout.docxTitleSize, font: layout.docxFont })],
         heading: HeadingLevel.TITLE,
         alignment: 'center',
         spacing: { after: 400 }  // Add space after title
@@ -134,14 +149,14 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
     const articleInfoParts = buildArticleInfoParts(article, category, owner, translations);
     if (articleInfoParts.length > 0) {
         children.push(new Paragraph({
-            children: [new TextRun({ text: s(articleInfoParts.join(' | ')), font: 'Arial' })],
+            children: [new TextRun({ text: s(articleInfoParts.join(' | ')), font: layout.docxFont, size: layout.docxBodySize })],
         }));
         children.push(new Paragraph({ text: '' })); // Empty line
     }
 
     // Content sections
     if (options.explanation && article.explanation) {
-        const formattedRuns = htmlToFormattedRuns(article.explanation);
+        const formattedRuns = htmlToFormattedRuns(article.explanation, runDefaults);
         if (formattedRuns.length > 0) {
             formattedRuns.forEach((runs, index) => {
                 // const italicRuns = runs.map(run => new TextRun({ 
@@ -165,7 +180,7 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
     }
 
     if (options.mainText && article.text) {
-        const formattedRuns = htmlToFormattedRuns(article.text);
+        const formattedRuns = htmlToFormattedRuns(article.text, runDefaults);
         if (formattedRuns.length > 0) {
             formattedRuns.forEach((runs, index) => {
                 children.push(new Paragraph({
@@ -184,17 +199,17 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
     // Images (moved after main text)
     if (options.images && article.images && article.images.length > 0) {
         for (const image of article.images) {
-            children.push(await buildImageParagraph(image, imagesFolderPath));
+            children.push(await buildImageParagraph(image, imagesFolderPath, layout.docxFont));
         }
         children.push(new Paragraph({ text: '' })); // Empty line
     }
 
     // Comment (moved after images)
     if (options.comment && article.comments && article.comments.length > 0 && article.comments[0].text) {
-        const formattedRuns = htmlToFormattedRuns(article.comments[0].text);
+        const formattedRuns = htmlToFormattedRuns(article.comments[0].text, runDefaults);
         if (formattedRuns.length > 0) {
             children.push(new Paragraph({
-                children: [new TextRun({ text: s(translations?.comment) || 'Comment', bold: true, size: 24, font: 'Arial' })],
+                children: [new TextRun({ text: s(translations?.comment) || 'Comment', bold: true, size: layout.docxHeadingSize, font: layout.docxFont })],
                 heading: HeadingLevel.HEADING_1,
                 spacing: { before: 300, after: 200 }
             }));
@@ -215,13 +230,13 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
     // Notes/Annotations
     if (options.notes && annotations && annotations.length > 0) {
         children.push(new Paragraph({
-            children: [new TextRun({ text: s(translations?.notes) || 'Notes', bold: true, size: 24, font: 'Arial' })],
+            children: [new TextRun({ text: s(translations?.notes) || 'Notes', bold: true, size: layout.docxHeadingSize, font: layout.docxFont })],
             heading: HeadingLevel.HEADING_1,
             spacing: { before: 300, after: 200 }
         }));
         annotations.forEach((annotation, index) => {
             children.push(new Paragraph({
-                children: [new TextRun({ text: `${index + 1}. ${s(annotation.note || annotation.quote || '')}`, font: 'Arial' })],
+                children: [new TextRun({ text: `${index + 1}. ${s(annotation.note || annotation.quote || '')}`, font: layout.docxFont, size: layout.docxBodySize })],
                 spacing: { line: 360, lineRule: 'auto' }
             }));
         });
@@ -231,12 +246,12 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
     // Tags
     if (options.tags && tags && tags.length > 0) {
         children.push(new Paragraph({
-            children: [new TextRun({ text: s(translations?.tags) || 'Tags', bold: true, size: 24, font: 'Arial' })],
+            children: [new TextRun({ text: s(translations?.tags) || 'Tags', bold: true, size: layout.docxHeadingSize, font: layout.docxFont })],
             heading: HeadingLevel.HEADING_1,
             spacing: { before: 300, after: 200 }
         }));
         children.push(new Paragraph({
-            children: [new TextRun({ text: s(tags.map(tag => tag.name).join(', ')), font: 'Arial' })],
+            children: [new TextRun({ text: s(tags.map(tag => tag.name).join(', ')), font: layout.docxFont, size: layout.docxBodySize })],
             spacing: { line: 360, lineRule: 'auto' }
         }));
         children.push(new Paragraph({ text: '' })); // Empty line
@@ -245,13 +260,13 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
     // Related Articles
     if (options.relatedArticles && relatedArticles && relatedArticles.length > 0) {
         children.push(new Paragraph({
-            children: [new TextRun({ text: s(translations?.relatedArticles) || 'Related Articles', bold: true, size: 24, font: 'Arial' })],
+            children: [new TextRun({ text: s(translations?.relatedArticles) || 'Related Articles', bold: true, size: layout.docxHeadingSize, font: layout.docxFont })],
             heading: HeadingLevel.HEADING_1,
             spacing: { before: 300, after: 200 }
         }));
         relatedArticles.forEach((relatedArticle, index) => {
             children.push(new Paragraph({
-                children: [new TextRun({ text: `${index + 1}. ${s(relatedArticle.title)}`, font: 'Arial' })],
+                children: [new TextRun({ text: `${index + 1}. ${s(relatedArticle.title)}`, font: layout.docxFont, size: layout.docxBodySize })],
                 spacing: { line: 360, lineRule: 'auto' }
             }));
         });
@@ -261,21 +276,21 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
     // Collections
     if (options.collections && collections && collections.length > 0) {
         children.push(new Paragraph({
-            children: [new TextRun({ text: s(translations?.collections) || 'Collections', bold: true, size: 24, font: 'Arial' })],
+            children: [new TextRun({ text: s(translations?.collections) || 'Collections', bold: true, size: layout.docxHeadingSize, font: layout.docxFont })],
             heading: HeadingLevel.HEADING_1,
             spacing: { before: 300, after: 200 }
         }));
         children.push(new Paragraph({
-            children: [new TextRun({ text: s(collections.map(collection => collection.name).join(', ')), font: 'Arial' })],
+            children: [new TextRun({ text: s(collections.map(collection => collection.name).join(', ')), font: layout.docxFont, size: layout.docxBodySize })],
             spacing: { line: 360, lineRule: 'auto' }
         }));
     }
 
     const doc = new Document({
         ...buildDocMetadata(article.title),
-        styles: DOC_STYLES,
+        styles: buildDocStyles(layout),
         sections: [{
-            properties: {},
+            properties: buildSectionProperties(layout),
             children: children
         }]
     });
@@ -284,19 +299,58 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
     await fs.writeFile(filePath, buffer);
 }
 
+function buildMergedWordHeaderChildren(options, documentTitle, translations, locale, layout) {
+    if (!shouldShowMergedDocumentHeader(options)) return [];
+
+    const resolvedTitle = resolveMergedDocumentTitle(documentTitle, options);
+    const showTitle = options?.includeDocumentTitle !== false && resolvedTitle;
+    const showDate = options?.includeGenerationDate === true;
+    const separatePage = options?.documentTitleSeparatePage === true;
+    const headerChildren = [];
+
+    if (showTitle) {
+        headerChildren.push(new Paragraph({
+            children: [new TextRun({
+                text: s(resolvedTitle),
+                bold: true,
+                size: layout.docxTitleSize + 4,
+                font: layout.docxFont,
+            })],
+            heading: HeadingLevel.TITLE,
+            alignment: 'center',
+            spacing: { after: showDate ? 200 : 600 },
+        }));
+    }
+
+    if (showDate) {
+        headerChildren.push(new Paragraph({
+            children: [new TextRun({
+                text: s(formatGenerationDate(locale)),
+                size: layout.docxBodySize,
+                color: '666666',
+                font: layout.docxFont,
+            })],
+            alignment: 'center',
+            spacing: { after: 600 },
+        }));
+    }
+
+    if (separatePage && headerChildren.length > 0) {
+        headerChildren.push(new Paragraph({ children: [new PageBreak()] }));
+    }
+
+    return headerChildren;
+}
+
 // Generate merged Word document from multiple articles
 export async function generateMergedWordDocument(exportData, filePath, imagesFolderPath, articleService) {
-    const { articles, options, documentTitle, translations } = exportData;
-    
-    const children = [];
-
-    // Document Title
-    children.push(new Paragraph({
-        children: [new TextRun({ text: s(documentTitle) || 'Merged Articles', bold: true, size: 36, font: 'Arial' })],
-        heading: HeadingLevel.TITLE,
-        alignment: 'center',
-        spacing: { after: 600 }
-    }));
+    const { articles, options, documentTitle, translations, locale } = exportData;
+    const layout = resolveExportLayout(options);
+    const runDefaults = { font: layout.docxFont, size: layout.docxBodySize };
+    const children = [
+        ...buildMergedWordHeaderChildren(options, documentTitle, translations, locale, layout),
+    ];
+    const metadataTitle = resolveMergedDocumentTitle(documentTitle, options) || 'Merged Articles';
 
     // Process each article
     for (let i = 0; i < articles.length; i++) {
@@ -316,7 +370,7 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
 
         // Article title
         children.push(new Paragraph({
-            children: [new TextRun({ text: s(article.title) || 'Untitled Article', bold: true, size: 28, font: 'Arial' })],
+            children: [new TextRun({ text: s(article.title) || 'Untitled Article', bold: true, size: layout.docxTitleSize - 4, font: layout.docxFont })],
             heading: HeadingLevel.HEADING_1,
             spacing: { before: 200, after: 300 }
         }));
@@ -334,14 +388,14 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
 
         // Explanation
         if (options.explanation && article.explanation && !isHtmlStringEmpty(article.explanation)) {
-            const formattedRuns = htmlToFormattedRuns(article.explanation);
+            const formattedRuns = htmlToFormattedRuns(article.explanation, runDefaults);
             if (formattedRuns.length > 0) {
                 formattedRuns.forEach((runs, index) => {
                     // const italicRuns = runs.map(run => new TextRun({ 
                     //     ...run, 
                     //     italics: true, 
                     //     size: 22,
-                    //     font: 'Arial'
+                    //     font: layout.docxFont, size: layout.docxBodySize
                     // }));
                     const italicRuns = runs;
                     children.push(new Paragraph({
@@ -359,7 +413,7 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
 
         // Main Text
         if (options.mainText && article.text && !isHtmlStringEmpty(article.text)) {
-            const formattedRuns = htmlToFormattedRuns(article.text);
+            const formattedRuns = htmlToFormattedRuns(article.text, runDefaults);
             if (formattedRuns.length > 0) {
                 formattedRuns.forEach((runs, index) => {
                     children.push(new Paragraph({
@@ -377,16 +431,16 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
         // Images (moved after main text)
         if (options.images && article.images && article.images.length > 0) {
             for (const image of article.images) {
-                children.push(await buildImageParagraph(image, imagesFolderPath));
+                children.push(await buildImageParagraph(image, imagesFolderPath, layout.docxFont));
             }
         }
 
         // Comment (moved after images)
         if (options.comment && article.comments && article.comments.length > 0 && !isHtmlStringEmpty(article.comments[0]?.text)) {
-            const formattedRuns = htmlToFormattedRuns(article.comments[0].text);
+            const formattedRuns = htmlToFormattedRuns(article.comments[0].text, runDefaults);
             if (formattedRuns.length > 0) {
                 children.push(new Paragraph({
-                    children: [new TextRun({ text: s(translations?.comment) || 'Comment', bold: true, size: 24, font: 'Arial' })],
+                    children: [new TextRun({ text: s(translations?.comment) || 'Comment', bold: true, size: layout.docxHeadingSize, font: layout.docxFont })],
                     heading: HeadingLevel.HEADING_1,
                     spacing: { before: 300, after: 200 }
                 }));
@@ -406,13 +460,13 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
         // Notes/Annotations
         if (options.notes && annotations && annotations.length > 0) {
             children.push(new Paragraph({
-                children: [new TextRun({ text: s(translations?.notes) || 'Notes', bold: true, size: 24, font: 'Arial' })],
+                children: [new TextRun({ text: s(translations?.notes) || 'Notes', bold: true, size: layout.docxHeadingSize, font: layout.docxFont })],
                 heading: HeadingLevel.HEADING_1,
                 spacing: { before: 300, after: 200 }
             }));
             annotations.forEach((annotation, index) => {
                 children.push(new Paragraph({
-                    children: [new TextRun({ text: `${index + 1}. ${s(annotation.note || annotation.quote || '')}`, font: 'Arial' })],
+                    children: [new TextRun({ text: `${index + 1}. ${s(annotation.note || annotation.quote || '')}`, font: layout.docxFont, size: layout.docxBodySize })],
                     spacing: { line: 360, lineRule: 'auto' }
                 }));
             });
@@ -422,12 +476,12 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
         // Tags
         if (options.tags && tags && tags.length > 0) {
             children.push(new Paragraph({
-                children: [new TextRun({ text: s(translations?.tags) || 'Tags', bold: true, size: 24, font: 'Arial' })],
+                children: [new TextRun({ text: s(translations?.tags) || 'Tags', bold: true, size: layout.docxHeadingSize, font: layout.docxFont })],
                 heading: HeadingLevel.HEADING_1,
                 spacing: { before: 300, after: 200 }
             }));
             children.push(new Paragraph({
-                children: [new TextRun({ text: s(tags.map(tag => tag.name).join(', ')), font: 'Arial' })],
+                children: [new TextRun({ text: s(tags.map(tag => tag.name).join(', ')), font: layout.docxFont, size: layout.docxBodySize })],
                 spacing: { line: 360, lineRule: 'auto' }
             }));
             children.push(new Paragraph({ text: '' })); // Empty line
@@ -436,13 +490,13 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
         // Related Articles
         if (options.relatedArticles && relatedArticles && relatedArticles.length > 0) {
             children.push(new Paragraph({
-                children: [new TextRun({ text: s(translations?.relatedArticles) || 'Related Articles', bold: true, size: 24, font: 'Arial' })],
+                children: [new TextRun({ text: s(translations?.relatedArticles) || 'Related Articles', bold: true, size: layout.docxHeadingSize, font: layout.docxFont })],
                 heading: HeadingLevel.HEADING_1,
                 spacing: { before: 300, after: 200 }
             }));
             relatedArticles.forEach((relatedArticle, index) => {
                 children.push(new Paragraph({
-                    children: [new TextRun({ text: `${index + 1}. ${s(relatedArticle.title)}`, font: 'Arial' })],
+                    children: [new TextRun({ text: `${index + 1}. ${s(relatedArticle.title)}`, font: layout.docxFont, size: layout.docxBodySize })],
                     spacing: { line: 360, lineRule: 'auto' }
                 }));
             });
@@ -452,12 +506,12 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
         // Collections
         if (options.collections && collections && collections.length > 0) {
             children.push(new Paragraph({
-                children: [new TextRun({ text: s(translations?.collections) || 'Collections', bold: true, size: 24, font: 'Arial' })],
+                children: [new TextRun({ text: s(translations?.collections) || 'Collections', bold: true, size: layout.docxHeadingSize, font: layout.docxFont })],
                 heading: HeadingLevel.HEADING_1,
                 spacing: { before: 300, after: 200 }
             }));
             children.push(new Paragraph({
-                children: [new TextRun({ text: s(collections.map(collection => collection.name).join(', ')), font: 'Arial' })],
+                children: [new TextRun({ text: s(collections.map(collection => collection.name).join(', ')), font: layout.docxFont, size: layout.docxBodySize })],
                 spacing: { line: 360, lineRule: 'auto' }
             }));
         }
@@ -468,9 +522,9 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
 
     // Create and save document
     const doc = new Document({
-        ...buildDocMetadata(documentTitle),
-        styles: DOC_STYLES,
-        sections: [{ children }],
+        ...buildDocMetadata(metadataTitle),
+        styles: buildDocStyles(layout),
+        sections: [{ properties: buildSectionProperties(layout), children }],
     });
     const buffer = await Packer.toBuffer(doc);
     await fs.writeFile(filePath, buffer);

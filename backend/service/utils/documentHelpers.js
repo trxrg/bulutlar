@@ -78,3 +78,22 @@ export function buildArticleInfoParts(article, category, owner, translations) {
     
     return articleInfoParts;
 }
+
+export function resolveMergedDocumentTitle(documentTitle, options, fallback = 'Merged Articles') {
+    if (options?.includeDocumentTitle === false) return null;
+    const title = typeof documentTitle === 'string' ? documentTitle.trim() : '';
+    return title || fallback;
+}
+
+export function formatGenerationDate(locale) {
+    const loc = locale === 'tr' ? 'tr-TR' : 'en-US';
+    return new Date().toLocaleDateString(loc, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+}
+
+export function shouldShowMergedDocumentHeader(options) {
+    return options?.includeDocumentTitle !== false || options?.includeGenerationDate === true;
+}

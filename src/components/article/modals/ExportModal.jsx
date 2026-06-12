@@ -3,15 +3,24 @@ import GeneralModal from '../../common/GeneralModal.jsx';
 import ActionButton from '../../common/ActionButton.jsx';
 import LoadingToastr from '../../common/LoadingToastr.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
-import { useSharingAdmin } from '../../../contexts/SharingAdminContext.jsx';
 import Checkbox from '@mui/material/Checkbox';
 import toastr from 'toastr';
-import { articleApi, dbApi } from '../../../backend-adapter/BackendAdapter.js';
+import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
+import {
+    EXPORT_FONT_FAMILY_OPTIONS,
+    EXPORT_PAGE_MARGIN_OPTIONS,
+    editorTailwindToPt,
+    EXPORT_FONT_SIZE_MIN_PT,
+    EXPORT_FONT_SIZE_MAX_PT,
+} from '../../../utils/exportFontOptions.js';
+import { showExportSuccessToastr } from '../../../utils/exportToastr.js';
 
 // A single labelled checkbox used throughout the content-selection cards.
-const OptionCheckbox = ({ checked, onChange, label }) => (
-    <label className='flex items-center gap-2 cursor-pointer rounded-md px-1 py-0.5 transition-colors hover:bg-[var(--bg-tertiary)]'>
-        <Checkbox checked={checked} onChange={onChange} size='small' />
+const OptionCheckbox = ({ checked, onChange, label, disabled = false }) => (
+    <label
+        className={`flex items-center gap-2 rounded-md px-1 py-0.5 transition-colors ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-[var(--bg-tertiary)]'}`}
+    >
+        <Checkbox checked={checked} onChange={onChange} size='small' disabled={disabled} />
         <span style={{ color: 'var(--text-primary)' }}>{label}</span>
     </label>
 );
@@ -29,13 +38,16 @@ const OptionCard = ({ title, children }) => (
     </div>
 );
 
-const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArticle = false }) => {
-    const { translate: t } = useContext(AppContext);
-    // The .blt bundle option is the same admin-gated sharing feature as the
-    // Settings "generate update bundle" flow, so only surface it in admin mode.
-    const { enabled: sharingAdminEnabled } = useSharingAdmin();
-    const showBltOption = sharingAdminEnabled && !isMultiArticle && !!article;
+const selectStyle = {
+    backgroundColor: 'var(--bg-secondary)',
+    color: 'var(--text-primary)',
+    borderColor: 'var(--border-secondary)',
+};
 
+const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArticle = false }) => {
+    const { translate: t, editorSettings, getLanguage } = useContext(AppContext);
+    const showBltOption = isMultiArticle ? (articleIds?.length > 0) : !!article;
+    const isDocumentFormat = (format) => format === 'pdf' || format === 'docx';
 
     const [exportOptions, setExportOptions] = useState({
         explanation: true,
@@ -48,7 +60,13 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         tags: true,
         relatedArticles: true,
         collections: true,
-        format: 'pdf'
+        format: 'pdf',
+        fontFamily: editorSettings?.fontFamily || 'system-ui',
+        fontSize: editorTailwindToPt(editorSettings?.fontSize),
+        pageMargin: 'normal',
+        includeDocumentTitle: true,
+        documentTitleSeparatePage: false,
+        includeGenerationDate: false,
     });
 
     const [documentTitle, setDocumentTitle] = useState('');
@@ -65,6 +83,13 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         setExportOptions(prev => ({
             ...prev,
             format
+        }));
+    };
+
+    const handleLayoutChange = (option, value) => {
+        setExportOptions(prev => ({
+            ...prev,
+            [option]: value
         }));
     };
 
@@ -86,7 +111,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         wednesday: t('wednesday'),
         thursday: t('thursday'),
         friday: t('friday'),
-        saturday: t('saturday')
+        saturday: t('saturday'),
     });
 
     const handleSingleArticleExport = async () => {
@@ -118,7 +143,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
             }
             
             if (result.success) {
-                toastr.success(t('article exported successfully'));
+                showExportSuccessToastr(t('article exported successfully'), result.filePath, t('show in folder'));
             } else {
                 toastr.error(t('export failed'));
             }
@@ -148,7 +173,8 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                 options: exportOptions,
                 documentTitle: documentTitle.trim() || t('merged articles'),
                 isMultiArticle: true,
-                translations: getTranslations()
+                translations: getTranslations(),
+                locale: getLanguage(),
             };
 
             // Show loading toastr for PDF and Word exports
@@ -170,7 +196,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
             }
             
             if (result.success) {
-                toastr.success(t('articles exported successfully'));
+                showExportSuccessToastr(t('articles exported successfully'), result.filePath, t('show in folder'));
             } else {
                 toastr.error(t('export failed'));
             }
@@ -185,34 +211,40 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         }
     };
 
-    const handleDbExport = async () => {
-        try {
-            const ids = isMultiArticle ? articleIds : [article.id];
-            if (!ids || ids.length === 0) {
-                toastr.warning(t('no articles selected for export'));
-                onRequestClose();
-                return;
-            }
-
-            setIsExporting(true);
-            onRequestClose();
-
-            const result = await dbApi.handleShareArticles(ids, exportOptions);
-
-            if (result) {
-                toastr.success(t('articles shared to') + ' ' + result);
-            }
-        } catch (error) {
-            console.error('DB export error:', error);
-            toastr.error(t('export failed'));
-        } finally {
-            setIsExporting(false);
-        }
-    };
+    // const handleDbExport = async () => {
+    //     try {
+    //         const ids = isMultiArticle ? articleIds : [article.id];
+    //         if (!ids || ids.length === 0) {
+    //             toastr.warning(t('no articles selected for export'));
+    //             onRequestClose();
+    //             return;
+    //         }
+    //
+    //         setIsExporting(true);
+    //         onRequestClose();
+    //
+    //         const result = await dbApi.handleShareArticles(ids, exportOptions);
+    //
+    //         if (result) {
+    //             toastr.success(t('articles shared to') + ' ' + result);
+    //         }
+    //     } catch (error) {
+    //         console.error('DB export error:', error);
+    //         toastr.error(t('export failed'));
+    //     } finally {
+    //         setIsExporting(false);
+    //     }
+    // };
 
     const handleBltExport = async () => {
         let loadingToastr = null;
         try {
+            const ids = isMultiArticle ? articleIds : [article?.id];
+            if (!ids || ids.length === 0) {
+                toastr.warning(t('no articles selected for export'));
+                return;
+            }
+
             // Ask where to drop the .blt before doing any work; abort silently
             // if the directory dialog is cancelled.
             const outputDir = await window.api.sharing.chooseOutputDir({
@@ -225,7 +257,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
             onRequestClose();
 
             const result = await window.api.sharing.exportSingleArticleBundle({
-                articleId: article.id,
+                articleIds: ids,
                 options: exportOptions,
                 outputDir,
             });
@@ -234,12 +266,16 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
             loadingToastr = null;
 
             if (result && result.filePath) {
-                toastr.success(t('article exported successfully'));
+                showExportSuccessToastr(
+                    isMultiArticle ? t('articles exported successfully') : t('article exported successfully'),
+                    result.filePath,
+                    t('show in folder'),
+                );
             } else {
                 toastr.error(t('export failed'));
             }
         } catch (error) {
-            console.error('Single article .blt export error:', error);
+            console.error('BLT export error:', error);
             if (loadingToastr) loadingToastr.hide();
             toastr.error(t('export failed'));
             onRequestClose();
@@ -251,8 +287,8 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
     const handleExport = async () => {
         if (exportOptions.format === 'blt') {
             await handleBltExport();
-        } else if (exportOptions.format === 'db') {
-            await handleDbExport();
+        // } else if (exportOptions.format === 'db') {
+        //     await handleDbExport();
         } else if (isMultiArticle) {
             await handleMultiArticleExport();
         } else {
@@ -262,13 +298,16 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
 
 
     // Radio choices for the format selector, rendered as selectable cards.
-    // BLT is intentionally first (and only shown in sharing-admin mode).
     const formatOptions = [
-        ...(showBltOption ? [{ value: 'blt', label: t('BLT (.blt)') }] : []),
+        ...(showBltOption ? [{ value: 'blt', label: 'BLT' }] : []),
         { value: 'pdf', label: 'PDF' },
         { value: 'docx', label: 'Word (.docx)' },
-        { value: 'db', label: t('database (share)') },
+        // { value: 'db', label: t('database (share)') },
     ];
+
+    const showDocumentLayoutSettings = isDocumentFormat(exportOptions.format);
+    const showMediaOptions = !isDocumentFormat(exportOptions.format);
+    const showMultiDocumentTitleSettings = isMultiArticle && showDocumentLayoutSettings;
 
     return (
         <GeneralModal
@@ -281,30 +320,6 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                 {/* Scrollable Content Area */}
                 <div className='flex-1 overflow-y-auto pr-2 -mr-2'>
                     <div className='flex flex-col gap-6'>
-                        {/* Document Title Input for Multi-Article Export */}
-                        {isMultiArticle && (
-                            <div>
-                                <h3 className='text-sm font-semibold mb-2 uppercase tracking-wide' style={{ color: 'var(--text-secondary)' }}>
-                                    {t('document title')}
-                                </h3>
-                                <input
-                                    type="text"
-                                    value={documentTitle}
-                                    onChange={(e) => setDocumentTitle(e.target.value)}
-                                    placeholder={t('enter document title (optional)')}
-                                    className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                                    style={{
-                                        backgroundColor: 'var(--bg-secondary)',
-                                        color: 'var(--text-primary)',
-                                        borderColor: 'var(--border-secondary)'
-                                    }}
-                                />
-                                <p className='text-sm mt-1' style={{ color: 'var(--text-tertiary)' }}>
-                                    {t('if left empty, will use default title')}
-                                </p>
-                            </div>
-                        )}
-
                         {/* Format Section — first thing the user picks */}
                         <div>
                             <h3 className='text-sm font-semibold mb-2 uppercase tracking-wide' style={{ color: 'var(--text-secondary)' }}>
@@ -337,6 +352,100 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                             </div>
                         </div>
 
+                        {showMultiDocumentTitleSettings && (
+                            <OptionCard title={t('document title')}>
+                                <OptionCheckbox
+                                    label={t('include document title')}
+                                    checked={exportOptions.includeDocumentTitle}
+                                    onChange={() => handleOptionChange('includeDocumentTitle')}
+                                />
+                                <input
+                                    type="text"
+                                    value={documentTitle}
+                                    onChange={(e) => setDocumentTitle(e.target.value)}
+                                    placeholder={t('enter document title (optional)')}
+                                    disabled={!exportOptions.includeDocumentTitle}
+                                    className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50'
+                                    style={selectStyle}
+                                />
+                                <p className='text-sm' style={{ color: 'var(--text-tertiary)' }}>
+                                    {t('if left empty, will use default title')}
+                                </p>
+                                <OptionCheckbox
+                                    label={t('title on separate page')}
+                                    checked={exportOptions.documentTitleSeparatePage}
+                                    onChange={() => handleOptionChange('documentTitleSeparatePage')}
+                                    disabled={!exportOptions.includeDocumentTitle}
+                                />
+                                <OptionCheckbox
+                                    label={t('include generation date')}
+                                    checked={exportOptions.includeGenerationDate}
+                                    onChange={() => handleOptionChange('includeGenerationDate')}
+                                />
+                            </OptionCard>
+                        )}
+
+                        {showDocumentLayoutSettings && (
+                            <OptionCard title={t('document layout')}>
+                                <label className='flex flex-col gap-1'>
+                                    <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{t('font family')}</span>
+                                    <select
+                                        value={exportOptions.fontFamily}
+                                        onChange={(e) => handleLayoutChange('fontFamily', e.target.value)}
+                                        className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                        style={selectStyle}
+                                    >
+                                        {EXPORT_FONT_FAMILY_OPTIONS.map((option) => (
+                                            <option key={option.value} value={option.value} style={{ fontFamily: option.value }}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+
+                                <label className='flex flex-col gap-1 mt-3'>
+                                    <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{t('font size')}</span>
+                                    <div className='flex items-center gap-2'>
+                                        <input
+                                            type='number'
+                                            min={EXPORT_FONT_SIZE_MIN_PT}
+                                            max={EXPORT_FONT_SIZE_MAX_PT}
+                                            step={1}
+                                            value={exportOptions.fontSize}
+                                            onChange={(e) => {
+                                                const next = parseInt(e.target.value, 10);
+                                                if (Number.isFinite(next)) {
+                                                    handleLayoutChange('fontSize', next);
+                                                }
+                                            }}
+                                            onBlur={() => {
+                                                handleLayoutChange('fontSize', editorTailwindToPt(exportOptions.fontSize));
+                                            }}
+                                            className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                            style={selectStyle}
+                                        />
+                                        <span className='text-sm shrink-0' style={{ color: 'var(--text-secondary)' }}>pt</span>
+                                    </div>
+                                </label>
+
+                                <label className='flex flex-col gap-1 mt-3'>
+                                    <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{t('page margin')}</span>
+                                    <select
+                                        value={exportOptions.pageMargin}
+                                        onChange={(e) => handleLayoutChange('pageMargin', e.target.value)}
+                                        className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                        style={selectStyle}
+                                    >
+                                        {EXPORT_PAGE_MARGIN_OPTIONS.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {t(option.labelKey)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+                            </OptionCard>
+                        )}
+
                         {/* Content Selection — what goes into the export */}
                         <div>
                             <h3 className='text-base font-semibold mb-3' style={{ color: 'var(--text-primary)' }}>
@@ -351,8 +460,12 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
 
                                 <OptionCard title={t('media')}>
                                     <OptionCheckbox label={t('images')} checked={exportOptions.images} onChange={() => handleOptionChange('images')} />
-                                    <OptionCheckbox label={t('audio')} checked={exportOptions.audios} onChange={() => handleOptionChange('audios')} />
-                                    <OptionCheckbox label={t('video')} checked={exportOptions.videos} onChange={() => handleOptionChange('videos')} />
+                                    {showMediaOptions && (
+                                        <>
+                                            <OptionCheckbox label={t('audio')} checked={exportOptions.audios} onChange={() => handleOptionChange('audios')} />
+                                            <OptionCheckbox label={t('video')} checked={exportOptions.videos} onChange={() => handleOptionChange('videos')} />
+                                        </>
+                                    )}
                                 </OptionCard>
 
                                 <OptionCard title={t('relational information')}>

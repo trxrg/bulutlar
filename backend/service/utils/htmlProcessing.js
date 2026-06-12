@@ -43,8 +43,10 @@ export const stripInvalidXmlChars = (str) => {
 const sanitizeRunText = (str) => stripInvalidXmlChars(decodeHtmlEntities(str));
 
 // Helper function to parse HTML and create formatted TextRuns for Word documents
-export const htmlToFormattedRuns = (htmlContent) => {
+export const htmlToFormattedRuns = (htmlContent, runDefaults = {}) => {
     if (!htmlContent) return [];
+    const defaultFont = runDefaults.font || 'Arial';
+    const defaultSize = runDefaults.size || DEFAULT_BODY_SIZE;
     
     // Simple regex-based approach to preserve bold formatting
     // This handles basic <strong>, <b>, and <em>, <i> tags
@@ -79,8 +81,8 @@ export const htmlToFormattedRuns = (htmlContent) => {
                 text: cleaned,
                 bold: isBold,
                 italics: isItalic,
-                font: 'Arial',
-                size: DEFAULT_BODY_SIZE,
+                font: defaultFont,
+                size: defaultSize,
             }));
         };
 
@@ -111,7 +113,7 @@ export const htmlToFormattedRuns = (htmlContent) => {
         if (runs.length === 0 && paragraph.trim()) {
             const cleaned = sanitizeRunText(paragraph);
             if (cleaned) {
-                return [new TextRun({ text: cleaned, font: 'Arial', size: DEFAULT_BODY_SIZE })];
+                return [new TextRun({ text: cleaned, font: defaultFont, size: defaultSize })];
             }
         }
 

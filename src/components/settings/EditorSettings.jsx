@@ -3,51 +3,14 @@ import { Typography, Button, CircularProgress } from '@mui/material';
 import { FormControl, InputLabel, Select, MenuItem, Switch, FormControlLabel } from '@mui/material';
 import { AppContext } from '../../store/app-context';
 import { dbApi } from '../../backend-adapter/BackendAdapter';
+import { FONT_OPTIONS } from '../../shared/fontCatalog.js';
 import toastr from 'toastr';
 
 const EditorSettings = () => {
     const { translate: t, editorSettings, setEditorSettings } = useContext(AppContext);
     const [isMigrating, setIsMigrating] = useState(false);
 
-    // Font options - clean, modern, and readable fonts
-    const fontOptions = [
-        { value: 'system-ui', label: 'System UI' },
-        // Modern Sans-Serif
-        { value: '"Roboto", sans-serif', label: 'Roboto' },
-        { value: '"Open Sans", sans-serif', label: 'Open Sans' },
-        { value: '"Lato", sans-serif', label: 'Lato' },
-        { value: '"Montserrat", sans-serif', label: 'Montserrat' },
-        { value: '"Raleway", sans-serif', label: 'Raleway' },
-        { value: '"Nunito", sans-serif', label: 'Nunito' },
-        { value: '"Archivo", sans-serif', label: 'Archivo' },
-        { value: '"Helvetica", sans-serif', label: 'Helvetica' },
-        { value: '"Inter", sans-serif', label: 'Inter' },
-        { value: '"Source Sans Pro", sans-serif', label: 'Source Sans Pro' },
-        { value: '"Noto Sans", sans-serif', label: 'Noto Sans' },
-        // Futuristic / Space Exploration
-        { value: '"Exo 2", sans-serif', label: 'Exo 2' },
-        { value: '"Audiowide", sans-serif', label: 'Audiowide' },
-        { value: '"Electrolize", sans-serif', label: 'Electrolize' },
-        { value: '"Saira", sans-serif', label: 'Saira' },
-        // Classic Serif
-        { value: '"Times New Roman", serif', label: 'Times New Roman' },
-        { value: '"Georgia", serif', label: 'Georgia' },
-        { value: '"Merriweather", serif', label: 'Merriweather' },
-        { value: '"Playfair Display", serif', label: 'Playfair Display' },
-        { value: '"Lora", serif', label: 'Lora' },
-        { value: '"PT Serif", serif', label: 'PT Serif' },
-        { value: '"Crimson Text", serif', label: 'Crimson Text' },
-        { value: '"Libre Baskerville", serif', label: 'Libre Baskerville' },
-        { value: '"EB Garamond", serif', label: 'EB Garamond' },
-        { value: '"Bitter", serif', label: 'Bitter' },
-        { value: '"Noto Serif", serif', label: 'Noto Serif' },
-        // Vintage / Classical / Old Writing
-        { value: '"Cinzel", serif', label: 'Cinzel' },
-        { value: '"Cormorant Garamond", serif', label: 'Cormorant' },
-        { value: '"Old Standard TT", serif', label: 'Old Standard' },
-        { value: '"Spectral", serif', label: 'Spectral' },
-        { value: '"Cardo", serif', label: 'Cardo' },
-    ];
+    const fontOptions = FONT_OPTIONS.map(({ label, value }) => ({ label, value }));
 
     const fontSizeOptions = [
         { value: 'text-xs', label: 'XS' },

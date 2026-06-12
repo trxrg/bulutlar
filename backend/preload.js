@@ -155,11 +155,14 @@ contextBridge.exposeInMainWorld('api', {
     clear: () => ipcRenderer.invoke('store/clear'),
     deleteMany: (keys) => ipcRenderer.invoke('store/deleteMany', keys),
   },
+  shell: {
+    showInFolder: (filePath) => ipcRenderer.invoke('shell/showInFolder', filePath),
+  },
   sharing: {
     getCandidates:   ()                                          => ipcRenderer.invoke('sharing/getCandidates'),
     getLastExport:   ()                                          => ipcRenderer.invoke('sharing/getLastExport'),
     exportBundle:    ({ latestState, manualDelete, outputDir }) => ipcRenderer.invoke('sharing/exportBundle', { latestState, manualDelete, outputDir }),
-    exportSingleArticleBundle: ({ articleId, options, outputDir }) => ipcRenderer.invoke('sharing/exportSingleArticleBundle', { articleId, options, outputDir }),
+    exportSingleArticleBundle: ({ articleId, articleIds, options, outputDir }) => ipcRenderer.invoke('sharing/exportSingleArticleBundle', { articleId, articleIds, options, outputDir }),
     chooseOutputDir: (opts)                                     => ipcRenderer.invoke('sharing/chooseOutputDir', opts || {}),
     showInFolder:    (filePath)                                 => ipcRenderer.invoke('sharing/showInFolder', filePath),
     chooseBundleFile: ()                                        => ipcRenderer.invoke('sharing/chooseBundleFile'),

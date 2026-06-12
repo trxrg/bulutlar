@@ -1,8 +1,15 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { buildArticleInfoParts } from './documentHelpers.js';
+import {
+    buildArticleInfoParts,
+    resolveMergedDocumentTitle,
+    formatGenerationDate,
+    shouldShowMergedDocumentHeader,
+} from './documentHelpers.js';
 import { isHtmlStringEmpty } from './htmlProcessing.js';
+import { resolveExportLayout } from './exportLayout.js';
+import { buildBundledFontFaceCss } from './bundledFonts.js';
 
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -11,6 +18,8 @@ const __dirname = path.dirname(__filename);
 // Generate comprehensive HTML document with embedded styles
 export async function generateHTMLDocument(exportData, filePath, imagesFolderPath) {
     const { article, options, annotations, tags, relatedArticles, collections, category, owner, translations } = exportData;
+    const layout = resolveExportLayout(options);
+    const bundledFontFaceCss = buildBundledFontFaceCss(options.fontFamily);
     
     // Build the HTML content
     let htmlContent = `
@@ -20,8 +29,9 @@ export async function generateHTMLDocument(exportData, filePath, imagesFolderPat
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(article.title || 'Untitled Article')}</title>
+    ${buildBundledFontStyles(bundledFontFaceCss)}
     <style>
-        ${getEmbeddedCSS()}
+        ${getEmbeddedCSS(layout)}
     </style>
 </head>
 <body>
@@ -45,9 +55,38 @@ export async function generateHTMLDocument(exportData, filePath, imagesFolderPat
     await fs.writeFile(filePath, htmlContent, 'utf8');
 }
 
+function buildMergedDocumentHeaderHTML(options, documentTitle, translations, locale) {
+    if (!shouldShowMergedDocumentHeader(options)) return '';
+
+    const resolvedTitle = resolveMergedDocumentTitle(documentTitle, options);
+    const showTitle = options?.includeDocumentTitle !== false && resolvedTitle;
+    const showDate = options?.includeGenerationDate === true;
+    const separatePage = options?.documentTitleSeparatePage === true;
+    const formattedDate = formatGenerationDate(locale);
+
+    const titleHtml = showTitle
+        ? `<h1 class="document-title">${escapeHtml(resolvedTitle)}</h1>`
+        : '';
+    const dateHtml = showDate
+        ? `<p class="generation-date">${escapeHtml(formattedDate)}</p>`
+        : '';
+
+    if (separatePage && (showTitle || showDate)) {
+        return `<div class="title-page">${titleHtml}${dateHtml}</div>`;
+    }
+
+    if (!titleHtml && !dateHtml) return '';
+
+    return `<header class="document-header">${titleHtml}${dateHtml}</header>`;
+}
+
 // Generate merged HTML document from multiple articles
 export async function generateMergedHTMLDocument(exportData, filePath, imagesFolderPath, articleService) {
-    const { articles, options, documentTitle, translations } = exportData;
+    const { articles, options, documentTitle, translations, locale } = exportData;
+    const layout = resolveExportLayout(options);
+    const bundledFontFaceCss = buildBundledFontFaceCss(options.fontFamily);
+    const pageTitle = resolveMergedDocumentTitle(documentTitle, options) || 'Merged Articles';
+    const documentHeaderHtml = buildMergedDocumentHeaderHTML(options, documentTitle, translations, locale);
     
     let htmlContent = `
 <!DOCTYPE html>
@@ -55,9 +94,10 @@ export async function generateMergedHTMLDocument(exportData, filePath, imagesFol
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${escapeHtml(documentTitle || 'Merged Articles')}</title>
+    <title>${escapeHtml(pageTitle)}</title>
+    ${buildBundledFontStyles(bundledFontFaceCss)}
     <style>
-        ${getEmbeddedCSS()}
+        ${getEmbeddedCSS(layout)}
         .article-separator {
             margin: 3rem 0;
             border-bottom: 2px solid #e5e5e5;
@@ -70,9 +110,7 @@ export async function generateMergedHTMLDocument(exportData, filePath, imagesFol
 </head>
 <body>
     <div class="container">
-        <header class="document-header">
-            <h1 class="document-title">${escapeHtml(documentTitle || 'Merged Articles')}</h1>
-        </header>
+        ${documentHeaderHtml}
         
         <main class="document-content">`;
 
@@ -241,8 +279,17 @@ async function buildFooterSectionsHTML(annotations, tags, relatedArticles, colle
     return footerHTML;
 }
 
+function buildBundledFontStyles(bundledFontFaceCss = '') {
+    if (!bundledFontFaceCss) return '';
+    return `<style>${bundledFontFaceCss}</style>`;
+}
+
 // Get comprehensive embedded CSS
-function getEmbeddedCSS() {
+function getEmbeddedCSS(layout = {}) {
+    const fontFamily = layout.fontFamilyCss || "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+    const bodyFontSize = layout.fontSizeCss || '11pt';
+    const pageMargin = layout.pageMarginCm || '1.5cm';
+
     return `
         /* Reset and base styles */
         * {
@@ -251,8 +298,18 @@ function getEmbeddedCSS() {
             box-sizing: border-box;
         }
         
+        body,
+        .container,
+        .article-header,
+        .article-content,
+        .article-footer,
+        .content-html,
+        .content-html * {
+            font-family: ${fontFamily};
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: ${bodyFontSize};
             line-height: 1.6;
             color: #333;
         }
@@ -276,6 +333,27 @@ function getEmbeddedCSS() {
             margin-bottom: 0.5rem;
             color: #2c3e50;
         }
+
+        .generation-date {
+            font-size: 1rem;
+            color: #666;
+            margin-top: 0.75rem;
+        }
+
+        .title-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 2rem;
+            page-break-after: always;
+        }
+
+        .title-page .document-title {
+            margin-bottom: 1rem;
+        }
         
         .article-title {
             font-size: 2rem;
@@ -296,7 +374,7 @@ function getEmbeddedCSS() {
         }
         
         .content-html {
-            font-size: 1.1rem;
+            font-size: 1em;
             line-height: 1.8;
         }
         
@@ -419,7 +497,25 @@ function getEmbeddedCSS() {
             
             .document-title, .article-title {
                 color: #2c3e50 !important;
+            }
+
+            .document-header, .article-header {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                break-after: avoid;
                 page-break-after: avoid;
+            }
+
+            .title-page {
+                min-height: 100vh;
+                page-break-after: always;
+                break-after: page;
+            }
+
+            .article-header + .article-content,
+            .article-content > :first-child {
+                break-before: avoid;
+                page-break-before: avoid;
             }
             
             .section-title {
@@ -436,7 +532,7 @@ function getEmbeddedCSS() {
             }
             
             .article-separator {
-                page-break-before: always;
+                page-break-before: auto;
                 margin-top: 0;
             }
             
@@ -460,9 +556,9 @@ function getEmbeddedCSS() {
             }
         }
         
-        /* Puppeteer-specific optimizations */
+        /* Print page setup */
         @page {
-            margin: 1.5cm;
+            margin: ${pageMargin};
             size: A4;
         }
         

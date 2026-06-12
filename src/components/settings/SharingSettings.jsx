@@ -25,7 +25,13 @@ const SharingSettings = () => {
         }
     }, []);
 
-    useEffect(() => { refreshLastExport(); }, [refreshLastExport]);
+    useEffect(() => {
+        if (adminModeEnabled) {
+            refreshLastExport();
+        } else {
+            setLastExport(null);
+        }
+    }, [adminModeEnabled, refreshLastExport]);
 
     const formatLastExport = () => {
         if (!lastExport) return t('no bundles yet');

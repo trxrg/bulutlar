@@ -12,7 +12,7 @@
 //
 // All Sequelize knowledge lives here; bundleBuilder.js is pure.
 
-import { ipcMain, app, shell, dialog } from 'electron';
+import { ipcMain, app, dialog } from 'electron';
 import { Op, QueryTypes } from 'sequelize';
 import path from 'path';
 
@@ -28,6 +28,7 @@ import { applyBundle } from '../sync/applyBundle.js';
 import { pickMediaExt } from '../sync/mediaPath.js';
 import { mainWindow } from '../main.js';
 import storeService from './StoreService.js';
+import { showItemInFolder } from '../lib/showItemInFolder.js';
 
 function assertSharingAdmin() {
     if (!storeService.isSharingAdminEnabled()) {
@@ -49,19 +50,12 @@ function initService() {
         return await exportBundle(picks);
     });
     ipcMain.handle('sharing/exportSingleArticleBundle', async (_event, picks) => {
-        assertSharingAdmin();
         return await exportSingleArticleBundle(picks);
     });
     ipcMain.handle('sharing/chooseOutputDir', async (_event, opts) => {
-        assertSharingAdmin();
         return await chooseOutputDir(opts);
     });
-    ipcMain.handle('sharing/showInFolder', async (_event, filePath) => {
-        assertSharingAdmin();
-        if (typeof filePath !== 'string' || filePath.length === 0) return false;
-        try { shell.showItemInFolder(filePath); return true; }
-        catch (err) { console.warn('sharing/showInFolder failed:', err); return false; }
-    });
+    ipcMain.handle('sharing/showInFolder', async (_event, filePath) => showItemInFolder(filePath));
 
     // Import is the consumer side of sharing and is intentionally NOT gated
     // behind admin/sharing mode — any user can pull a .blt into their library.
@@ -466,20 +460,14 @@ async function exportBundle(picks) {
         ]);
 
         // --------------------------------------------------------------
-        // 7. Filter dangling articleArticleRels.
+        // 7. Filter articleArticleRels for export.
         //
-        //    Drop any rel whose relatedArticleUuid is neither in this
-        //    bundle's articles set NOR present in `exported_bundle_articles`
-        //    (mobile won't have the target). Also drop rels whose
-        //    articleId-side article isn't in the bundle (could happen if
-        //    the rel was returned because the article is on the
-        //    relatedArticleId side).
+        //    Emit a rel when its articleId side is in this bundle. The
+        //    relatedArticleUuid is written even when that article is not
+        //    shipped in this .blt — the receiver may apply it later when
+        //    the target arrives (or ignore it until then).
         // --------------------------------------------------------------
 
-        const sharedSet = await loadSharedArticleUuidSet({ transaction: readTx });
-
-        // Need related article uuids (the ones not in bundle) — pull just
-        // their uuids, not whole rows.
         const allRelArticleIds = new Set();
         for (const r of relRels) {
             allRelArticleIds.add(r.articleId);
@@ -499,12 +487,7 @@ async function exportBundle(picks) {
             const aUuid = articleUuidById.get(r.articleId);
             const rUuid = articleUuidById.get(r.relatedArticleId);
             if (!aUuid || !rUuid) return false;
-            // article side must be IN this bundle (we don't emit a rel whose
-            // owning article isn't being shared).
-            if (!articleUuidsInBundle.has(aUuid)) return false;
-            // related side must be either in this bundle OR previously shared.
-            if (!articleUuidsInBundle.has(rUuid) && !sharedSet.has(rUuid)) return false;
-            return true;
+            return articleUuidsInBundle.has(aUuid);
         });
 
         // Read phase complete — release the snapshot before the heavy
@@ -777,11 +760,13 @@ async function exportBundle(picks) {
 // exportSingleArticleBundle
 // =====================================================================
 //
-// Ad-hoc "share this one article" .blt, driven by the read-view Export
-// modal. Differs from exportBundle in three ways:
+// Ad-hoc "share selected article(s)" .blt, driven by the Export modal.
+// Accepts `articleId` (single) or `articleIds` (multi). Differs from
+// exportBundle in three ways:
 //
-//   1. Scope is a single live article (by desktop id), always its latest
-//      state. There is no manualDelete path — the read view can't tombstone.
+//   1. Scope is one or more live articles (by desktop id), always their
+//      latest state. There is no manualDelete path — the export modal
+//      can't tombstone.
 //   2. The content checkboxes (`options`) are honored: unchecked sections
 //      (comment / notes / images / tags / collections / relatedArticles)
 //      are omitted, and unchecked mainText / explanation are nulled on the
@@ -795,9 +780,13 @@ async function exportBundle(picks) {
 // Pending desktop article-deletes are auto-included as tombstones, same
 // as exportBundle (so a fresh receiver converges on deletions too).
 async function exportSingleArticleBundle(picks) {
-    const articleId = picks?.articleId;
-    if (articleId == null) {
-        throw new Error('exportSingleArticleBundle: articleId is required');
+    const articleIds = Array.isArray(picks?.articleIds) && picks.articleIds.length > 0
+        ? picks.articleIds
+        : picks?.articleId != null
+            ? [picks.articleId]
+            : [];
+    if (articleIds.length === 0) {
+        throw new Error('exportSingleArticleBundle: articleId or articleIds is required');
     }
     const options = picks?.options || {};
     const requestedOutputDir = typeof picks?.outputDir === 'string' && picks.outputDir.length > 0
@@ -828,7 +817,7 @@ async function exportSingleArticleBundle(picks) {
     const readTx = await sequelize.transaction();
     let readTxFinalized = false;
 
-    let article;
+    let articles;
     let comments, annotations, images, audios, videos;
     let tagRels, groupRels, relRels;
     let owners, categories, tags, groups;
@@ -842,24 +831,31 @@ async function exportSingleArticleBundle(picks) {
     try {
         maxOutboxId = await snapshotOutboxMaxId(sequelize, { transaction: readTx });
 
-        article = await sequelize.models.article.findByPk(articleId, { transaction: readTx });
-        if (!article) {
-            throw new Error(`exportSingleArticleBundle: article ${articleId} not found`);
+        articles = await sequelize.models.article.findAll({
+            where: { id: { [Op.in]: articleIds } },
+            transaction: readTx,
+        });
+        if (articles.length === 0) {
+            throw new Error(`exportSingleArticleBundle: no articles found for ids ${articleIds.join(', ')}`);
         }
-        const articleUuid = article.uuid;
-        const articleUuidsInBundle = new Set([articleUuid]);
-        const articleIds = [articleId];
+        const foundArticleIds = new Set(articles.map((a) => a.id));
+        const missingArticleIds = articleIds.filter((id) => !foundArticleIds.has(id));
+        if (missingArticleIds.length > 0) {
+            console.warn(`exportSingleArticleBundle: ${missingArticleIds.length} article ids not found; skipping:`, missingArticleIds);
+        }
+        const resolvedArticleIds = articles.map((a) => a.id);
+        const articleUuidsInBundle = new Set(articles.map((a) => a.uuid));
 
         comments = inc.comment
-            ? await sequelize.models.comment.findAll({ where: { articleId }, transaction: readTx })
+            ? await sequelize.models.comment.findAll({ where: { articleId: { [Op.in]: resolvedArticleIds } }, transaction: readTx })
             : [];
         annotations = inc.notes
-            ? await sequelize.models.annotation.findAll({ where: { articleId }, transaction: readTx })
+            ? await sequelize.models.annotation.findAll({ where: { articleId: { [Op.in]: resolvedArticleIds } }, transaction: readTx })
             : [];
         [images, audios, videos] = await Promise.all([
-            inc.images ? sequelize.models.image.findAll({ where: { articleId }, transaction: readTx }) : [],
-            inc.audios ? sequelize.models.audio.findAll({ where: { articleId }, transaction: readTx }) : [],
-            inc.videos ? sequelize.models.video.findAll({ where: { articleId }, transaction: readTx }) : [],
+            inc.images ? sequelize.models.image.findAll({ where: { articleId: { [Op.in]: resolvedArticleIds } }, transaction: readTx }) : [],
+            inc.audios ? sequelize.models.audio.findAll({ where: { articleId: { [Op.in]: resolvedArticleIds } }, transaction: readTx }) : [],
+            inc.videos ? sequelize.models.video.findAll({ where: { articleId: { [Op.in]: resolvedArticleIds } }, transaction: readTx }) : [],
         ]);
 
         const ATR = sequelize.models.article_tag_rel;
@@ -867,25 +863,25 @@ async function exportSingleArticleBundle(picks) {
         const AAR = sequelize.models.article_article_rel;
 
         tagRels = inc.tags
-            ? await ATR.findAll({ where: { articleId }, transaction: readTx })
+            ? await ATR.findAll({ where: { articleId: { [Op.in]: resolvedArticleIds } }, transaction: readTx })
             : [];
         groupRels = inc.collections
-            ? await AGR.findAll({ where: { articleId }, transaction: readTx })
+            ? await AGR.findAll({ where: { articleId: { [Op.in]: resolvedArticleIds } }, transaction: readTx })
             : [];
         relRels = inc.relatedArticles
             ? await AAR.findAll({
                 where: {
                     [Op.or]: [
-                        { articleId },
-                        { relatedArticleId: articleId },
+                        { articleId: { [Op.in]: resolvedArticleIds } },
+                        { relatedArticleId: { [Op.in]: resolvedArticleIds } },
                     ],
                 },
                 transaction: readTx,
             })
             : [];
 
-        const ownerIds = [...new Set([article.ownerId].filter((x) => x != null))];
-        const categoryIds = [...new Set([article.categoryId].filter((x) => x != null))];
+        const ownerIds = [...new Set(articles.map((a) => a.ownerId).filter((x) => x != null))];
+        const categoryIds = [...new Set(articles.map((a) => a.categoryId).filter((x) => x != null))];
         const tagIds = [...new Set(tagRels.map((r) => r.tagId).filter((x) => x != null))];
         const groupIds = [...new Set(groupRels.map((r) => r.groupId).filter((x) => x != null))];
 
@@ -921,12 +917,12 @@ async function exportSingleArticleBundle(picks) {
             }
         }
 
-        articleIdToMediaIdMap = new Map([[articleId, new Map()]]);
+        articleIdToMediaIdMap = new Map(resolvedArticleIds.map((id) => [id, new Map()]));
         for (const im of images) articleIdToMediaIdMap.get(im.articleId)?.set(im.id, im.uuid);
         for (const au of audios) articleIdToMediaIdMap.get(au.articleId)?.set(au.id, au.uuid);
         for (const vi of videos) articleIdToMediaIdMap.get(vi.articleId)?.set(vi.id, vi.uuid);
 
-        articleUuidById = new Map([[articleId, articleUuid]]);
+        articleUuidById = new Map(articles.map((a) => [a.id, a.uuid]));
 
         // Set of article uuids ever shipped before (peer-ack oracle).
         const sharedSet = await loadSharedArticleUuidSet({ transaction: readTx });
@@ -946,16 +942,17 @@ async function exportSingleArticleBundle(picks) {
             .filter((p) => !(p.hadCreate && !sharedSet.has(p.uuid)))
             .map((p) => ({ uuid: p.uuid }));
 
-        // Drop related-article rels whose other side mobile won't have.
+        // Emit rels whose articleId side is in this bundle (related target
+        // uuid is included even when that article is not in the .blt).
         const allRelArticleIds = new Set();
         for (const r of relRels) {
             allRelArticleIds.add(r.articleId);
             allRelArticleIds.add(r.relatedArticleId);
         }
-        const missingArticleIds = [...allRelArticleIds].filter((id) => !articleUuidById.has(id));
-        if (missingArticleIds.length > 0) {
+        const missingRelArticleIds = [...allRelArticleIds].filter((id) => !articleUuidById.has(id));
+        if (missingRelArticleIds.length > 0) {
             const extraArticles = await sequelize.models.article.findAll({
-                where: { id: { [Op.in]: missingArticleIds } },
+                where: { id: { [Op.in]: missingRelArticleIds } },
                 attributes: ['id', 'uuid'],
                 transaction: readTx,
             });
@@ -966,9 +963,7 @@ async function exportSingleArticleBundle(picks) {
             const aUuid = articleUuidById.get(r.articleId);
             const rUuid = articleUuidById.get(r.relatedArticleId);
             if (!aUuid || !rUuid) return false;
-            if (!articleUuidsInBundle.has(aUuid)) return false;
-            if (!articleUuidsInBundle.has(rUuid) && !sharedSet.has(rUuid)) return false;
-            return true;
+            return articleUuidsInBundle.has(aUuid);
         });
 
         await readTx.commit();
@@ -994,8 +989,8 @@ async function exportSingleArticleBundle(picks) {
     if (!inc.audios) excludedMediaNodeTypes.add('audioNode');
     if (!inc.videos) excludedMediaNodeTypes.add('videoNode');
 
-    const idMap = articleIdToMediaIdMap.get(article.id) || new Map();
-    const articleRow = await (async () => {
+    const projectArticleRow = async (article) => {
+        const idMap = articleIdToMediaIdMap.get(article.id) || new Map();
         const dv = article.dataValues;
         const out = stripTimestamps(dv);
         out.ownerUuid = dv.ownerId != null ? ownerUuidById.get(dv.ownerId) || null : null;
@@ -1030,7 +1025,10 @@ async function exportSingleArticleBundle(picks) {
         delete out.textJson;
         delete out.explanationJson;
         return out;
-    })();
+    };
+
+    const articleRows = await Promise.all(articles.map((article) => projectArticleRow(article)));
+    const articleUuidsInBundle = new Set(articles.map((a) => a.uuid));
 
     const ownerRows = owners.map((o) => stripTimestamps(o.dataValues));
     const categoryRows = categories.map((c) => stripTimestamps(c.dataValues));
@@ -1038,6 +1036,7 @@ async function exportSingleArticleBundle(picks) {
     const groupRows = groups.map((g) => stripTimestamps(g.dataValues));
 
     const commentRows = await Promise.all(comments.map(async (c) => {
+        const idMap = articleIdToMediaIdMap.get(c.articleId) || new Map();
         const dv = c.dataValues;
         const out = stripTimestamps(dv);
         out.articleUuid = articleUuidById.get(dv.articleId);
@@ -1063,7 +1062,6 @@ async function exportSingleArticleBundle(picks) {
         return out;
     });
 
-    const articleUuidsInBundle = new Set([article.uuid]);
     const buildMediaRow = (m, kind) => {
         const dv = m.dataValues;
         const out = stripTimestamps(dv);
@@ -1132,7 +1130,7 @@ async function exportSingleArticleBundle(picks) {
     })();
 
     const buildResult = await buildBundle({
-        articles: [articleRow],
+        articles: articleRows,
         owners: ownerRows,
         categories: categoryRows,
         tags: tagRows,
@@ -1193,7 +1191,7 @@ async function exportSingleArticleBundle(picks) {
             articleCount: buildResult.articleCount,
             mediaCount: buildResult.mediaCount,
             opCount: buildResult.opCount,
-            latestState: 1,
+            latestState: articleRows.length,
             manualDelete: 0,
             autoDeleted: autoDeletes.length,
             sizeBytes: buildResult.sizeBytes,

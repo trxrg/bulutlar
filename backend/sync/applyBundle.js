@@ -368,7 +368,9 @@ export async function applyBundle(sequelize, config, bundle) {
                     pairWhere = { articleId, groupId };
                 } else {
                     const relatedArticleId = resolveId('article', data.relatedArticleUuid);
-                    if (articleId == null || relatedArticleId == null) { skipped++; continue; }
+                    if (articleId == null) { skipped++; continue; }
+                    // Related target may not be in this bundle yet — skip quietly.
+                    if (relatedArticleId == null) { skipped++; continue; }
                     fields = { articleId, relatedArticleId, relatedArticleOrdering: data.relatedArticleOrdering ?? null };
                     pairWhere = { articleId, relatedArticleId };
                 }

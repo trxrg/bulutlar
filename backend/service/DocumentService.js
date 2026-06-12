@@ -1,9 +1,10 @@
 import { ipcMain, dialog } from 'electron';
+import { showItemInFolder } from '../lib/showItemInFolder.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from '../config.js';
 import articleService from './ArticleService.js';
-import { getEntityResolutionOptions, normalizeFilename } from './utils/documentHelpers.js';
+import { getEntityResolutionOptions, normalizeFilename, resolveMergedDocumentTitle } from './utils/documentHelpers.js';
 import { generatePDF, generateMergedPDF } from './utils/pdfGeneration.js';
 import { generateHTMLToPDF, generateMergedHTMLToPDF } from './utils/htmlToPdfGeneration.js';
 import { generateWordDocument, generateMergedWordDocument } from './utils/wordGeneration.js';
@@ -19,6 +20,7 @@ function initService() {
     // Initialize IPC handlers for export functionality
     ipcMain.handle('article/exportArticle', async (event, exportData) => await exportArticle(exportData));
     ipcMain.handle('article/exportMultipleArticles', async (event, exportData) => await exportMultipleArticles(exportData));
+    ipcMain.handle('shell/showInFolder', async (_event, filePath) => showItemInFolder(filePath));
     
     // Initialize folder paths
     imagesFolderPath = config.imagesFolderPath;
@@ -103,9 +105,10 @@ async function exportMultipleArticles(exportData) {
         }
 
         // Show save dialog
+        const saveTitle = resolveMergedDocumentTitle(documentTitle, options) || 'Merged Articles';
         const result = await dialog.showSaveDialog({
             title: translations?.saveMergedArticles || 'Save Merged Articles',
-            defaultPath: `${normalizeFilename(documentTitle, 'Merged Articles')}.${options.format}`,
+            defaultPath: `${normalizeFilename(saveTitle, 'Merged Articles')}.${options.format}`,
             filters: [
                 options.format === 'pdf' 
                     ? { name: 'PDF Files', extensions: ['pdf'] }

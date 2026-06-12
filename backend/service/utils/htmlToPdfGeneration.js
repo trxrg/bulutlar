@@ -8,7 +8,8 @@ const PDF_OPTIONS = {
     printBackground: true,
     scaleFactor: 0.8,
     pageSize: 'A4',
-    marginsType: 0, // default margins (Electron doesn't support mm like Puppeteer; use 0=default, 1=none, 2=minimum)
+    // Let @page margins from generated HTML control layout.
+    marginsType: 1,
 };
 
 /** Load HTML file in a hidden window and print to PDF using Electron's Chromium. */
@@ -29,6 +30,14 @@ async function printHtmlToPdf(tempHtmlPath, filePath, options = {}) {
         const fileUrl = pathToFileURL(path.resolve(tempHtmlPath)).href;
         // loadURL resolves when the page finishes loading
         await win.loadURL(fileUrl);
+        // Wait for bundled @font-face files before printing.
+        await win.webContents.executeJavaScript(`
+            (async () => {
+                if (document.fonts && document.fonts.ready) {
+                    try { await document.fonts.ready; } catch (_) { /* ignore */ }
+                }
+            })()
+        `, true);
         if (waitAfterLoad > 0) {
             await new Promise((r) => setTimeout(r, waitAfterLoad));
         }

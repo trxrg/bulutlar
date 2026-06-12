@@ -648,7 +648,9 @@ const TiptapEditor = React.forwardRef(({ prompt, htmlContent, rawContent, handle
             case 'SUBSCRIPT': chain.toggleSubscript().run(); break;
             default: break;
         }
-        persist();
+        // Read mode allows mark-only edits (no Save button) — persist immediately.
+        // Edit mode defers body writes to Save / Autosave so Cancel can revert.
+        if (!editableRef.current) persist();
     }, [editor, persist]);
 
     const toggleBlockType = useCallback((blockType) => {

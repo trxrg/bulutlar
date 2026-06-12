@@ -20,7 +20,8 @@ import { sequelize } from '../sequelize/index.js';
 import { config } from '../config.js';
 import { coalescePending, snapshotOutboxMaxId } from '../sync/coalesce.js';
 import { rewriteTiptap } from '../sync/tiptapRewrite.js';
-import { stripMediaFromTiptapDoc, stripMediaFromDraftRaw, stripMediaFromHtml } from '../sync/mediaContentFilter.js';
+import { rewriteHtml } from '../sync/htmlRewrite.js';
+import { stripMediaFromTiptapDoc, stripMediaFromHtml } from '../sync/mediaContentFilter.js';
 import { build as buildBundle } from '../sync/bundleBuilder.js';
 import { readBundle } from '../sync/bundleReader.js';
 import { applyBundle } from '../sync/applyBundle.js';
@@ -525,7 +526,7 @@ async function exportBundle(picks) {
     // 8. Project rows to bundle-builder shape.
     // ------------------------------------------------------------------
 
-    const articleRows = articles.map((a) => {
+    const articleRows = await Promise.all(articles.map(async (a) => {
         const dv = a.dataValues;
         const idMap = articleIdToMediaIdMap.get(a.id) || new Map();
         const out = stripTimestamps(dv);
@@ -533,6 +534,8 @@ async function exportBundle(picks) {
         out.categoryUuid = dv.categoryId != null ? categoryUuidById.get(dv.categoryId) || null : null;
         delete out.ownerId;
         delete out.categoryId;
+        delete out.textJson;
+        delete out.explanationJson;
 
         if (out.textTiptapJson != null) {
             out.textTiptapJson = rewriteTiptap(out.textTiptapJson, idMap);
@@ -540,15 +543,23 @@ async function exportBundle(picks) {
         if (out.explanationTiptapJson != null) {
             out.explanationTiptapJson = rewriteTiptap(out.explanationTiptapJson, idMap);
         }
+        if (out.text != null) {
+            const { html } = await rewriteHtml(out.text, idMap);
+            out.text = html;
+        }
+        if (out.explanation != null) {
+            const { html } = await rewriteHtml(out.explanation, idMap);
+            out.explanation = html;
+        }
         return out;
-    });
+    }));
 
     const ownerRows = owners.map((o) => stripTimestamps(o.dataValues));
     const categoryRows = categories.map((c) => stripTimestamps(c.dataValues));
     const tagRows = tags.map((t) => stripTimestamps(t.dataValues));
     const groupRows = groups.map((g) => stripTimestamps(g.dataValues));
 
-    const commentRows = comments.map((c) => {
+    const commentRows = await Promise.all(comments.map(async (c) => {
         const dv = c.dataValues;
         const articleUuid = articleUuidById.get(dv.articleId);
         const idMap = articleIdToMediaIdMap.get(dv.articleId) || new Map();
@@ -557,9 +568,14 @@ async function exportBundle(picks) {
         out.ownerUuid = dv.ownerId != null ? ownerUuidById.get(dv.ownerId) || null : null;
         delete out.articleId;
         delete out.ownerId;
+        delete out.textJson;
         if (out.tiptapTextJson != null) out.tiptapTextJson = rewriteTiptap(out.tiptapTextJson, idMap);
+        if (out.text != null) {
+            const { html } = await rewriteHtml(out.text, idMap);
+            out.text = html;
+        }
         return out;
-    });
+    }));
 
     const annotationRows = annotations.map((a) => {
         const dv = a.dataValues;
@@ -989,24 +1005,30 @@ async function exportSingleArticleBundle(picks) {
 
         if (inc.mainText) {
             out.text = await stripMediaFromHtml(out.text, excludedMediaNodeTypes);
-            out.textJson = stripMediaFromDraftRaw(out.textJson, excludedMediaNodeTypes);
             out.textTiptapJson = stripMediaFromTiptapDoc(out.textTiptapJson, excludedMediaNodeTypes);
             if (out.textTiptapJson != null) out.textTiptapJson = rewriteTiptap(out.textTiptapJson, idMap);
+            if (out.text != null) {
+                const { html } = await rewriteHtml(out.text, idMap);
+                out.text = html;
+            }
         } else {
             out.text = null;
-            out.textJson = null;
             out.textTiptapJson = null;
         }
         if (inc.explanation) {
             out.explanation = await stripMediaFromHtml(out.explanation, excludedMediaNodeTypes);
-            out.explanationJson = stripMediaFromDraftRaw(out.explanationJson, excludedMediaNodeTypes);
             out.explanationTiptapJson = stripMediaFromTiptapDoc(out.explanationTiptapJson, excludedMediaNodeTypes);
             if (out.explanationTiptapJson != null) out.explanationTiptapJson = rewriteTiptap(out.explanationTiptapJson, idMap);
+            if (out.explanation != null) {
+                const { html } = await rewriteHtml(out.explanation, idMap);
+                out.explanation = html;
+            }
         } else {
             out.explanation = null;
-            out.explanationJson = null;
             out.explanationTiptapJson = null;
         }
+        delete out.textJson;
+        delete out.explanationJson;
         return out;
     })();
 
@@ -1023,9 +1045,13 @@ async function exportSingleArticleBundle(picks) {
         delete out.articleId;
         delete out.ownerId;
         out.text = await stripMediaFromHtml(out.text, excludedMediaNodeTypes);
-        out.textJson = stripMediaFromDraftRaw(out.textJson, excludedMediaNodeTypes);
         out.tiptapTextJson = stripMediaFromTiptapDoc(out.tiptapTextJson, excludedMediaNodeTypes);
         if (out.tiptapTextJson != null) out.tiptapTextJson = rewriteTiptap(out.tiptapTextJson, idMap);
+        if (out.text != null) {
+            const { html } = await rewriteHtml(out.text, idMap);
+            out.text = html;
+        }
+        delete out.textJson;
         return out;
     }));
 

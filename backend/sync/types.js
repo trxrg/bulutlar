@@ -16,6 +16,10 @@
 // imageNode / audioNode / videoNode embedded in textTiptapJson /
 // explanationTiptapJson / tiptapTextJson. Phase 3's rewriter strips
 // everything else from the original `attrs` (path, id, type, size, ...).
+//
+// HTML rewrite emits HtmlMediaNodeAttrs on `[data-type="…"]` elements in
+// `text`, `explanation`, and comment `text`. Draft.js columns (`textJson`,
+// `explanationJson`) are DB-legacy only and are not shipped in BLT bundles.
 
 /**
  * Order in which entity types must be emitted in operations.json and applied
@@ -146,6 +150,17 @@ export const APPLY_ORDER = Object.freeze([
  * @property {string}  [description] User-supplied description; optional.
  */
 
+/**
+ * Surviving attributes on `[data-type="imageNode"|"audioNode"|"videoNode"]`
+ * elements after the Phase 3 HTML rewriter walks `text`, `explanation`, and
+ * comment `text`. Same uuid-plus-display contract as TiptapMediaNodeAttrs.
+ *
+ * @typedef {Object} HtmlMediaNodeAttrs
+ * @property {string}  uuid          `uuid` attribute; matches media row uuid in the bundle.
+ * @property {string}  [name]        `name` attribute; optional display fallback.
+ * @property {string}  [description] `description` attribute; optional.
+ */
+
 // =====================================================================
 // Per-entity data shapes
 // =====================================================================
@@ -153,12 +168,14 @@ export const APPLY_ORDER = Object.freeze([
 // One typedef per syncable entity. Every shape excludes `id` (local PK),
 // `uuid`/`revision` (live on the Op envelope), and `createdAt`/`updatedAt`
 // (Sequelize-managed; receiver writes its own). Tiptap JSON columns carry
-// rewritten media-node attrs per TiptapMediaNodeAttrs.
+// rewritten media-node attrs per TiptapMediaNodeAttrs; HTML columns carry
+// HtmlMediaNodeAttrs on embedded media elements.
 
 /**
  * Article row data. `ownerUuid` / `categoryUuid` are resolved from local
- * `ownerId` / `categoryId` at emit time (§4b). Tiptap JSON columns must be
- * pre-rewritten so embedded media nodes carry only TiptapMediaNodeAttrs.
+ * `ownerId` / `categoryId` at emit time (§4b). Tiptap JSON and HTML columns
+ * must be pre-rewritten so embedded media carry only wire attrs (uuid,
+ * name?, description?).
  *
  * `code` is a legacy desktop-side random id (§3c); kept verbatim so
  * round-tripping back to desktop wouldn't collide, but mobile is free to
@@ -171,11 +188,9 @@ export const APPLY_ORDER = Object.freeze([
  * @property {string|null}   [date2]
  * @property {number|null}   [number2]
  * @property {number|null}   [ordering]
- * @property {string|null}   [explanation]
- * @property {Object|null}   [explanationJson]      Legacy JSON; kept opaque for sync compat.
+ * @property {string|null}   [explanation]          HTML with HtmlMediaNodeAttrs on media elements.
  * @property {Object|null}   [explanationTiptapJson] Tiptap doc with TiptapMediaNodeAttrs on media nodes.
- * @property {string|null}   [text]
- * @property {Object|null}   [textJson]             Legacy JSON; kept opaque for sync compat.
+ * @property {string|null}   [text]                 HTML with HtmlMediaNodeAttrs on media elements.
  * @property {Object|null}   [textTiptapJson]       Tiptap doc with TiptapMediaNodeAttrs on media nodes.
  * @property {string|null}   [code]
  * @property {boolean}       [isEditable]
@@ -239,8 +254,7 @@ export const APPLY_ORDER = Object.freeze([
  * @property {string}        articleUuid
  * @property {string|null}   [ownerUuid]
  * @property {string|null}   [date]
- * @property {string|null}   [text]
- * @property {Object|null}   [textJson]             Legacy JSON; kept opaque for sync compat.
+ * @property {string|null}   [text]                 HTML with HtmlMediaNodeAttrs on media elements.
  * @property {Object|null}   [tiptapTextJson]       Tiptap doc with TiptapMediaNodeAttrs on media nodes.
  * @property {number|null}   [ordering]
  * @property {string|null}   [field1]

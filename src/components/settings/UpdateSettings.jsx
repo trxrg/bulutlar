@@ -64,8 +64,8 @@ const UpdateSettings = () => {
 
         window.api.updater.onProgress((progress) => {
             setStatus('downloading');
-            // Handle both 0-1 and 0-100 formats
-            const percent = progress.percent > 1 ? progress.percent : progress.percent * 100;
+            // electron-updater always reports percent as a 0-100 float.
+            const percent = Math.min(100, Math.max(0, progress.percent ?? 0));
             setDownloadProgress(percent);
         });
 

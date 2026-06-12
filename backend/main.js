@@ -24,9 +24,6 @@ autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 autoUpdater.autoDownload = false;
 
-// ⚠️ INSECURE - Disable signature verification (remove when you have code signing)
-autoUpdater.forceDevUpdateConfig = true;
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

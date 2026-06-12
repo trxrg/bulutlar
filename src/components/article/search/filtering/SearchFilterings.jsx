@@ -11,6 +11,7 @@ import Date2Filtering from './Date2Filtering.jsx';
 import Number1Filtering from './Number1Filtering.jsx';
 import Number2Filtering from './Number2Filtering.jsx';
 import FilterAccordion from './FilterAccordion.jsx';
+import MediaFiltering from './MediaFiltering.jsx';
 import SavedFiltersAccordion from './SavedFiltersAccordion.jsx';
 import SaveFilterModal from './SaveFilterModal.jsx';
 import BodyWithFixedHeader from '../../../common/BodyWithFixedHeader';
@@ -34,6 +35,9 @@ const SearchFilterings = () => {
         filterStarred, setFilterStarred,
         filterShowRead, setFilterShowRead,
         filterShowUnread, setFilterShowUnread,
+        filterHasImages, setFilterHasImages,
+        filterHasAudios, setFilterHasAudios,
+        filterHasVideos, setFilterHasVideos,
         saveFilter } = useContext(SearchContext);
 
     const [isSaveFilterModalOpen, setIsSaveFilterModalOpen] = useState(false);
@@ -66,6 +70,16 @@ const SearchFilterings = () => {
         setFilterStarred(false);
         setFilterShowRead(false);
         setFilterShowUnread(false);
+        setFilterHasImages(false);
+        setFilterHasAudios(false);
+        setFilterHasVideos(false);
+    };
+
+    const isMediaFilterActive = filterHasImages || filterHasAudios || filterHasVideos;
+    const clearMediaFilters = () => {
+        setFilterHasImages(false);
+        setFilterHasAudios(false);
+        setFilterHasVideos(false);
     };
 
     return (
@@ -122,11 +136,14 @@ const SearchFilterings = () => {
                     <FilterAccordion title={t('category')} isFilterActive={selectedCategoryNames && selectedCategoryNames.length > 0} clearFilter={() => setSelectedCategoryNames([])}>
                         <CategoryFiltering />
                     </FilterAccordion>
-                    <FilterAccordion title={t('group')} isFilterActive={selectedGroupNames && selectedGroupNames.length > 0} clearFilter={() => setSelectedGroupNames([])}>
-                        <GroupFiltering />
-                    </FilterAccordion>
                     <FilterAccordion title={t('owner')} isFilterActive={selectedOwnerNames && selectedOwnerNames.length > 0} clearFilter={() => setSelectedOwnerNames([])}>
                         <OwnerFiltering />
+                    </FilterAccordion>
+                    <FilterAccordion title={t('media')} isFilterActive={isMediaFilterActive} clearFilter={clearMediaFilters}>
+                        <MediaFiltering />
+                    </FilterAccordion>
+                    <FilterAccordion title={t('group')} isFilterActive={selectedGroupNames && selectedGroupNames.length > 0} clearFilter={() => setSelectedGroupNames([])}>
+                        <GroupFiltering />
                     </FilterAccordion>
                     <FilterAccordion title={t('tag')} isFilterActive={selectedTagNames && selectedTagNames.length > 0} clearFilter={() => setSelectedTagNames([])}>
                         <TagFiltering />

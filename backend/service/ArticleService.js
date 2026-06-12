@@ -725,6 +725,8 @@ async function getArticleById(id) {
                 { model: sequelize.models.comment },
                 { model: sequelize.models.tag },
                 { model: sequelize.models.image },
+                { model: sequelize.models.audio, attributes: ['id'] },
+                { model: sequelize.models.video, attributes: ['id'] },
                 { model: sequelize.models.annotation },
                 { model: sequelize.models.group },
                 {
@@ -751,6 +753,8 @@ async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
             { model: sequelize.models.comment },
             { model: sequelize.models.tag },
             { model: sequelize.models.image },
+            { model: sequelize.models.audio, attributes: ['id'] },
+            { model: sequelize.models.video, attributes: ['id'] },
             { model: sequelize.models.annotation },
             { model: sequelize.models.group },
             {
@@ -1012,6 +1016,11 @@ function articleEntity2Json(entity) {
     if (entity.dataValues.relatedArticles)
         entity.dataValues.relatedArticles = entity.dataValues.relatedArticles.map(
             relatedArticle => ({ id: relatedArticle.id, title: relatedArticle.title }));
+
+    entity.dataValues.hasImages = Array.isArray(entity.dataValues.images) && entity.dataValues.images.length > 0;
+    entity.dataValues.hasAudios = Array.isArray(entity.dataValues.audios) && entity.dataValues.audios.length > 0;
+    entity.dataValues.hasVideos = Array.isArray(entity.dataValues.videos) && entity.dataValues.videos.length > 0;
+
     return entity.dataValues;
 }
 

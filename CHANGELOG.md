@@ -11,10 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Import `.blt` archive bundles into the library from file open and settings
-- New Colored themes
+- New Color themes
 
 ### Changed
-- Improved `.blt` import flow and handling
+- Improved `.blt` export/import flow and handling
+- Improved handling of media files
 
 ### Removed
 - Remove draft-js and related stuff

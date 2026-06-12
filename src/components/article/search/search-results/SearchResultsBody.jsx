@@ -143,6 +143,11 @@ const SearchResultsBody = React.memo(() => {
                 if (filtering.filterShowRead && !filtering.filterShowUnread && !art.isRead) return false;
                 if (!filtering.filterShowRead && filtering.filterShowUnread && art.isRead) return false;
 
+                // Media
+                if (filtering.filterHasImages && !art.hasImages) return false;
+                if (filtering.filterHasAudios && !art.hasAudios) return false;
+                if (filtering.filterHasVideos && !art.hasVideos) return false;
+
                 // Owner (Set lookup instead of Array.includes)
                 if (ownerNameSet) {
                     if (!art.ownerId) return false;

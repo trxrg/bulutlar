@@ -34,6 +34,9 @@ export default function SearchContextProvider({ children }) {
     const [filterStarred, setFilterStarred] = usePersistentState('filterStarred', false);
     const [filterShowRead, setFilterShowRead] = usePersistentState('filterShowRead', false);
     const [filterShowUnread, setFilterShowUnread] = usePersistentState('filterShowUnread', false);
+    const [filterHasImages, setFilterHasImages] = usePersistentState('filterHasImages', false);
+    const [filterHasAudios, setFilterHasAudios] = usePersistentState('filterHasAudios', false);
+    const [filterHasVideos, setFilterHasVideos] = usePersistentState('filterHasVideos', false);
     const [savedFilters, setSavedFilters] = usePersistentState('savedFilters', []);
 
     const [areArticlesSelectable, setArticlesSelectable] = useState(false);
@@ -76,6 +79,9 @@ export default function SearchContextProvider({ children }) {
         setFilterStarred(false);
         setFilterShowRead(false);
         setFilterShowUnread(false);
+        setFilterHasImages(false);
+        setFilterHasAudios(false);
+        setFilterHasVideos(false);
     };
 
     const saveFilter = (filterName) => {
@@ -97,6 +103,9 @@ export default function SearchContextProvider({ children }) {
                 filterStarred,
                 filterShowRead,
                 filterShowUnread,
+                filterHasImages,
+                filterHasAudios,
+                filterHasVideos,
             }
         };
         setSavedFilters([...savedFilters, newFilter]);
@@ -123,6 +132,9 @@ export default function SearchContextProvider({ children }) {
             setFilterStarred(filter.filters.filterStarred || false);
             setFilterShowRead(filter.filters.filterShowRead || false);
             setFilterShowUnread(filter.filters.filterShowUnread || false);
+            setFilterHasImages(filter.filters.filterHasImages || false);
+            setFilterHasAudios(filter.filters.filterHasAudios || false);
+            setFilterHasVideos(filter.filters.filterHasVideos || false);
             toastr.success(t('filter applied'));
         }
     };
@@ -174,10 +186,14 @@ export default function SearchContextProvider({ children }) {
             filterStarred: filterStarred,
             filterShowRead: filterShowRead,
             filterShowUnread: filterShowUnread,
+            filterHasImages: filterHasImages,
+            filterHasAudios: filterHasAudios,
+            filterHasVideos: filterHasVideos,
         });
     }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames,
         selectedGroupNames, selectedNumbers1, selectedNumbers2, keywords, quickSearchTerm, startDate,
         endDate, startDate2, endDate2, filterStarred, filterShowRead, filterShowUnread,
+        filterHasImages, filterHasAudios, filterHasVideos,
         searchInTitle, searchInExplanation, searchInMainText, searchInComments]);
 
     const ctxValue = {
@@ -231,6 +247,12 @@ export default function SearchContextProvider({ children }) {
         setFilterShowRead,
         filterShowUnread,
         setFilterShowUnread,
+        filterHasImages,
+        setFilterHasImages,
+        filterHasAudios,
+        setFilterHasAudios,
+        filterHasVideos,
+        setFilterHasVideos,
         selectArticle,
         deselectArticle,
         selectedArticleIds,

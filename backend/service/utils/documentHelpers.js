@@ -68,8 +68,9 @@ export function buildArticleInfoParts(article, category, owner, translations) {
     }
     
     // Read time if available
-    if (article.field1 && article.field1.trim() !== '') {
-        const readTime = parseInt(article.field1, 10);
+    const rawReadTime = article?.field1;
+    if (rawReadTime != null && String(rawReadTime).trim() !== '') {
+        const readTime = parseInt(String(rawReadTime), 10);
         if (!isNaN(readTime) && readTime > 0) {
             articleInfoParts.push(`${readTime} ${readTime === 1 ? (translations?.minRead || 'min read') : (translations?.minsRead || 'mins read')}`);
         }

@@ -28,9 +28,10 @@ const ArticleInfo = ({ article, fontSize = 'text-xl', isEditable = true, showRea
         if (!showReadTime) return null; // Skip if not needed
         
         // Only return read time if field1 exists and is valid
-        if (!article.field1 || article.field1.trim() === '') return null;
-        
-        const persistedReadTime = parseInt(article.field1, 10);
+        const raw = article?.field1;
+        if (raw == null || String(raw).trim() === '') return null;
+
+        const persistedReadTime = parseInt(String(raw), 10);
         return isNaN(persistedReadTime) ? null : Math.max(1, persistedReadTime);
     }, [article.field1, showReadTime]);
 

@@ -738,10 +738,8 @@ async function getArticleById(id) {
         });
     if (!entity)
         return { error: 'Article not found' };
-    
-    // Ensure read time is calculated for this article
-    const updatedEntity = await ensureReadTimeCalculated(entity);
-    return articleEntity2Json(updatedEntity || entity);
+
+    return articleEntity2Json(entity);
 }
 
 async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
@@ -778,14 +776,7 @@ async function getAllArticles(order = { field: 'date', direction: 'ASC' }) {
         ]
     });
 
-    // Ensure read time is calculated for each article
-    // remove in further releases - too expensive
-    const updatedEntities = await Promise.all(
-        entities.map(async entity => {
-            return articleEntity2Json(await ensureReadTimeCalculated(entity));
-        })
-    );
-    return updatedEntities;
+    return entities.map(entity => articleEntity2Json(entity));
 }
 
 async function setIsStarred(id, isStarred) {
@@ -1105,21 +1096,6 @@ async function recalculateAllReadTimes() {
     }
     console.log('Read time recalculation complete.');
     return articles.length;
-}
-
-// Function to ensure read time is calculated for an article
-async function ensureReadTimeCalculated(article) {
-    // If field1 is empty or null, calculate and store read time
-    if (!article.field1 || article.field1.trim() === '') {
-        console.log(`Calculating read time for article ${article.id} (first time load)`);
-        const calculatedReadTime = await calculateAndUpdateReadTime(article.id);
-        
-        // Update the current article object instead of reloading from database
-        article.field1 = calculatedReadTime.toString();
-        
-        return article;
-    }
-    return article;
 }
 
 // Simple HTML to plain text converter

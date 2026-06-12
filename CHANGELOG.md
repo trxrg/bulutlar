@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.1.3] - 2026-06-05
+## [2.2.0] - 2026-06-12
 
 ### Added
 - Import `.blt` archive bundles into the library from file open and settings
@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Improved `.blt` export/import flow and handling
 - Improved handling of media files
+- Improved pdf-word export
 
 ### Removed
 - Remove draft-js and related stuff

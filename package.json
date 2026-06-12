@@ -182,9 +182,11 @@
       "build/**/*",
       "backend/**/*",
       "public/**/*",
+      "scripts/font-catalog.mjs",
       "postInstall.js",
       "package.json",
-      "CHANGELOG.md"
+      "CHANGELOG.md",
+      "!**/node_modules/@fontsource/**"
     ],
     "directories": {
       "buildResources": "assets"

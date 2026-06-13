@@ -4,7 +4,7 @@ import path from 'path';
 import { ipcMain, dialog } from 'electron';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
-import archiver from 'archiver';
+import { createStoreZipArchive } from '../sync/createStoreZipArchive.js';
 
 import { mainWindow } from '../main.js';
 import { initDB, stopSequelize, startSequelize, sequelize } from '../sequelize/index.js';
@@ -661,10 +661,9 @@ async function collectMobileMediaEntries(db, sourceDir) {
 // Streams a single ZIP in the mobile-import shape: content.db at the root plus
 // images/ audios/ videos/ subdirs. Load-bearing properties:
 //
-//   1. Filename encoding — archiver writes UTF-8 names with general-purpose
-//      bit 11 (EFS) set unconditionally, verified by
-//      scripts/verify-archiver-utf8-flag.mjs. The receiver decodes the bytes
-//      as UTF-8 instead of guessing a codepage.
+//   1. Filename encoding — archiver sets UTF-8 names with general-purpose
+//      bit 11 (EFS) on non-ASCII paths, verified by
+//      backend/sync/archiverZip.test.js and scripts/verify-archiver-utf8-flag.mjs.
 //   2. NFC normalization — a macOS-stored file may sit on disk with NFD
 //      (decomposed) combining marks; the DB path may use a different form.
 //      The entry name is always the NFC form, and the on-disk lookup is
@@ -693,7 +692,7 @@ async function writeMobileImportZip(zipPath, dbPath, sourceDir) {
 
     return new Promise((resolve, reject) => {
         const output = fs.createWriteStream(zipPath);
-        const archive = archiver('zip', { store: true });
+        const archive = createStoreZipArchive();
 
         let settled = false;
         const fail = (err) => {

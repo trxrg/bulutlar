@@ -31,7 +31,7 @@ import { createReadStream, createWriteStream } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import { v7 as uuidv7 } from 'uuid';
-import archiver from 'archiver';
+import { createStoreZipArchive } from './createStoreZipArchive.js';
 
 import {
     SYNC_FORMAT,
@@ -341,7 +341,7 @@ async function sha256File(absPath) {
 async function writeShapeBZipBundle(filePath, { manifestBytes, operationsBuffer, mediaFiles }) {
     return new Promise((resolve, reject) => {
         const output = createWriteStream(filePath);
-        const archive = archiver('zip', { store: true });
+        const archive = createStoreZipArchive();
 
         let finalized = false;
         const cleanup = () => {

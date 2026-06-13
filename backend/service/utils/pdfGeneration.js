@@ -11,10 +11,12 @@ import {
     shouldShowMergedDocumentHeader,
 } from './documentHelpers.js';
 import { htmlToFormattedSegmentsPDF, isHtmlStringEmpty } from './htmlProcessing.js';
+import { resolveExportLayout } from './exportLayout.js';
 
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
 
 // Helper function to render formatted text segments in PDF (MUCH simpler approach)
 export const renderFormattedTextPDF = (doc, segments, options = {}) => {
@@ -74,6 +76,9 @@ export const initializePDFFont = (doc) => {
 // Generate PDF document
 export async function generatePDF(exportData, filePath, imagesFolderPath) {
     const { article, options, annotations, tags, relatedArticles, collections, category, owner, translations } = exportData;
+    const layout = resolveExportLayout(options);
+    const textAlign = layout.textAlignCss === 'left' ? 'left' : 'justify';
+    const lineGap = layout.pdfLineGap;
     
     const doc = new PDFDocument({ 
         margin: 50,
@@ -99,7 +104,7 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
     // Article info
     const articleInfoParts = buildArticleInfoParts(article, category, owner, translations);
     if (articleInfoParts.length > 0) {
-        doc.fontSize(12).text(ensureUTF8(articleInfoParts.join(' | ')), { align: 'left', lineGap: 6 });
+        doc.fontSize(12).text(ensureUTF8(articleInfoParts.join(' | ')), { align: 'left', lineGap });
         doc.moveDown();
     }
 
@@ -109,9 +114,9 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
         if (explanationSegments.length > 0) {
             doc.fontSize(12);
             renderFormattedTextPDF(doc, explanationSegments, {
-                lineGap: 6,
+                lineGap,
                 width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
-                align: 'justify'
+                align: textAlign
             });
             doc.moveDown();
         }
@@ -122,9 +127,9 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
         if (mainTextSegments.length > 0) {
             doc.fontSize(12);
             renderFormattedTextPDF(doc, mainTextSegments, {
-                lineGap: 6,
+                lineGap,
                 width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
-                align: 'justify'
+                align: textAlign
             });
             doc.moveDown();
         }
@@ -137,9 +142,9 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
             doc.moveDown(0.5);
             doc.fontSize(12);
             renderFormattedTextPDF(doc, commentSegments, {
-                lineGap: 6,
+                lineGap,
                 width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
-                align: 'justify'
+                align: textAlign
             });
             doc.moveDown();
         }
@@ -167,9 +172,9 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
         doc.moveDown(0.5);
         annotations.forEach((annotation, index) => {
             doc.fontSize(12).text(ensureUTF8(`${index + 1}. ${annotation.note || annotation.quote || ''}`), { 
-                lineGap: 6,
+                lineGap,
                 width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
-                align: 'justify'
+                align: textAlign
             });
             doc.moveDown(0.3);
         });
@@ -181,7 +186,7 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
         doc.fontSize(16).text(translations?.tags || 'Tags', { underline: true });
         doc.moveDown(0.5);
         doc.fontSize(12).text(ensureUTF8(tags.map(tag => tag.name).join(', ')), { 
-            lineGap: 6,
+            lineGap,
             width: doc.page.width - doc.page.margins.left - doc.page.margins.right
         });
         doc.moveDown();
@@ -193,7 +198,7 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
         doc.moveDown(0.5);
         relatedArticles.forEach((relatedArticle, index) => {
             doc.fontSize(12).text(ensureUTF8(`${index + 1}. ${relatedArticle.title}`), { 
-                lineGap: 6,
+                lineGap,
                 width: doc.page.width - doc.page.margins.left - doc.page.margins.right
             });
             doc.moveDown(0.3);
@@ -206,7 +211,7 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
         doc.fontSize(16).text(translations?.collections || 'Collections', { underline: true });
         doc.moveDown(0.5);
         doc.fontSize(12).text(ensureUTF8(collections.map(collection => collection.name).join(', ')), { 
-            lineGap: 6,
+            lineGap,
             width: doc.page.width - doc.page.margins.left - doc.page.margins.right
         });
         doc.moveDown();
@@ -255,6 +260,9 @@ function renderMergedPdfHeader(doc, options, documentTitle, translations, locale
 export async function generateMergedPDF(exportData, filePath, imagesFolderPath, articleService) {
     const { articles, options, documentTitle, translations, locale } = exportData;
     const metadataTitle = resolveMergedDocumentTitle(documentTitle, options) || 'Merged Articles';
+    const layout = resolveExportLayout(options);
+    const textAlign = layout.textAlignCss === 'left' ? 'left' : 'justify';
+    const lineGap = layout.pdfLineGap;
     
     const doc = new PDFDocument({ margin: 50, bufferPages: true });
     const writeStream = fsSync.createWriteStream(filePath);
@@ -308,9 +316,9 @@ export async function generateMergedPDF(exportData, filePath, imagesFolderPath, 
             if (explanationSegments.length > 0) {
                 doc.fontSize(12);
                 renderFormattedTextPDF(doc, explanationSegments, {
-                    lineGap: 6,
+                    lineGap,
                     width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
-                    align: 'justify'
+                    align: textAlign
                 });
                 doc.moveDown();
             }
@@ -322,9 +330,9 @@ export async function generateMergedPDF(exportData, filePath, imagesFolderPath, 
             if (mainTextSegments.length > 0) {
                 doc.fontSize(12);
                 renderFormattedTextPDF(doc, mainTextSegments, {
-                    lineGap: 6,
+                    lineGap,
                     width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
-                    align: 'justify'
+                    align: textAlign
                 });
                 doc.moveDown();
             }
@@ -338,9 +346,9 @@ export async function generateMergedPDF(exportData, filePath, imagesFolderPath, 
                 doc.moveDown(0.5);
                 doc.fontSize(12);
                 renderFormattedTextPDF(doc, commentSegments, {
-                    lineGap: 6,
+                    lineGap,
                     width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
-                    align: 'justify'
+                    align: textAlign
                 });
                 doc.moveDown();
             }
@@ -366,9 +374,9 @@ export async function generateMergedPDF(exportData, filePath, imagesFolderPath, 
             doc.moveDown(0.5);
             annotations.forEach((annotation, index) => {
                 doc.fontSize(12).text(ensureUTF8(`${index + 1}. ${annotation.note || annotation.quote || ''}`), { 
-                    lineGap: 6,
+                    lineGap,
                     width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
-                    align: 'justify'
+                    align: textAlign
                 });
                 doc.moveDown(0.3);
             });
@@ -380,7 +388,7 @@ export async function generateMergedPDF(exportData, filePath, imagesFolderPath, 
             doc.fontSize(16).text(translations?.tags || 'Tags', { underline: true });
             doc.moveDown(0.5);
             doc.fontSize(12).text(ensureUTF8(tags.map(tag => tag.name).join(', ')), { 
-                lineGap: 6,
+                lineGap,
                 width: doc.page.width - doc.page.margins.left - doc.page.margins.right
             });
             doc.moveDown();
@@ -392,7 +400,7 @@ export async function generateMergedPDF(exportData, filePath, imagesFolderPath, 
             doc.moveDown(0.5);
             relatedArticles.forEach((relatedArticle, index) => {
                 doc.fontSize(12).text(ensureUTF8(`${index + 1}. ${relatedArticle.title}`), { 
-                    lineGap: 6,
+                    lineGap,
                     width: doc.page.width - doc.page.margins.left - doc.page.margins.right
                 });
                 doc.moveDown(0.3);
@@ -405,7 +413,7 @@ export async function generateMergedPDF(exportData, filePath, imagesFolderPath, 
             doc.fontSize(16).text(translations?.collections || 'Collections', { underline: true });
             doc.moveDown(0.5);
             doc.fontSize(12).text(ensureUTF8(collections.map(collection => collection.name).join(', ')), { 
-                lineGap: 6,
+                lineGap,
                 width: doc.page.width - doc.page.margins.left - doc.page.margins.right
             });
             doc.moveDown();

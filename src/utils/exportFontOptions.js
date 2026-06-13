@@ -37,3 +37,16 @@ export const EXPORT_PAGE_MARGIN_OPTIONS = [
     { value: 'normal', labelKey: 'normal margin' },
     { value: 'wide', labelKey: 'wide margin' },
 ];
+
+export const EXPORT_TEXT_ALIGNMENT_OPTIONS = [
+    { value: 'left', labelKey: 'align left' },
+    { value: 'justify', labelKey: 'justify text' },
+];
+
+export const EXPORT_LINE_SPACING_OPTIONS = [
+    { value: 'tight', labelKey: 'tight' },
+    { value: 'normal', labelKey: 'normal' },
+    { value: 'relaxed', labelKey: 'relaxed' },
+    { value: 'loose', labelKey: 'loose' },
+    { value: 'very loose', labelKey: 'very loose' },
+];

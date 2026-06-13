@@ -27,6 +27,17 @@ const PAGE_MARGIN_TWIPS = {
     wide: 1417,
 };
 
+// Matches editor line-height presets (Tailwind leading-* ratios).
+const LINE_SPACING_PRESETS = {
+    tight: { lineHeightCss: 1.25, docxLineSpacing: 300, pdfLineGap: 2 },
+    normal: { lineHeightCss: 1.5, docxLineSpacing: 360, pdfLineGap: 4 },
+    relaxed: { lineHeightCss: 1.625, docxLineSpacing: 390, pdfLineGap: 6 },
+    loose: { lineHeightCss: 2, docxLineSpacing: 480, pdfLineGap: 9 },
+    'very loose': { lineHeightCss: 2.5, docxLineSpacing: 600, pdfLineGap: 12 },
+};
+
+const DEFAULT_LINE_SPACING = LINE_SPACING_PRESETS.relaxed;
+
 const normalizeFontSizePt = (fontSize) => {
     if (typeof fontSize === 'number' && Number.isFinite(fontSize)) {
         return Math.min(MAX_FONT_SIZE_PT, Math.max(MIN_FONT_SIZE_PT, Math.round(fontSize)));
@@ -62,10 +73,34 @@ const resolveFontFamilyCss = (fontFamily) => {
     return fontFamily;
 };
 
+const resolveTextAlignment = (textAlignment) => {
+    if (textAlignment === 'left') {
+        return {
+            textAlignCss: 'left',
+            docxAlignment: 'left',
+        };
+    }
+    return {
+        textAlignCss: 'justify',
+        docxAlignment: 'both',
+    };
+};
+
+const resolveLineSpacing = (lineSpacing) => {
+    const preset = LINE_SPACING_PRESETS[lineSpacing] || DEFAULT_LINE_SPACING;
+    return {
+        lineHeightCss: preset.lineHeightCss,
+        docxLineSpacing: preset.docxLineSpacing,
+        pdfLineGap: preset.pdfLineGap,
+    };
+};
+
 export function resolveExportLayout(options = {}) {
     const fontSizePt = normalizeFontSizePt(options.fontSize);
     const pageMargin = options.pageMargin || 'normal';
     const docxBodySize = fontSizePt * 2; // Word half-points
+    const alignment = resolveTextAlignment(options.textAlignment);
+    const spacing = resolveLineSpacing(options.lineSpacing);
 
     return {
         fontSizePt,
@@ -77,5 +112,10 @@ export function resolveExportLayout(options = {}) {
         docxFont: extractDocxFont(options.fontFamily),
         pageMarginCm: PAGE_MARGIN_CM[pageMargin] || PAGE_MARGIN_CM.normal,
         pageMarginTwips: PAGE_MARGIN_TWIPS[pageMargin] || PAGE_MARGIN_TWIPS.normal,
+        textAlignCss: alignment.textAlignCss,
+        docxAlignment: alignment.docxAlignment,
+        lineHeightCss: spacing.lineHeightCss,
+        docxLineSpacing: spacing.docxLineSpacing,
+        pdfLineGap: spacing.pdfLineGap,
     };
 }

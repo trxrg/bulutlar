@@ -4,14 +4,20 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import https from 'https';
 import os from 'os';
+import { app } from 'electron';
 import { ensureFolderExists } from '../fsOps.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const MEDIA_DIR = path.join(__dirname, 'sample-media');
-const IMAGES_DIR = path.join(MEDIA_DIR, 'images');
-const VIDEOS_DIR = path.join(MEDIA_DIR, 'videos');
+function getMediaDirs() {
+    const mediaDir = path.join(app.getPath('userData'), 'sample-media');
+    return {
+        mediaDir,
+        imagesDir: path.join(mediaDir, 'images'),
+        videosDir: path.join(mediaDir, 'videos'),
+    };
+}
 
 let audioTempDir;
 
@@ -74,9 +80,10 @@ let mediaReady = false;
 async function ensureMediaDownloaded() {
     if (mediaReady) return;
 
-    ensureFolderExists(MEDIA_DIR);
-    ensureFolderExists(IMAGES_DIR);
-    ensureFolderExists(VIDEOS_DIR);
+    const { mediaDir, imagesDir, videosDir } = getMediaDirs();
+    ensureFolderExists(mediaDir);
+    ensureFolderExists(imagesDir);
+    ensureFolderExists(videosDir);
 
     const imageNames = [
         'sleep-brain-waves', 'mercator-projection', 'ancient-clay-tablet-map',
@@ -90,10 +97,10 @@ async function ensureMediaDownloaded() {
 
     let needsDownload = false;
     for (const name of imageNames) {
-        if (!existsSync(path.join(IMAGES_DIR, `${name}.jpg`))) { needsDownload = true; break; }
+        if (!existsSync(path.join(imagesDir, `${name}.jpg`))) { needsDownload = true; break; }
     }
     for (let i = 0; i < VIDEO_SOURCES.length; i++) {
-        if (!existsSync(path.join(VIDEOS_DIR, `video-${i + 1}.mp4`))) { needsDownload = true; break; }
+        if (!existsSync(path.join(videosDir, `video-${i + 1}.mp4`))) { needsDownload = true; break; }
     }
 
     if (!needsDownload) {
@@ -105,7 +112,7 @@ async function ensureMediaDownloaded() {
     console.log('Downloading sample media files (this only happens once)...');
 
     for (const name of imageNames) {
-        const dest = path.join(IMAGES_DIR, `${name}.jpg`);
+        const dest = path.join(imagesDir, `${name}.jpg`);
         if (existsSync(dest)) continue;
         const url = `https://picsum.photos/seed/${name}/800/600`;
         try {
@@ -117,7 +124,7 @@ async function ensureMediaDownloaded() {
     }
 
     for (let i = 0; i < VIDEO_SOURCES.length; i++) {
-        const dest = path.join(VIDEOS_DIR, `video-${i + 1}.mp4`);
+        const dest = path.join(videosDir, `video-${i + 1}.mp4`);
         if (existsSync(dest)) continue;
         try {
             console.log(`  Downloading video ${i + 1}/${VIDEO_SOURCES.length}...`);
@@ -135,7 +142,8 @@ async function ensureMediaDownloaded() {
 
 export async function generateSampleImage(name) {
     await ensureMediaDownloaded();
-    const filePath = path.join(IMAGES_DIR, `${name}.jpg`);
+    const { imagesDir } = getMediaDirs();
+    const filePath = path.join(imagesDir, `${name}.jpg`);
     if (!existsSync(filePath)) {
         console.warn(`Sample image not found: ${filePath}`);
         return null;
@@ -197,9 +205,10 @@ let videoIndex = 0;
 
 export async function generateSampleVideo(name) {
     await ensureMediaDownloaded();
+    const { videosDir } = getMediaDirs();
     const videoFile = `video-${(videoIndex % VIDEO_SOURCES.length) + 1}.mp4`;
     videoIndex++;
-    const filePath = path.join(VIDEOS_DIR, videoFile);
+    const filePath = path.join(videosDir, videoFile);
     if (!existsSync(filePath)) {
         console.warn(`Sample video not found: ${filePath}`);
         return null;

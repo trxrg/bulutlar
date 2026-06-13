@@ -289,6 +289,8 @@ function getEmbeddedCSS(layout = {}) {
     const fontFamily = layout.fontFamilyCss || "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
     const bodyFontSize = layout.fontSizeCss || '11pt';
     const pageMargin = layout.pageMarginCm || '1.5cm';
+    const textAlign = layout.textAlignCss || 'justify';
+    const lineHeight = layout.lineHeightCss || 1.625;
 
     return `
         /* Reset and base styles */
@@ -310,7 +312,7 @@ function getEmbeddedCSS(layout = {}) {
 
         body {
             font-size: ${bodyFontSize};
-            line-height: 1.6;
+            line-height: ${lineHeight};
             color: #333;
         }
         
@@ -375,12 +377,14 @@ function getEmbeddedCSS(layout = {}) {
         
         .content-html {
             font-size: 1em;
-            line-height: 1.8;
+            line-height: ${lineHeight};
+            text-align: ${textAlign};
         }
         
         /* Preserve rich-text formatting */
         .content-html p {
             margin-bottom: 0.5rem;
+            text-align: ${textAlign};
         }
         
         .content-html strong, .content-html b {
@@ -464,7 +468,7 @@ function getEmbeddedCSS(layout = {}) {
         
         .note-item, .related-article-item {
             margin-bottom: 0.5rem;
-            line-height: 1.6;
+            line-height: ${lineHeight};
         }
         
         .tags-list, .collections-list {

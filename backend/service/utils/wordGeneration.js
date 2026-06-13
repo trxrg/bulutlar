@@ -21,6 +21,10 @@ const s = (str) => stripInvalidXmlChars(str || '');
 const buildDocStyles = (layout) => ({
     default: {
         document: { run: { font: layout.docxFont, size: layout.docxBodySize } },
+        paragraph: {
+            alignment: layout.docxAlignment,
+            spacing: { line: layout.docxLineSpacing, lineRule: 'auto' },
+        },
     },
 });
 
@@ -169,9 +173,7 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
                     children: italicRuns,
                     spacing: { 
                         before: index === 0 ? 120 : 0, 
-                        after: index === formattedRuns.length - 1 ? 120 : 60, 
-                        line: 360, 
-                        lineRule: 'auto' 
+                        after: index === formattedRuns.length - 1 ? 120 : 60,
                     }
                 }));
             });
@@ -186,9 +188,7 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
                 children.push(new Paragraph({
                     children: runs,
                     spacing: { 
-                        after: index === formattedRuns.length - 1 ? 120 : 60, 
-                        line: 360, 
-                        lineRule: 'auto' 
+                        after: index === formattedRuns.length - 1 ? 120 : 60,
                     }
                 }));
             });
@@ -217,9 +217,7 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
                 children.push(new Paragraph({
                     children: runs,
                     spacing: { 
-                        after: index === formattedRuns.length - 1 ? 120 : 60, 
-                        line: 360, 
-                        lineRule: 'auto' 
+                        after: index === formattedRuns.length - 1 ? 120 : 60,
                     }
                 }));
             });
@@ -237,7 +235,6 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
         annotations.forEach((annotation, index) => {
             children.push(new Paragraph({
                 children: [new TextRun({ text: `${index + 1}. ${s(annotation.note || annotation.quote || '')}`, font: layout.docxFont, size: layout.docxBodySize })],
-                spacing: { line: 360, lineRule: 'auto' }
             }));
         });
         children.push(new Paragraph({ text: '' })); // Empty line
@@ -252,7 +249,6 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
         }));
         children.push(new Paragraph({
             children: [new TextRun({ text: s(tags.map(tag => tag.name).join(', ')), font: layout.docxFont, size: layout.docxBodySize })],
-            spacing: { line: 360, lineRule: 'auto' }
         }));
         children.push(new Paragraph({ text: '' })); // Empty line
     }
@@ -267,7 +263,6 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
         relatedArticles.forEach((relatedArticle, index) => {
             children.push(new Paragraph({
                 children: [new TextRun({ text: `${index + 1}. ${s(relatedArticle.title)}`, font: layout.docxFont, size: layout.docxBodySize })],
-                spacing: { line: 360, lineRule: 'auto' }
             }));
         });
         children.push(new Paragraph({ text: '' })); // Empty line
@@ -282,7 +277,6 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
         }));
         children.push(new Paragraph({
             children: [new TextRun({ text: s(collections.map(collection => collection.name).join(', ')), font: layout.docxFont, size: layout.docxBodySize })],
-            spacing: { line: 360, lineRule: 'auto' }
         }));
     }
 
@@ -402,9 +396,7 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
                         children: italicRuns,
                         spacing: { 
                             before: index === 0 ? 120 : 0, 
-                            after: index === formattedRuns.length - 1 ? 120 : 60, 
-                            line: 360, 
-                            lineRule: 'auto' 
+                            after: index === formattedRuns.length - 1 ? 120 : 60,
                         }
                     }));
                 });
@@ -418,11 +410,9 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
                 formattedRuns.forEach((runs, index) => {
                     children.push(new Paragraph({
                         children: runs,
-                        spacing: { 
-                            after: index === formattedRuns.length - 1 ? 120 : 60, 
-                            line: 360, 
-                            lineRule: 'auto' 
-                        }
+                    spacing: {
+                        after: index === formattedRuns.length - 1 ? 120 : 60,
+                    }
                     }));
                 });
             }
@@ -447,11 +437,9 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
                 formattedRuns.forEach((runs, index) => {
                     children.push(new Paragraph({
                         children: runs,
-                        spacing: { 
-                            after: index === formattedRuns.length - 1 ? 120 : 60, 
-                            line: 360, 
-                            lineRule: 'auto' 
-                        }
+                    spacing: {
+                        after: index === formattedRuns.length - 1 ? 120 : 60,
+                    }
                     }));
                 });
             }
@@ -467,7 +455,6 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
             annotations.forEach((annotation, index) => {
                 children.push(new Paragraph({
                     children: [new TextRun({ text: `${index + 1}. ${s(annotation.note || annotation.quote || '')}`, font: layout.docxFont, size: layout.docxBodySize })],
-                    spacing: { line: 360, lineRule: 'auto' }
                 }));
             });
             children.push(new Paragraph({ text: '' })); // Empty line
@@ -482,7 +469,6 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
             }));
             children.push(new Paragraph({
                 children: [new TextRun({ text: s(tags.map(tag => tag.name).join(', ')), font: layout.docxFont, size: layout.docxBodySize })],
-                spacing: { line: 360, lineRule: 'auto' }
             }));
             children.push(new Paragraph({ text: '' })); // Empty line
         }
@@ -497,7 +483,6 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
             relatedArticles.forEach((relatedArticle, index) => {
                 children.push(new Paragraph({
                     children: [new TextRun({ text: `${index + 1}. ${s(relatedArticle.title)}`, font: layout.docxFont, size: layout.docxBodySize })],
-                    spacing: { line: 360, lineRule: 'auto' }
                 }));
             });
             children.push(new Paragraph({ text: '' })); // Empty line
@@ -512,7 +497,6 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
             }));
             children.push(new Paragraph({
                 children: [new TextRun({ text: s(collections.map(collection => collection.name).join(', ')), font: layout.docxFont, size: layout.docxBodySize })],
-                spacing: { line: 360, lineRule: 'auto' }
             }));
         }
 

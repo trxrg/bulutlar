@@ -4,11 +4,14 @@ import ActionButton from '../../common/ActionButton.jsx';
 import LoadingToastr from '../../common/LoadingToastr.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import Checkbox from '@mui/material/Checkbox';
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import toastr from 'toastr';
 import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import {
     EXPORT_FONT_FAMILY_OPTIONS,
     EXPORT_PAGE_MARGIN_OPTIONS,
+    EXPORT_TEXT_ALIGNMENT_OPTIONS,
+    EXPORT_LINE_SPACING_OPTIONS,
     editorTailwindToPt,
     EXPORT_FONT_SIZE_MIN_PT,
     EXPORT_FONT_SIZE_MAX_PT,
@@ -44,6 +47,26 @@ const selectStyle = {
     borderColor: 'var(--border-secondary)',
 };
 
+const muiSelectSx = {
+    color: 'var(--text-primary)',
+    backgroundColor: 'var(--bg-secondary)',
+    '.MuiOutlinedInput-notchedOutline': {
+        borderColor: 'var(--border-secondary)',
+    },
+    '.MuiSvgIcon-root': {
+        color: 'var(--text-primary)',
+    },
+};
+
+const muiSelectMenuProps = {
+    PaperProps: {
+        sx: {
+            backgroundColor: 'var(--bg-secondary)',
+            color: 'var(--text-primary)',
+        },
+    },
+};
+
 const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArticle = false }) => {
     const { translate: t, editorSettings, getLanguage } = useContext(AppContext);
     const showBltOption = isMultiArticle ? (articleIds?.length > 0) : !!article;
@@ -64,6 +87,8 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         fontFamily: editorSettings?.fontFamily || 'system-ui',
         fontSize: editorTailwindToPt(editorSettings?.fontSize),
         pageMargin: 'normal',
+        textAlignment: 'justify',
+        lineSpacing: editorSettings?.lineHeight || 'loose',
         includeDocumentTitle: true,
         documentTitleSeparatePage: false,
         includeGenerationDate: false,
@@ -387,21 +412,40 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
 
                         {showDocumentLayoutSettings && (
                             <OptionCard title={t('document layout')}>
-                                <label className='flex flex-col gap-1'>
-                                    <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{t('font family')}</span>
-                                    <select
+                                <FormControl variant="outlined" fullWidth>
+                                    <InputLabel sx={{ color: 'var(--text-secondary)' }}>{t('font family')}</InputLabel>
+                                    <Select
                                         value={exportOptions.fontFamily}
                                         onChange={(e) => handleLayoutChange('fontFamily', e.target.value)}
-                                        className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                                        style={selectStyle}
+                                        label={t('font family')}
+                                        MenuProps={muiSelectMenuProps}
+                                        sx={{
+                                            ...muiSelectSx,
+                                            fontFamily: exportOptions.fontFamily,
+                                        }}
                                     >
                                         {EXPORT_FONT_FAMILY_OPTIONS.map((option) => (
-                                            <option key={option.value} value={option.value} style={{ fontFamily: option.value }}>
-                                                {option.label}
-                                            </option>
+                                            <MenuItem
+                                                key={option.value}
+                                                value={option.value}
+                                                sx={{
+                                                    color: 'var(--text-primary)',
+                                                    backgroundColor: 'var(--bg-secondary)',
+                                                    fontFamily: option.value,
+                                                    fontSize: '1.1rem',
+                                                    padding: '12px 16px',
+                                                    '&:hover': {
+                                                        backgroundColor: 'var(--bg-tertiary)',
+                                                    },
+                                                }}
+                                            >
+                                                <span style={{ fontFamily: option.value }}>
+                                                    {option.label}
+                                                </span>
+                                            </MenuItem>
                                         ))}
-                                    </select>
-                                </label>
+                                    </Select>
+                                </FormControl>
 
                                 <label className='flex flex-col gap-1 mt-3'>
                                     <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{t('font size')}</span>
@@ -426,6 +470,38 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                                         />
                                         <span className='text-sm shrink-0' style={{ color: 'var(--text-secondary)' }}>pt</span>
                                     </div>
+                                </label>
+
+                                <label className='flex flex-col gap-1 mt-3'>
+                                    <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{t('line spacing')}</span>
+                                    <select
+                                        value={exportOptions.lineSpacing}
+                                        onChange={(e) => handleLayoutChange('lineSpacing', e.target.value)}
+                                        className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                        style={selectStyle}
+                                    >
+                                        {EXPORT_LINE_SPACING_OPTIONS.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {t(option.labelKey)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+
+                                <label className='flex flex-col gap-1 mt-3'>
+                                    <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{t('text alignment')}</span>
+                                    <select
+                                        value={exportOptions.textAlignment}
+                                        onChange={(e) => handleLayoutChange('textAlignment', e.target.value)}
+                                        className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                        style={selectStyle}
+                                    >
+                                        {EXPORT_TEXT_ALIGNMENT_OPTIONS.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {t(option.labelKey)}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </label>
 
                                 <label className='flex flex-col gap-1 mt-3'>

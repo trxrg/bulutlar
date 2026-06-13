@@ -7,7 +7,6 @@ db
 # build
 build
 release-builds
-release-notes.md
 
 # Logs
 logs

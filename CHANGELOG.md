@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.2.0] - 2026-06-12
+## [2.2.1] - 2026-06-13
 
 ### Added
 - Import `.blt` archive bundles into the library from file open and settings

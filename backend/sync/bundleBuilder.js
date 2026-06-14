@@ -246,10 +246,9 @@ export async function build(input) {
 
     const manifestBytes = Buffer.from(JSON.stringify(manifest, null, 2), 'utf-8');
 
-    // Filename: bulutlar-YYYY-MM-DD-<bundleIdShort>.blt
-    const today = new Date().toISOString().slice(0, 10);
-    const bundleIdShort = bundleId.replace(/-/g, '').slice(0, 8);
-    const fileName = `bulutlar-${today}-${bundleIdShort}${SYNC_FILE_EXT}`;
+    // Filename: bulutlar-<ISO-timestamp>.blt (filesystem-safe; colons/dots → hyphens)
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const fileName = `bulutlar-${timestamp}${SYNC_FILE_EXT}`;
     const filePath = path.join(outputDir, fileName);
 
     await fs.mkdir(outputDir, { recursive: true });

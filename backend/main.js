@@ -3,7 +3,6 @@ import { app, BrowserWindow, protocol, session, ipcMain } from 'electron';
 import { readFile } from 'fs/promises';
 import fs from 'fs';
 import isDev from 'electron-is-dev';
-import { initialize, enable} from '@electron/remote/main/index.js';
 import { startSequelize } from './sequelize/index.js';
 import { initServices } from './service/index.js';
 import { initConfig } from './config.js';
@@ -32,7 +31,6 @@ const DEBUG_MEDIA_STREAMING = false;
 
 console.log('main.js running')
 console.log('dirname: ', __dirname)
-initialize();
 
 let mainWindow;
 
@@ -127,9 +125,6 @@ const createWindow = () => {
   })
 
   mainWindow.setMenuBarVisibility(false);
-
-
-  enable(mainWindow.webContents);
 
   // Show window only when ready to prevent white flash
   mainWindow.once('ready-to-show', () => {

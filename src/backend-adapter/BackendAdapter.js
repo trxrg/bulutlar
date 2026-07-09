@@ -18,6 +18,8 @@ export const articleApi = {
     openDialogToAddAudios: async (id)               => window.api.article.openDialogToAddAudios(id),
     addVideo:           async (id, video)           => window.api.article.addVideo(id, video),
     openDialogToAddVideos: async (id)               => window.api.article.openDialogToAddVideos(id),
+    addYoutubeEmbed:    async (id, payload)         => window.api.article.addYoutubeEmbed(id, payload),
+    appendVideoNode:    async (articleId, videoId, editorField) => window.api.article.appendVideoNode(articleId, videoId, editorField),
     exportArticle: async (exportData)               => window.api.article.exportArticle(exportData),
     exportMultipleArticles: async (exportData)      => window.api.article.exportMultipleArticles(exportData),
     addAnnotation:      async (id, annotation)      => window.api.article.addAnnotation(id, annotation),
@@ -101,6 +103,21 @@ export const videoApi = {
     updateMetadata:     async (id, metadata)        => window.api.video.updateMetadata(id, metadata),
     updateMissingDurations: async ()                => window.api.video.updateMissingDurations(),
 };
+
+export const youtubeApi = {
+    checkBinaries: async () => unwrapYoutubeResult(await window.api.youtube.checkBinaries()),
+    getInfo: async (url) => unwrapYoutubeResult(await window.api.youtube.getInfo(url)),
+    download: async (jobId, articleId, url, formatId, meta) => unwrapYoutubeResult(await window.api.youtube.download(jobId, articleId, url, formatId, meta)),
+    cancelDownload: async (jobId) => unwrapYoutubeResult(await window.api.youtube.cancelDownload(jobId)),
+    onDownloadProgress: (callback) => window.api.youtube.onDownloadProgress(callback),
+};
+
+function unwrapYoutubeResult(result) {
+    if (result?.ok) return result.data;
+    const err = new Error(result?.error?.message || 'YouTube operation failed');
+    err.youtubeError = result?.error || { code: 'FETCH_FAILED', message: err.message };
+    throw err;
+}
 
 // Run pending media deletes one at a time so concurrent SQLite
 // transactions don't trip SQLITE_BUSY during save/cancel.

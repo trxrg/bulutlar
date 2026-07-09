@@ -2,7 +2,9 @@ export default (sequelize, DataTypes) => {
     const Video = sequelize.define('video', {
         name: { allowNull: false, type: DataTypes.STRING },
         type: { allowNull: false, type: DataTypes.STRING },
-        path: { allowNull: false, type: DataTypes.STRING },
+        path: { allowNull: true, type: DataTypes.STRING },
+        sourceType: { allowNull: false, type: DataTypes.STRING, defaultValue: 'local' },
+        sourceUrl: { type: DataTypes.STRING },
         size: { type: DataTypes.INTEGER },
         description: { type: DataTypes.STRING },
         duration: { type: DataTypes.INTEGER }, // in seconds

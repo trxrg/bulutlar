@@ -16,6 +16,8 @@ const VideoNode = Node.create({
             path: { default: null },
             size: { default: null },
             description: { default: null },
+            sourceType: { default: 'local' },
+            sourceUrl: { default: null },
         };
     },
 

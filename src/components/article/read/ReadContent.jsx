@@ -3,6 +3,7 @@ import { articleApi, flushMediaDeletes, mergeMediaDeleteBuckets } from '../../..
 import { ReadContext } from "../../../store/read-context.jsx";
 import { AppContext } from "../../../store/app-context.jsx";
 import { DBContext } from "../../../store/db-context.jsx";
+import { useYoutubeDownload } from "../../../store/youtube-download-context.jsx";
 import PickAndViewArticleModal from "../modals/PickAndViewArticleModal.jsx";
 import TiptapEditor from "./editor/TiptapEditor.jsx";
 import ContextMenu from "../../common/ContextMenu.jsx";
@@ -18,6 +19,8 @@ const ReadContent = () => {
 
     const [activeEditorRef, setActiveEditorRef] = useState(mainTextEditorRef);
     const [hasContentError, setHasContentError] = useState(false);
+    
+    const { registerArticleVideoHandler, unregisterArticleVideoHandler } = useYoutubeDownload();
     
     const { article, readContentRef, fontSize, editable, syncArticleFromBE, editSnapshotRef,
         isAddLinkModalOpen, setAddLinkModalOpen, contextMenuIsOpen,
@@ -166,7 +169,7 @@ const ReadContent = () => {
         }
     };
 
-    const handleInsertVideoClicked = async () => {
+    const handleInsertVideoFromComputerClicked = async () => {
         try {
             const videoEntities = await articleApi.openDialogToAddVideos(article.id);
 
@@ -183,6 +186,25 @@ const ReadContent = () => {
         }
     };
 
+    const getActiveEditorField = () => {
+        if (activeEditorRef === explanationEditorRef) return 'explanation';
+        if (activeEditorRef === commentEditorRef) return 'comment';
+        return 'mainText';
+    };
+
+    useEffect(() => {
+        const handler = (videoEntity, editorField) => {
+            const targetRef = editorField === 'explanation'
+                ? explanationEditorRef
+                : editorField === 'comment'
+                    ? commentEditorRef
+                    : mainTextEditorRef;
+            targetRef.current?.addVideo(videoEntity);
+        };
+        registerArticleVideoHandler(article.id, handler);
+        return () => unregisterArticleVideoHandler(article.id);
+    }, [article.id, registerArticleVideoHandler, unregisterArticleVideoHandler]);
+
     React.useImperativeHandle(readContentRef, () => ({
         addLink,
         addQuote,
@@ -193,7 +215,8 @@ const ReadContent = () => {
         toggleBlockType,
         handleInsertImageClicked,
         handleInsertAudioClicked,
-        handleInsertVideoClicked,
+        handleInsertVideoFromComputerClicked,
+        getActiveEditorField,
     }));
 
     const addRelatedArticleWhenLinkAdded = async (url) => {

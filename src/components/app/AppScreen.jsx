@@ -2,6 +2,8 @@ import { useContext, useEffect } from 'react';
 import AppHeader from './AppHeader';
 import AppBody from './AppBody';
 import AppFooter from './AppFooter';
+import YoutubeVideoModal from '../article/read/modals/YoutubeVideoModal.jsx';
+import FooterYoutubeDownloads from './FooterYoutubeDownloads.jsx';
 import { AppContext } from '../../store/app-context';
 import { SharingAdminProvider } from '../../contexts/SharingAdminContext';
 import useBundleImport from '../../hooks/useBundleImport';
@@ -39,6 +41,8 @@ const AppScreen = () => {
                 <AppBody />
             </div>
             {showFooter && <AppFooter />}
+            {!showFooter && <FooterYoutubeDownloads overlay />}
+            <YoutubeVideoModal />
             {confirmModal}
             {resultModal}
         </div>

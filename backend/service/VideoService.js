@@ -41,12 +41,18 @@ function initService() {
 async function createVideo(video, transaction = null) {
     try {
         const uuid = uuidv7();
-        const relPath = buildMediaRelPath(uuid, { name: video.name, type: video.type });
-        const absPath = path.join(videosFolderPath, relPath);
+        const sourceType = video.sourceType || 'local';
+        const isEmbed = sourceType === 'youtube' && !video.path;
+        let relPath = null;
 
-        console.info('Copying file from:', video.path);
-        console.info('Copying file to:', absPath);
-        await fs.copyFile(video.path, absPath);
+        if (!isEmbed) {
+            relPath = buildMediaRelPath(uuid, { name: video.name, type: video.type });
+            const absPath = path.join(videosFolderPath, relPath);
+
+            console.info('Copying file from:', video.path);
+            console.info('Copying file to:', absPath);
+            await fs.copyFile(video.path, absPath);
+        }
 
         const result = await sequelize.models.video.create({
             uuid,
@@ -57,13 +63,17 @@ async function createVideo(video, transaction = null) {
             description: video.description || video.name,
             duration: video.duration,
             width: video.width,
-            height: video.height
+            height: video.height,
+            sourceType,
+            sourceUrl: video.sourceUrl || null,
+            field1: video.field1 || null,
         }, { transaction });
 
         return result;
 
     } catch (err) {
         console.error('Error in createVideo ', err);
+        throw err;
     }
 }
 
@@ -76,14 +86,16 @@ async function getVideoDataById(videoId) {
 
         // Return both the file path for streaming AND metadata
         const result = {
-            path: getVideoAbsPath(video.path),
+            path: video.path ? getVideoAbsPath(video.path) : null,
             metadata: {
                 duration: video.duration,
                 width: video.width,
                 height: video.height,
                 name: video.name,
                 size: video.size,
-                type: video.type
+                type: video.type,
+                sourceType: video.sourceType,
+                sourceUrl: video.sourceUrl,
             }
         };
         
@@ -121,7 +133,7 @@ async function getVideoDataFromPublic(relPath, videoType) {
 }
 
 async function deleteVideoEntity(video, { transaction } = {}) {
-    await safeUnlink(getVideoAbsPath(video.path));
+    if (video.path) await safeUnlink(getVideoAbsPath(video.path));
     await video.destroy({ transaction });
 }
 
@@ -166,6 +178,9 @@ async function downloadVideoById(videoId) {
 
         if (!video)
             throw new Error('No video found with id: ' + videoId);
+
+        if (!video.path)
+            throw new Error('This video cannot be downloaded to disk');
 
         // Show save dialog
         const result = await dialog.showSaveDialog(mainWindow, {
@@ -276,6 +291,7 @@ const VideoService = {
     initService,
     createVideo,
     deleteVideosByArticleId,
+    deleteVideoById,
     updateMissingDurations, // Export the new function
 };
 

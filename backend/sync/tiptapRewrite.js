@@ -58,5 +58,7 @@ function rewriteMediaAttrs(attrs, idToUuid) {
     if (uuid) result.uuid = uuid;
     if (attrs.name != null) result.name = attrs.name;
     if (attrs.description != null) result.description = attrs.description;
+    if (attrs.sourceType != null) result.sourceType = attrs.sourceType;
+    if (attrs.sourceUrl != null) result.sourceUrl = attrs.sourceUrl;
     return result;
 }

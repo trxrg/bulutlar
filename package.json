@@ -18,6 +18,7 @@
     "rebuild-native": "electron-builder install-app-deps",
     "postinstall": "electron-builder install-app-deps && node scripts/copy-bundled-fonts.mjs",
     "copy-fonts": "node scripts/copy-bundled-fonts.mjs",
+    "download-yt-dlp": "node scripts/download-yt-dlp.mjs",
     "package-mac": "npm run build-react && electron-builder --mac",
     "package-mac-universal": "npm run build-react && dotenv -- electron-builder --mac --universal",
     "package-mac-arm64": "npm run build-react && dotenv -- electron-builder --mac --arm64",
@@ -99,6 +100,7 @@
     "electron-log": "^5.4.3",
     "electron-store": "^10.0.1",
     "electron-updater": "^6.8.3",
+    "ffmpeg-static": "^5.3.0",
     "fs-extra": "^11.2.0",
     "hijri-date": "^0.2.2",
     "html-react-parser": "^5.0.11",
@@ -163,6 +165,7 @@
     "asar": true,
     "asarUnpack": [
       "**/node_modules/sqlite3/**/*",
+      "**/node_modules/ffmpeg-static/**/*",
       "**/*.{node,dll,dylib,so}",
       "public/fonts/**/*"
     ],
@@ -196,6 +199,12 @@
       "forceCodeSigning": false,
       "target": [
         "nsis"
+      ],
+      "extraResources": [
+        {
+          "from": "resources/bin/win",
+          "to": "bin"
+        }
       ]
     },
     "mac": {
@@ -211,6 +220,12 @@
       ],
       "asar": true,
       "compression": "maximum",
+      "extraResources": [
+        {
+          "from": "resources/bin/mac",
+          "to": "bin"
+        }
+      ],
       "extendInfo": {
         "UTExportedTypeDeclarations": [
           {
@@ -251,6 +266,12 @@
       "target": [
         "AppImage",
         "deb"
+      ],
+      "extraResources": [
+        {
+          "from": "resources/bin/linux",
+          "to": "bin"
+        }
       ]
     }
   }

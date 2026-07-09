@@ -96,7 +96,7 @@ const FIELDS = {
     annotation: ['quote', 'note', 'ordering', 'field1', 'field2'],
     image: ['name', 'type', 'size', 'description', 'ordering', 'field1', 'field2'],
     audio: ['name', 'type', 'size', 'description', 'duration', 'ordering', 'field1', 'field2'],
-    video: ['name', 'type', 'size', 'description', 'duration', 'width', 'height', 'ordering', 'field1', 'field2'],
+    video: ['name', 'type', 'size', 'description', 'duration', 'width', 'height', 'ordering', 'field1', 'field2', 'sourceType', 'sourceUrl'],
 };
 
 function pick(data, keys) {
@@ -316,19 +316,65 @@ export async function applyBundle(sequelize, config, bundle) {
 
                 const meta = mediaIndex.get(op.uuid);
                 const ext = meta ? meta.ext : '';
-                const relPath = ext ? `${op.uuid}.${ext}` : op.uuid;
                 const buf = await getMediaBuffer(op.uuid);
                 if (buf) {
+                    const relPath = ext ? `${op.uuid}.${ext}` : op.uuid;
                     const folder = mediaFolder(config, entity);
                     ensureFolderExists(folder);
                     await fs.writeFile(path.join(folder, relPath), buf);
                     mediaWritten++;
-                } else {
-                    warnings.push(`${entity} ${op.uuid}: media bytes not found in bundle`);
+                    const fields = pick(data, FIELDS[entity]);
+                    fields.articleId = articleId;
+                    fields.path = relPath;
+                    if (fields.name == null) fields.name = relPath;
+                    if (fields.type == null) fields.type = ext || 'application/octet-stream';
+                    const res = await upsertByUuid(M[entity], idByUuid[entity], revByUuid[entity], op.uuid, incomingRev, fields, transaction);
+                    mediaInfoByUuid.set(op.uuid, {
+                        id: idByUuid[entity].get(op.uuid),
+                        name: fields.name,
+                        type: fields.type,
+                        path: fields.path,
+                        size: fields.size != null ? fields.size : null,
+                        description: fields.description != null ? fields.description : null,
+                        duration: fields.duration != null ? fields.duration : null,
+                        width: fields.width != null ? fields.width : null,
+                        height: fields.height != null ? fields.height : null,
+                        sourceType: fields.sourceType != null ? fields.sourceType : null,
+                        sourceUrl: fields.sourceUrl != null ? fields.sourceUrl : null,
+                    });
+                    tally(res);
+                    continue;
                 }
+
+                if (entity === 'video' && data.sourceType === 'youtube' && data.sourceUrl) {
+                    const fields = pick(data, FIELDS[entity]);
+                    fields.articleId = articleId;
+                    fields.path = null;
+                    if (fields.name == null) fields.name = 'YouTube Video';
+                    if (fields.type == null) fields.type = 'youtube';
+                    const res = await upsertByUuid(M[entity], idByUuid[entity], revByUuid[entity], op.uuid, incomingRev, fields, transaction);
+                    mediaInfoByUuid.set(op.uuid, {
+                        id: idByUuid[entity].get(op.uuid),
+                        name: fields.name,
+                        type: fields.type,
+                        path: null,
+                        size: fields.size != null ? fields.size : null,
+                        description: fields.description != null ? fields.description : null,
+                        duration: fields.duration != null ? fields.duration : null,
+                        width: fields.width != null ? fields.width : null,
+                        height: fields.height != null ? fields.height : null,
+                        sourceType: fields.sourceType,
+                        sourceUrl: fields.sourceUrl,
+                    });
+                    tally(res);
+                    continue;
+                }
+
+                warnings.push(`${entity} ${op.uuid}: media bytes not found in bundle`);
 
                 const fields = pick(data, FIELDS[entity]);
                 fields.articleId = articleId;
+                const relPath = ext ? `${op.uuid}.${ext}` : op.uuid;
                 fields.path = relPath;
                 // name/type are NOT NULL on the media tables — backfill defensively.
                 if (fields.name == null) fields.name = relPath;
@@ -346,6 +392,8 @@ export async function applyBundle(sequelize, config, bundle) {
                     duration: fields.duration != null ? fields.duration : null,
                     width: fields.width != null ? fields.width : null,
                     height: fields.height != null ? fields.height : null,
+                    sourceType: fields.sourceType != null ? fields.sourceType : null,
+                    sourceUrl: fields.sourceUrl != null ? fields.sourceUrl : null,
                 });
                 tally(res);
                 continue;

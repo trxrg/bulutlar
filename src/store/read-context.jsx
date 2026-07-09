@@ -1,6 +1,7 @@
 import { createContext, useRef, useState, useContext, useEffect, useCallback } from 'react';
 import { DBContext } from './db-context';
 import { AppContext } from './app-context';
+import { YoutubeDownloadContext } from './youtube-download-context.jsx';
 import toastr from 'toastr';
 
 export const ReadContext = createContext();
@@ -31,6 +32,7 @@ export default function ReadContextProvider({ children, article }) {
 
     const { getOwnerById, getCategoryById, fetchArticleById } = useContext(DBContext);
     const { fullScreen, editorSettings, registerEditableTab, unregisterEditableTab, translate: t } = useContext(AppContext);
+    const { openModal: openYoutubeModal } = useContext(YoutubeDownloadContext);
     const [fontSize, setFontSize] = useState(editorSettings?.fontSize || 'text-3xl');
     const [editable, setEditable] = useState(false);
 
@@ -165,9 +167,14 @@ export default function ReadContextProvider({ children, article }) {
             readContentRef.current.handleInsertAudioClicked();
     }
 
-    const handleInsertVideoClicked = () => {
+    const handleInsertVideoFromComputerClicked = () => {
         if (readContentRef && readContentRef.current)
-            readContentRef.current.handleInsertVideoClicked();
+            readContentRef.current.handleInsertVideoFromComputerClicked();
+    }
+
+    const handleInsertVideoFromYoutubeClicked = () => {
+        const editorField = readContentRef?.current?.getActiveEditorField?.() || 'mainText';
+        openYoutubeModal({ articleId: article.id, editorField });
     }
 
     const getOwnerName = () => {
@@ -347,7 +354,8 @@ export default function ReadContextProvider({ children, article }) {
         toggleBlockType,
         handleInsertImageClicked,
         handleInsertAudioClicked,
-        handleInsertVideoClicked,
+        handleInsertVideoFromComputerClicked,
+        handleInsertVideoFromYoutubeClicked,
         saveContent,
         resetContent,
         clearEditSession,

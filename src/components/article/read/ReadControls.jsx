@@ -16,11 +16,12 @@ import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
 import ArticlePreferencesModal from '../modals/ArticlePreferencesModal.jsx';
 import ExportModal from '../modals/ExportModal.jsx';
+import ContextMenu from '../../common/ContextMenu.jsx';
 import toastr from 'toastr';
 
 const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
 
-    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, clearEditSession, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef, showExplanationEditor, setShowExplanationEditor, showCommentEditor, setShowCommentEditor, hasExplanationContent, hasCommentContent } = useContext(ReadContext);
+    const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, clearEditSession, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoFromComputerClicked, handleInsertVideoFromYoutubeClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef, showExplanationEditor, setShowExplanationEditor, showCommentEditor, setShowCommentEditor, hasExplanationContent, hasCommentContent } = useContext(ReadContext);
     const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings, activeTabId, autoHideControls, setAutoHideControls } = useContext(AppContext);
     
     // Wrapper to capture scroll before toggling fullscreen
@@ -38,6 +39,10 @@ const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
     const [shouldScrollToFirst, setShouldScrollToFirst] = useState(false);
     
     const searchInputRef = useRef(null);
+    const videoButtonRef = useRef(null);
+
+    const [videoMenuOpen, setVideoMenuOpen] = useState(false);
+    const [videoMenuPosition, setVideoMenuPosition] = useState({ top: 0, left: 0 });
 
     useEffect(() => {
         if (controlsPinnedRef) {
@@ -305,7 +310,17 @@ const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
                             <FormatButton onMouseDown={(e) => handleToggleBlockType(e, 'ordered-list-item')} title={t('ordered list')}><NumberedListIcon className='w-6 h-6' /></FormatButton>
                             <FormatButton onClick={handleInsertImageClicked} title={t('add image')}><PhotoIcon className="w-5 h-5" /></FormatButton>
                             <FormatButton onClick={handleInsertAudioClicked} title={t('add audio')}><SpeakerWaveIcon className="w-5 h-5" /></FormatButton>
-                            <FormatButton onClick={handleInsertVideoClicked} title={t('add video')}><FilmIcon className="w-5 h-5" /></FormatButton>
+                            <FormatButton
+                                ref={videoButtonRef}
+                                onClick={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    setVideoMenuPosition({ top: rect.bottom + 4, left: rect.left });
+                                    setVideoMenuOpen(true);
+                                }}
+                                title={t('add video')}
+                            >
+                                <FilmIcon className="w-5 h-5" />
+                            </FormatButton>
                         </div>
                         :
                         (fullScreen &&
@@ -462,6 +477,20 @@ const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
             />
             <ArticlePreferencesModal isOpen={isPreferencesModalOpen} onRequestClose={() => setPreferencesModalOpen(false)} onConfirm={handleSavePreferences} />
             <ExportModal isOpen={isExportModalOpen} onRequestClose={() => setExportModalOpen(false)} article={article} />
+            <ContextMenu
+                isOpen={videoMenuOpen}
+                onClose={() => setVideoMenuOpen(false)}
+                position={videoMenuPosition}
+            >
+                <div className="flex flex-col gap-2 min-w-[180px]">
+                    <ActionButton onClick={() => { setVideoMenuOpen(false); handleInsertVideoFromComputerClicked(); }}>
+                        {t('add from computer')}
+                    </ActionButton>
+                    <ActionButton onClick={() => { setVideoMenuOpen(false); handleInsertVideoFromYoutubeClicked(); }} color="purple">
+                        {t('add from youtube')}
+                    </ActionButton>
+                </div>
+            </ContextMenu>
         </div>
     );
 };

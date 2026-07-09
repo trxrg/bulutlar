@@ -8,6 +8,7 @@ import {
 import FooterDateCalendar from './FooterDateCalendar.jsx';
 import FooterHijriCalendar from './FooterHijriCalendar.jsx';
 import AdminModeFooterBadge from './AdminModeFooterBadge.jsx';
+import FooterYoutubeDownloads from './FooterYoutubeDownloads.jsx';
 
 const FooterDivider = () => <span className="opacity-40">|</span>;
 
@@ -97,6 +98,7 @@ const AppFooter = () => {
                     </>
                 )}
                 <div className="footer-extras flex-1 flex justify-end items-center gap-2 min-w-0">
+                    <FooterYoutubeDownloads />
                     <AdminModeFooterBadge label={t('admin mode')} />
                 </div>
             </div>

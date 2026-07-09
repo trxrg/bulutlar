@@ -38,6 +38,8 @@ contextBridge.exposeInMainWorld('api', {
     openDialogToAddAudios: (id)              => ipcRenderer.invoke('article/openDialogToAddAudios', id),
     addVideo:          (id, video)          => ipcRenderer.invoke('article/addVideo', id, video),
     openDialogToAddVideos: (id)              => ipcRenderer.invoke('article/openDialogToAddVideos', id),
+    addYoutubeEmbed:   (id, payload)        => ipcRenderer.invoke('article/addYoutubeEmbed', id, payload),
+    appendVideoNode:   (articleId, videoId, editorField) => ipcRenderer.invoke('article/appendVideoNode', articleId, videoId, editorField),
     exportArticle: (exportData)              => ipcRenderer.invoke('article/exportArticle', exportData),
     exportMultipleArticles: (exportData)    => ipcRenderer.invoke('article/exportMultipleArticles', exportData),
     addAnnotation:     (id, annotation)     => ipcRenderer.invoke('article/addAnnotation', id, annotation),
@@ -111,6 +113,17 @@ contextBridge.exposeInMainWorld('api', {
     extractMetadata: (id)   => ipcRenderer.invoke('video/extractMetadata', id),
     updateMetadata: (id, metadata) => ipcRenderer.invoke('video/updateMetadata', id, metadata),
     updateMissingDurations: () => ipcRenderer.invoke('video/updateMissingDurations'),
+  },
+  youtube: {
+    checkBinaries: () => ipcRenderer.invoke('youtube/checkBinaries'),
+    getInfo: (url) => ipcRenderer.invoke('youtube/getInfo', url),
+    download: (jobId, articleId, url, formatId, meta) => ipcRenderer.invoke('youtube/download', jobId, articleId, url, formatId, meta),
+    cancelDownload: (jobId) => ipcRenderer.invoke('youtube/cancelDownload', jobId),
+    onDownloadProgress: (callback) => {
+      const handler = (_event, progress) => callback(progress);
+      ipcRenderer.on('youtube-download-progress', handler);
+      return () => ipcRenderer.removeListener('youtube-download-progress', handler);
+    },
   },
   tag: {
     create:     (tag) => ipcRenderer.invoke('tag/create', tag),

@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css';
 import log from 'electron-log/renderer.js';
+import YoutubeDownloadContextProvider from './store/youtube-download-context.jsx';
 import SearchContextProvider from './store/search-context.jsx';
 Object.assign(console, log.functions);
 
@@ -48,9 +49,11 @@ function App() {
         <ErrorBoundary>
           <DBContextProvider>
             <AppContextProvider>
+              <YoutubeDownloadContextProvider>
               <SearchContextProvider>
                 <AppScreen />
               </SearchContextProvider>
+              </YoutubeDownloadContextProvider>
             </AppContextProvider>
           </DBContextProvider>
         </ErrorBoundary>

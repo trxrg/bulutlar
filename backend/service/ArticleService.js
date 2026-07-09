@@ -48,6 +48,8 @@ function initService() {
     ipcMain.handle('article/openDialogToAddAudios', async (event, id) => await openDialogToAddAudios(id));
     ipcMain.handle('article/addVideo', async (event, id, video) => await addVideoToArticle(id, video));
     ipcMain.handle('article/openDialogToAddVideos', async (event, id) => await openDialogToAddVideos(id));
+    ipcMain.handle('article/addYoutubeEmbed', async (event, id, payload) => await addYoutubeEmbed(id, payload));
+    ipcMain.handle('article/appendVideoNode', async (event, articleId, videoId, editorField) => await appendVideoNodeToArticle(articleId, videoId, editorField));
     ipcMain.handle('article/addAnnotation', async (event, id, annotation) => await addAnnotationToArticle(id, annotation));
     ipcMain.handle('article/getAll', async (event, order) => await getAllArticles(order));
     ipcMain.handle('article/getById', async (event, id) => await getArticleById(id));
@@ -576,6 +578,123 @@ async function addVideoToArticle(id, video) {
     } catch (error) {
         await tx.rollback();
         console.error('Error in addVideo', error);
+        throw error;
+    }
+}
+
+function buildVideoNodeAttrs(video) {
+    const dv = video.dataValues || video;
+    const attrs = {
+        id: dv.id,
+        name: dv.name,
+        type: dv.type,
+        path: dv.path,
+        size: dv.size,
+        description: dv.description,
+        sourceType: dv.sourceType || 'local',
+        sourceUrl: dv.sourceUrl || null,
+    };
+    if (dv.duration != null) attrs.duration = dv.duration;
+    if (dv.width != null) attrs.width = dv.width;
+    if (dv.height != null) attrs.height = dv.height;
+    return attrs;
+}
+
+function videoNodeAttrsToHtml(attrs) {
+    const escape = (value) => String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;');
+    const parts = ['data-type="videoNode"'];
+    for (const [key, value] of Object.entries(attrs)) {
+        if (value != null && value !== '') {
+            parts.push(`${key}="${escape(value)}"`);
+        }
+    }
+    return `<div ${parts.join(' ')}></div>`;
+}
+
+function appendNodeToTiptapDoc(doc, node) {
+    const next = JSON.parse(JSON.stringify(doc || { type: 'doc', content: [] }));
+    if (!Array.isArray(next.content)) next.content = [];
+    next.content.push(node);
+    return next;
+}
+
+async function appendVideoNodeToArticle(articleId, videoId, editorField = 'mainText') {
+    const tx = await sequelize.transaction();
+    try {
+        const article = await sequelize.models.article.findByPk(articleId, { transaction: tx });
+        if (!article) throw new Error('no article found with id: ' + articleId);
+
+        const video = await sequelize.models.video.findByPk(videoId, { transaction: tx });
+        if (!video) throw new Error('no video found with id: ' + videoId);
+
+        const node = { type: 'videoNode', attrs: buildVideoNodeAttrs(video) };
+        const htmlSnippet = videoNodeAttrsToHtml(node.attrs);
+
+        if (editorField === 'explanation') {
+            const tiptapJson = appendNodeToTiptapDoc(article.explanationTiptapJson, node);
+            const html = (article.explanation || '') + htmlSnippet;
+            await article.update({
+                explanation: html,
+                explanationTiptapJson: tiptapJson,
+            }, { transaction: tx });
+        } else if (editorField === 'comment') {
+            let comment = (await article.getComments({ limit: 1, transaction: tx }))[0];
+            if (!comment) {
+                comment = await commentService.createComment({ html: htmlSnippet, tiptapJson: appendNodeToTiptapDoc(null, node) }, { transaction: tx });
+                await article.addComment(comment, { transaction: tx });
+            } else {
+                const tiptapJson = appendNodeToTiptapDoc(comment.tiptapTextJson, node);
+                const html = (comment.text || '') + htmlSnippet;
+                await comment.update({ text: html, tiptapTextJson: tiptapJson }, { transaction: tx });
+            }
+        } else {
+            const tiptapJson = appendNodeToTiptapDoc(article.textTiptapJson, node);
+            const html = (article.text || '') + htmlSnippet;
+            await article.update({
+                text: html,
+                textTiptapJson: tiptapJson,
+            }, { transaction: tx });
+        }
+
+        await touchArticleRevision(articleId, { transaction: tx });
+        await tx.commit();
+        return video.dataValues;
+    } catch (error) {
+        await tx.rollback();
+        console.error('Error in appendVideoNodeToArticle', error);
+        throw error;
+    }
+}
+
+async function addYoutubeEmbed(id, { url, videoId, title, thumbnail, duration }) {
+    const tx = await sequelize.transaction();
+    try {
+        const article = await sequelize.models.article.findByPk(id, { transaction: tx });
+        if (!article)
+            throw new Error('no article found with id: ' + id);
+
+        const videoEntity = await videoService.createVideo({
+            name: title || 'YouTube Video',
+            type: 'youtube',
+            path: null,
+            size: null,
+            description: title || 'YouTube Video',
+            duration: duration || null,
+            sourceType: 'youtube',
+            sourceUrl: url,
+            field1: videoId || null,
+        }, tx);
+
+        await article.addVideo(videoEntity, { transaction: tx });
+        await touchArticleRevision(id, { transaction: tx });
+
+        await tx.commit();
+        return videoEntity.dataValues;
+    } catch (error) {
+        await tx.rollback();
+        console.error('Error in addYoutubeEmbed', error);
         throw error;
     }
 }
@@ -1368,6 +1487,9 @@ const ArticleService = {
     updateRelatedArticleOrdering,
     updateRelatedArticleOrderings,
     touchArticleRevision,
+    addVideoToArticle,
+    addYoutubeEmbed,
+    appendVideoNodeToArticle,
     getAllArticles, //  TODO: remove
     updateArticleDate, // TODO: remove
 };

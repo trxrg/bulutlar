@@ -7,10 +7,12 @@ import ContextMenu from '../../../../common/ContextMenu';
 import ActionButton from '../../../../common/ActionButton';
 import ConfirmModal from '../../../../common/ConfirmModal';
 import { MediaMetadataExtractor } from '../../../../../utils/MediaMetadataExtractor';
+import { extractYoutubeVideoId } from '../../../../../utils/extractYoutubeVideoId';
 import toastr from 'toastr';
 
 const TiptapVideo = ({ node, deleteNode, extension }) => {
     const videoEntity = node.attrs;
+    const isYoutubeEmbed = videoEntity.sourceType === 'youtube' && !videoEntity.path;
 
     const [videoData, setVideoData] = useState(null);
     const [videoMetadata, setVideoMetadata] = useState(null);
@@ -24,8 +26,18 @@ const TiptapVideo = ({ node, deleteNode, extension }) => {
     const { editable } = useContext(ReadContext);
     const videoRef = useRef(null);
 
+    const youtubeVideoId = useMemo(() => {
+        if (!isYoutubeEmbed) return null;
+        return extractYoutubeVideoId(videoEntity.sourceUrl) || videoEntity.field1 || null;
+    }, [isYoutubeEmbed, videoEntity.sourceUrl, videoEntity.field1]);
+
+    const youtubeEmbedUrl = useMemo(() => {
+        if (!youtubeVideoId) return null;
+        return `https://www.youtube.com/embed/${youtubeVideoId}`;
+    }, [youtubeVideoId]);
+
     const videoUrl = useMemo(() => {
-        if (!videoData) return null;
+        if (!videoData || isYoutubeEmbed) return null;
         const platform = window.versions?.platform() || 'unknown';
         if (platform === 'win32') {
             const normalizedPath = videoData.replace(/\\/g, '/');
@@ -37,9 +49,10 @@ const TiptapVideo = ({ node, deleteNode, extension }) => {
             return `media-file:///${normalizedPath}`;
         }
         return `media-file://${videoData}`;
-    }, [videoData]);
+    }, [videoData, isYoutubeEmbed]);
 
     const fetchVideoData = async () => {
+        if (isYoutubeEmbed) return;
         try {
             const result = await videoApi.getDataById(videoEntity.id);
             if (typeof result === 'string') {
@@ -70,7 +83,7 @@ const TiptapVideo = ({ node, deleteNode, extension }) => {
         setIsVideoLoaded(false);
         setIsVideoPlaying(false);
         fetchVideoData();
-    }, [videoEntity.id]);
+    }, [videoEntity.id, isYoutubeEmbed]);
 
     useEffect(() => {
         if (videoUrl && videoMetadata && !videoMetadata.duration) {
@@ -110,11 +123,33 @@ const TiptapVideo = ({ node, deleteNode, extension }) => {
         }
     };
 
+    const handleOpenYoutube = () => {
+        if (videoEntity.sourceUrl) {
+            window.open(videoEntity.sourceUrl, '_blank');
+        }
+    };
+
     return (
         <NodeViewWrapper className='relative' data-type="videoNode">
             <div className='select-none cursor-pointer inline-block w-full relative' onContextMenu={handleRightClick}
                 onMouseDown={(e) => { if (e.target === e.currentTarget) e.stopPropagation(); }}>
-                {videoData && videoUrl ? (
+                {isYoutubeEmbed ? (
+                    youtubeEmbedUrl ? (
+                        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                            <iframe
+                                src={youtubeEmbedUrl}
+                                title={videoEntity.name || 'YouTube video'}
+                                className="absolute inset-0 w-full h-full rounded"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowFullScreen
+                                onClick={(e) => e.stopPropagation()}
+                                onMouseDown={(e) => e.stopPropagation()}
+                            />
+                        </div>
+                    ) : (
+                        t('loading') + '...'
+                    )
+                ) : videoData && videoUrl ? (
                     <>
                         <video
                             ref={videoRef}
@@ -150,9 +185,16 @@ const TiptapVideo = ({ node, deleteNode, extension }) => {
             </div>
             <ContextMenu isOpen={contextMenuIsOpen} onClose={() => setContextMenuIsOpen(false)} position={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}>
                 <div className='flex flex-col gap-2'>
-                    <ActionButton onClick={() => videoRef.current?.play()} color='green'>{t('play')}</ActionButton>
-                    <ActionButton onClick={() => videoRef.current?.pause()}>{t('pause')}</ActionButton>
-                    <ActionButton onClick={handleDownload} color='purple'>{t('download')}</ActionButton>
+                    {!isYoutubeEmbed && (
+                        <>
+                            <ActionButton onClick={() => videoRef.current?.play()} color='green'>{t('play')}</ActionButton>
+                            <ActionButton onClick={() => videoRef.current?.pause()}>{t('pause')}</ActionButton>
+                            <ActionButton onClick={handleDownload} color='purple'>{t('download')}</ActionButton>
+                        </>
+                    )}
+                    {isYoutubeEmbed && (
+                        <ActionButton onClick={handleOpenYoutube} color='purple'>{t('open on youtube')}</ActionButton>
+                    )}
                     {editable && (
                         <ActionButton onClick={() => setDeleteConfirmModalIsOpen(true)} color='red'>{t('deleteVideo')}</ActionButton>
                     )}

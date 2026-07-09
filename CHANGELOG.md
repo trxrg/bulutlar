@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Improved naming of exported blt files
 - Removed deprecated electron packages
+- Add video fetch from youtube feature
 
 ## [2.2.1] - 2026-06-13
 

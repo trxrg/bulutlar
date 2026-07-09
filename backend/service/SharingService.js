@@ -573,18 +573,13 @@ async function exportBundle(picks) {
         const out = stripTimestamps(dv);
         out.articleUuid = articleUuidById.get(dv.articleId);
         delete out.articleId;
-        const folder = kind === 'images' ? config.imagesFolderPath
-            : kind === 'audios' ? config.audiosFolderPath
-            : config.videosFolderPath;
-        out.absSrcPath = path.join(folder, dv.path);
-        // `dv.type` historically holds either a bare extension (e.g. "jpg",
-        // when added via filesystem import → `path.extname(...).slice(1)`)
-        // or a MIME type (e.g. "image/jpeg", when added via the renderer's
-        // File API → `file.type`). Using it raw produced zip entries like
-        // `media/images/<uuid>.image/jpeg`, which zip viewers render as a
-        // folder. Prefer the original filename's extension, fall back to
-        // the MIME subtype, then normalize to a slash-free ext.
-        out.ext = pickMediaExt(dv);
+        if (dv.path) {
+            const folder = kind === 'images' ? config.imagesFolderPath
+                : kind === 'audios' ? config.audiosFolderPath
+                : config.videosFolderPath;
+            out.absSrcPath = path.join(folder, dv.path);
+            out.ext = pickMediaExt(dv);
+        }
         return out;
     };
     // Belt-and-suspenders: every media row's articleUuid MUST resolve to
@@ -1067,11 +1062,13 @@ async function exportSingleArticleBundle(picks) {
         const out = stripTimestamps(dv);
         out.articleUuid = articleUuidById.get(dv.articleId);
         delete out.articleId;
-        const folder = kind === 'images' ? config.imagesFolderPath
-            : kind === 'audios' ? config.audiosFolderPath
-            : config.videosFolderPath;
-        out.absSrcPath = path.join(folder, dv.path);
-        out.ext = pickMediaExt(dv);
+        if (dv.path) {
+            const folder = kind === 'images' ? config.imagesFolderPath
+                : kind === 'audios' ? config.audiosFolderPath
+                : config.videosFolderPath;
+            out.absSrcPath = path.join(folder, dv.path);
+            out.ext = pickMediaExt(dv);
+        }
         return out;
     };
     const imageRows = images

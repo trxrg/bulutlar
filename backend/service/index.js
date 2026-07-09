@@ -10,6 +10,7 @@ import commentService from './CommentService.js';
 import imageService from './ImageService.js';
 import audioService from './AudioService.js';
 import videoService from './VideoService.js';
+import youtubeService from './YoutubeService.js';
 import annotationService from './AnnotationService.js';
 import lookupService from './LookupService.js';
 import dbService from './DBService.js';
@@ -30,6 +31,7 @@ const services = [
     imageService,
     audioService,
     videoService,
+    youtubeService,
     annotationService,
     lookupService,
     dbService,

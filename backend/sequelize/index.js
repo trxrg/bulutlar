@@ -123,6 +123,13 @@ const initDB = async () => {
     await addColumnIfMissing(qi, 'articles', 'textTiptapJson', DataTypes.JSON);
     await addColumnIfMissing(qi, 'articles', 'explanationTiptapJson', DataTypes.JSON);
     await addColumnIfMissing(qi, 'comments', 'tiptapTextJson', DataTypes.JSON);
+    await addColumnIfMissing(qi, 'videos', 'sourceType', { type: DataTypes.STRING, allowNull: false, defaultValue: 'local' });
+    await addColumnIfMissing(qi, 'videos', 'sourceUrl', DataTypes.STRING);
+    try {
+        await qi.changeColumn('videos', 'path', { type: DataTypes.STRING, allowNull: true });
+    } catch (err) {
+        console.warn('videos.path nullable migration skipped or already applied:', err.message);
+    }
 
     // Phase 0a sync schema: uuid + revision on every syncable table.
     // Both columns are added unconditionally on existing installs; the unique

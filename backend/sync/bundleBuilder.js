@@ -154,26 +154,15 @@ export async function build(input) {
         ...images.map((i) => ({ kind: 'images', uuid: i.uuid, ext: i.ext, absSrcPath: i.absSrcPath })),
         ...audios.map((a) => ({ kind: 'audios', uuid: a.uuid, ext: a.ext, absSrcPath: a.absSrcPath })),
         ...videos.map((v) => ({ kind: 'videos', uuid: v.uuid, ext: v.ext, absSrcPath: v.absSrcPath })),
-    ];
+    ].filter((m) => m.absSrcPath);
 
-    // Invariant: every image / audio / video upsert op has a matching
-    // mediaFiles entry (and vice versa). Today this is true by
-    // construction — both sides come from the same input arrays — but
-    // an explicit assertion turns the convention into a guarantee that
-    // any future "metadata-only" mode would have to break loudly rather
-    // than silently shipping op-without-file pairs that would interpret
-    // as "this attachment exists but its bytes are missing" on mobile.
+    const mediaOpUuidsWithFiles = new Set(mediaFiles.map((m) => m.uuid));
     const mediaOpUuids = new Set([
         ...opsByEntity.image.map((o) => o.uuid),
         ...opsByEntity.audio.map((o) => o.uuid),
         ...opsByEntity.video.map((o) => o.uuid),
     ]);
-    if (mediaFiles.length !== mediaOpUuids.size) {
-        throw new Error(
-            `bundleBuilder: media op count (${mediaOpUuids.size}) does not match `
-            + `mediaFiles count (${mediaFiles.length})`
-        );
-    }
+
     for (const m of mediaFiles) {
         if (!mediaOpUuids.has(m.uuid)) {
             throw new Error(
@@ -181,14 +170,11 @@ export async function build(input) {
             );
         }
     }
-    {
-        const mediaFileUuids = new Set(mediaFiles.map((m) => m.uuid));
-        for (const u of mediaOpUuids) {
-            if (!mediaFileUuids.has(u)) {
-                throw new Error(
-                    `bundleBuilder: media upsert op for uuid ${u} has no matching mediaFiles entry`
-                );
-            }
+    for (const u of mediaOpUuidsWithFiles) {
+        if (!mediaOpUuids.has(u)) {
+            throw new Error(
+                `bundleBuilder: media file for uuid ${u} has no matching upsert op`
+            );
         }
     }
 

@@ -20,6 +20,8 @@ export function rowToMediaInfo(row) {
         duration: row.duration != null ? row.duration : null,
         width: row.width != null ? row.width : null,
         height: row.height != null ? row.height : null,
+        sourceType: row.sourceType != null ? row.sourceType : null,
+        sourceUrl: row.sourceUrl != null ? row.sourceUrl : null,
     };
 }
 
@@ -87,6 +89,8 @@ export function mediaInfoToTiptapAttrs(info, existingAttrs = {}) {
     if (info.duration != null) result.duration = info.duration;
     if (info.width != null) result.width = info.width;
     if (info.height != null) result.height = info.height;
+    if (info.sourceType != null) result.sourceType = info.sourceType;
+    if (info.sourceUrl != null) result.sourceUrl = info.sourceUrl;
     return result;
 }
 
@@ -147,6 +151,8 @@ function applyMediaInfoToElement(el, info) {
     if (info.duration != null) el.setAttribute('duration', String(info.duration));
     if (info.width != null) el.setAttribute('width', String(info.width));
     if (info.height != null) el.setAttribute('height', String(info.height));
+    if (info.sourceType != null) el.setAttribute('sourceType', info.sourceType);
+    if (info.sourceUrl != null) el.setAttribute('sourceUrl', info.sourceUrl);
 }
 
 function elementAttrsFromDom(el) {

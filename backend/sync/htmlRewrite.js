@@ -15,6 +15,7 @@ import { uuidFromRelPath } from './mediaPath.js';
 
 const HTML_MEDIA_TYPES = ['imageNode', 'audioNode', 'videoNode'];
 const STRIP_ATTRS = ['id', 'path', 'type', 'size', 'duration', 'width', 'height'];
+const KEEP_ATTRS = ['sourceType', 'sourceUrl'];
 
 let jsdomPromise = null;
 function getJSDOM() {
@@ -38,6 +39,10 @@ function rewriteElementAttrs(el, idToUuid) {
     const localId = el.hasAttribute('id') ? el.getAttribute('id') : null;
     const pathAttr = el.getAttribute('path');
     const uuid = lookupUuid(idToUuid, localId) ?? uuidFromRelPath(pathAttr);
+    const preserved = {};
+    for (const attr of KEEP_ATTRS) {
+        if (el.hasAttribute(attr)) preserved[attr] = el.getAttribute(attr);
+    }
 
     for (const attr of STRIP_ATTRS) {
         if (el.hasAttribute(attr)) el.removeAttribute(attr);
@@ -50,11 +55,16 @@ function rewriteElementAttrs(el, idToUuid) {
     if (name == null) el.removeAttribute('name');
     if (description == null) el.removeAttribute('description');
 
+    for (const [attr, value] of Object.entries(preserved)) {
+        el.setAttribute(attr, value);
+    }
+
     return uuid != null
         || localId != null
         || pathAttr != null
         || name != null
-        || description != null;
+        || description != null
+        || Object.keys(preserved).length > 0;
 }
 
 export async function rewriteHtml(html, idToUuid) {

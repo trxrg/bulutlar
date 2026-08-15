@@ -220,6 +220,7 @@
       ],
       "asar": true,
       "compression": "maximum",
+      "x64ArchFiles": "**/node_modules/ffmpeg-static/ffmpeg",
       "extraResources": [
         {
           "from": "resources/bin/mac",

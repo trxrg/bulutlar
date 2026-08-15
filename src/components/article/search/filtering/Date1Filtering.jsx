@@ -3,7 +3,14 @@ import DateFiltering from './DateFiltering';
 import { SearchContext } from '../../../../store/search-context';
 
 const Date1Filtering = () => {
-    const { startDate, endDate, setStartDate, setEndDate } = useContext(SearchContext);
+    const {
+        startDate,
+        endDate,
+        setStartDate,
+        setEndDate,
+        dateFilterMode,
+        setDateFilterMode,
+    } = useContext(SearchContext);
 
     return (
         <DateFiltering
@@ -11,6 +18,8 @@ const Date1Filtering = () => {
             endDate={endDate}
             setStartDate={setStartDate}
             setEndDate={setEndDate}
+            mode={dateFilterMode}
+            setMode={setDateFilterMode}
         />
     );
 };

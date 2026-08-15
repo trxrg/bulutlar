@@ -148,6 +148,9 @@
     "week": "Week",
     "month": "Month",
     "year": "Year",
+    "exact date": "Exact Date",
+    "date interval": "Date Interval",
+    "pick date from calendar": "Pick Date from Calendar",
     "gregorian date": "Gregorian Date",
     "hijri date": "Hijri Date",
     "show hijri date": "Show Hijri date",
@@ -430,6 +433,8 @@
     "read times recalculated": "Read times recalculated",
     "error recalculating read times": "Error recalculating read times",
 
+    "copy as text": "Copy as Text",
+    "copied to clipboard": "Copied to clipboard",
     "export article": "Export Article",
     "export selected articles": "Export Selected Articles",
     "content to include": "Content to Include",

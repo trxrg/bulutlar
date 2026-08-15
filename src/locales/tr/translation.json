@@ -153,6 +153,9 @@
     "months": "Aylar",
     "year": "Yıl",
     "years": "Yıllar",
+    "exact date": "Kesin Tarih",
+    "date interval": "Tarih Aralığı",
+    "pick date from calendar": "Takvimden Tarih Seç",
     "gregorian date": "Miladi Tarih",
     "hijri date": "Hicri Tarih",
     "show hijri date": "Hicri tarihi göster",
@@ -438,6 +441,8 @@
     "play": "Oynat",
     "pause": "Duraklat",
 
+    "copy as text": "Metin Olarak Kopyala",
+    "copied to clipboard": "Panoya kopyalandı",
     "export article": "Yazıyı Dışa Aktar",
     "export selected articles": "Seçili Yazıları Dışa Aktar",
     "content to include": "Dahil Edilecek İçerik",

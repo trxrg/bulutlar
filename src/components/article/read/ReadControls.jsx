@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, SpeakerWaveIcon, FilmIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon, DocumentArrowDownIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, MagnifyingGlassIcon, PencilIcon, PhotoIcon, SpeakerWaveIcon, FilmIcon, ChevronLeftIcon, ChevronRightIcon, ArrowsPointingOutIcon, ArrowsPointingInIcon, ListBulletIcon, NumberedListIcon, ChevronUpIcon, ChevronDownIcon, DocumentArrowDownIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import { ReadContext } from '../../../store/read-context.jsx';
 import { AppContext } from '../../../store/app-context.jsx';
 import { DBContext } from '../../../store/db-context.jsx';
@@ -17,19 +17,20 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/24/solid';
 import ArticlePreferencesModal from '../modals/ArticlePreferencesModal.jsx';
 import ExportModal from '../modals/ExportModal.jsx';
 import ContextMenu from '../../common/ContextMenu.jsx';
+import { htmlToClipboardText } from '../../../utils/textUtils.js';
 import toastr from 'toastr';
 
 const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
 
     const { article, increaseFontSize, decreaseFontSize, toggleBlockType, setEditable, editable, saveContent, resetContent, clearEditSession, handleInsertImageClicked, handleInsertAudioClicked, handleInsertVideoFromComputerClicked, handleInsertVideoFromYoutubeClicked, rightPanelCollapsed, setRightPanelCollapsed, leftPanelCollapsed, setLeftPanelCollapsed, setSearchTerm, setCurrentHighlightIndex, scrollToNextHighlight, scrollToPreviousHighlight, scrollToHighlight, getHighlightInfo, searchTerm, allHighlightRefs, beforeFullScreenToggleRef, showExplanationEditor, setShowExplanationEditor, showCommentEditor, setShowCommentEditor, hasExplanationContent, hasCommentContent } = useContext(ReadContext);
-    const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, editorSettings, activeTabId, autoHideControls, setAutoHideControls } = useContext(AppContext);
+    const { beforeDeleteArticle, afterDeleteArticle, fullScreen, setFullScreen, translate: t, activeTabId, autoHideControls, setAutoHideControls, hijriDateEnabled } = useContext(AppContext);
     
     // Wrapper to capture scroll before toggling fullscreen
     const toggleFullScreen = (newFullScreen) => {
         beforeFullScreenToggleRef.current?.();
         setFullScreen(newFullScreen);
     };
-    const { fetchArticleById } = useContext(DBContext);
+    const { fetchArticleById, getOwnerById, getCategoryById } = useContext(DBContext);
 
     const [isDeleteConfirmModalOpen, setDeleteConfirmModalOpen] = useState(false);
     const [isPreferencesModalOpen, setPreferencesModalOpen] = useState(false);
@@ -221,6 +222,65 @@ const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
         }
     }
 
+    const buildArticleInfoText = () => {
+        const parts = [];
+        const owner = getOwnerById(article.ownerId);
+        const category = getCategoryById(article.categoryId);
+
+        if (owner?.name) parts.push(owner.name);
+        if (category?.name) parts.push(category.name);
+
+        if (!article.isDateUncertain && article.date) {
+            parts.push(new Date(article.date).toLocaleDateString('tr'));
+            parts.push(`(${article.number})`);
+            const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+            parts.push(t(weekdays[new Date(article.date).getDay()]));
+
+            if (hijriDateEnabled && article.date2) {
+                parts.push(new Date(article.date2).toLocaleDateString('tr'));
+                parts.push(`(${article.number2})`);
+            }
+        }
+
+        const rawReadTime = article?.field1;
+        if (rawReadTime != null && String(rawReadTime).trim() !== '') {
+            const readTime = parseInt(String(rawReadTime), 10);
+            if (!isNaN(readTime) && readTime > 0) {
+                parts.push(`${readTime} ${readTime === 1 ? t('min read') : t('mins read')}`);
+            }
+        }
+
+        return parts.join(' | ');
+    };
+
+    const handleCopyArticleAsText = async () => {
+        try {
+            const sections = [];
+            if (article.title) sections.push(article.title);
+
+            const articleInfo = buildArticleInfoText();
+            if (articleInfo) sections.push(articleInfo);
+
+            const explanation = htmlToClipboardText(article.explanation);
+            if (explanation) sections.push(explanation);
+
+            const mainText = htmlToClipboardText(article.text);
+            if (mainText) sections.push(mainText);
+
+            const comment = htmlToClipboardText(article.comments?.[0]?.text);
+            if (comment) {
+                sections.push(t('comment'));
+                sections.push(comment);
+            }
+
+            await navigator.clipboard.writeText(sections.join('\n\n'));
+            toastr.success(t('copied to clipboard'));
+        } catch (error) {
+            console.error(error);
+            toastr.error(t('error occurred'));
+        }
+    };
+
     return (
         <div 
             className='flex flex-col gap-2 shadow-lg p-2 items-center'
@@ -253,6 +313,16 @@ const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
                         title={t('preferences')}>
                         <EllipsisHorizontalIcon className="w-5 h-5" />
                     </FormatButton>
+                    {!editable &&
+                        <FormatButton
+                            onClick={() => setAutoHideControls(!autoHideControls)}
+                            title={autoHideControls ? t('show controls') : t('auto-hide controls')}>
+                            {autoHideControls
+                                ? <PushPinOutlinedIcon style={{ fontSize: '1.25rem' }} />
+                                : <PushPinIcon style={{ fontSize: '1.25rem' }} />
+                            }
+                        </FormatButton>
+                    }
                     {searchBarOpen && (
                         <>
                             <input
@@ -357,16 +427,11 @@ const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
                             <PencilIcon className="w-5 h-5" />
                         </FormatButton>
                     }
-                    {!editable &&
-                        <FormatButton
-                            onClick={() => setAutoHideControls(!autoHideControls)}
-                            title={autoHideControls ? t('show controls') : t('auto-hide controls')}>
-                            {autoHideControls
-                                ? <PushPinOutlinedIcon style={{ fontSize: '1.25rem' }} />
-                                : <PushPinIcon style={{ fontSize: '1.25rem' }} />
-                            }
-                        </FormatButton>
-                    }
+                    <FormatButton
+                        onClick={handleCopyArticleAsText}
+                        title={t('copy as text')}>
+                        <ClipboardDocumentIcon className="w-5 h-5" />
+                    </FormatButton>
                     <FormatButton
                         onClick={() => setExportModalOpen(true)}
                         title={t('export article')}>
@@ -440,20 +505,6 @@ const ReadControls = ({ controlsPinnedRef, showControls, hideControls }) => {
                         )}
                     </div>
                     <div className='flex gap-1 items-center'>
-                        {editorSettings?.autosaveEnabled && (
-                            <div 
-                                className='flex items-center gap-1 px-2 py-1 rounded text-sm'
-                                style={{ 
-                                    backgroundColor: 'var(--bg-primary)', 
-                                    color: 'var(--text-secondary)',
-                                    border: '1px solid var(--border-secondary)'
-                                }}
-                                title={t('autosaveActive')}
-                            >
-                                <ArrowPathIcon className="w-4 h-4 animate-spin" style={{ animationDuration: '3s' }} />
-                                <span>{t('autosave')}</span>
-                            </div>
-                        )}
                         <ActionButton
                             onClick={async () => { await resetContent(); setEditable(false); }}
                             color={'red'}>

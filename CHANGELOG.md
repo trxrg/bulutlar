@@ -6,7 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Copy article as plain text from read controls
+
 ### Changed
+- Improved date filters with exact/interval modes, optional fields, and calendar picking
 - Improved naming of exported blt files
 - Removed deprecated electron packages
 - Add video fetch from youtube feature

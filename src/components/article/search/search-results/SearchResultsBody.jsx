@@ -22,6 +22,20 @@ const parseDateBoundary = (dateObj) => {
     return { ...dateObj, yearPresent, monthPresent, dayPresent };
 };
 
+/** Check enabled date parts for equality */
+const passesExactDate = (art, field, info) => {
+    if (!info) return true;
+    if (art.isDateUncertain || !art[field]) return false;
+
+    const articleDate = new Date(art[field]);
+    if (isNaN(articleDate.getTime())) return false;
+
+    if (info.yearPresent && articleDate.getFullYear() !== Number(info.year)) return false;
+    if (info.monthPresent && articleDate.getMonth() + 1 !== Number(info.month)) return false;
+    if (info.dayPresent && articleDate.getDate() !== Number(info.day)) return false;
+    return true;
+};
+
 /** Check if an article's date passes a start-date filter */
 const passesStartDate = (art, field, info) => {
     if (!info) return true;
@@ -180,12 +194,20 @@ const SearchResultsBody = React.memo(() => {
 
                 // Date filters
                 if (startDateInfo || endDateInfo) {
-                    if (!passesStartDate(art, 'date', startDateInfo)) return false;
-                    if (!passesEndDate(art, 'date', endDateInfo)) return false;
+                    if (filtering.dateFilterMode === 'exact') {
+                        if (!passesExactDate(art, 'date', startDateInfo)) return false;
+                    } else {
+                        if (!passesStartDate(art, 'date', startDateInfo)) return false;
+                        if (!passesEndDate(art, 'date', endDateInfo)) return false;
+                    }
                 }
                 if (hijriDateEnabled && (startDate2Info || endDate2Info)) {
-                    if (!passesStartDate(art, 'date2', startDate2Info)) return false;
-                    if (!passesEndDate(art, 'date2', endDate2Info)) return false;
+                    if (filtering.date2FilterMode === 'exact') {
+                        if (!passesExactDate(art, 'date2', startDate2Info)) return false;
+                    } else {
+                        if (!passesStartDate(art, 'date2', startDate2Info)) return false;
+                        if (!passesEndDate(art, 'date2', endDate2Info)) return false;
+                    }
                 }
 
                 // Number filters

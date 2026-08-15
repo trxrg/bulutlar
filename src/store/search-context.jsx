@@ -31,6 +31,8 @@ export default function SearchContextProvider({ children }) {
     const [endDate, setEndDate] = usePersistentState('endDate', { day: '', month: '', year: '' });
     const [startDate2, setStartDate2] = usePersistentState('startDate2', { day: '', month: '', year: '' });
     const [endDate2, setEndDate2] = usePersistentState('endDate2', { day: '', month: '', year: '' });
+    const [dateFilterMode, setDateFilterMode] = usePersistentState('dateFilterMode', 'interval');
+    const [date2FilterMode, setDate2FilterMode] = usePersistentState('date2FilterMode', 'interval');
     const [filterStarred, setFilterStarred] = usePersistentState('filterStarred', false);
     const [filterShowRead, setFilterShowRead] = usePersistentState('filterShowRead', false);
     const [filterShowUnread, setFilterShowUnread] = usePersistentState('filterShowUnread', false);
@@ -76,6 +78,8 @@ export default function SearchContextProvider({ children }) {
         setEndDate({ day: '', month: '', year: '' });
         setStartDate2({ day: '', month: '', year: '' });
         setEndDate2({ day: '', month: '', year: '' });
+        setDateFilterMode('interval');
+        setDate2FilterMode('interval');
         setFilterStarred(false);
         setFilterShowRead(false);
         setFilterShowUnread(false);
@@ -100,6 +104,8 @@ export default function SearchContextProvider({ children }) {
                 endDate,
                 startDate2,
                 endDate2,
+                dateFilterMode,
+                date2FilterMode,
                 filterStarred,
                 filterShowRead,
                 filterShowUnread,
@@ -129,6 +135,8 @@ export default function SearchContextProvider({ children }) {
             setEndDate(filter.filters.endDate || { day: '', month: '', year: '' });
             setStartDate2(filter.filters.startDate2 || { day: '', month: '', year: '' });
             setEndDate2(filter.filters.endDate2 || { day: '', month: '', year: '' });
+            setDateFilterMode(filter.filters.dateFilterMode || 'interval');
+            setDate2FilterMode(filter.filters.date2FilterMode || 'interval');
             setFilterStarred(filter.filters.filterStarred || false);
             setFilterShowRead(filter.filters.filterShowRead || false);
             setFilterShowUnread(filter.filters.filterShowUnread || false);
@@ -181,6 +189,8 @@ export default function SearchContextProvider({ children }) {
             endDate: endDate,
             startDate2: startDate2,
             endDate2: endDate2,
+            dateFilterMode,
+            date2FilterMode,
             numbers1: selectedNumbers1,
             numbers2: selectedNumbers2,
             filterStarred: filterStarred,
@@ -192,7 +202,7 @@ export default function SearchContextProvider({ children }) {
         });
     }, [selectedOwnerNames, selectedTagNames, selectedCategoryNames,
         selectedGroupNames, selectedNumbers1, selectedNumbers2, keywords, quickSearchTerm, startDate,
-        endDate, startDate2, endDate2, filterStarred, filterShowRead, filterShowUnread,
+        endDate, startDate2, endDate2, dateFilterMode, date2FilterMode, filterStarred, filterShowRead, filterShowUnread,
         filterHasImages, filterHasAudios, filterHasVideos,
         searchInTitle, searchInExplanation, searchInMainText, searchInComments]);
 
@@ -229,6 +239,10 @@ export default function SearchContextProvider({ children }) {
         setStartDate2,
         endDate2,
         setEndDate2,
+        dateFilterMode,
+        setDateFilterMode,
+        date2FilterMode,
+        setDate2FilterMode,
         selectedNumbers1,
         setSelectedNumbers1,
         selectedNumbers2,

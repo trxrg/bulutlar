@@ -30,6 +30,8 @@ const SearchFilterings = () => {
         endDate, setEndDate,
         startDate2, setStartDate2,
         endDate2, setEndDate2,
+        setDateFilterMode,
+        setDate2FilterMode,
         selectedNumbers1, setSelectedNumbers1,
         selectedNumbers2, setSelectedNumbers2,
         filterStarred, setFilterStarred,
@@ -47,10 +49,12 @@ const SearchFilterings = () => {
     const clearDate1 = () => {
         setStartDate({ day: '', month: '', year: '' });
         setEndDate({ day: '', month: '', year: '' });
+        setDateFilterMode('interval');
     }
     const clearDate2 = () => {
         setStartDate2({ day: '', month: '', year: '' });
         setEndDate2({ day: '', month: '', year: '' });
+        setDate2FilterMode('interval');
     }
 
     const handleSaveFilter = (filterName) => {

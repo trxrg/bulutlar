@@ -103,6 +103,42 @@ export const htmlToText = (html) => {
     return doc.body.textContent || "";
 };
 
+const MEDIA_SELECTOR = [
+    '[data-type="imageNode"]',
+    '[data-type="audioNode"]',
+    '[data-type="videoNode"]',
+    'img',
+    'audio',
+    'video',
+    'iframe',
+].join(', ');
+
+/**
+ * Converts HTML to plain text for clipboard copy.
+ * Strips media nodes and preserves paragraph/line breaks.
+ * @param {string} html - The HTML string to convert
+ * @returns {string} Multiline plain text without media
+ */
+export const htmlToClipboardText = (html) => {
+    if (!html) return '';
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll(MEDIA_SELECTOR).forEach((el) => el.remove());
+
+    doc.querySelectorAll('br').forEach((br) => {
+        br.replaceWith(doc.createTextNode('\n'));
+    });
+
+    doc.querySelectorAll('p, div, li, h1, h2, h3, h4, h5, h6, blockquote, pre, tr').forEach((el) => {
+        el.after(doc.createTextNode('\n'));
+    });
+
+    return (doc.body.textContent || '')
+        .replace(/[ \t]+\n/g, '\n')
+        .replace(/\n[ \t]+/g, '\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+};
+
 /**
  * Escapes special regex characters in a string to use it safely in RegExp constructor
  * @param {string} string - The string to escape

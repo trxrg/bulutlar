@@ -33,6 +33,7 @@ export default function AppContextProvider({ children }) {
 
     // Registry for tabs in edit mode with their save callbacks
     const editableTabsRef = useRef({});
+    const [editableTabIds, setEditableTabIds] = useState([]);
     const [saveConfirmModal, setSaveConfirmModal] = useState({ isOpen: false, tabId: null });
 
     const { t } = useTranslation();
@@ -173,11 +174,13 @@ export default function AppContextProvider({ children }) {
     // Register a tab as editable with save/discard callbacks
     const registerEditableTab = useCallback((tabId, { saveCallback, discardCallback }) => {
         editableTabsRef.current[tabId] = { saveCallback, discardCallback };
+        setEditableTabIds((ids) => (ids.includes(tabId) ? ids : [...ids, tabId]));
     }, []);
 
     // Unregister a tab from editable registry
     const unregisterEditableTab = useCallback((tabId) => {
         delete editableTabsRef.current[tabId];
+        setEditableTabIds((ids) => ids.filter((id) => id !== tabId));
     }, []);
 
     // Directly close a tab without confirmation
@@ -389,6 +392,7 @@ export default function AppContextProvider({ children }) {
         // Editable tab confirmation
         registerEditableTab,
         unregisterEditableTab,
+        editableTabIds,
         saveConfirmModal,
         handleSaveAndClose,
         handleDiscardAndClose,

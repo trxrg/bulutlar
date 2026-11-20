@@ -198,6 +198,22 @@ export const adminApi = {
     lock: async () => window.api.admin.lock(),
 };
 
+export const aiApi = {
+    getOverview:        async () => window.api.ai.getOverview(),
+    downloadModel:      async (catalogId) => window.api.ai.downloadModel(catalogId),
+    cancelDownload:     async (catalogId) => window.api.ai.cancelDownload(catalogId),
+    importModel:        async () => window.api.ai.importModel(),
+    deleteModel:        async (id) => window.api.ai.deleteModel(id),
+    selectModel:        async (id) => window.api.ai.selectModel(id),
+    unloadModel:        async () => window.api.ai.unloadModel(),
+    sendChat:           async (payload) => window.api.ai.sendChat(payload),
+    cancelChat:         async (requestId) => window.api.ai.cancelChat(requestId),
+    resetChat:          async (conversationId) => window.api.ai.resetChat(conversationId),
+    onChatEvent:        (callback) => window.api.ai.onChatEvent(callback),
+    onDownloadProgress: (callback) => window.api.ai.onDownloadProgress(callback),
+    onStatus:           (callback) => window.api.ai.onStatus(callback),
+};
+
 export const urlApi = {
     fetchContent: async (url) => window.api.url.fetchContent(url),
     fetchTweet: async (tweetUrl) => window.api.url.fetchTweet(tweetUrl),

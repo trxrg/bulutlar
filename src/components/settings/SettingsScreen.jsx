@@ -10,6 +10,7 @@ import EditorSettings from './EditorSettings';
 import DatabaseSettings from './DatabaseSettings';
 import UpdateSettings from './UpdateSettings';
 import SharingSettings from './SharingSettings';
+import AISettings from './AISettings';
 
 const SettingsScreenContent = () => {
     const { translate: t } = useContext(AppContext);
@@ -79,6 +80,18 @@ const SettingsScreenContent = () => {
                     </AccordionSummary>
                     <AccordionDetails sx={accordionDetailsSx}>
                         <DatabaseSettings />
+                    </AccordionDetails>
+                </Accordion>
+
+                <Accordion sx={accordionSx}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon sx={{ color: 'var(--text-primary)' }} />}
+                        sx={accordionSummarySx}
+                    >
+                        <Typography variant='h5' sx={{ color: 'var(--text-primary)' }}>{t('ai assistant')}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails sx={accordionDetailsSx}>
+                        <AISettings />
                     </AccordionDetails>
                 </Accordion>
 

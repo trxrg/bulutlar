@@ -17,6 +17,7 @@ import dbService from './DBService.js';
 import urlFetchService from './UrlFetchService.js';
 import sharingService from './SharingService.js';
 import maintenanceService from './MaintenanceService.js';
+import aiService from './AIService.js';
 
 const services = [
     storeService,
@@ -38,6 +39,7 @@ const services = [
     urlFetchService,
     sharingService,
     maintenanceService,
+    aiService,
 ];
 
 function initServices() {

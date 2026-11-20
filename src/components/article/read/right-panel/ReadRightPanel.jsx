@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import TagsPanel from './TagsPanel';
 import GroupsPanel from './GroupsPanel';
 import RelatedArticlesPanel from './RelatedArticlesPanel';
+import AIChatPanel from './AIChatPanel';
 
 const ReadRightPanel = () => {
     const [isTagsPanelCollapsed, setIsTagsPanelCollapsed] = useState(true);
     const [isGroupsPanelCollapsed, setIsGroupsPanelCollapsed] = useState(true);
+    const [isAIChatPanelCollapsed, setIsAIChatPanelCollapsed] = useState(true);
 
     return (
         <div className='flex flex-col h-full min-w-full'>
@@ -24,9 +26,17 @@ const ReadRightPanel = () => {
             
             {/* Groups Panel - Collapsible */}
             <div className={`${isGroupsPanelCollapsed ? 'flex-none' : 'flex-1'} min-w-full transition-all duration-300`} style={{ borderTop: '4px solid var(--border-primary)' }}>
-                <GroupsPanel 
+                <GroupsPanel
                     isCollapsed={isGroupsPanelCollapsed}
                     onToggleCollapse={() => setIsGroupsPanelCollapsed(!isGroupsPanelCollapsed)}
+                />
+            </div>
+
+            {/* AI Chat Panel - Collapsible, takes extra room when open */}
+            <div className={`${isAIChatPanelCollapsed ? 'flex-none' : 'flex-[2]'} min-w-full min-h-0 transition-all duration-300`} style={{ borderTop: '4px solid var(--border-primary)' }}>
+                <AIChatPanel
+                    isCollapsed={isAIChatPanelCollapsed}
+                    onToggleCollapse={() => setIsAIChatPanelCollapsed(!isAIChatPanelCollapsed)}
                 />
             </div>
         </div>

@@ -125,6 +125,33 @@ contextBridge.exposeInMainWorld('api', {
       return () => ipcRenderer.removeListener('youtube-download-progress', handler);
     },
   },
+  ai: {
+    getOverview:    () => ipcRenderer.invoke('ai/overview'),
+    downloadModel:  (catalogId) => ipcRenderer.invoke('ai/models/download', catalogId),
+    cancelDownload: (catalogId) => ipcRenderer.invoke('ai/models/cancelDownload', catalogId),
+    importModel:    () => ipcRenderer.invoke('ai/models/import'),
+    deleteModel:    (id) => ipcRenderer.invoke('ai/models/delete', id),
+    selectModel:    (id) => ipcRenderer.invoke('ai/models/select', id),
+    unloadModel:    () => ipcRenderer.invoke('ai/models/unload'),
+    sendChat:       (payload) => ipcRenderer.invoke('ai/chat/send', payload),
+    cancelChat:     (requestId) => ipcRenderer.invoke('ai/chat/cancel', requestId),
+    resetChat:      (conversationId) => ipcRenderer.invoke('ai/chat/reset', conversationId),
+    onChatEvent: (callback) => {
+      const handler = (_event, payload) => callback(payload);
+      ipcRenderer.on('ai-chat-event', handler);
+      return () => ipcRenderer.removeListener('ai-chat-event', handler);
+    },
+    onDownloadProgress: (callback) => {
+      const handler = (_event, payload) => callback(payload);
+      ipcRenderer.on('ai-download-progress', handler);
+      return () => ipcRenderer.removeListener('ai-download-progress', handler);
+    },
+    onStatus: (callback) => {
+      const handler = (_event, payload) => callback(payload);
+      ipcRenderer.on('ai-status', handler);
+      return () => ipcRenderer.removeListener('ai-status', handler);
+    },
+  },
   tag: {
     create:     (tag) => ipcRenderer.invoke('tag/create', tag),
     getAll:     () => ipcRenderer.invoke('tag/getAll'),

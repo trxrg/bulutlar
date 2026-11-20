@@ -81,7 +81,8 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
     const lineGap = layout.pdfLineGap;
     
     const doc = new PDFDocument({ 
-        margin: 50,
+        size: layout.pdfkitPageSize,
+        margin: layout.pageMarginPt,
         bufferPages: true,
         info: {
             Title: article.title || 'Article Export',
@@ -98,13 +99,13 @@ export async function generatePDF(exportData, filePath, imagesFolderPath) {
     initializePDFFont(doc);
 
     // Title
-    doc.fontSize(20).text(ensureUTF8(article.title || 'Untitled Article'), { align: 'center' });
+    doc.fontSize(layout.titleFontSizePt).text(ensureUTF8(article.title || 'Untitled Article'), { align: 'center' });
     doc.moveDown();
 
     // Article info
     const articleInfoParts = buildArticleInfoParts(article, category, owner, translations);
     if (articleInfoParts.length > 0) {
-        doc.fontSize(12).text(ensureUTF8(articleInfoParts.join(' | ')), { align: 'left', lineGap });
+        doc.fontSize(layout.subtitleFontSizePt).text(ensureUTF8(articleInfoParts.join(' | ')), { align: 'left', lineGap });
         doc.moveDown();
     }
 
@@ -238,7 +239,7 @@ function renderMergedPdfHeader(doc, options, documentTitle, translations, locale
     }
 
     if (showTitle) {
-        doc.fontSize(24).text(ensureUTF8(resolvedTitle), { align: 'center' });
+        doc.fontSize(layout.documentTitleFontSizePt).text(ensureUTF8(resolvedTitle), { align: 'center' });
         doc.moveDown(showDate ? 0.5 : 2);
     }
 
@@ -264,7 +265,7 @@ export async function generateMergedPDF(exportData, filePath, imagesFolderPath, 
     const textAlign = layout.textAlignCss === 'left' ? 'left' : 'justify';
     const lineGap = layout.pdfLineGap;
     
-    const doc = new PDFDocument({ margin: 50, bufferPages: true });
+    const doc = new PDFDocument({ size: layout.pdfkitPageSize, margin: layout.pageMarginPt, bufferPages: true });
     const writeStream = fsSync.createWriteStream(filePath);
     doc.pipe(writeStream);
     
@@ -296,7 +297,7 @@ export async function generateMergedPDF(exportData, filePath, imagesFolderPath, 
         }
 
         // Article title
-        doc.fontSize(18).text(ensureUTF8(article.title || 'Untitled Article'), { align: 'left' });
+        doc.fontSize(layout.titleFontSizePt).text(ensureUTF8(article.title || 'Untitled Article'), { align: 'left' });
         doc.moveDown(0.5);
         
         // Resolve IDs to full objects for this article using ArticleService with optimized options

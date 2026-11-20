@@ -10,11 +10,16 @@ import { articleApi } from '../../../backend-adapter/BackendAdapter.js';
 import {
     EXPORT_FONT_FAMILY_OPTIONS,
     EXPORT_PAGE_MARGIN_OPTIONS,
+    EXPORT_PAGE_SIZE_OPTIONS,
+    EXPORT_CUSTOM_MARGIN_MIN_CM,
+    EXPORT_CUSTOM_MARGIN_MAX_CM,
     EXPORT_TEXT_ALIGNMENT_OPTIONS,
     EXPORT_LINE_SPACING_OPTIONS,
     editorTailwindToPt,
     EXPORT_FONT_SIZE_MIN_PT,
     EXPORT_FONT_SIZE_MAX_PT,
+    EXPORT_TITLE_FONT_SIZE,
+    EXPORT_SUBTITLE_FONT_SIZE,
 } from '../../../utils/exportFontOptions.js';
 import { showExportSuccessToastr } from '../../../utils/exportToastr.js';
 
@@ -39,6 +44,30 @@ const OptionCard = ({ title, children }) => (
         </h3>
         {children}
     </div>
+);
+
+// Numeric point-size input that clamps to [min, max] when it loses focus.
+const PtSizeInput = ({ label, value, min, max, fallback, onChange, inputStyle }) => (
+    <label className='flex flex-col gap-1 mt-3'>
+        <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{label}</span>
+        <div className='flex items-center gap-2'>
+            <input
+                type='number'
+                min={min}
+                max={max}
+                step={1}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                onBlur={() => {
+                    const parsed = parseInt(value, 10);
+                    onChange(Number.isFinite(parsed) ? Math.min(max, Math.max(min, parsed)) : fallback);
+                }}
+                className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                style={inputStyle}
+            />
+            <span className='text-sm shrink-0' style={{ color: 'var(--text-secondary)' }}>pt</span>
+        </div>
+    </label>
 );
 
 const selectStyle = {
@@ -86,12 +115,17 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         format: 'pdf',
         fontFamily: editorSettings?.fontFamily || 'system-ui',
         fontSize: editorTailwindToPt(editorSettings?.fontSize),
+        titleFontSize: EXPORT_TITLE_FONT_SIZE.default,
+        subtitleFontSize: EXPORT_SUBTITLE_FONT_SIZE.default,
         pageMargin: 'normal',
+        pageMarginCustomCm: 1.5,
+        pageSize: 'A4',
         textAlignment: 'justify',
         lineSpacing: editorSettings?.lineHeight || 'loose',
         includeDocumentTitle: true,
         documentTitleSeparatePage: false,
         includeGenerationDate: false,
+        tableOfContents: true,
     });
 
     const [documentTitle, setDocumentTitle] = useState('');
@@ -128,6 +162,7 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
         tags: t('tags'),
         relatedArticles: t('related articles'),
         collections: t('collections'),
+        contents: t('contents'),
         minRead: t('min read'),
         minsRead: t('mins read'),
         sunday: t('sunday'),
@@ -407,6 +442,13 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                                     checked={exportOptions.includeGenerationDate}
                                     onChange={() => handleOptionChange('includeGenerationDate')}
                                 />
+                                {exportOptions.format === 'pdf' && (
+                                    <OptionCheckbox
+                                        label={t('include table of contents')}
+                                        checked={exportOptions.tableOfContents}
+                                        onChange={() => handleOptionChange('tableOfContents')}
+                                    />
+                                )}
                             </OptionCard>
                         )}
 
@@ -447,30 +489,35 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                                     </Select>
                                 </FormControl>
 
-                                <label className='flex flex-col gap-1 mt-3'>
-                                    <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{t('font size')}</span>
-                                    <div className='flex items-center gap-2'>
-                                        <input
-                                            type='number'
-                                            min={EXPORT_FONT_SIZE_MIN_PT}
-                                            max={EXPORT_FONT_SIZE_MAX_PT}
-                                            step={1}
-                                            value={exportOptions.fontSize}
-                                            onChange={(e) => {
-                                                const next = parseInt(e.target.value, 10);
-                                                if (Number.isFinite(next)) {
-                                                    handleLayoutChange('fontSize', next);
-                                                }
-                                            }}
-                                            onBlur={() => {
-                                                handleLayoutChange('fontSize', editorTailwindToPt(exportOptions.fontSize));
-                                            }}
-                                            className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-                                            style={selectStyle}
-                                        />
-                                        <span className='text-sm shrink-0' style={{ color: 'var(--text-secondary)' }}>pt</span>
-                                    </div>
-                                </label>
+                                <PtSizeInput
+                                    label={t('text font size')}
+                                    value={exportOptions.fontSize}
+                                    min={EXPORT_FONT_SIZE_MIN_PT}
+                                    max={EXPORT_FONT_SIZE_MAX_PT}
+                                    fallback={editorTailwindToPt(editorSettings?.fontSize)}
+                                    onChange={(v) => handleLayoutChange('fontSize', v)}
+                                    inputStyle={selectStyle}
+                                />
+
+                                <PtSizeInput
+                                    label={t('title font size')}
+                                    value={exportOptions.titleFontSize}
+                                    min={EXPORT_TITLE_FONT_SIZE.min}
+                                    max={EXPORT_TITLE_FONT_SIZE.max}
+                                    fallback={EXPORT_TITLE_FONT_SIZE.default}
+                                    onChange={(v) => handleLayoutChange('titleFontSize', v)}
+                                    inputStyle={selectStyle}
+                                />
+
+                                <PtSizeInput
+                                    label={t('subtitle font size')}
+                                    value={exportOptions.subtitleFontSize}
+                                    min={EXPORT_SUBTITLE_FONT_SIZE.min}
+                                    max={EXPORT_SUBTITLE_FONT_SIZE.max}
+                                    fallback={EXPORT_SUBTITLE_FONT_SIZE.default}
+                                    onChange={(v) => handleLayoutChange('subtitleFontSize', v)}
+                                    inputStyle={selectStyle}
+                                />
 
                                 <label className='flex flex-col gap-1 mt-3'>
                                     <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{t('line spacing')}</span>
@@ -519,6 +566,49 @@ const ExportModal = ({ isOpen, onRequestClose, article, articleIds, isMultiArtic
                                         ))}
                                     </select>
                                 </label>
+
+                                {exportOptions.pageMargin === 'custom' && (
+                                    <label className='flex flex-col gap-1 mt-3'>
+                                        <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>
+                                            {t('page margin')} (cm, {EXPORT_CUSTOM_MARGIN_MIN_CM}–{EXPORT_CUSTOM_MARGIN_MAX_CM})
+                                        </span>
+                                        <input
+                                            type='number'
+                                            min={EXPORT_CUSTOM_MARGIN_MIN_CM}
+                                            max={EXPORT_CUSTOM_MARGIN_MAX_CM}
+                                            step={0.1}
+                                            value={exportOptions.pageMarginCustomCm}
+                                            onChange={(e) => handleLayoutChange('pageMarginCustomCm', e.target.value)}
+                                            onBlur={(e) => {
+                                                const value = parseFloat(e.target.value);
+                                                const clamped = Number.isFinite(value)
+                                                    ? Math.min(EXPORT_CUSTOM_MARGIN_MAX_CM, Math.max(EXPORT_CUSTOM_MARGIN_MIN_CM, value))
+                                                    : 1.5;
+                                                handleLayoutChange('pageMarginCustomCm', clamped);
+                                            }}
+                                            className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                            style={selectStyle}
+                                        />
+                                    </label>
+                                )}
+
+                                {exportOptions.format === 'pdf' && (
+                                    <label className='flex flex-col gap-1 mt-3'>
+                                        <span className='text-sm' style={{ color: 'var(--text-secondary)' }}>{t('page size')}</span>
+                                        <select
+                                            value={exportOptions.pageSize}
+                                            onChange={(e) => handleLayoutChange('pageSize', e.target.value)}
+                                            className='w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                            style={selectStyle}
+                                        >
+                                            {EXPORT_PAGE_SIZE_OPTIONS.map((option) => (
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                )}
                             </OptionCard>
                         )}
 

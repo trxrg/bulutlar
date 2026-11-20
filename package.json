@@ -1,6 +1,6 @@
 {
   "name": "bulutlar",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "description": "",
   "main": "public/electron.js",
   "homepage": "./",
@@ -111,6 +111,7 @@
     "jszip": "^3.10.1",
     "lodash.debounce": "^4.0.8",
     "path-browserify": "^1.0.1",
+    "pdf-lib": "^1.17.1",
     "pdfkit": "^0.17.2",
     "react": "^19.2.0",
     "react-datepicker": "^7.5.0",

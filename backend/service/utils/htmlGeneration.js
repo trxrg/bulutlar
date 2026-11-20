@@ -80,8 +80,98 @@ function buildMergedDocumentHeaderHTML(options, documentTitle, translations, loc
     return `<header class="document-header">${titleHtml}${dateHtml}</header>`;
 }
 
+export const TOC_ARTICLE_ANCHOR_PREFIX = 'article-';
+
+const TOC_PAGE_NUMBER_PATTERN = /<span class="toc-page-number" data-toc-index="(\d+)">[^<]*<\/span>/g;
+
+/**
+ * Fill the page-number slots of a contents section built by buildMergedHTMLString.
+ * pageNumbers[i] is the 1-based page where article i starts.
+ */
+export function fillTableOfContentsPageNumbers(html, pageNumbers = []) {
+    return html.replace(TOC_PAGE_NUMBER_PATTERN, (_match, index) => {
+        const pageNumber = pageNumbers[Number(index)];
+        const text = Number.isFinite(pageNumber) ? String(pageNumber) : '';
+        return `<span class="toc-page-number" data-toc-index="${index}">${text}</span>`;
+    });
+}
+
+function buildTableOfContentsHTML(articles, translations) {
+    const title = translations?.contents || 'Contents';
+    const entries = articles.map((article, i) => `
+                <li class="toc-entry">
+                    <a class="toc-link" href="#${TOC_ARTICLE_ANCHOR_PREFIX}${i}">
+                        <span class="toc-text">${escapeHtml(article.title || 'Untitled Article')}</span>
+                        <span class="toc-leader"></span>
+                        <span class="toc-page-number" data-toc-index="${i}"></span>
+                    </a>
+                </li>`).join('');
+
+    return `
+        <section class="toc-page">
+            <h2 class="toc-title">${escapeHtml(title)}</h2>
+            <ol class="toc-list">${entries}
+            </ol>
+        </section>`;
+}
+
+function getTableOfContentsCSS(layout) {
+    return `
+        .toc-page {
+            break-before: page;
+            page-break-before: always;
+        }
+        .toc-title {
+            font-size: ${layout.titleFontSizePt}pt;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e5e5;
+        }
+        .toc-list {
+            list-style: none;
+        }
+        .toc-entry {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            margin-bottom: 0.4rem;
+        }
+        .toc-link {
+            display: flex;
+            align-items: last baseline;
+            gap: 0.4rem;
+            color: inherit;
+            text-decoration: none;
+        }
+        .toc-text {
+            flex: 0 1 auto;
+        }
+        .toc-leader {
+            flex: 1 1 auto;
+            min-width: 1.5rem;
+            border-bottom: 1px dotted #999;
+            transform: translateY(-0.25em);
+        }
+        .toc-page-number {
+            flex: 0 0 auto;
+            font-variant-numeric: tabular-nums;
+        }
+    `;
+}
+
 // Generate merged HTML document from multiple articles
 export async function generateMergedHTMLDocument(exportData, filePath, imagesFolderPath, articleService) {
+    const htmlContent = await buildMergedHTMLString(exportData, imagesFolderPath, articleService);
+    await fs.writeFile(filePath, htmlContent, 'utf8');
+}
+
+/**
+ * Build the merged HTML document. With includeTableOfContents, article titles get
+ * anchor ids and a contents section (with empty page-number slots, see
+ * fillTableOfContentsPageNumbers) is appended after the last article.
+ */
+export async function buildMergedHTMLString(exportData, imagesFolderPath, articleService, { includeTableOfContents = false } = {}) {
     const { articles, options, documentTitle, translations, locale } = exportData;
     const layout = resolveExportLayout(options);
     const bundledFontFaceCss = buildBundledFontFaceCss(options.fontFamily);
@@ -106,6 +196,7 @@ export async function generateMergedHTMLDocument(exportData, filePath, imagesFol
         .article-separator:last-child {
             border-bottom: none;
         }
+        ${includeTableOfContents ? getTableOfContentsCSS(layout) : ''}
     </style>
 </head>
 <body>
@@ -132,7 +223,7 @@ export async function generateMergedHTMLDocument(exportData, filePath, imagesFol
         htmlContent += `
             <article class="article-separator">
                 <header class="article-header">
-                    <h2 class="article-title">${escapeHtml(article.title || 'Untitled Article')}</h2>
+                    <h2 class="article-title"${includeTableOfContents ? ` id="${TOC_ARTICLE_ANCHOR_PREFIX}${i}"` : ''}>${escapeHtml(article.title || 'Untitled Article')}</h2>
                     ${buildArticleInfoHTML(article, category, owner, translations)}
                 </header>
                 
@@ -148,11 +239,12 @@ export async function generateMergedHTMLDocument(exportData, filePath, imagesFol
 
     htmlContent += `
         </main>
+        ${includeTableOfContents ? buildTableOfContentsHTML(articles, translations) : ''}
     </div>
 </body>
 </html>`;
 
-    await fs.writeFile(filePath, htmlContent, 'utf8');
+    return htmlContent;
 }
 
 // Build article info HTML section
@@ -289,6 +381,10 @@ function getEmbeddedCSS(layout = {}) {
     const fontFamily = layout.fontFamilyCss || "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
     const bodyFontSize = layout.fontSizeCss || '11pt';
     const pageMargin = layout.pageMarginCm || '1.5cm';
+    const pageSize = layout.pageSizeCss || 'A4';
+    const titleFontSize = `${layout.titleFontSizePt || 24}pt`;
+    const subtitleFontSize = `${layout.subtitleFontSizePt || 11}pt`;
+    const documentTitleFontSize = `${layout.documentTitleFontSizePt || 30}pt`;
     const textAlign = layout.textAlignCss || 'justify';
     const lineHeight = layout.lineHeightCss || 1.625;
 
@@ -330,7 +426,6 @@ function getEmbeddedCSS(layout = {}) {
         }
         
         .document-title, .article-title {
-            font-size: 2.5rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
             color: #2c3e50;
@@ -356,13 +451,17 @@ function getEmbeddedCSS(layout = {}) {
         .title-page .document-title {
             margin-bottom: 1rem;
         }
+
+        .document-title {
+            font-size: ${documentTitleFontSize};
+        }
         
         .article-title {
-            font-size: 2rem;
+            font-size: ${titleFontSize};
         }
         
         .article-info {
-            font-size: 0.9rem;
+            font-size: ${subtitleFontSize};
             color: #666;
         }
         
@@ -511,7 +610,9 @@ function getEmbeddedCSS(layout = {}) {
             }
 
             .title-page {
-                min-height: 100vh;
+                /* Leave room for the container's top padding so the page does not spill over. */
+                min-height: calc(100vh - 2rem);
+                margin-bottom: 0;
                 page-break-after: always;
                 break-after: page;
             }
@@ -563,7 +664,7 @@ function getEmbeddedCSS(layout = {}) {
         /* Print page setup */
         @page {
             margin: ${pageMargin};
-            size: A4;
+            size: ${pageSize};
         }
         
         body {
@@ -571,8 +672,8 @@ function getEmbeddedCSS(layout = {}) {
             padding: 0;
         }
         
-        /* Responsive design */
-        @media (max-width: 768px) {
+        /* Responsive design (screen only: small print pages such as A5 would match too) */
+        @media screen and (max-width: 768px) {
             .container {
                 padding: 1rem;
             }

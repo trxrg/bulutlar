@@ -153,7 +153,7 @@ export async function generateWordDocument(exportData, filePath, imagesFolderPat
     const articleInfoParts = buildArticleInfoParts(article, category, owner, translations);
     if (articleInfoParts.length > 0) {
         children.push(new Paragraph({
-            children: [new TextRun({ text: s(articleInfoParts.join(' | ')), font: layout.docxFont, size: layout.docxBodySize })],
+            children: [new TextRun({ text: s(articleInfoParts.join(' | ')), font: layout.docxFont, size: layout.docxSubtitleSize, color: '666666' })],
         }));
         children.push(new Paragraph({ text: '' })); // Empty line
     }
@@ -307,7 +307,7 @@ function buildMergedWordHeaderChildren(options, documentTitle, translations, loc
             children: [new TextRun({
                 text: s(resolvedTitle),
                 bold: true,
-                size: layout.docxTitleSize + 4,
+                size: layout.docxDocumentTitleSize,
                 font: layout.docxFont,
             })],
             heading: HeadingLevel.TITLE,
@@ -364,7 +364,7 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
 
         // Article title
         children.push(new Paragraph({
-            children: [new TextRun({ text: s(article.title) || 'Untitled Article', bold: true, size: layout.docxTitleSize - 4, font: layout.docxFont })],
+            children: [new TextRun({ text: s(article.title) || 'Untitled Article', bold: true, size: layout.docxTitleSize, font: layout.docxFont })],
             heading: HeadingLevel.HEADING_1,
             spacing: { before: 200, after: 300 }
         }));
@@ -379,6 +379,15 @@ export async function generateMergedWordDocument(exportData, filePath, imagesFol
             includeOwner: true
         };
         const { annotations, tags, collections, relatedArticles, category, owner } = await articleService.resolveArticleEntities(article, entityOptions);
+
+        // Article info (subtitle), as in the single-article and PDF/HTML exports
+        const articleInfoParts = buildArticleInfoParts(article, category, owner, translations);
+        if (articleInfoParts.length > 0) {
+            children.push(new Paragraph({
+                children: [new TextRun({ text: s(articleInfoParts.join(' | ')), font: layout.docxFont, size: layout.docxSubtitleSize, color: '666666' })],
+                spacing: { after: 200 },
+            }));
+        }
 
         // Explanation
         if (options.explanation && article.explanation && !isHtmlStringEmpty(article.explanation)) {

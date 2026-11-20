@@ -8,12 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Copy article as plain text from read controls
+- PDF export of selected articles: contents page at the end with page numbers, links to each article, and a footer link on every page back to that article's line in the contents
+- Export settings for page size (PDF), custom page margin, and title/subtitle font sizes
 
 ### Changed
 - Improved date filters with exact/interval modes, optional fields, and calendar picking
 - Improved naming of exported blt files
 - Removed deprecated electron packages
 - Add video fetch from youtube feature
+- Smaller PDF exports: images are downscaled to print resolution, and the system font is replaced by bundled Noto Sans
+- Merged Word export now includes the article info line under each title
+- Fixed a blank page after the separate title page in PDF exports
 
 ## [2.2.1] - 2026-06-13
 
